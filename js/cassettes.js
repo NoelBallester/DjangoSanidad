@@ -208,82 +208,82 @@ const files = document.getElementById("files");
 
 // Carga Cassettes al inicio
 const cargarCassettesIndex = async () => {
-  return await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  return await fetch("/api/cassettes/index/", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarCassettesIndex",
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Crear Cassettes
-const crearCassette = (event) => {
-  event.preventDefault(); // evita que se envie el formulario y por tanto que se recargue la página
+const crearCassette = async (event) => {
+  event.preventDefault();
 
-  fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  try {
+    // Get or use default technician
+    const tecnicoId = sessionStorage.getItem("user") || 1;
 
-    body: JSON.stringify({
-      accion: "crearCassette",
-      cassette: inputCassette.value,
-      fecha: inputFecha.value,
-      descripcion: inputDescripcion.value,
-      caracteristicas: inputCaracteristicas.value,
-      observaciones: inputObservaciones.value,
-      microscopia: inputMicroscopia.value,
-      diagnostico: inputDiagnostico.value,
-      patologo: inputPatologo.value,
-      tecnicoIdTecnico: sessionStorage.getItem("user"),
-      organo: inputSelect.value,
-    }),
-  }).then((response) => response.json());
-  location.href = "cassettes.html";
+    const response = await fetch("/api/cassettes/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        cassette: inputCassette.value,
+        fecha: inputFecha.value,
+        descripcion: inputDescripcion.value,
+        caracteristicas: inputCaracteristicas.value,
+        observaciones: inputObservaciones.value,
+        descripcion_microscopica: inputMicroscopia.value,
+        diagnostico_final: inputDiagnostico.value,
+        patologo_responsable: inputPatologo.value,
+        tecnico: tecnicoId,
+        organo: inputSelect.value,
+      }),
+    });
+
+    if (response.ok) {
+      location.href = "cassettes.html";
+    } else {
+      const error = await response.json();
+      console.error("Error al crear cassette:", error);
+      alert("Error al crear el cassette: " + JSON.stringify(error));
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error al crear el cassette");
+  }
 };
 
 // Carga todos lo cassettes desde el botón
 const cargarTodosCassettes = async () => {
-  return await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  return await fetch("/api/cassettes/todos/", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarTodosCassettes",
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Carga el detalle del cassette seleccionado
 const cargarCassette = async (cassetteId) => {
-  return await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  return await fetch(`/api/cassettes/${cassetteId}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarCassetteId",
-      cassetteId: cassetteId,
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Obtener cassettes por organo
 const cargarPorOrgano = async () => {
-  return await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  return await fetch(`/api/cassettes/por_organo/${organos.value}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cassettesOrgano",
-      organo: organos.value,
-    }),
+    }
   })
     .then((data) => data.json())
     .catch((error) => console.log("No se esta ejecutando" + error));
@@ -291,48 +291,34 @@ const cargarPorOrgano = async () => {
 
 // Obtener cassettes por número de cassette
 const cargarPorNumero = async () => {
-  return await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  return await fetch(`/api/cassettes/por_numero/${numCassette.value}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cassettesNumero",
-      num_cassette: numCassette.value,
-    }),
+    }
   })
     .then((data) => data.json())
     .catch((error) => console.log("No se esta ejecutando" + error));
 };
 
 // Obtener cassettes por fecha
-const obtenerCassettesFecha = async (fechainicio) => {
-  const response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+const obtenerCassettesFecha = async (fecha) => {
+  const response = await fetch(`/api/cassettes/por_fecha/${fecha}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cassettesFecha",
-      fecha: fechainicio,
-    }),
+    }
   });
   return await response.json();
 };
 
 // Obtener cassettes por rango de fechas
 const obtenerCassettesFechaRango = async (fechainicio, fechafin) => {
-  const response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  const response = await fetch(`/api/cassettes/rango_fechas/?inicio=${fechainicio}&fin=${fechafin}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cassettesRangoFechas",
-
-      fechainicio: fechainicio,
-      fechafin: fechafin,
-    }),
+    }
   });
 
   return await response.json();
@@ -340,16 +326,11 @@ const obtenerCassettesFechaRango = async (fechainicio, fechafin) => {
 
 // Borrar un cassette
 const borrarCassette = () => {
-  fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  fetch(`/api/cassettes/${cassetteId}/`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "borrarCassette",
-
-      cassetteId: cassetteId,
-    }),
+    }
   })
     .then((response) => response.json())
     .catch((error) => console.log(error));
@@ -581,24 +562,21 @@ const cargarCassetteUpdateModal = async (event) => {
 
 const modificarCassetteUpdate = async (event) => {
   event.preventDefault();
-  await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  await fetch(`/api/cassettes/${cassetteId}/`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      accion: "modificarCassette",
-
-      cassetteId: cassetteId,
       cassette: inputCassetteUpdate.value,
       fecha: inputFechaUpdate.value,
       descripcion: inputDescripcionUpdate.value,
       caracteristicas: inputCaracteristicasUpdate.value,
       observaciones: inputObservacionesUpdate.value,
-      microscopia: inputMicroscopiaUpdate.value,
-      diagnostico: inputDiagnosticoUpdate.value,
-      patologo: inputPatologoUpdate.value,
-      tecnicoIdTecnico: sessionStorage.getItem("user"),
+      descripcion_microscopica: inputMicroscopiaUpdate.value,
+      diagnostico_final: inputDiagnosticoUpdate.value,
+      patologo_responsable: inputPatologoUpdate.value,
+      tecnico: sessionStorage.getItem("user"),
       organo: inputSelectUpdate.value,
     }),
   })
@@ -607,7 +585,6 @@ const modificarCassetteUpdate = async (event) => {
         location.href = "cassettes.html";
       }
     })
-
     .catch((error) => console.log(error));
 };
 
@@ -615,15 +592,11 @@ const modificarCassetteUpdate = async (event) => {
 
 // Carga Muestras de un Cassette
 const cargarMuestras = async (cassetteId) => {
-  return await fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  return await fetch(`/api/muestras/por_cassette/${cassetteId}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarMuestras",
-      cassetteId: cassetteId,
-    }),
+    }
   }).then((data) => data.json());
 };
 
@@ -631,22 +604,16 @@ const cargarMuestras = async (cassetteId) => {
 const crearMuestra = async (event) => {
   event.preventDefault();
 
-  // SI QUEREMOS GUARDAR UNA IMAGEN CON PDO NECESITAMOS UN FormData
   let newMuestra = new FormData();
-  newMuestra.append("accion", "crearMuestra");
   newMuestra.append("descripcion", inputdescripcionMuestra.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
   newMuestra.append("tincion", selectTincionMuestra.value);
   newMuestra.append("imagen", inputImagenesMuestra.files[0]);
-  newMuestra.append("cassetteIdCassette", cassetteId);
+  newMuestra.append("cassette", cassetteId);
 
-  await fetch("modelo/muestras/muestrasimagenes.php", {
+  await fetch("/api/muestras/", {
     method: "POST",
-    // NO PONERLO, SI LO PONEMOS NO FUNCIONA LA INSERCIÓN!!!!
-    /*   headers: {
-      "Content-Type": "application/json",
-    }, */
     body: newMuestra,
   })
     .then(async () => {
@@ -674,15 +641,11 @@ const cargarMuestraUpdateModal = async (event) => {
     event.preventDefault();
     alertcassette.classList.remove("ocultar");
   } else {
-    const response = await fetch("modelo/muestras/muestras.php", {
-      method: "POST",
+    const response = await fetch(`/api/muestras/${muestraId}/`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        accion: "cargarMuestra",
-        muestraId: muestraId,
-      }),
+      }
     });
 
     let muestra = await response.json();
@@ -697,16 +660,12 @@ const cargarMuestraUpdateModal = async (event) => {
 const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
-  await fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  await fetch(`/api/muestras/${muestraId}/`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      accion: "modificarMuestra",
-
-      muestraId: muestraId,
-
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
       observaciones: inputmodificarobservacionesMuestra.value,
@@ -724,16 +683,13 @@ const modificarMuestraUpdate = async (event) => {
         "-" +
         nuevafecha.substring(0, 4);
 
-      // muestra__fecha.textContent = inputmodificarfechaMuestra.value;
-      muestra__observaciones.textContent =
-        inputmodificarobservacionesMuestra.value;
+      muestra__observaciones.textContent = inputmodificarobservacionesMuestra.value;
       muestra__tincion.textContent = selectmodificartincionMuestra.value;
 
       // Mostramos las muestras para que se actulicen los cambios
       respuesta = await cargarMuestras(cassetteId);
       imprimirMuestras(respuesta);
     })
-
     .catch((error) => console.log(error));
 
   // Ocultamos el modal de modificación
@@ -796,31 +752,22 @@ const imprimirMuestras = (respuesta) => {
 
 // Obtenemos una muestra
 const cargarMuestra = async (muestraid) => {
-  const response = await fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  const response = await fetch(`/api/muestras/${muestraid}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarMuestra",
-      muestraId: muestraid,
-    }),
+    }
   });
   return await response.json();
 };
 
 // Obtenemos las imagenes de una muestra
 const obtenerImagenesMuestra = async (muestraid) => {
-  const response = await fetch("modelo/imagenes/imagenes.php", {
-    method: "POST",
+  const response = await fetch(`/api/imagenes/por_muestra/${muestraid}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-      // "Content-Type": "image/jpeg",
-    },
-    body: JSON.stringify({
-      accion: "cargarImagenesMuestra",
-      muestraId: muestraid,
-    }),
+    }
   });
   let imagenes = await response.json();
   return imagenes;
@@ -887,15 +834,11 @@ const mostrarImagenesMuestra = async (muestaId) => {
 };
 
 const borrarMuestra = async () => {
-  fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  fetch(`/api/muestras/${muestraId}/`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "borrarMuestra",
-      muestraId: muestraId,
-    }),
+    }
   })
     .then(async () => {
       modaldetalleMuestra.classList.remove("showmodal");
@@ -908,15 +851,11 @@ const borrarMuestra = async () => {
 
 const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
-    fetch("modelo/imagenes/imagenes.php", {
-      method: "POST",
+    fetch(`/api/imagenes/${imageId}/`, {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        accion: "borrarImagen",
-        imageId: imageId,
-      }),
+      }
     }).then(() => {
       mostrarImagenesMuestra(muestraId);
     });
@@ -963,11 +902,10 @@ const aniadirImagenMuestra = async () => {
     const file = await fileHandle.getFile();
 
     let newImage = new FormData();
-    newImage.append("accion", "crearImagenMuestra");
     newImage.append("imagen", file);
-    newImage.append("muestraIdMuestra", muestraId);
+    newImage.append("muestra", muestraId);
 
-    fetch("modelo/muestras/muestrasimagenes.php", {
+    fetch("/api/imagenes/", {
       method: "POST",
       body: newImage,
     }).then(async () => {
@@ -979,16 +917,11 @@ const aniadirImagenMuestra = async () => {
 };
 
 const consultarCassetteQR = async (qr) => {
-  const response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  const response = await fetch(`/api/cassettes/por_qr/${qr}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-
-    body: JSON.stringify({
-      accion: "cargarCassetteQR",
-      qr: qr,
-    }),
+    }
   });
   let cassette = await response.json();
 
@@ -1009,32 +942,27 @@ const consultarCassetteQR = async (qr) => {
 
 const consultarMuestraQR = async (qr) => {
   // Obtengo la muestra para obtener el id del cassette
-  let response = await fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  let response = await fetch(`/api/muestras/por_qr/${qr}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarMuestraQR",
-      qr: qr,
-    }),
   });
   let muestra = await response.json();
+  if (Array.isArray(muestra)) {
+    muestra = muestra[0];
+  }
   // Obtengo el cassette de la muestra
-  response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  response = await fetch(`/api/cassettes/${muestra.cassette}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarCassetteId",
-      cassetteId: muestra[0].cassetteIdCassette,
-    }),
   });
   // Mostramos el cassete de la muestra
   let cassette = await response.json();
   consultarCassetteQR(cassette.qr_casette);
-  detailMuestra(muestra[0].id_muestra);
+  detailMuestra(muestra.id_muestra);
 };
 
 // Cargamos el modal datos cassete modificar
@@ -1312,20 +1240,17 @@ const guardarInformeMedico = async () => {
   }
 
   const datosReporte = {
-    accion: "actualizarInformeMedico",
-    cassetteId: currentCassetteId,
-    descripcion: cassetteInformeDescripcion.value,
-    fecha: cassetteInformeFecha.value,
-    tincion: cassetteInformeTincion.value,
-    observaciones: cassetteInformeObservaciones.value,
-    imagen: cassetteInformeImagen.files.length > 0 ? "" : "", // Basic fallback
+    informe_descripcion: cassetteInformeDescripcion.value,
+    informe_fecha: cassetteInformeFecha.value,
+    informe_tincion: cassetteInformeTincion.value,
+    informe_observaciones: cassetteInformeObservaciones.value,
   };
 
   if (cassetteInformeImagen.files.length > 0) {
     const imgReader = new FileReader();
     imgReader.readAsDataURL(cassetteInformeImagen.files[0]);
     imgReader.onload = async function () {
-      datosReporte.imagen = imgReader.result.split(',')[1]; // Get base64
+      datosReporte.informe_imagen = imgReader.result; // base64 with data: prefix
       guardarDatosReporteCassette(datosReporte);
     };
     return;
@@ -1335,7 +1260,7 @@ const guardarInformeMedico = async () => {
 
 const guardarDatosReporteCassette = async (datosReporte) => {
   try {
-    const res = await fetch("./modelo/cassettes/cassettes.php", {
+    const res = await fetch(`/api/cassettes/${currentCassetteId}/actualizar_informe/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

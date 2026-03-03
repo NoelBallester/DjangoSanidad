@@ -38,12 +38,21 @@ class Cassette(models.Model):
     id_casette = models.AutoField(primary_key=True)
     cassette = models.CharField(max_length=50)
     fecha = models.DateField()
-    caracteristicas = models.TextField()
+    descripcion = models.TextField()  # Detalle biopsia/Nombre paciente
+    caracteristicas = models.TextField()  # Descripción macroscópica
     observaciones = models.TextField(null=True, blank=True)
-    qr_casette = models.CharField(max_length=255)
+    descripcion_microscopica = models.TextField(null=True, blank=True)
+    diagnostico_final = models.TextField(null=True, blank=True)
+    patologo_responsable = models.TextField(null=True, blank=True)
+    qr_casette = models.CharField(max_length=255, unique=True)
     organo = models.CharField(max_length=255)
-    descripcion = models.CharField(max_length=255)
     tecnico = models.ForeignKey(Tecnico, on_delete=models.CASCADE, db_column='tecnicoIdTecnico')
+    # Campos de Informe de Resultados
+    informe_descripcion = models.TextField(null=True, blank=True)
+    informe_fecha = models.DateField(null=True, blank=True)
+    informe_tincion = models.CharField(max_length=255, null=True, blank=True)
+    informe_observaciones = models.TextField(null=True, blank=True)
+    informe_imagen = models.BinaryField(null=True, blank=True)  # BLOB
     
     class Meta:
         db_table = 'cassettes'
@@ -51,14 +60,23 @@ class Cassette(models.Model):
 class Citologia(models.Model):
     id_citologia = models.AutoField(primary_key=True)
     citologia = models.CharField(max_length=50)
-    tipo_citologia = models.CharField(max_length=255)
+    tipo_citologia = models.CharField(max_length=255)  # PAAF, Citología Líquida, Cervico Vaginal, Derrames
     fecha = models.DateField()
-    caracteristicas = models.TextField()
+    descripcion = models.TextField()  # Detalle biopsia/Nombre paciente
+    caracteristicas = models.TextField()  # Descripción macroscópica
     observaciones = models.TextField(null=True, blank=True)
-    qr_citologia = models.CharField(max_length=255)
+    descripcion_microscopica = models.TextField(null=True, blank=True)
+    diagnostico_final = models.TextField(null=True, blank=True)
+    patologo_responsable = models.TextField(null=True, blank=True)
+    qr_citologia = models.CharField(max_length=255, unique=True)
     organo = models.CharField(max_length=255)
-    descripcion = models.CharField(max_length=255)
     tecnico = models.ForeignKey(Tecnico, on_delete=models.CASCADE, db_column='tecnicoIdTecnico')
+    # Campos de Informe de Resultados
+    informe_descripcion = models.TextField(null=True, blank=True)
+    informe_fecha = models.DateField(null=True, blank=True)
+    informe_tincion = models.CharField(max_length=255, null=True, blank=True)
+    informe_observaciones = models.TextField(null=True, blank=True)
+    informe_imagen = models.BinaryField(null=True, blank=True)  # BLOB
     
     class Meta:
         db_table = 'citologias'

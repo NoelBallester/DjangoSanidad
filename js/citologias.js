@@ -208,85 +208,84 @@ let imageId = null;
 
 const files = document.getElementById("files");
 
-// Carga Cassettes al inicio
+// Carga Citologías al inicio
 const cargarCitologiaIndex = async () => {
-  return await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  return await fetch("/api/citologias/index/", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarCitologiasIndex",
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Crear citologia
-const crearCitologia = (event) => {
-  event.preventDefault(); // evita que se envie el formulario y por tanto que se recargue la página
+const crearCitologia = async (event) => {
+  event.preventDefault();
 
-  fetch("modelo/citologias/citologias.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  try {
+    // Get or use default technician
+    const tecnicoId = sessionStorage.getItem("user") || 1;
 
-    body: JSON.stringify({
-      accion: "crearCitologia",
-      citologia: inputCitologia.value,
-      fecha: inputFecha.value,
-      tipo_citologia: inputTipoCitologia.value,
-      descripcion: inputDescripcion.value,
-      caracteristicas: inputCaracteristicas.value,
-      observaciones: inputObservaciones.value,
-      microscopia: inputMicroscopia.value,
-      diagnostico: inputDiagnostico.value,
-      patologo: inputPatologo.value,
-      tecnicoIdTecnico: sessionStorage.getItem("user"),
-      organo: inputSelect.value,
-    }),
-  }).then((response) => response.json());
-  location.href = "citologias.html";
+    const response = await fetch("/api/citologias/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        citologia: inputCitologia.value,
+        fecha: inputFecha.value,
+        tipo_citologia: inputTipoCitologia.value,
+        descripcion: inputDescripcion.value,
+        caracteristicas: inputCaracteristicas.value,
+        observaciones: inputObservaciones.value,
+        descripcion_microscopica: inputMicroscopia.value,
+        diagnostico_final: inputDiagnostico.value,
+        patologo_responsable: inputPatologo.value,
+        tecnico: tecnicoId,
+        organo: inputSelect.value,
+      }),
+    });
+
+    if (response.ok) {
+      location.href = "citologias.html";
+    } else {
+      const error = await response.json();
+      console.error("Error al crear citología:", error);
+      alert("Error al crear la citología: " + JSON.stringify(error));
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error al crear la citología");
+  }
 };
 
 // Carga todas las citologías desde el botón
 const cargarTodasCitologias = async () => {
-  return await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  return await fetch("/api/citologias/todos/", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarTodasCitologias",
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Carga el detalle de la citología seleccionada
 const cargarCitologia = async (citologiaId) => {
-  return await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  return await fetch(`/api/citologias/${citologiaId}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "cargarCitologiaId",
-      citologiaId: citologiaId,
-    }),
+    }
   }).then((data) => data.json());
 };
 
 // Obtener citologías por organo
 const cargarPorOrgano = async () => {
-  return await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  return await fetch(`/api/citologias/por_organo/${organos.value}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "citologiasOrgano",
-      organo: organos.value,
-    }),
+    }
   })
     .then((data) => data.json())
     .catch((error) => console.log("No se esta ejecutando" + error));
@@ -294,48 +293,34 @@ const cargarPorOrgano = async () => {
 
 // Obtener citologías por número de citología
 const cargarPorNumero = async () => {
-  return await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  return await fetch(`/api/citologias/por_numero/${numCitologia.value}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "citologiasNumero",
-      num_citologia: numCitologia.value,
-    }),
+    }
   })
     .then((data) => data.json())
     .catch((error) => console.log("No se esta ejecutando" + error));
 };
 
 // Obtener citologías por fecha
-const obtenerCitologiaFecha = async (fechainicio) => {
-  const response = await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+const obtenerCitologiaFecha = async (fecha) => {
+  const response = await fetch(`/api/citologias/por_fecha/${fecha}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "citologiasFecha",
-      fecha: fechainicio,
-    }),
+    }
   });
   return await response.json();
 };
 
 // Obtener citologías por rango de fechas
 const obtenerCitologiaFechaRango = async (fechainicio, fechafin) => {
-  const response = await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  const response = await fetch(`/api/citologias/rango_fechas/?inicio=${fechainicio}&fin=${fechafin}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "citologiasRangoFechas",
-
-      fechainicio: fechainicio,
-      fechafin: fechafin,
-    }),
+    }
   });
 
   return await response.json();
@@ -343,16 +328,11 @@ const obtenerCitologiaFechaRango = async (fechainicio, fechafin) => {
 
 // Borrar una citología
 const borrarCitologia = () => {
-  fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  fetch(`/api/citologias/${citologiaId}/`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      accion: "borrarCitologia",
-
-      citologiaId: citologiaId,
-    }),
+    }
   })
     .then((response) => response.json())
     .catch((error) => console.log(error));
@@ -589,24 +569,22 @@ const cargarCitologiaUpdateModal = async (event) => {
 
 const modificarCitologiaUpdate = async (event) => {
   event.preventDefault();
-  await fetch("modelo/citologias/citologias.php", {
-    method: "POST",
+  await fetch(`/api/citologias/${citologiaId}/`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      accion: "modificarCitologia",
-      citologiaId: citologiaId,
       citologia: inputCitologiaUpdate.value,
       fecha: inputFechaUpdate.value,
       descripcion: inputDescripcionUpdate.value,
-      tipo: inputTipoUpdate.value,
+      tipo_citologia: inputTipoUpdate.value,
       caracteristicas: inputCaracteristicasUpdate.value,
       observaciones: inputObservacionesUpdate.value,
-      microscopia: inputMicroscopiaUpdate.value,
-      diagnostico: inputDiagnosticoUpdate.value,
-      patologo: inputPatologoUpdate.value,
-      tecnicoIdTecnico: sessionStorage.getItem("user"),
+      descripcion_microscopica: inputMicroscopiaUpdate.value,
+      diagnostico_final: inputDiagnosticoUpdate.value,
+      patologo_responsable: inputPatologoUpdate.value,
+      tecnico: sessionStorage.getItem("user"),
       organo: inputSelectUpdate.value,
     }),
   })
@@ -615,7 +593,6 @@ const modificarCitologiaUpdate = async (event) => {
         location.href = "citologias.html";
       }
     })
-
     .catch((error) => console.log(error));
 };
 
@@ -623,15 +600,11 @@ const modificarCitologiaUpdate = async (event) => {
 
 // Carga Muestras de una citología
 const cargarMuestras = async (citologiaId) => {
-  return await fetch("modelo/muestrascitologias/muestras.php", {
-    method: "POST",
+  return await fetch(`/api/muestrascitologia/por_citologia/${citologiaId}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarMuestras",
-      citologiaId: citologiaId,
-    }),
   }).then((data) => data.json());
 };
 
@@ -641,15 +614,13 @@ const crearMuestra = async (event) => {
 
   // SI QUEREMOS GUARDAR UNA IMAGEN CON PDO NECESITAMOS UN FormData
   let newMuestra = new FormData();
-  newMuestra.append("accion", "crearMuestra");
   newMuestra.append("descripcion", inputdescripcionMuestra.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
   newMuestra.append("tincion", selectTincionMuestra.value);
-  newMuestra.append("imagen", inputImagenesMuestra.files[0]);
-  newMuestra.append("citologiaIdCitologia", citologiaId);
+  newMuestra.append("citologia", citologiaId);
 
-  await fetch("modelo/muestrascitologias/muestrasimagenes.php", {
+  await fetch("/api/muestrascitologia/", {
     method: "POST",
     // NO PONERLO, SI LO PONEMOS NO FUNCIONA LA INSERCIÓN!!!!
     /*   headers: {
@@ -682,15 +653,11 @@ const cargarMuestraUpdateModal = async (event) => {
     event.preventDefault();
     alertcitologia.classList.remove("ocultar");
   } else {
-    const response = await fetch("modelo/muestrascitologias/muestras.php", {
-      method: "POST",
+    const response = await fetch(`/api/muestrascitologia/${muestraId}/`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        accion: "cargarMuestra",
-        muestraId: muestraId,
-      }),
     });
 
     let muestra = await response.json();
@@ -705,16 +672,12 @@ const cargarMuestraUpdateModal = async (event) => {
 const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
-  await fetch("modelo/muestrascitologias/muestras.php", {
-    method: "POST",
+  await fetch(`/api/muestrascitologia/${muestraId}/`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      accion: "modificarMuestra",
-
-      muestraId: muestraId,
-
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
       observaciones: inputmodificarobservacionesMuestra.value,
@@ -804,31 +767,22 @@ const imprimirMuestras = (respuesta) => {
 
 // Obtenemos una muestra
 const cargarMuestra = async (muestraid) => {
-  const response = await fetch("modelo/muestrascitologias/muestras.php", {
-    method: "POST",
+  const response = await fetch(`/api/muestrascitologia/${muestraid}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarMuestra",
-      muestraId: muestraid,
-    }),
   });
   return await response.json();
 };
 
 // Obtenemos las imagenes de una muestra
 const obtenerImagenesMuestra = async (muestraid) => {
-  const response = await fetch("modelo/imagenesCitologias/imagenes.php", {
-    method: "POST",
+  const response = await fetch(`/api/imagenescitologia/por_muestra/${muestraid}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-      // "Content-Type": "image/jpeg",
     },
-    body: JSON.stringify({
-      accion: "cargarImagenesMuestra",
-      muestraId: muestraid,
-    }),
   });
   let imagenes = await response.json();
   return imagenes;
@@ -895,15 +849,11 @@ const mostrarImagenesMuestra = async (muestaId) => {
 };
 
 const borrarMuestra = async () => {
-  fetch("modelo/muestrascitologias/muestras.php", {
-    method: "POST",
+  fetch(`/api/muestrascitologia/${muestraId}/`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "borrarMuestra",
-      muestraId: muestraId,
-    }),
   })
     .then(async () => {
       modaldetalleMuestra.classList.remove("showmodal");
@@ -916,15 +866,11 @@ const borrarMuestra = async () => {
 
 const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
-    fetch("modelo/imagenesCitologias/imagenes.php", {
-      method: "POST",
+    fetch(`/api/imagenescitologia/${imageId}/`, {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        accion: "borrarImagen",
-        imageId: imageId,
-      }),
     }).then(() => {
       mostrarImagenesMuestra(muestraId);
     });
@@ -971,11 +917,10 @@ const aniadirImagenMuestra = async () => {
     const file = await fileHandle.getFile();
 
     let newImage = new FormData();
-    newImage.append("accion", "crearImagenMuestra");
     newImage.append("imagen", file);
-    newImage.append("muestraIdMuestra", muestraId);
+    newImage.append("muestra", muestraId);
 
-    fetch("modelo/muestrascitologias/muestrasimagenes.php", {
+    fetch("/api/imagenescitologia/", {
       method: "POST",
       body: newImage,
     }).then(async () => {
@@ -986,64 +931,54 @@ const aniadirImagenMuestra = async () => {
   }
 };
 
-const consultarCassetteQR = async (qr) => {
-  const response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+const consultarCitologiaQR = async (qr) => {
+  const response = await fetch(`/api/citologias/por_qr/${qr}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    },
-
-    body: JSON.stringify({
-      accion: "cargarCassetteQR",
-      qr: qr,
-    }),
+    }
   });
-  let cassette = await response.json();
+  let citologia = await response.json();
 
-  // Mostrar los datos del cassette
-  imprimirCitologias(cassette);
-  // Obtenemos un array, pq nos viene bien para la consulta de cassettes que espera un array
+  // Mostrar los datos de la citología
+  imprimirCitologias(citologia);
+  // Obtenemos un array, pq nos viene bien para la consulta de citologías que espera un array
   //Obtenemos el primero, aunque sólo nos devuelve uno, para la consulta de una citología
-  cassette = cassette[0];
+  citologia = citologia[0];
 
-  // Mostramos el detalle del cassette
-  imprimirDetalleCitologia(cassette);
+  // Mostramos el detalle de la citología
+  imprimirDetalleCitologia(citologia);
 
-  // Mostramos las muestras del cassette
-  citologiaId = cassette.id_casette;
+  // Mostramos las muestras de la citología
+  citologiaId = citologia.id_citologia;
   let muestras = await cargarMuestras(citologiaId);
   imprimirMuestras(muestras);
 };
 
 const consultarMuestraQR = async (qr) => {
-  // Obtengo la muestra para obtener el id del cassette
-  let response = await fetch("modelo/muestras/muestras.php", {
-    method: "POST",
+  // Obtengo la muestra para obtener el id de la citología
+  let response = await fetch(`/api/muestrascitologia/por_qr/${qr}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarMuestraQR",
-      qr: qr,
-    }),
   });
   let muestra = await response.json();
-  // Obtengo el cassette de la muestra
-  response = await fetch("modelo/cassettes/cassettes.php", {
-    method: "POST",
+  if (Array.isArray(muestra)) {
+    muestra = muestra[0];
+  }
+  // Obtengo la citología de la muestra
+  response = await fetch(`/api/citologias/${muestra.citologia}/`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      accion: "cargarCitologiaId",
-      citologiaId: muestra[0].citologiaIdCassette,
-    }),
   });
-  // Mostramos el cassete de la muestra
-  let cassette = await response.json();
-  consultarCassetteQR(cassette.qr_casette);
-  detailMuestra(muestra[0].id_muestra);
-};
+  // Mostramos la citología de la muestra
+  let citologia = await response.json();
+  consultarCitologiaQR(citologia.qr_citologia);
+  detailMuestra(muestra.id_muestra);
+};;
 
 // Cargamos el modal datos cassete modificar
 const cargarUserUpdateModal = async (event) => {
@@ -1325,7 +1260,7 @@ const guardarInformeMedico = async () => {
 
 const guardarDatosReporteCitologia = async (datosReporte) => {
   try {
-    const res = await fetch("./modelo/citologias/citologias.php", {
+    const res = await fetch(`/api/citologias/${currentCitologiaId}/actualizar_informe/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1334,7 +1269,7 @@ const guardarDatosReporteCitologia = async (datosReporte) => {
     });
 
     const data = await res.json();
-    alert(data); // "Informe actualizado correctamente"
+    alert("Informe actualizado correctamente");
   } catch (error) {
     console.error("Error al guardar el informe:", error);
     alert("Error al guardar el informe de resultados.");

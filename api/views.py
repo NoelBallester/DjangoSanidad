@@ -1,11 +1,21 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.db.models import Q
+from datetime import datetime
+import base64
+import uuid
+import random
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
     CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer
 )
+
+def generar_qr(prefijo):
+    """Genera un código QR único con formato: prefijo + 12 caracteres"""
+    random_part = str(uuid.uuid4()).replace('-', '') + str(random.randint(0, 999999))
+    return f"{prefijo}{random_part[:12]}"
 
 class TecnicoViewSet(viewsets.ModelViewSet):
     queryset = Tecnico.objects.all()
@@ -17,7 +27,7 @@ class TecnicoViewSet(viewsets.ModelViewSet):
         password = request.data.get('password')
         try:
             tecnico = Tecnico.objects.get(email=email)
-            if tecnico.check_password(password) or tecnico.password == password: # fallback to plaintext if needed
+            if tecnico.check_password(password) or tecnico.password == password:
                 return Response(TecnicoSerializer(tecnico).data)
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         except Tecnico.DoesNotExist:
@@ -35,37 +45,258 @@ class CassetteViewSet(viewsets.ModelViewSet):
     queryset = Cassette.objects.all().order_by('-fecha')
     serializer_class = CassetteSerializer
     
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_casette' not in data or not data['qr_casette']:
+            data['qr_casette'] = generar_qr('--c--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
     @action(detail=False, methods=['get'])
     def index(self, request):
-        cassettes = self.get_queryset()[:20]
+        """Carga los últimos 10 cassettes"""
+        cassettes = self.get_queryset()[:10]
+        return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        """Carga todos los cassettes"""
+        cassettes = self.get_queryset()
         return Response(CassetteSerializer(cassettes, many=True).data)
 
-    @action(detail=False, methods=['get'], url_path='cassetteqr/(?P<qr>[^/.]+)')
-    def get_by_qr(self, request, qr=None):
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca cassette por código QR"""
         cassettes = Cassette.objects.filter(qr_casette=qr)
         return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        """Filtra cassettes por órgano"""
+        if organo == '*':
+            cassettes = self.get_queryset()
+        else:
+            cassettes = Cassette.objects.filter(organo=organo).order_by('-fecha')
+        return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    def por_numero(self, request, numero=None):
+        """Filtra cassettes por número"""
+        cassettes = Cassette.objects.filter(cassette=numero).order_by('-fecha')
+        return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        """Filtra cassettes por fecha específica"""
+        cassettes = Cassette.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        """Filtra cassettes por rango de fechas"""
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        cassettes = Cassette.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(CassetteSerializer(cassettes, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        """Actualiza el informe médico de un cassette"""
+        cassette = self.get_object()
+        data = request.data
+        
+        if 'informe_descripcion' in data:
+            cassette.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            cassette.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            cassette.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            cassette.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            # Convertir base64 a bytes si viene como string
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            cassette.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+        
+        cassette.save()
+        return Response(CassetteSerializer(cassette).data)
+
+class CitologiaViewSet(viewsets.ModelViewSet):
+    queryset = Citologia.objects.all().order_by('-fecha')
+    serializer_class = CitologiaSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_citologia' not in data or not data['qr_citologia']:
+            data['qr_citologia'] = generar_qr('--c--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        """Carga las últimas 10 citologías"""
+        citologias = self.get_queryset()[:10]
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        """Carga todas las citologías"""
+        citologias = self.get_queryset()
+        return Response(CitologiaSerializer(citologias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca citología por código QR"""
+        citologias = Citologia.objects.filter(qr_citologia=qr)
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        """Filtra citologías por órgano"""
+        if organo == '*':
+            citologias = self.get_queryset()
+        else:
+            citologias = Citologia.objects.filter(organo=organo).order_by('-fecha')
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    def por_numero(self, request, numero=None):
+        """Filtra citologías por número"""
+        citologias = Citologia.objects.filter(citologia=numero).order_by('-fecha')
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        """Filtra citologías por fecha específica"""
+        citologias = Citologia.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        """Filtra citologías por rango de fechas"""
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        citologias = Citologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(CitologiaSerializer(citologias, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        """Actualiza el informe médico de una citología"""
+        citologia = self.get_object()
+        data = request.data
+        
+        if 'informe_descripcion' in data:
+            citologia.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            citologia.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            citologia.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            citologia.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            # Convertir base64 a bytes si viene como string
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            citologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+        
+        citologia.save()
+        return Response(CitologiaSerializer(citologia).data)
 
 class MuestraViewSet(viewsets.ModelViewSet):
     queryset = Muestra.objects.all()
     serializer_class = MuestraSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--m--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_path='cassette/(?P<id>[^/.]+)')
-    def get_by_cassette(self, request, id=None):
+    def por_cassette(self, request, id=None):
+        """Obtiene todas las muestras de un cassette"""
         muestras = Muestra.objects.filter(cassette_id=id)
         return Response(MuestraSerializer(muestras, many=True).data)
-
-class ImagenViewSet(viewsets.ModelViewSet):
-    queryset = Imagen.objects.all()
-    serializer_class = ImagenSerializer
-
-class CitologiaViewSet(viewsets.ModelViewSet):
-    queryset = Citologia.objects.all()
-    serializer_class = CitologiaSerializer
+    
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca muestra por código QR"""
+        muestras = Muestra.objects.filter(qr_muestra=qr)
+        return Response(MuestraSerializer(muestras, many=True).data)
 
 class MuestraCitologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraCitologia.objects.all()
     serializer_class = MuestraCitologiaSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--m--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='citologia/(?P<id>[^/.]+)')
+    def por_citologia(self, request, id=None):
+        """Obtiene todas las muestras de una citología"""
+        muestras = MuestraCitologia.objects.filter(citologia_id=id)
+        return Response(MuestraCitologiaSerializer(muestras, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca muestra por código QR"""
+        muestras = MuestraCitologia.objects.filter(qr_muestra=qr)
+        return Response(MuestraCitologiaSerializer(muestras, many=True).data)
+
+class ImagenViewSet(viewsets.ModelViewSet):
+    queryset = Imagen.objects.all()
+    serializer_class = ImagenSerializer
+    
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra en base64"""
+        imagenes = Imagen.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenSerializer(img).data
+            if img.imagen:
+                with open(img.imagen.path, 'rb') as f:
+                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)
 
 class ImagenCitologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
     serializer_class = ImagenCitologiaSerializer
+    
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra en base64"""
+        imagenes = ImagenCitologia.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenCitologiaSerializer(img).data
+            if img.imagen:
+                with open(img.imagen.path, 'rb') as f:
+                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)

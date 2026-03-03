@@ -19,21 +19,27 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.views.static import serve
+from django.views.decorators.cache import cache_control
+from django.views.static import serve as static_serve
 import os
 
 def render_html(request, page):
     return TemplateView.as_view(template_name=f"{page}.html")(request)
 
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+def serve_static(request, path, document_root):
+    return static_serve(request, path, document_root=document_root)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sanitaria/', include('api.urls')),
+    path('api/', include('api.urls')),
+    path('sanitaria/', include('api.urls')),  # Backwards compatibility
     path('modelo/', include('api.urls')), # To intercept PHP routes
     path('', TemplateView.as_view(template_name='index.html')),
     re_path(r'^(?P<page>[\w\-]+)\.html$', render_html),
-    re_path(r'^css/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),
-    re_path(r'^js/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'js')}),
-    re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'assets')}),
+    re_path(r'^css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),
+    re_path(r'^js/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'js')}),
+    re_path(r'^assets/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'assets')}),
 ]
 
 if settings.DEBUG:
