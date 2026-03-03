@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <script src="./js/auth.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./assets/images/favicon.png" type="image/x-icon" />
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="./css/loginregistro.css">
+
+    <!-- Dark Mode Logic -->
+    <script src="./js/darkmode.js" defer></script>
+
+    <title>Sanitaria Ribera...</title>
+</head>
+
+<body>
+    <div class="container-fluid margin p-0">
+        <!-- Navigation -->
+        <nav class="nav navbar navbar-expand-lg shadow-sm sticky-top">
+            <div class="container-fluid d-flex align-items-center justify-content-between px-lg-5">
+                <!-- Logo -->
+                <a class="navbar-brand nav__logo-container" href="./index.html">
+                    <div class="logo-box">
+                        <i class='bx bxs-flask-iv'></i>
+                        <i class="fa-solid fa-microscope" style="font-size: 1rem; margin-left: -5px;"></i>
+                    </div>
+                    <span class="nav__title">Sanidad</span>
+                </a>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler custom-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars header__icon"></i>
+                </button>
+
+                <!-- Nav Links -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto nav__list">
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./index.html">Inicio</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./anatomia.html">Anatomía&nbsp;Patológica</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
+                        </li>
+                        <li class="nav-item nav__item d-flex align-items-center">
+                            <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"
+                                aria-label="Toggle Dark Mode">
+                                <i class='bx bx-moon fs-4'></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main id="form_container" class="main forms">
+            <!-- Formualario de Login -->
+            <section id="login" class="formcontainer login mt-3">
+
+                <form id="form_login" action="#" autocomplete="nope">
+                    <p class="header">Login</p>
+                    <div class="field">
+                        <input id="inputlogin_id" type="text" placeholder="ID de Usuario" required class="input">
+                    </div>
+
+                    <!--  <div class="field">
+                    <input id="inputlogin_password" type="password" placeholder="Contraseña" required class="password"
+                    value="1234">
+                </div> -->
+                    <div class="field">
+                        <input id="inputlogin_password" type="password" placeholder="Contraseña" required
+                            class="password" pattern="^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,16}$" autocomplete>
+                        <i class='bx bx-hide eye-icon'></i>
+                    </div>
+                    <p class="text__pass">8-16 caracteres, mayúsculas, minúsculas, números y símbolos.</p>
+
+                    <p id="login__error" class="login__error"> Correo o Contraseña Incorrectos</p>
+
+                    <div class="form-link">
+                        <a id="forgot_password" href="#" class="forgot-pass"> Olvidaste tu contraseña...</a>
+                    </div>
+
+                    <div class="field button-field">
+                        <button type="submit" id="btn_login">Login</button>
+                    </div>
+                </form>
+
+                </form>
+
+            </section>
+
+            <!-- Formulario de registro ELIMINADO PARA ACCESO PÚBLICO -->
+
+
+            <!-- Formulario nueva Contraseña -->
+            <section id="form_password" class="formcontainer formpassword mt-3">
+
+                <form action="#" id="form_sendpassword" autocomplete="none">
+                    <p class="header">Solicitar Contraseña</p>
+                    <div class="field">
+                        <input id="inputpassword_id" type="text" placeholder="ID de Usuario" required class="input">
+                    </div>
+
+                    <p id="email__error" class="login__error"> No existe un usuario con este correo</p>
+
+                    <div class="field button-field">
+                        <button type="submit" id="btn_password">Solicitar Contraseña</button>
+                    </div>
+                    <div class="form-link">
+                        <span>Volver a <a href="./registro.html" class="login-link">Login</a></span>
+                    </div>
+                </form>
+            </section>
+
+        </main>
+        <!-- Footer -->
+        <footer class="footer mt-5">
+            <div class="footer-container">
+                <div class="footer__box footer__menu text-center">
+                    <h3 class="footer__title">Centros Colaboradores</h3>
+                    <section class="links d-flex justify-content-center flex-wrap gap-4">
+                        <a href="https://www.iesbohio.es/web/" target="_blank" class="column__link">IES El Bohío</a>
+                        <a href="https://www.iesryc.org/" target="_blank" class="column__link">IES Ramón y Cajal</a>
+                    </section>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- JavaScript -->
+    <!-- Bootstrap y Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="./js/loginregistro.js"></script>
+</body>
+
+</html>

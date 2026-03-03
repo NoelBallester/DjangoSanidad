@@ -1,0 +1,104 @@
+/* Container styling for the list of users */
+.container__table {
+    background-color: var(--body-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+.title .cassette__title {
+    color: var(--title-color);
+    font-weight: 700;
+}
+
+.table__scroll {
+    overflow-x: auto;
+}
+
+.table {
+    color: var(--text-color);
+    vertical-align: middle;
+}
+
+.table th {
+    color: var(--title-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-secondary);
+}
+
+.table td {
+    padding: 1rem 0.5rem;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+    border-radius: 6px;
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+/* Base button colors */
+.btn-outline-primary.border__color {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary.border__color:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.btn.fondo {
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn.fondo:hover {
+    background-color: var(--accent-secondary);
+    color: #fff;
+}
+
+body.dark-mode .container__table {
+    background-color: var(--body-color);
+    box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .table {
+    color: var(--text-color);
+}
+
+body.dark-mode .table th {
+    color: var(--title-color);
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--body-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal-title.blue__color,
+body.dark-mode .form-label.blue__color {
+    color: var(--title-color) !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #2a2a35;
+    border-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background-color: #333342;
+    color: #fff;
+}

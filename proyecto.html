@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet" />
+
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./assets/images/favicon.png" type="image/x-icon" />
+
+    <!-- Fontawesome -->
+    <link rel="stylesheet" href="css/all.css" />
+
+    <!-- Estilos css -->
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+    <link rel="stylesheet" href="css/forms.css" />
+
+    <title>Sanitaria Ribera...</title>
+</head>
+
+<body>
+
+    <!-- Boton inicio -->
+    <a href="#"><img class="subir" src="./assets/images/prueba.png" alt="">
+    </a>
+
+    <div class="container">
+        <!-- header -->
+        <header class="header">
+            <!-- Imagenes financiación página -->
+
+            <section class="logotipo">
+                <a class="nav-link nav__link active" aria-current="page" href="./index.html"><img
+                        src="./assets/images/logo.png" alt="" class="logotipo"></a>
+
+            </section>
+
+            <section class="financiado">
+                <img src="./assets/images/MinHap.gif" alt="" class="financiado__europa">
+                <img src="./assets/images/logo-next-generation.svg" alt="" class="financiado__generation">
+            </section>
+        </header>
+
+        <nav class="nav navbar navbar-expand-lg px-5">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon ">
+                        <i class="fa-solid fa-bars header__icon"></i>
+                    </span>
+                </button>
+
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 nav__list">
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link active" aria-current="page" href="./index.html">Inicio</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./proyecto.html">Publicidad</a>
+                        </li>
+                        <!--     <li class="nav-item nav__item">
+                            <a class="nav-link nav__link active" aria-current="page"
+                                href="./laboratorio.html">Laboratorio</a>
+                        </li> -->
+
+
+                        <li class="nav-item nav__item nav-item dropdown">
+                            <a class="nav-link nav__link dropdown-toggle text-center" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Laboratorio</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" target="_blank" href="./laboratorio.html">Gafas Virtuales
+                                        OSNA </a></li>
+                                <li><a class="dropdown-item" href="./tecnicas.html">Técnicas Laboratorio</a></li>
+
+                                <li><a class="dropdown-item" href="./material.html">Material Laboratorio</a></li>
+                            </ul>
+                        </li>
+
+
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./autopsias.html">Necropsia</a>
+                        </li>
+                        <!--  <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" target="_blank"
+                                href="http://microvirtual.ibonanova.cat/">Microscopio</a>
+                        </li> -->
+                        <!--      <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" target="_blank"
+                                href="./recursos.html">Recursos</a>
+                        </li> -->
+                        <li class="nav-item nav__item nav-item dropdown">
+                            <a class="nav-link nav__link dropdown-toggle text-center" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Microscopio Virtual</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" target="_blank"
+                                        href="https://microvirtual.ibonanova.cat/webclient/login/?url=/bonanova/private/dashboard">Microscopio</a>
+                                </li>
+                                <!--   <li><a class="dropdown-item" href="./tecnicas.html">Técnicas Laboratorio</a></li>
+
+                                <li><a class="dropdown-item" href="./material.html">Material Laboratorio</a></li> -->
+
+                                <li><a class="dropdown-item" href="./actividades.html">Actividades Microscopio
+                                        Virtual</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item nav__item nav-item dropdown">
+                            <a class="nav-link nav__link dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Formación</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="./jornadasbarcelona.html">Barcelona</a></li>
+
+                                <li><a class="dropdown-item" href="./biologiamolecular.html">Biología Molecular</a></li>
+
+                                <li><a class="dropdown-item" href="jornadasdigitalizacion.html">1ª Jornadas
+                                        Digitalización CLM</a></li>
+                            </ul>
+                        </li>
+                        <!--  <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./ejercicios/ejercicios.html">Ejercicios</a>
+                        </li> -->
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+        <!-- Visor -->
+        <!--     <section class="visor">
+                <div class="visor__content">
+                    <h3 class="visor__title">Integración de herramientas de Realidad Aumentada y Realidad Virtual en el
+                        laboratorio y sala de autopsias de Anatomía Patológica</h3>
+                </div>
+            </section> -->
+        <!--   <section class="subject-container container">
+            <div id="Lineastematicas" class="subject-container__content">
+                <h2 class="subject__title-header margin">
+                    Fases del Proyecto
+                </h2>
+            </div>
+        </section>
+
+        <div class="subject-container__content margin">
+            <h2 class="mt-0 subject__title-header">
+                <video id="video" src="./assets/video/intro.mp4" width="600" height="400" controls></video>
+            </h2>
+          
+
+        </div> -->
+
+        <section class="subject-container container">
+            <section class="videosautopsia">
+                <div class="container-video">
+                    <video class="video" id="video" src="./assets/video/iesribera.mp4" width="600" height="400" muted
+                        controls></video>
+                </div>
+
+                <div id="containerpubli" class="containermini">
+                    <img class="miniatura" src="./assets/images/ribera.png" alt="./assets/video/iesribera.mp4">
+                    <img class="miniatura" src="./assets/images/ramoncajal.png"
+                        alt="./assets/video/ies_ramonycajal.mp4">
+                    <img class="miniatura" src="./assets/images/bonanova.png" alt="./assets/video/ies_bonanova.mp4">
+                    <!-- <img class="miniatura src="./assets/images/bonanova.png" alt="./assets/video/VIDEO-hololens.mp4">  -->
+                </div>
+
+            </section>
+            <!--  <h2 class="subject__title-header">
+              <img src="./assets/images/obras.jpg" />
+            </h2> -->
+        </section>
+
+
+        <!--    <div class="row container justify-content-center">
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingOne">
+                            <button class="accordion-button " type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseOne" aria-expanded="false"
+                                aria-controls="flush-collapseOne">
+                                FASES DEL PROYECTO:
+                            </button>
+                        </h2>
+                        <div id="flush-collapseOne" class="accordion-collapse" aria-labelledby="flush-headingOne"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <b>Las distintas fases del proyecto se van a desarrollar para
+                                    generar los siguientes espacios físicos y virtuales: </b>
+                                <ul>- Laboratorio Anatomía Patológica y citodiagnóstico virtual.</ul>
+                                <ul>- Integra el microscopio virtual colaborativo.</ul>
+                                <ul>- Banco de preparaciones patológicas informadas por el anatomopatólogo.</ul>
+                                <ul>- Recopila todos los productos del proyecto.</ul>
+
+                                <ul>- Digitalización e integración de las herramientas de RA/RV en el laboratorio
+                                    físico.</ul>
+                                <ul>- Autopsia mediante RA/RV (Sala de autopsia).</ul>
+                                <ul>- Laboratorio virtual inmersivo de:
+                                    <ul>a. Anatomopatología</ul>
+                                    <ul>b. Biología Molecular</ul>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseTwo" aria-expanded="false"
+                                aria-controls="flush-collapseTwo">
+                                Fase 1: Inicio del proyecto.
+                            </button>
+                        </h2>
+                        <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <b>Actividades.</b>
+                                <br><br>
+                                <b>1. Contacto inicial de los centros participantes a través de videoconferencia.</b>
+                                <br><br>
+                                <ul>- Distribución de tareas: Contacto con las entidades colaboradoras y proveedores,
+                                    estudio de adecuación de las aulas, asignación de procesos laboratoriales a
+                                    virtualizar por cada centro.</ul>
+                                <ul>- Determinación de directrices que han de reunir los protocolos de laboratorio para
+                                    ser virtualizados y/o aplicar realidad aumentada o mixta.</ul>
+                                <ul>- Puesta en común necesidades de digitalización y virtualización de cada uno de los
+                                    laboratorios de los cuatro centros participantes.</ul>
+                                <ul>- Establecimiento de un calendario de reuniones para asegurar el seguimiento y
+                                    evaluación continua.</ul>
+
+                                <b>2. Reunión presencial </b>
+                                <br><br> Se desarrollará una reunión entre los participantes del proyecto en el
+                                Instituto Bonanova (Barcelona) con el fin de:
+                                <ul>- Conocer el proceso de digitalización y características de las preparaciones para
+                                    ser digitalizadas ya que este centro cuenta con experiencia en el desarrollo de un
+                                    microscopio virtual y estudiar los protocolos de trabajo del Biología Molecular y
+                                    celular del Hospital del Mar.</ul>
+                                <ul>- Determinar qué preparaciones patológicas son interesantes adquirir para cada
+                                    centro para ampliar el banco de preparaciones del microscopio virtual.</ul>
+                                <ul>- Establecer el diseño del laboratorio virtual (web) </ul>
+                                <ul>- Intercambio de experiencias de laboratorios virtuales previamente seleccionados
+                                    por cada centro </ul>
+                                <ul>- Pautas para la elaboración de sesiones lectivas en las que se combinen las
+                                    metodologías tradicionales con la inclusión de la RV y RA</ul>
+                                <ul>- Diseño los proyectos colaborativos basados en retos que van a realizar los alumnos
+                                    del ciclo con las nuevas herramientas para intercambiar</ul>
+
+                                <b>3. Contacto y asesoramiento con la empresa participante. </b>
+                                <br>
+                                <ul><br>La empresa indicará los requisitos técnicos y directrices para la elaboración de
+                                    las herramientas de RX y realizará sesiones de formación al profesorado.</ul>
+
+                                <b>4. Selección de procesos de laboratorio susceptibles de transformarse en cápsulas
+                                    virtuales y hologramas.</b>
+                                <br><br>
+                                <ul>En esta actividad se seleccionarán aquellos protocolos de laboratorio que estén
+                                    indicados para ser trasladados a realidad virtual,
+                                    ya sea porque presenta complejidad para el alumnado, requieren reactivos de elevado
+                                    costo, o porque no se pueden realizar en los
+                                    laboratorios de los centros educativos. Se distribuirán ente casa una selección
+                                    centro las técnicas de laboratorio que resultan más complejas al alumnado.
+                                </ul>
+                                <ul>Se establecerá una colaboración entre los servicios de anatomía patológica,
+                                    laboratorios privados e instituto de medicina legal y ciencias forenses
+                                    de Murcia, mediante formación y asesoramientos para elaborar protocolos de
+                                    laboratorio de tecnologías de vanguardia y posteriormente desarrollar las
+                                    simulaciones virtuales y
+                                    producir herramientas con realidad aumentada. La opinión de los profesionales
+                                    constituye un feedback fundamental ya que conocen las demandas del sector y los
+                                    puntos a reforzar en el alumnado antes de acceder a la formación en centros de
+                                    trabajo y al mundo laboral.
+                                </ul>
+                                <ul>Las propuestas iniciales orientativas: Citología líquida, funcionamiento del
+                                    criostato y ultramicrotomo y tallado de piezas pequeñas. Realización de cariotipo,
+                                    secuenciación del genoma completo. Inmuno, cálculo de niveles de la DNA del virus de
+                                    la hepatitis B en la línea de fondo y respuesta al tratamiento (COBAS® AmpliPrep
+                                    /COBAS® TaqMan® HBV) ,
+                                    reacción en cadena de la polimerasa a tiempo real con tecnología Idylla ™,
+                                    cuantificación de la expresión de citoqueratina 19 CK19 en el RNAm del ganglio
+                                    centinela (OSNA®), Plataformas genómicas
+                                    de segunda generación para el pronóstico del cáncer de mama (EndoPredict®
+                                    yProsigna™).</ul>
+                                </ul>
+
+                                <br><b> 5. Estudio de la obducción del cadáver </b></br>
+                                <br>En esta actividad, apoyados por el Instituto de medicina legal Murcia y la Unidad de
+                                patología del Hospital del Mar se desarrollarán las siguientes tareas:
+                                <ul>- Registro de autopsia médico-legal y registro de autopsia clínica.
+                                </ul>
+                                <ul>- Estudio de las alteraciones macroscópicas más frecuentes en los órganos de las
+                                    distintas cavidades mediante una selección de informes anatómicos-forenses.
+                                </ul>
+                                <ul>- Diseño de causas de la muerte: Se hará un recopilatorio de imágenes asociadas a
+                                    cada patología para crear entornos simulados de aprendizaje virtuales en el que el
+                                    alumnado después de practicar la autopsia virtual complementada con RA, conforme al
+                                    protocolo establecido sea capaz de emitir un diagnóstico.
+                                </ul>
+                                <ul>- Registro de los sonidos al utilizar el instrumentar y al seccionar las estructuras
+                                    anatómicas.
+                                </ul>
+                                <ul>- Acoplado de imágenes de tomografía computarizada axial (TAC) y radiología simple a
+                                    los pasos sistematizados de la autopsia a partir de un PACS (Picture Archiving and
+                                    Communication System) de imágenes en formato DICOM, algunas de ellas aportadas por
+                                    uno de los centros participantes La finalidad es lograr una virtopsy o virtopsia,
+                                    tecnología multidisciplinar que combina la medicina forense, patología
+                                    roentgenología, gráficos computarizados y biomecánica y que ha ido adquiriendo
+                                    importancia en el campo de las ciencias forenses desde 2017.
+                                </ul>
+
+                                <br><b>6. Transferencia cooperativa </b></br>
+
+                                <br>Esta actividad se desarrollará en el IES Carlos de Cádiz, consistirá en unas
+                                jornadas en las que participarán los cuatro centros educativos y la empresa Innoarea
+                                Projects S.L.. Comprenderá las siguientes actividades:
+                                <br><br>
+                                <ul>- Puesta en común de las actividades realizadas de forma individual en cada uno de
+                                    los centros para confeccionar flujos de trabajo en el laboratorio que puedan ser
+                                    virtualizados en indicar en que paso se van a introducir los tutoriales.
+                                </ul>
+                                <ul>- Diseño en formato esquema de los procesos de trabajo con introducción de la
+                                    información del asistente virtual y preguntas de evaluación.
+                                </ul>
+                                <ul>- Curso de actualización en Biología Molecular con el fin de trasladar técnicas de
+                                    detección molecular de neoplasias como técnicas de amplificación denominada RT-LAMP
+                                    (Loop MediatedIsothermal Amplification) al centro educativo para posteriormente
+                                    aplicar RV.
+                                </ul>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseThree" aria-expanded="false"
+                                aria-controls="flush-collapseThree">
+                                Fase 2: Producción. Elaboración de material didáctico y simuladores virtuales y
+                                herramientas de RA, RV y XR.
+                            </button>
+                        </h2>
+                        <div id="flush-collapseThree" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <b>Actividades.</b>
+                                <br><br>
+                                <ul>- Desarrollo de los productos con realidad extendida.
+                                    <ul>- Diseño de la plataforma con sistema backend y bases de datos para gestión.
+                                    </ul>
+                                    <ul>- Determinación del entorno espacial y dimensiones de los objetos y órganos
+                                        unidos al sistema de front-end a través del cual se controlarán la evolución del
+                                        alumnado
+                                    </ul>
+                                    <ul>- Estudio de la operatividad de los equipos técnicos de laboratorio e
+                                        instrumental a introducir en las simulaciones AR/VR.
+                                    </ul>
+                                    <ul>- Motor de la aplicación será Unity, modelado de entornos y objetos 3D mediante
+                                        Studio MAX
+                                    </ul>
+                                    <ul>- Diseño del árbol de navegación de la aplicación
+                                    </ul>
+                                </ul>
+                                <ul>- Testaje de los productos.
+                                    <ul>- Prueba de la versión piloto de los productos (Laboratorio virtual, Sala de
+                                        necropsias) por parte de los alumnos del ciclo
+                                        de Anatomía Patológica y Citodiagnóstico y Laboratorio Clínico y Biomédico
+                                    </ul>
+                                    <ul>- Ajustes de los productos por parte de la empresa Innoarea Projects S.L.
+                                    </ul>
+                                    <ul>- Elaboración de un manual de usuario.
+                                    </ul>
+                                    <ul>- Instalación de las herramientas virtuales y de RA en las aulas de los cuatro
+                                        centro participantes
+                                    </ul>
+                                </ul>
+                                <ul>- Integración de las herramientas RV/RA en los laboratorio físicos y finalización
+                                    del proceso de digitalización con la instalación de un programa
+                                    de gestión de realidad aumentada de primera generación .
+                                </ul>
+                                <ul>- Producción de nuevos protocolos de laboratorio actualizados recopilatorios
+                                    de nuevas técnicas diagnósticas, de procesado de tejidos o biología molecular .
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseFour" aria-expanded="false"
+                                aria-controls="flush-collapseFour">
+                                Fase 3: Puesta en práctica y experiencias con alumnos/profesores
+                            </button>
+                        </h2>
+                        <div id="flush-collapseFour" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                Se ejecutarán diferentes actividades de forma continua a lo largo de esta fase,
+                                conforme se vayan generando las herramientas en RA/RV
+                                <br><br>
+                                Acciones a realizar colaborativamente por parte de todos los centros educativos
+                                implicados:
+                                <br><br>
+                                <ul>- Desarrollo de procesado de tejidos utilizando el laboratorio digital y con
+                                    introducción de herramientas de RA/RV. .
+                                </ul>
+                                <ul>- Desarrollo de las experiencias virtuales con el alumnado. </ul>
+                                <ul>- Resolución de al menos 5 cápsulas formativas en función de las necesidades </ul>
+                                <ul>- Todos los alumnos en parejas realizarán la autopsia </ul>
+                                <ul>- Actividad semana de la mujer en Marzo 2022, denominada “Citólogas en la prevención
+                                    del cáncer”
+                                    el alumnado de AP y C (en un 80% alumnas) realizarán sesiones con el alumnado de ESO
+                                    y bachiller
+                                    en las que utilizarán objetos modelados con RA con el fin de fomentar el interés del
+                                    alumnado
+                                    de sexo femenino
+                                    por perfiles profesionales Technology, Engineering, Arts and Maths. (STEAM) </ul>
+                                <ul>- Elaboración de tour 360º de laboratorios de Anatomía patológica y biología
+                                    molecular
+                                    y salas de autopsias por parte del profesorado
+                                    y enriquecimiento con información, asesorado por la empresa INNOAREA PROJECTS S.L..
+                                </ul>
+                                <ul>- Talleres con el alumnado de Informática de los grados superiores de desarrollo
+                                    de aplicaciones web y desarrollo de aplicaciones multiplataforma consistentes en
+                                    una conferencia de la empresa INNOAREA PROJECTS S.L. destinados a la introducción en
+                                    el
+                                    modelado 3D y aplicaciones de la realidad extendida en la industria con HoloLens.
+                                </ul>
+                                <ul>- Actividad inclusión de objetos de RA en el laboratorio de Anatomía patológica: los
+                                    alumnos de informática confeccionarán códigos QR </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseFive" aria-expanded="false"
+                                aria-controls="flush-collapseFive">
+                                Fase 4: Evaluación
+                            </button>
+                        </h2>
+                        <div id="flush-collapseFive" class="accordion-collapse collapse"
+                            aria-labelledby="flush-headingFive" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <b>Actividades.</b>
+                                <br><br>
+                                <ul>- Pautar una serie de reuniones periódicas a lo largo del proyecto con mayor
+                                    asiduidad al inicio de cada fase. </ul>
+                                <ul>- Confección de listas de tareas con asignación del centro responsable y profesor
+                                    responsable o trabajador de la empresa y objetivos a alcanzar. </ul>
+                                <ul>- Elaboración de material de evaluación por parte de IES Ribera del Tajo, compuesto
+                                    por check lists en caso de evaluaciones de baja-media complejidad asignadas a cada
+                                    actividad y rúbricas </ul>
+                                <ul>- Diseño de cuestionarios de satisfacción destinados al alumnado y profesorado para
+                                    comprobar la idoneidad de los productos generados </ul>
+                                <ul>- Elaboración de una memoria de progreso por parte de la coordinadora del proyecto
+                                    de innovación, antes del 30 de Junio coincidiendo con el fin de la primera fase y
+                                    solapamiento con el inicio de la fase de desarrollo que será útil para detectar
+                                    desviaciones de los objetivos del proyecto y establecer medidas correctoras y
+                                    desarrollo de la memoria final una vez finalizada la fase de ejecución. </ul>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-heading5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapse5" aria-expanded="false" aria-controls="flush-collapse5">
+                                Fase 5: Difusión de resultado y pautas para reutilización
+                            </button>
+                        </h2>
+                        <div id="flush-collapse5" class="accordion-collapse collapse" aria-labelledby="flush-heading5"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <b>Actividades.</b>
+                                <br><br>
+                                <ul>- Comunicación en las Comisiones de coordinación pedagógica de los centros de la
+                                    concesión de la subvención y las fases a realizar. </ul>
+                                <ul>- Publicación en Congresos especializados de educación las nuevas metodologías a
+                                    aplicar. </ul>
+                                <ul>- Diseño de elementos publicitarios para incluirlos en los medios de difusión.</ul>
+                                <ul>- Difusión de la evolución del proyecto en los medios seleccionados. </ul>
+                                <ul>- Determinar en qué otros módulos y ciclos formativos se podría utilizar la
+                                    tecnología desarrollada y qué modificaciones habría que acometer. </ul>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div> -->
+
+        <!-- linea temática -->
+        <!--     <section class="subject-container container">
+
+            <div id="Lineastematicas" class="subject-container__content">
+
+                <h2 class="subject__title-header">
+                    Líneas Temáticas
+                </h2>
+            </div>
+        </section>
+ -->
+        <!--  <div class="row contianer justify-content-center ">
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="linea1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-linea1" aria-expanded="false" aria-controls="flush-linea1">
+                                Línea 1
+                            </button>
+                        </h2>
+                        <div id="flush-linea1" class="accordion-collapse collapse" aria-labelledby="linea1"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">Innovación tecnológica, medioambiental, de procesos de
+                                producción o
+                                de prestación de servicios. Transferencia de conocimiento entre centros
+                                que imparten formación profesional y empresas o entidades, mediante
+                                el intercambio de experiencias innovadoras o de I+D+i, a nivel nacional,
+                                autonómico o local.</div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="linea2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-linea2" aria-expanded="false" aria-controls="flush-linea2">
+                                Línea 2
+                            </button>
+                        </h2>
+                        <div id="flush-linea2" class="accordion-collapse collapse" aria-labelledby="linea2"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">Desarrollo de competencias profesionales vinculadas a la
+                                digitalización,
+                                tales como las relacionadas con la industria 4.0. o el desarrollo de redes de
+                                comunicación 5G, y la economía circular, entre otras.</div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="linea5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-linea5" aria-expanded="false" aria-controls="flush-linea5">
+                                Línea 5
+                            </button>
+                        </h2>
+                        <div id="flush-linea5" class="accordion-collapse collapse" aria-labelledby="linea5"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">Innovación metodológica que fomente el trabajo por proyectos
+                                intermodulares,
+                                y/o con atención especial a la incorporación de competencias transversales, colaboración
+                                interdepartamental y otras innovaciones pedagógicas aplicadas a la formación
+                                profesional,
+                                incluyendo el diseño de posibles adaptaciones técnicas y estructurales de espacios
+                                educativos a las nuevas metodologías desarrolladas.</div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="linea6">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#flush-linea6" aria-expanded="false" aria-controls="flush-linea6">
+                                Línea 6
+                            </button>
+                        </h2>
+                        <div id="flush-linea6" class="accordion-collapse collapse" aria-labelledby="linea6"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">Fomento de experiencias que contribuyan al logro de los
+                                Objetivos de
+                                Desarrollo Sostenible recogidos en la Agenda 2030 de Naciones Unidas.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+
+    </div>
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer class="footer">
+        <section class="footer-container">
+
+            <div class="footer__box footer__menu">
+                <h3 class="footer__title">Centros&nbsp;Colaboradores</h3>
+                <section class="links">
+                    <a href="https://www.iesbohio.es/web/" target="_blank" class="column__link">IES El Bohío</a>
+                    <a href="https://www.iesryc.org/" target="_blank" class="column__link">IES Ramón y Cajal</a>
+                </section>
+            </div>
+
+        </section>
+        <hr />
+    </footer>
+    </div>
+    <!-- Fin del Container -->
+
+    <!-- Bootstrap y Popper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="./js/proyecto.js
+"></script>
+
+</body>
+
+</html>

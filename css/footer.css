@@ -1,0 +1,115 @@
+/* Footer */
+.footer {
+  position: relative;
+  padding: 5rem 0 4rem;
+  background: var(--card-bg);
+  border-top: 1px solid rgba(226, 232, 240, 0.2);
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+/* Multi-color Brand Bar */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg,
+      var(--title-color) 0%,
+      var(--accent-color) 45%,
+      var(--accent-secondary) 100%);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer__box {
+  text-align: center;
+  width: 100%;
+}
+
+.footer__title {
+  color: var(--title-color);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 3rem;
+  position: relative;
+  display: inline-block;
+}
+
+.footer__title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: var(--accent-color);
+  border-radius: 10px;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.column__link {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  background: var(--bg-light);
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.column__link:hover {
+  color: #ffffff;
+  background: var(--title-color);
+  border-color: var(--title-color);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(29, 78, 216, 0.2);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(226, 232, 240, 0.4);
+  margin: 3rem auto 0;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .footer {
+    padding: 4rem 0 3rem;
+  }
+
+  .links {
+    gap: 1rem;
+  }
+
+  .column__link {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,28 @@
+.ejercicio__link {
+  color: var(--title-color);
+  border-bottom: 0.001rem solid var(--title-color);
+  font-size: 1rem;
+  margin-right: 1rem;
+  text-decoration: none;
+  border: none;
+}
+
+.ejercicio__link:hover {
+  color: rgb(0, 123, 255);
+  font-weight: bold;
+}
+
+.ejercicio__item {
+  list-style-type: none;
+}
+
+.ejercicio__list {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+
+}
+
+.ejercicio__container {
+  width: 400px;
+}

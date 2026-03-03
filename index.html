@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <script src="./js/auth.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./assets/images/favicon.png" type="image/x-icon" />
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/index.css">
+
+    <!-- Dark Mode Logic -->
+    <script src="./js/darkmode.js" defer></script>
+    <link rel="stylesheet" href="css/forms.css">
+
+    <title>Sanitaria Ribera...</title>
+</head>
+
+<body>
+
+    <!-- Boton inicio -->
+    <a href="#"><img class="subir" src="./assets/images/prueba.png" alt="">
+    </a>
+
+    <div class="container-fluid margin p-0">
+        <!-- Navigation -->
+        <nav class="nav navbar navbar-expand-lg shadow-sm sticky-top">
+            <div class="container-fluid d-flex align-items-center justify-content-between px-lg-5">
+                <!-- Logo -->
+                <a class="navbar-brand nav__logo-container" href="./index.html">
+                    <div class="logo-box">
+                        <i class='bx bxs-flask-iv'></i>
+                        <i class="fa-solid fa-microscope" style="font-size: 1rem; margin-left: -5px;"></i>
+                    </div>
+                    <span class="nav__title">Sanidad</span>
+                </a>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler custom-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars header__icon"></i>
+                </button>
+
+                <!-- Nav Links -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto nav__list">
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link active" href="./index.html">Inicio</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./anatomia.html">Anatomía&nbsp;Patológica</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
+                        </li>
+                        <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
+                            <a class="nav-link nav__link" href="./usuarios.html">Usuarios</a>
+                        </li>
+                        <li class="nav-item nav__item">
+                            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
+                        </li>
+                        <li class="nav-item nav__item d-flex align-items-center">
+                            <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"
+                                aria-label="Toggle Dark Mode">
+                                <i class='bx bx-moon fs-4'></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Visor Hero -->
+        <section class="visor">
+            <div class="visor__content text-center">
+                <h1 class="visor__title mb-4">Gestión <span style="color: var(--accent-color);">Inteligente</span>
+                    de<br>Anatomía Patológica</h1>
+                <p class="visor__text mb-5">
+                    Selecciona tu área de trabajo.
+                </p>
+                <div class="visor__actions d-flex justify-content-center flex-wrap mt-4" style="gap: 80px;">
+                    <a href="./anatomia.html" class="visor__btn visor__btn--primary">
+                        <i class="fa-solid fa-user-doctor me-2"></i> Anatomía Patológica
+                    </a>
+                    <a href="./laboratorio.html" class="visor__btn visor__btn--outline">
+                        <i class="fa-solid fa-vial-virus me-2"></i> Laboratorio
+                    </a>
+                </div>
+            </div>
+
+            <!-- Shape Divider Ondulado -->
+            <div class="custom-shape-divider-bottom-1688640158">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
+                    preserveAspectRatio="none">
+                    <path
+                        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C73.81,42.56,150.38,82.02,224.27,91.8,258.82,96.38,291.56,86.84,321.39,56.44Z"
+                        class="shape-fill"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Centros Colaboradores -->
+        <section class="subject-container">
+
+            <div id="centros" class="subject-container__content">
+
+                <h2 class="subject__title-header">
+                    Centros Colaboradores
+                </h2>
+
+                <section class="subjects">
+                    <article class="subject">
+                        <a href="https://www.iesbohio.es/web/" target="_blank">
+                            <img class="subject__img"
+                                src="https://imgs.search.brave.com/6INjgoka3GsFzXDevI6FsH9YKHQqvyV7X3188qqWMxA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wcmVz/dXB1ZXN0b3NwYXJ0/aWNpcGF0aXZvcy5j/YXJ0YWdlbmEuZXMv/Z2VzdGlvbi9pbWFn/ZXMvMC8yMzE0OTgu/anBn"
+                                alt="IES El Bohío" />
+                        </a>
+                    </article>
+
+                    <article class="subject">
+                        <a href="https://www.iesryc.org/" target="_blank">
+                            <img class="subject__img" src="./assets/images/logo_ramon_cajal_murcia.jpg"
+                                alt="IES Ramón y Cajal" />
+                        </a>
+                    </article>
+                </section>
+            </div>
+        </section>
+
+    </div>
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="footer-container">
+            <div class="footer__box footer__menu text-center">
+                <h3 class="footer__title">Centros Colaboradores</h3>
+                <section class="links d-flex justify-content-center flex-wrap gap-4">
+                    <a href="https://www.iesbohio.es/web/" target="_blank" class="column__link">IES El Bohío</a>
+                    <a href="https://www.iesryc.org/" target="_blank" class="column__link">IES Ramón y Cajal</a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap y Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>
