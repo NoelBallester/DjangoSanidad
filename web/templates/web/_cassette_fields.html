@@ -1,0 +1,124 @@
+{% load static %}
+{% with c=selected %}
+<div class="col-md-12 mt-4">
+    <label class="form-label blue__color">Número Cassette</label>
+    <input type="text" name="cassette" class="form-control blue__color"
+        value="{% if edit %}{{ c.cassette }}{% endif %}" required>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Detalle Biopsia / Nombre Paciente</label>
+    <textarea name="descripcion" class="form-control blue__color textarea__text"
+        required>{% if edit %}{{ c.descripcion }}{% endif %}</textarea>
+</div>
+<div class="row col-md-12 mt-2">
+    <div class="col-md-6">
+        <label class="form-label blue__color">Fecha</label>
+        <input type="date" name="fecha" class="form-control blue__color"
+            value="{% if edit %}{{ c.fecha|date:'Y-m-d' }}{% endif %}" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label blue__color">Órgano</label>
+        <select name="organo" class="form-select blue__color" required>
+            <option selected disabled value="">Seleccionar Órgano</option>
+            <optgroup label="Sistema Nervioso">
+                <option {% if edit and c.organo == 'Encéfalo' %}selected{% endif %}>Encéfalo</option>
+                <option {% if edit and c.organo == 'Médula Espinal' %}selected{% endif %}>Médula Espinal</option>
+                <option {% if edit and c.organo == 'Nervio' %}selected{% endif %}>Nervio</option>
+                <option {% if edit and c.organo == 'Ganglio Nervios' %}selected{% endif %}>Ganglio Nervios</option>
+            </optgroup>
+            <optgroup label="Tegumento">
+                <option {% if edit and c.organo == 'Piel' %}selected{% endif %}>Piel</option>
+                <option {% if edit and c.organo == 'Uña' %}selected{% endif %}>Uña</option>
+                <option {% if edit and c.organo == 'Pelo' %}selected{% endif %}>Pelo</option>
+            </optgroup>
+            <optgroup label="Cardiovascular">
+                <option {% if edit and c.organo == 'Corazón' %}selected{% endif %}>Corazón</option>
+                <option {% if edit and c.organo == 'Venas' %}selected{% endif %}>Venas</option>
+                <option {% if edit and c.organo == 'Arteria' %}selected{% endif %}>Arteria</option>
+            </optgroup>
+            <optgroup label="Linfático">
+                <option {% if edit and c.organo == 'Ganglio Linfático' %}selected{% endif %}>Ganglio Linfático</option>
+                <option {% if edit and c.organo == 'Vaso Linfático' %}selected{% endif %}>Vaso Linfático</option>
+                <option {% if edit and c.organo == 'Bazo' %}selected{% endif %}>Bazo</option>
+            </optgroup>
+            <optgroup label="Endocrino">
+                <option {% if edit and c.organo == 'Hipófisis' %}selected{% endif %}>Hipófisis</option>
+                <option {% if edit and c.organo == 'Glándula Tiroides' %}selected{% endif %}>Glándula Tiroides</option>
+                <option {% if edit and c.organo == 'Glándulas Paratiroides' %}selected{% endif %}>Glándulas Paratiroides</option>
+                <option {% if edit and c.organo == 'Glándulas Suprarrenales' %}selected{% endif %}>Glándulas Suprarrenales</option>
+                <option {% if edit and c.organo == 'Páncreas' %}selected{% endif %}>Páncreas</option>
+            </optgroup>
+            <optgroup label="Respiratorio">
+                <option {% if edit and c.organo == 'Fosa Nasal' %}selected{% endif %}>Fosa Nasal</option>
+                <option {% if edit and c.organo == 'Faringe' %}selected{% endif %}>Faringe</option>
+                <option {% if edit and c.organo == 'Laringe' %}selected{% endif %}>Laringe</option>
+                <option {% if edit and c.organo == 'Tráquea' %}selected{% endif %}>Tráquea</option>
+                <option {% if edit and c.organo == 'Bronquio' %}selected{% endif %}>Bronquio</option>
+                <option {% if edit and c.organo == 'Pulmón' %}selected{% endif %}>Pulmón</option>
+            </optgroup>
+            <optgroup label="Digestivo">
+                <option {% if edit and c.organo == 'Boca' %}selected{% endif %}>Boca</option>
+                <option {% if edit and c.organo == 'Lengua' %}selected{% endif %}>Lengua</option>
+                <option {% if edit and c.organo == 'Glándula Salival' %}selected{% endif %}>Glándula Salival</option>
+                <option {% if edit and c.organo == 'Esófago' %}selected{% endif %}>Esófago</option>
+                <option {% if edit and c.organo == 'Estómago' %}selected{% endif %}>Estómago</option>
+                <option {% if edit and c.organo == 'Hígado' %}selected{% endif %}>Hígado</option>
+                <option {% if edit and c.organo == 'Vesícula Biliar' %}selected{% endif %}>Vesícula Biliar</option>
+                <option {% if edit and c.organo == 'Idn. Delgado' %}selected{% endif %}>Idn. Delgado</option>
+                <option {% if edit and c.organo == 'Idn. Grueso' %}selected{% endif %}>Idn. Grueso</option>
+                <option {% if edit and c.organo == 'Ciego' %}selected{% endif %}>Ciego</option>
+                <option {% if edit and c.organo == 'Apéndice' %}selected{% endif %}>Apéndice</option>
+                <option {% if edit and c.organo == 'Recto' %}selected{% endif %}>Recto</option>
+                <option {% if edit and c.organo == 'Ano' %}selected{% endif %}>Ano</option>
+            </optgroup>
+            <optgroup label="Excretor Urinario">
+                <option {% if edit and c.organo == 'Riñón' %}selected{% endif %}>Riñón</option>
+                <option {% if edit and c.organo == 'Pelvis Renal' %}selected{% endif %}>Pelvis Renal</option>
+                <option {% if edit and c.organo == 'Uréter' %}selected{% endif %}>Uréter</option>
+                <option {% if edit and c.organo == 'Vejiga Urinaria' %}selected{% endif %}>Vejiga Urinaria</option>
+                <option {% if edit and c.organo == 'Uretra' %}selected{% endif %}>Uretra</option>
+            </optgroup>
+            <optgroup label="Reproductor Masculino">
+                <option {% if edit and c.organo == 'Testículo' %}selected{% endif %}>Testículo</option>
+            </optgroup>
+            <optgroup label="Reproductor Femenino">
+                <option {% if edit and c.organo == 'Ovario' %}selected{% endif %}>Ovario</option>
+                <option {% if edit and c.organo == 'Trompa de Falopio' %}selected{% endif %}>Trompa de Falopio</option>
+                <option {% if edit and c.organo == 'Útero' %}selected{% endif %}>Útero</option>
+                <option {% if edit and c.organo == 'Vagina' %}selected{% endif %}>Vagina</option>
+                <option {% if edit and c.organo == 'Vulva' %}selected{% endif %}>Vulva</option>
+            </optgroup>
+            <optgroup label="Locomotor">
+                <option {% if edit and c.organo == 'Hueso' %}selected{% endif %}>Hueso</option>
+                <option {% if edit and c.organo == 'Musculo Esquelético' %}selected{% endif %}>Musculo Esquelético</option>
+            </optgroup>
+            <option {% if edit and c.organo == 'Otros' %}selected{% endif %}>Otros</option>
+        </select>
+    </div>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Descripción Macroscópica</label>
+    <textarea name="caracteristicas" class="form-control blue__color textarea__text"
+        required>{% if edit %}{{ c.caracteristicas }}{% endif %}</textarea>
+</div>
+<div class="col-md-12">
+    <label class="form-label blue__color">Observaciones</label>
+    <textarea name="observaciones" class="form-control blue__color textarea__text"
+        >{% if edit %}{{ c.observaciones }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Descripción Microscópica</label>
+    <textarea name="descripcion_microscopica" class="form-control blue__color textarea__text"
+        >{% if edit %}{{ c.descripcion_microscopica }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Diagnóstico Final</label>
+    <textarea name="diagnostico_final" class="form-control blue__color textarea__text"
+        >{% if edit %}{{ c.diagnostico_final }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Patólogo Responsable</label>
+    <input type="text" name="patologo_responsable" class="form-control blue__color"
+        value="{% if edit %}{{ c.patologo_responsable|default:'' }}{% endif %}">
+</div>
+{% endwith %}

@@ -40,7 +40,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'api',
+    'web',
 ]
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/cassettes/'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

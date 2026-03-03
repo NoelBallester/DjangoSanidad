@@ -33,8 +33,9 @@ def serve_static(request, path, document_root):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('sanitaria/', include('api.urls')),  # Backwards compatibility
-    path('modelo/', include('api.urls')), # To intercept PHP routes
+    path('', include('web.urls')),          # Django template views (cassettes, login…)
+    path('sanitaria/', include('api.urls')),
+    path('modelo/', include('api.urls')),
     path('', TemplateView.as_view(template_name='index.html')),
     re_path(r'^(?P<page>[\w\-]+)\.html$', render_html),
     re_path(r'^css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),

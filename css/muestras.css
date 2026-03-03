@@ -26,8 +26,6 @@ body {
     font-family: "Inter", "Nunito", sans-serif;
     background-color: var(--bg-light);
     color: var(--text-main);
-    display: none;
-    /* Show when JS loads */
 }
 
 a {

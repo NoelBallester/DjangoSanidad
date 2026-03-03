@@ -1,0 +1,147 @@
+import random
+import string
+from django import forms
+from api.models import Cassette, Muestra, Imagen
+
+
+ORGANOS = [
+    ('', 'Seleccionar Órgano'),
+    ('Sistema Nervioso', [
+        ('Encéfalo', 'Encéfalo'), ('Médula Espinal', 'Médula Espinal'),
+        ('Nervio', 'Nervio'), ('Ganglio Nervios', 'Ganglio Nervios'),
+    ]),
+    ('Tegumento', [
+        ('Piel', 'Piel'), ('Uña', 'Uña'), ('Pelo', 'Pelo'),
+    ]),
+    ('Cardiovascular', [
+        ('Corazón', 'Corazón'), ('Venas', 'Venas'), ('Arteria', 'Arteria'),
+    ]),
+    ('Linfático', [
+        ('Ganglio Linfático', 'Ganglio Linfático'), ('Timo', 'Timo'), ('Bazo', 'Bazo'),
+    ]),
+    ('Endocrino', [
+        ('Hipófisis', 'Hipófisis'), ('Glándula Tiroides', 'Glándula Tiroides'),
+        ('Glándulas Paratiroides', 'Glándulas Paratiroides'),
+        ('Glándulas Suprarrenales', 'Glándulas Suprarrenales'), ('Páncreas', 'Páncreas'),
+    ]),
+    ('Respiratorio', [
+        ('Fosa Nasal', 'Fosa Nasal'), ('Faringe', 'Faringe'), ('Laringe', 'Laringe'),
+        ('Tráquea', 'Tráquea'), ('Bronquio', 'Bronquio'), ('Pulmón', 'Pulmón'),
+    ]),
+    ('Digestivo', [
+        ('Boca', 'Boca'), ('Lengua', 'Lengua'), ('Glándula Salival', 'Glándula Salival'),
+        ('Esófago', 'Esófago'), ('Estómago', 'Estómago'), ('Hígado', 'Hígado'),
+        ('Vesícula Biliar', 'Vesícula Biliar'), ('Páncreas', 'Páncreas'),
+        ('Int. Delgado', 'Int. Delgado'), ('Int. Grueso', 'Int. Grueso'),
+        ('Ciego', 'Ciego'), ('Apéndice', 'Apéndice'), ('Recto', 'Recto'), ('Ano', 'Ano'),
+    ]),
+    ('Excretor Urinario', [
+        ('Riñón', 'Riñón'), ('Pelvis Renal', 'Pelvis Renal'), ('Uréter', 'Uréter'),
+        ('Vejiga Urinaria', 'Vejiga Urinaria'), ('Uretra', 'Uretra'),
+    ]),
+    ('Reproductor Masculino', [
+        ('Testículo', 'Testículo'),
+    ]),
+    ('Reproductor Femenino', [
+        ('Ovario', 'Ovario'), ('Trompa de Falopio', 'Trompa de Falopio'),
+        ('Útero', 'Útero'), ('Vagina', 'Vagina'), ('Vulva', 'Vulva'),
+    ]),
+    ('Locomotor', [
+        ('Hueso', 'Hueso'), ('Músculo Esquelético', 'Músculo Esquelético'),
+    ]),
+    ('Otros', 'Otros'),
+]
+
+TINCIONES = [
+    ('', 'Seleccionar Tinción'),
+    ('Hematoxilina Eosina (HE)', 'Hematoxilina Eosina (HE)'),
+    ('Giemsa', 'Giemsa'), ('Gram', 'Gram'), ('Azul de Metileno', 'Azul de Metileno'),
+    ('Papanicolau', 'Papanicolau'), ('Wright', 'Wright'), ('Ziehl-Neelsen', 'Ziehl-Neelsen'),
+    ('Tricrómica', 'Tricrómica'), ('Orceína', 'Orceína'), ('P.A.S', 'P.A.S'), ('Otros', 'Otros'),
+]
+
+
+def _qr(prefix):
+    return prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+
+
+class CassetteForm(forms.ModelForm):
+    organo = forms.ChoiceField(choices=ORGANOS)
+
+    class Meta:
+        model = Cassette
+        fields = ['cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
+                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
+                            'descripcion_microscopica', 'diagnostico_final', 'organo'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, tecnico=None):
+        obj = super().save(commit=False)
+        if not obj.qr_casette:
+            obj.qr_casette = _qr('--c--')
+        if tecnico:
+            obj.tecnico = tecnico
+        if commit:
+            obj.save()
+        return obj
+
+
+class MuestraForm(forms.ModelForm):
+    tincion = forms.ChoiceField(choices=TINCIONES)
+
+    class Meta:
+        model = Muestra
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'observaciones', 'tincion'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, cassette=None):
+        obj = super().save(commit=False)
+        if not obj.qr_muestra:
+            obj.qr_muestra = _qr('--m--')
+        if cassette:
+            obj.cassette = cassette
+        if commit:
+            obj.save()
+        return obj
+
+
+class InformeForm(forms.Form):
+    informe_descripcion = forms.CharField(required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
+    informe_fecha = forms.DateField(required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color bg-light'}))
+    informe_tincion = forms.ChoiceField(choices=TINCIONES, required=False,
+        widget=forms.Select(attrs={'class': 'form-select blue__color bg-light'}))
+    informe_observaciones = forms.CharField(required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color bg-light'}))
+    informe_imagen = forms.ImageField(required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control blue__color bg-light',
+                                      'accept': '.jpg,.jpeg,.png,.gif'}))
+
+
+class ImagenForm(forms.ModelForm):
+    class Meta:
+        model = Imagen
+        fields = ['imagen']
