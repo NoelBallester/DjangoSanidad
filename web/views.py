@@ -6,8 +6,10 @@ from django.urls import reverse
 from django.contrib import messages
 
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico
+from django.contrib.auth.hashers import make_password
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
-                    CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm)
+                    CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
+                    TecnicoForm)
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -355,3 +357,65 @@ def imagen_citologia_delete(request, pk):
     imagen.imagen.delete(save=False)
     imagen.delete()
     return redirect(reverse('citologias') + f'?citologia={cid}')
+
+
+# ── Usuarios ──────────────────────────────────────────────────────────────────
+
+@login_required
+def usuario_list(request):
+    tecnicos = Tecnico.objects.order_by('nombre', 'apellidos')
+    form = TecnicoForm()
+    return render(request, 'web/usuarios.html', {'tecnicos': tecnicos, 'form': form})
+
+
+@login_required
+def usuario_create(request):
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para crear usuarios.')
+        return redirect('usuarios')
+    if request.method == 'POST':
+        form = TecnicoForm(request.POST)
+        if form.is_valid():
+            tecnico = form.save(commit=False)
+            pwd = form.cleaned_data.get('password')
+            if pwd:
+                tecnico.password = make_password(pwd)
+            else:
+                tecnico.set_unusable_password()
+            tecnico.save()
+            messages.success(request, f'Técnico "{tecnico.nombre} {tecnico.apellidos}" creado.')
+    return redirect('usuarios')
+
+
+@login_required
+def usuario_update(request, pk):
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para editar usuarios.')
+        return redirect('usuarios')
+    tecnico = get_object_or_404(Tecnico, pk=pk)
+    if request.method == 'POST':
+        form = TecnicoForm(request.POST, instance=tecnico)
+        if form.is_valid():
+            t = form.save(commit=False)
+            pwd = form.cleaned_data.get('password')
+            if pwd:
+                t.password = make_password(pwd)
+            t.save()
+            messages.success(request, f'Técnico "{t.nombre} {t.apellidos}" actualizado.')
+    return redirect('usuarios')
+
+
+@login_required
+@require_POST
+def usuario_delete(request, pk):
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para eliminar usuarios.')
+        return redirect('usuarios')
+    tecnico = get_object_or_404(Tecnico, pk=pk)
+    if tecnico.pk == request.user.pk:
+        messages.error(request, 'No puedes eliminarte a ti mismo.')
+        return redirect('usuarios')
+    nombre = f'{tecnico.nombre} {tecnico.apellidos}'
+    tecnico.delete()
+    messages.success(request, f'Técnico "{nombre}" eliminado.')
+    return redirect('usuarios')

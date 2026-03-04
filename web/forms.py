@@ -1,7 +1,7 @@
 import random
 import string
 from django import forms
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico
 
 
 ORGANOS = [
@@ -218,3 +218,33 @@ class ImagenCitologiaForm(forms.ModelForm):
     class Meta:
         model = ImagenCitologia
         fields = ['imagen']
+
+
+_W = {'class': 'form-control blue__color'}
+_S = {'class': 'form-select blue__color'}
+
+
+class TecnicoForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        label='Contraseña',
+        widget=forms.PasswordInput(attrs={**_W, 'autocomplete': 'new-password',
+                                          'placeholder': 'Dejar vacío para no cambiar'}),
+    )
+
+    class Meta:
+        model = Tecnico
+        fields = ['username', 'nombre', 'apellidos', 'email', 'centro', 'is_staff', 'password']
+        widgets = {
+            'username':  forms.TextInput(attrs=_W),
+            'nombre':    forms.TextInput(attrs=_W),
+            'apellidos': forms.TextInput(attrs=_W),
+            'email':     forms.EmailInput(attrs=_W),
+            'centro':    forms.TextInput(attrs={**_W, 'placeholder': 'Nombre del centro (opcional)'}),
+            'is_staff':  forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'nombre':    'Nombre',
+            'apellidos': 'Apellidos',
+            'is_staff':  'Administrador',
+        }

@@ -28,4 +28,10 @@ urlpatterns = [
     path('muestras-citologia/<int:pk>/eliminar/',                   views.muestra_citologia_delete,  name='muestra_citologia_delete'),
     path('muestras-citologia/<int:muestra_pk>/imagenes/subir/',     views.imagen_citologia_upload,   name='imagen_citologia_upload'),
     path('imagenes-citologia/<int:pk>/eliminar/',                   views.imagen_citologia_delete,   name='imagen_citologia_delete'),
+
+    # Usuarios
+    path('usuarios/',                          views.usuario_list,   name='usuarios'),
+    path('usuarios/crear/',                    views.usuario_create, name='usuario_create'),
+    path('usuarios/<int:pk>/editar/',          views.usuario_update, name='usuario_update'),
+    path('usuarios/<int:pk>/eliminar/',        views.usuario_delete, name='usuario_delete'),
 ]

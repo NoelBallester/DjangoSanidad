@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{% static 'css/sortable.css' %}">
     <link rel="stylesheet" href="{% static 'css/cassettes.css' %}">
     <link rel="stylesheet" href="{% static 'css/citologias.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
         (function () {
@@ -66,9 +67,11 @@
                     <li class="nav-item nav__item">
                         <a class="nav-link nav__link" href="/laboratorio.html">Laboratorio</a>
                     </li>
-                    <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
-                        <a class="nav-link nav__link" href="/usuarios.html">Usuarios</a>
+                    {% if request.user.is_staff %}
+                    <li class="nav-item nav__item">
+                        <a class="nav-link nav__link" href="{% url 'usuarios' %}">Usuarios</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item nav__item">
                         <form method="post" action="{% url 'logout' %}" style="display:inline">
                             {% csrf_token %}
@@ -320,6 +323,9 @@
                             <div id="btnformmodificarcitologia" style="cursor:pointer">
                                 <i title="Modificar Citología"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
+                            </div>
+                            <div id="btnVerQR" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#qrCitologiaModal">
+                                <i title="Ver QR" class="fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
                     </div>
@@ -708,6 +714,28 @@
 
     </main>
 
+    {% if selected %}
+    <!-- Modal QR Citología -->
+    <div class="modal fade" id="qrCitologiaModal" tabindex="-1" aria-labelledby="qrCitologiaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrCitologiaModalLabel">QR — Citología {{ selected.citologia }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center gap-3">
+                    <div id="qrcode-citologia"></div>
+                    <small class="text-muted">{{ selected.qr_citologia }}</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="imprimirQR()">Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Footer -->
     <footer class="footer mt-5">
         <div class="footer-container">
@@ -783,6 +811,26 @@
             const pk = e.relatedTarget.dataset.muestraPk;
             document.getElementById('formEliminarMuestra').action = `/muestras-citologia/${pk}/eliminar/`;
         });
+
+        // ── QR Citología ──────────────────────────────────────────────────────
+        {% if selected %}
+        document.getElementById('qrCitologiaModal')?.addEventListener('shown.bs.modal', function () {
+            const el = document.getElementById('qrcode-citologia');
+            if (el && !el.querySelector('canvas')) {
+                new QRCode(el, {
+                    text: "{{ selected.qr_citologia|escapejs }}",
+                    width: 220, height: 220
+                });
+            }
+        });
+        function imprimirQR() {
+            const canvas = document.querySelector('#qrcode-citologia canvas');
+            if (!canvas) return;
+            const win = window.open('');
+            win.document.write(`<img src="${canvas.toDataURL()}" style="width:300px"><p>{{ selected.qr_citologia|escapejs }}</p>`);
+            win.print(); win.close();
+        }
+        {% endif %}
     </script>
 </body>
 
