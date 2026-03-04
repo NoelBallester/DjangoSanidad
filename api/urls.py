@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TecnicoViewSet, CassetteViewSet, MuestraViewSet, ImagenViewSet,
     CitologiaViewSet, MuestraCitologiaViewSet, ImagenCitologiaViewSet,
-    TuboViewSet, MuestraTuboViewSet, ImagenTuboViewSet
+    TuboViewSet, MuestraTuboViewSet, ImagenTuboViewSet,
+    HematologiaViewSet, MuestraHematologiaViewSet, ImagenHematologiaViewSet
 )
 
 router = DefaultRouter()
@@ -17,6 +18,9 @@ router.register(r'imagenescitologia', ImagenCitologiaViewSet, basename='imagenci
 router.register(r'tubos', TuboViewSet, basename='tubo')
 router.register(r'muestrastubo', MuestraTuboViewSet, basename='muestratubo')
 router.register(r'imagenestubo', ImagenTuboViewSet, basename='imagentubo')
+router.register(r'hematologia', HematologiaViewSet, basename='hematologia')
+router.register(r'muestrashematologia', MuestraHematologiaViewSet, basename='muestrahematologia')
+router.register(r'imageneshematologia', ImagenHematologiaViewSet, basename='imagenhematologia')
 
 urlpatterns = [
     path('', include(router.urls)),

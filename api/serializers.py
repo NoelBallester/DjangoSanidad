@@ -1,6 +1,6 @@
 import base64
 from rest_framework import serializers
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
 
 class TecnicoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,6 +70,50 @@ class ImagenTuboSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImagenTubo
+        fields = '__all__'
+
+    def get_imagen_base64(self, obj):
+        if obj.imagen:
+            try:
+                with open(obj.imagen.path, 'rb') as f:
+                    return base64.b64encode(f.read()).decode('utf-8')
+            except:
+                return None
+        return None
+
+class HematologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Hematologia
+        fields = '__all__'
+
+    def get_imagen_base64(self, obj):
+        if obj.informe_imagen:
+            return base64.b64encode(obj.informe_imagen).decode('utf-8')
+        return None
+
+class MuestraHematologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MuestraHematologia
+        fields = '__all__'
+
+    def get_imagen_base64(self, obj):
+        if hasattr(obj, 'imagen') and obj.imagen:
+            try:
+                with open(obj.imagen.path, 'rb') as f:
+                    return base64.b64encode(f.read()).decode('utf-8')
+            except:
+                return None
+        return None
+
+class ImagenHematologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImagenHematologia
         fields = '__all__'
 
     def get_imagen_base64(self, obj):

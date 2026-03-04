@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="./js/auth.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+  <!-- Iconos BootStrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./assets/images/favicon.png" type="image/x-icon" />
+
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Iconos Fontawesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/muestras.css">
+
+  <!-- Dark Mode Logic -->
+  <!-- Dark Mode: apply theme immediately to avoid flash -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark-theme');
+      }
+    })();
+  </script>
+  <script src="./js/darkmode.js" defer></script>
+  <!-- Page Specific Styles -->
+  <link rel="stylesheet" href="./css/sortable.css" />
+  <link rel="stylesheet" href="./css/hematologia.css">
+
+  <!-- QRious Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+  <title>Hematología</title>
+</head>
+
+<body id="body">
+
+  <!-- Navigation -->
+  <nav class="nav navbar navbar-expand-lg shadow-sm sticky-top">
+    <div class="container-fluid d-flex align-items-center justify-content-between px-lg-5">
+      <!-- Logo -->
+      <a class="navbar-brand nav__logo-container" href="./index.html">
+        <div class="logo-box">
+          <i class='bx bxs-flask-iv'></i>
+          <i class="fa-solid fa-microscope" style="font-size: 1rem; margin-left: -5px;"></i>
+        </div>
+        <span class="nav__title">Sanidad</span>
+      </a>
+
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler custom-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars header__icon"></i>
+      </button>
+
+      <!-- Nav Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto nav__list">
+          <li class="nav-item nav__item">
+            <a class="nav-link nav__link" href="./index.html">Inicio</a>
+          </li>
+          <li class="nav-item nav__item">
+            <a class="nav-link nav__link active" href="./anatomia.html">Anatomía&nbsp;Patológica</a>
+          </li>
+          <li class="nav-item nav__item">
+            <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
+          </li>
+          <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
+            <a class="nav-link nav__link" href="./usuarios.html">Usuarios</a>
+          </li>
+          <li class="nav-item nav__item">
+            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
+          </li>
+          <li class="nav-item nav__item d-flex align-items-center">
+            <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
+              <i class='bx bx-moon fs-4'></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="barra_org container-fluid px-5">
+    <div class="container-fluid caja_org px-0">
+      <div class="row align-items-center w-100 m-0">
+        <!-- Area Izquierda (Espaciador para equilibrar el centrado) -->
+        <div class="col p-0"></div>
+
+        <!-- Area Central (Filtros Absolutamente Centrados) -->
+        <div class="col-auto d-flex align-items-center justify-content-center gap-2 p-0">
+          <!-- Select Numero Muestra -->
+          <div style="min-width: 140px;">
+            <select class="form-select border__color unified-filter-height" id="numMuestras"
+              style="font-size: 0.85rem;">
+              <option selected disabled>Nº Muestra</option>
+            </select>
+          </div>
+
+          <!-- Select Organos -->
+          <div style="min-width: 140px;">
+            <select class="form-select border__color unified-filter-height" id="organos" style="font-size: 0.85rem;">
+              <option disabled selected>Órgano</option>
+              <option value="*">Todos</option>
+              <optgroup label="Sistema Nervioso">
+                <option>Encéfalo</option>
+                <option>Médula Espinal</option>
+                <option>Nervio</option>
+                <option>Ganglio Nervios</option>
+              </optgroup>
+              <optgroup label="Tegumento">
+                <option>Piel</option>
+                <option>Uña</option>
+                <option>Pelo</option>
+              </optgroup>
+              <optgroup label="Cardiovascular">
+                <option>Corazón</option>
+                <option>Venas</option>
+                <option>Arteria</option>
+              </optgroup>
+              <optgroup label="Linfático">
+                <option>Ganglio Linfático</option>
+                <option>Vaso Linfático</option>
+                <option>Bazo</option>
+              </optgroup>
+              <optgroup label="Endocrino">
+                <option>Hipófisis</option>
+                <option>Glándula Tiroides</option>
+                <option>Glándulas Paratiroides</option>
+                <option>Glándulas Suprarrenales</option>
+                <option>Páncreas</option>
+              </optgroup>
+              <optgroup label="Respiratorio">
+                <option>Fosa Nasal</option>
+                <option>Faringe</option>
+                <option>Laringe</option>
+                <option>Tráquea</option>
+                <option>Bronquio</option>
+                <option>Pulmón</option>
+              </optgroup>
+              <optgroup label="Digestivo">
+                <option>Boca</option>
+                <option>Lengua</option>
+                <option>Glándula Salival</option>
+                <option>Faringe</option>
+                <option>Esófago</option>
+                <option>Estómago</option>
+                <option>Hígado</option>
+                <option>Vesícula Biliar</option>
+                <option>Páncreas</option>
+                <option>Idn. Delgado</option>
+                <option>Idn. Grueso</option>
+                <option>Ciego</option>
+                <option>Apéndice</option>
+                <option>Recto</option>
+                <option>Ano</option>
+              </optgroup>
+              <optgroup label="Excretor Uriznario">
+                <option>Riñón</option>
+                <option>Pelvis Renal</option>
+                <option>Uréter</option>
+                <option>Vejiga Urinaria</option>
+                <option>Uretra</option>
+              </optgroup>
+              <optgroup label="Reproductor Masculino">
+                <option>Testículo</option>
+              </optgroup>
+              <optgroup label="Locomotor">
+                <option>Hueso</option>
+                <option>Musculo Esquelético</option>
+              </optgroup>
+              <option>Otros</option>
+            </select>
+          </div>
+
+          <div>
+            <button data-bs-toggle="modal" id="btn__consultarqr" data-bs-target="#qrConsultaModal"
+              class="btn fondo px-3 unified-filter-height" title="Escanear QR">
+              <i class="fa-solid fa-qrcode"></i>
+            </button>
+          </div>
+
+          <div class="d-flex gap-2">
+            <input type="date" id="fechainicio" class="form-control border__color unified-filter-height px-2">
+            <input type="date" id="fechafin" class="form-control border__color unified-filter-height px-2">
+          </div>
+
+          <div>
+            <a href="./hematologia.html"
+              class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
+              <i class="fa-solid fa-boxes-stacked me-2"></i> Ir a Hematología
+            </a>
+          </div>
+        </div>
+
+        <!-- Area Derecha (Botón Volver alineado a la derecha) -->
+        <div class="col d-flex justify-content-end p-0">
+          <a href="./laboratorio.html"
+            class="btn btn-outline-primary border__color rounded-circle d-flex align-items-center justify-content-center unified-filter-height p-0"
+            style="width: 42px; background: var(--bg-light);" title="Volver">
+            <i class="bi bi-arrow-left-short fs-4 blue__color"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Alert mensajes borrar y modificar Hematología -->
+  <div class="alert alert-danger text-center ocultar" role="alert" id="alertfecha">
+    <span class=" fs-3" id="alertfecha_text"> Seleccione una Citología</span>
+  </div>
+
+  <!-- Alert rango fechas -->
+  <div class="alert alert-danger text-center ocultar" role="alert" id="alertMuestras">
+    <span class=" fs-4"> Seleccione una Muestra</span>
+  </div>
+
+  <main class="container-fluid pt-3 px-5">
+    <!-- Cassettes -->
+    <section class="row justify-content-between">
+      <!-- Consultas cassettes -->
+      <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
+        <div class="title d-flex">
+          <div class="col-10 ps-2 ps-lg-5">
+            <h2 class="Muestras__title">Muestras</h2>
+          </div>
+          <div class="col-2 justify-content-end">
+            <button type="button" class="btn m-0 p-0  icono__efect" id="btnformnuevaMuestras"><i title="Nueva Muestra"
+                class=" m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
+            </button>
+
+            <button type="button" class="btn m-0 p-0 icono__efect" id="todasMuestras">
+              <i class="bi bi-files blue__color--negrita fs-5 m-0 p-0" title="Mostrar todas las Muestras"></i>
+            </button>
+
+            <!--   <button type="button" class="btn m-0 p-0 icono__efect">
+              <i title="Escanear Cassette" class=" m-0 p-0 bi bi-qr-code-scan blue__color--negrita fs-5 "></i>
+            </button> -->
+          </div>
+
+        </div>
+        <div class="tableMuestras__scroll">
+          <table class="table sortable-theme-finder" data-sortable>
+            <thead>
+              <tr>
+                <th scope="row">Muestra</th>
+                <th scope="row">Fecha</th>
+                <th scope="row">Detalle Biopsia</th>
+                <th scope="row">Órgano</th>
+                <th data-sortable="false"></th>
+              </tr>
+            </thead>
+            <tbody id="Muestras" class="table-group-divider">
+              <!-- Cargamos las Muestras -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detalle Muestra -->
+      <section class="Muestras col-12 col-lg-5" id="detalleHematologiaSection">
+        <div class="p-2">
+          <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <h2 class="Muestras__title text-center">Detalle Muestra: </h2>
+            <span id="Muestras__Muestras" class="blue__color Muestras__num">
+            </span>
+            <div class="d-flex pt-2 align-items-start">
+
+              <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestrasModal">
+                <i title="Imprimir QR"
+                  class="fa-sharp fa-solid fa-qrcode  Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+
+              <div id="btnEliminarHematologia">
+                <i title="Borrar Muestra" class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+
+              <div id="btnformmodificarMuestras">
+                <i title="Modificar Muestra"
+                  class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+            </div>
+          </div>
+
+          <section class="list-group list-group-flush mt-3">
+            <div class="d-flex px-3  justify-content-between">
+              <li class="blue__color--negrita"> Detalle / Nombre Paciente: <span id="Muestras__descripcion"
+                  class="blue__color Muestras__text">
+                </span>
+              </li>
+              <li class="blue__color--negrita"> Tipo: <span id="Muestras__tipo" class="blue__color Muestras__text">
+                </span>
+              </li>
+
+            </div>
+
+            <hr class="m-1">
+
+            <div class="d-flex px-3  justify-content-between">
+              <li class="blue__color--negrita">Órgano: <span id="Muestras__organo" class="blue__color Muestras__text">
+                </span>
+              </li>
+              <li class="blue__color--negrita">Fecha: <span id="Muestras__fecha" class="blue__color Muestras__text">
+                </span>
+              </li>
+            </div>
+
+            <li class="list-group-item blue__color--negrita">Descripción Macroscópica: <p id="Muestras__caracteristicas"
+                class="blue__color Muestras__text"></p>
+            </li>
+
+            <li class="list-group-item blue__color--negrita">Observaciones: <p id="Muestras__observaciones"
+                class="blue__color Muestras__text"> </p>
+            </li>
+          </section>
+        </div>
+
+      </section>
+    </section>
+
+    <!-- Muestras & Informe de Resultados -->
+    <section class="pt-3">
+      <!-- Muestras -->
+      <div id="sectionMuestras" class="container__muestra m-auto w-100 p-2">
+        <div class="title d-flex align-items-center justify-content-between">
+          <h2 class="Muestras__title m-0">Muestras</h2>
+          <div class="d-flex align-items-center gap-2">
+            <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
+              style="border-radius: 20px;">
+              <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
+            </button>
+            <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Muestra"
+                class="fa-solid fa-file-circle-plus blue__color--negrita fs-5 "></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="table__scroll table__scroll--m">
+          <table class="table table__muestra sortable-theme-finder" data-sortable>
+            <thead>
+              <tr>
+                <th scope="row">Fecha</th>
+                <th scope="row">Descripción</th>
+                <th scope="row">Tinción</th>
+                <th> </th>
+              </tr>
+            </thead>
+            <tbody id="muestras" class="table-group-divider">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Informe de Resultados Estático -->
+      <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
+        <div class="container__muestra h-100 p-2">
+          <div class="title d-flex align-items-center justify-content-between">
+            <h2 class="Muestras__title m-0">Informe de Resultados</h2>
+            <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
+              style="border-radius: 20px;">
+              <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
+            </button>
+          </div>
+          <div class="informe__scroll p-3">
+            <div class="mb-3">
+              <label for="Muestras__informe_descripcion" class="blue__color--negrita d-block">Descripción</label>
+              <input type="text" id="Muestras__informe_descripcion" class="form-control blue__color bg-light">
+            </div>
+            <div class="mb-3">
+              <label for="Muestras__informe_fecha" class="blue__color--negrita d-block">Fecha</label>
+              <input type="date" id="Muestras__informe_fecha" class="form-control blue__color bg-light">
+            </div>
+            <div class="mb-3">
+              <label for="Muestras__informe_tincion" class="blue__color--negrita d-block">Resultados</label>
+              <select id="Muestras__informe_tincion" class="form-select blue__color bg-light">
+                <option selected disabled value="">Seleccionar Tinción</option>
+                <option>Hematoxilina Eosina (HE)</option>
+                <option>Giemsa</option>
+                <option>Gram</option>
+                <option>Azul de Metileno</option>
+                <option>Papanicolau</option>
+                <option>Zienhl-Neelsen</option>
+                <option>Tricorómico</option>
+                <option>Orceína</option>
+                <option>P.A.S</option>
+                <option>Otros</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="Muestras__informe_observaciones" class="blue__color--negrita d-block">Observaciones</label>
+              <textarea id="Muestras__informe_observaciones" class="form-control blue__color bg-light"
+                rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="Muestras__informe_imagen" class="blue__color--negrita d-block">Formulario</label>
+              <input type="file" id="Muestras__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
+                class="form-control blue__color bg-light">
+            </div>
+            <div class="text-end mt-4">
+              <button id="btnGuardarInforme" class="btn fondo w-100 py-2">
+                <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Nueva Muestra-->
+    <section class="mimodal" id="modalnuevaMuestra">
+
+
+      <form class="row g-3 miform" id="nuevaMuestra" enctype="multipart/form-data">
+
+        <div class="form__header">
+          <h2 class="Muestras__title">Nueva Muestra</h2>
+          <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infocassette fs-2"
+            id="btnformcerrarnuevaMuestra"></i>
+        </div>
+
+        <hr>
+
+        <div class="col-md-12">
+          <label for="inputdescripcionMuestra" class="form-label blue__color">Descripcion</label>
+          <input type="text" class="form-control blue__color" id="inputdescripcionMuestra" required>
+        </div>
+
+        <div class="col-md-12">
+          <label for="inputFechaMuestra" class="form-label blue__color">Fecha</label>
+          <input type="date" class="form-control blue__color" id="inputFechaMuestra" required>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="selectTincionMuestra" class="form-label blue__color">Tipo de tinción</label>
+          <select class="form-select blue__color" id="selectTincionMuestra" required>
+            <option selected disabled value="">Seleccionar Tinción</option>
+            <option>Hematoxilina Eosina (HE)</option>
+            <option>Giemsa</option>
+            <option>Gram</option>
+            <option>Azul de Metileno</option>
+            <option>Papanicolau</option>
+            <option>Zienhl-Neelsen</option>
+            <option>Tricorómico</option>
+            <option>Orceína</option>
+            <option>P.A.S</option>
+            <option>Otros</option>
+
+          </select>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputObservacionesMuestra" class="form-label blue__color">Observaciones</label>
+          <textarea class="form-control blue__color" id="inputObservacionesMuestra" required></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputImagenesMuestra" class="form-label blue__color">Tinción</label>
+          <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" id="inputImagenesMuestra">
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn__modal blue__color" type="submit"> Crear Muestra</button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Modal Modificar Muestra-->
+    <section class="mimodal front" id="modalmodificarMuestra">
+
+      <!--  No pongo enctype pq estoy enviando con un formdata -->
+      <form class="row g-3 miform" id="modificarMuestra">
+
+        <div class="form__header">
+          <h2 class="Muestras__title">Modificar Muestra</h2>
+          <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
+            id="btnformcerrarmodificarMuestra"></i>
+        </div>
+
+        <hr>
+
+        <div class="col-md-12">
+          <label for="inputdescripcionMuestra" class="form-label blue__color">Descripcion</label>
+          <input type="text" class="form-control blue__color" id="inputmodificardescripcionMuestra" required>
+        </div>
+
+        <div class="col-md-12">
+          <label for="inputFechaMuestra" class="form-label blue__color">Fecha</label>
+          <input type="date" class="form-control blue__color" id="inputmodificarfechaMuestra" required disabled>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tinción</label>
+          <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
+            <option selected disabled value="">Seleccionar Tinción</option>
+            <option>Hematoxilina Eosina (HE)</option>
+            <option>Giemsa</option>
+            <option>Gram</option>
+            <option>Azul de Metileno</option>
+            <option>Papanicolau</option>
+          </select>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputObservacionesMuestra" class="form-label blue__color">Observaciones</label>
+          <textarea class="form-control blue__color" id="inputmodificarobservacionesMuestra" required></textarea>
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn__modal blue__color" type="submit"> Modificar Muestra</button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Modal Detalle Muestra-->
+    <section class="mimodal" id="modaldetalleMuestra">
+
+      <!-- Detalle Muestra-->
+      <section class="detallemuestra" id="">
+        <div class="form__header">
+          <h2 class="Muestras__title">Detalle Muestra</h2>
+          <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
+            id="btncerrardetalleMuestra"></i>
+        </div>
+        <hr>
+
+        <div class="p-2">
+          <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-start">
+              <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal">
+                <i title="Imprimer QR Muestra"
+                  class="fa-sharp fa-solid fa-qrcode  Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+
+              <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal">
+                <i title="Borrar Muestra" class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+
+              <div id="btnformmodificarmuestra">
+                <i title="Modificar Muestra"
+                  class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras"></i>
+              </div>
+
+            </div>
+            <div>
+              <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra" alt=""
+                class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras"></i>
+            </div>
+          </div>
+
+          <section class="row  mt-3">
+            <div class="col-4 border-end text-center">
+              <li class="list-group-item blue__color--negrita">Descripción: <p id="muestra__descripcion"
+                  class="blue__color muestradescripcion__text">
+                </p>
+              </li>
+
+              <li class="list-group-item blue__color--negrita">Fecha: <p id="muestra__fecha"
+                  class="blue__color Muestras__text">
+                </p>
+              </li>
+
+              <li class="list-group-item blue__color--negrita">Tinción: <p id="muestra__tincion"
+                  class="blue__color Muestras__text">
+                </p>
+              </li>
+
+              <li class="list-group-item blue__color--negrita">Observaciones: <p id="muestra__observaciones"
+                  class="blue__color Muestras__text"></p>
+              </li>
+
+              <div id="qrMuestraContainer" class="mt-3">
+                <canvas id="imgmuestra__qr"></canvas>
+              </div>
+            </div>
+            <div class="col-8">
+              <img id="visor__img" class="visor__img w-100" style="max-height: 400px; object-fit: contain;" src=""
+                alt="">
+            </div>
+            <hr class="mt-4">
+            <div id="muestra__img" class="d-flex flex-wrap">
+
+            </div>
+          </section>
+        </div>
+
+      </section>
+
+    </section>
+
+    <!-- Modal Nueva Citología-->
+    <section class="mimodal" id="modalnuevaMuestras">
+      <form class="row g-3 miform" id="nuevaMuestras">
+        <!--   <form class="row g-3 miform" id="nuevoCassette" enctype="multipart/form-data"> -->
+
+        <div class="form__header">
+          <h2 class="Muestras__title m-0">Nueva Muestra</h2>
+          <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
+            id="btnformcerrarnuevaMuestras"></i>
+        </div>
+        <hr class="m-0">
+
+        <div class="col-md-12 mt-4">
+          <label for="inputMuestras" class="form-label blue__color">Número Muestras</label>
+          <input class="form-control blue__color" id="inputMuestras" required>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputDescripcion" class="form-label blue__color">Detalle Muestras / Nombre Paciente</label>
+          <input class="form-control blue__color" id="inputDescripcion" required>
+        </div>
+
+        <div class="row col-md-12 mt-3">
+          <div class="col-md-12">
+            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo Muestras</label>
+            <select class="form-select blue__color" id="inputTipoMuestras" required>
+              <option selected disabled value="">Tipo Muestras</option>
+              <option>PAAF</option>
+              <option>Citología Líquida</option>
+              <option>Cervico Vaginal</option>
+              <option>Derrames</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row col-md-12">
+          <div class="col-md-6 mt-2">
+            <label for="inputFecha" class="form-label blue__color">Fecha</label>
+            <input type="date" class="form-control blue__color" id="inputFecha" required>
+          </div>
+
+          <div class="col-md-6 mt-2">
+            <label for="inputSelect" class="form-label blue__color">Órgano</label>
+            <select class="form-select blue__color" id="inputSelect" required>
+              <option selected disabled value="">Seleccionar Órgano</option>
+              <optgroup label="Sistema Nervioso">
+                <option>Encéfalo</option>
+                <option>Médula Espinal</option>
+                <option>Nervio</option>
+                <option>Ganglio Nervios</option>
+              </optgroup>
+
+              <optgroup label="Tegumento">
+                <option>Piel</option>
+                <option>Uña</option>
+                <option>Pelo</option>
+              </optgroup>
+
+              <optgroup label="Cardiovascular">
+                <option>Corazón</option>
+                <option>Venas</option>
+                <option>Arteria</option>
+              </optgroup>
+
+              <optgroup label="Linfático">
+                <option>Ganglio Linfático</option>
+                <option>Timo</option>
+                <option>Bazo</option>
+              </optgroup>
+
+              <optgroup label="Sistema Digestivo">
+                <option>Lengua</option>
+                <option>Esófago</option>
+                <option>Estómago</option>
+                <option>Intestino Delgado</option>
+                <option>Intestino Grueso</option>
+                <option>Diente</option>
+                <option>Glándula Salivar</option>
+                <option>Páncrea</option>
+                <option>Hígado</option>
+              </optgroup>
+
+              <optgroup label="Aparato Excretor">
+                <option>Riñón</option>
+                <option>Vejiga</option>
+              </optgroup>
+
+              <optgroup label="Respiratorio">
+                <option>Tránquea</option>
+                <option>Bronquios</option>
+                <option>Tejido Respiratorio</option>
+              </optgroup>
+
+              <optgroup label="Endocrino">
+                <option>Tiroides</option>
+                <option>Parótidas</option>
+                <option>Suprarrenales</option>
+                <option>Ovario</option>
+                <option>Testículo</option>
+              </optgroup>
+
+              <optgroup label="Locomotor">
+                <option>Hueso</option>
+                <option>Musculo Esquelético</option>
+              </optgroup>
+              <option>Otros</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputCaracteristicas" class="form-label blue__color">Descripción Macroscópica</label>
+
+          <textarea class="form-control blue__color textarea__text" id="inputCaracteristicas" required></textarea>
+        </div>
+
+        <div class="col-md-12">
+          <label for="inputObservaciones" class="form-label blue__color">Observaciones</label>
+          <textarea class="form-control blue__color textarea__text" id="inputObservaciones" required></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputMicroscopia" class="form-label blue__color">Descripción Microscópica</label>
+          <textarea class="form-control blue__color textarea__text" id="inputMicroscopia"></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputDiagnostico" class="form-label blue__color">Diagnóstico Final</label>
+          <textarea class="form-control blue__color textarea__text" id="inputDiagnostico"></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputPatologo" class="form-label blue__color">Patólogo Responsable</label>
+          <input type="text" class="form-control blue__color" id="inputPatologo">
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn__modal blue__color" type="submit"> Crear Citología</button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Modal Modificar Citología-->
+    <section class="mimodal" id="modalupdateMuestras">
+      <form class="row g-3 miform" id="modificarMuestras">
+
+        <div class="form__header">
+          <h2 class="Muestras__title">Modificar Muestras</h2>
+          <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
+            id="btnformcerrarmodificarMuestras"></i>
+        </div>
+        <hr>
+
+        <div class="col-md-12 mt-0">
+          <label for="inputMuestrasUpdate" class="form-label blue__color">Número Muestras</label>
+          <input class="form-control blue__color" id="inputMuestrasUpdate" required>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputDescripcionUpdate" class="form-label blue__color">Detalle Muestras / Nombre Paciente</label>
+          <input class="form-control blue__color" id="inputDescripcionUpdate" required>
+        </div>
+
+        <div class="row col-md-12">
+          <div class="col-md-12 mt-3">
+            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo Muestra</label>
+            <select class="form-select blue__color" id="inputTipoUpdate" required>
+              <option selected disabled value="">Tipo Muestra</option>
+              <option>PAAF</option>
+              <option>Citología Líquida</option>
+              <option>Cervico Vaginal</option>
+              <option>Derrames</option>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="row col-md-12 mt-3">
+          <div class="col-md-6">
+            <label for="inputFechaUpdate" class="form-label blue__color">Fecha</label>
+            <input type="date" class="form-control blue__color" id="inputFechaUpdate" required disabled>
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputSelectUpdate" class="form-label blue__color">Órgano</label>
+            <select class="form-select blue__color" id="inputSelectUpdate" required>
+              <option selected disabled value="">Seleccionar Órgano</option>
+              <optgroup label="Sistema Nervioso">
+                <option>Encéfalo</option>
+                <option>Médula Espinal</option>
+                <option>Nervio</option>
+                <option>Ganglio Nervios</option>
+              </optgroup>
+
+              <optgroup label="Tegumento">
+                <option>Piel</option>
+                <option>Uña</option>
+                <option>Pelo</option>
+              </optgroup>
+
+              <optgroup label="Cardiovascular">
+                <option>Corazón</option>
+                <option>Venas</option>
+                <option>Arteria</option>
+              </optgroup>
+
+              <optgroup label="Linfático">
+                <option>Ganglio Linfático</option>
+                <option>Timo</option>
+                <option>Bazo</option>
+              </optgroup>
+
+              <optgroup label="Sistema Digestivo">
+                <option>Lengua</option>
+                <option>Esófago</option>
+                <option>Estómago</option>
+                <option>Intestino Delgado</option>
+                <option>Intestino Grueso</option>
+                <option>Diente</option>
+                <option>Glándula Salivar</option>
+                <option>Páncrea</option>
+                <option>Hígado</option>
+              </optgroup>
+
+              <optgroup label="Aparato Excretor">
+                <option>Riñón</option>
+                <option>Vejiga</option>
+              </optgroup>
+
+              <optgroup label="Respiratorio">
+                <option>Tránquea</option>
+                <option>Bronquios</option>
+                <option>Tejido Respiratorio</option>
+              </optgroup>
+
+              <optgroup label="Endocrino">
+                <option>Tiroides</option>
+                <option>Parótidas</option>
+                <option>Suprarrenales</option>
+                <option>Ovario</option>
+                <option>Testículo</option>
+              </optgroup>
+
+              <optgroup label="Locomotor">
+                <option>Hueso</option>
+                <option>Musculo Esquelético</option>
+              </optgroup>
+              <option>Otros</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputCaracteristicasUpdate" class="form-label blue__color">Características</label>
+
+          <textarea class="form-control blue__color textarea__text" id="inputCaracteristicasUpdate" required></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputObservacionesUpdate" class="form-label blue__color">Observaciones</label>
+          <textarea class="form-control blue__color textarea__text" id="inputObservacionesUpdate" required></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputMicroscopiaUpdate" class="form-label blue__color">Descripción Microscópica</label>
+          <textarea class="form-control blue__color textarea__text" id="inputMicroscopiaUpdate"></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico Final</label>
+          <textarea class="form-control blue__color textarea__text" id="inputDiagnosticoUpdate"></textarea>
+        </div>
+
+        <div class="col-md-12 mt-3">
+          <label for="inputPatologoUpdate" class="form-label blue__color">Patólogo Responsable</label>
+          <input type="text" class="form-control blue__color" id="inputPatologoUpdate">
+        </div>
+
+        <!--  <div class="col-md-12 mt-3">
+          <label for="inputImagenesUpdate" class="form-label blue__color">Imagen</label>
+          <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" id="inputImagenesUpdate">
+        </div> -->
+
+        <div class="col-12">
+          <button class="btn btn__modal blue__color" type="submit"> Modificar Muestra</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Modal Consultar QR -->
+    <section class="modal fade" id="qrConsultaModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body text-center fs-4 blue__color">
+            <p>Puede escanear el código QR de una Muestra</p>
+
+            <input type="text" value="qr" id="input__consultarqr">
+            <!--  <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
+              data-bs-dismiss="modal">Imprimir</button> -->
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Imprimir QR Muestra-->
+    <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body text-center fs-4 blue__color">
+            <p>Impresión QR Muestra</p>
+            <img src="" alt="Imprimir Muestra" id="imgmuestra__qr">
+            <input type="text" value="qr" id="inputmuestra__qr">
+            <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrmuestra"
+              data-bs-dismiss="modal">Imprimir</button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Imprimir QR Muestra-->
+    <section class="modal fade" id="qrMuestrasModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body text-center fs-4 blue__color">
+            <p>Impresión QR Muestras</p>
+            <img src="" alt="Imprimir Muestras" id="imgMuestras__qr">
+            <input type="text" value="qr" id="inputMuestras__qr">
+            <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrMuestras"
+              data-bs-dismiss="modal">Imprimir</button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Mostrar Imagen Hematología -->
+    <section class="modal fade" id="imagenMuestrasModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body text-center fs-4 blue__color">
+            <img src="" id="Muestras__imagen" class="img-fluid">
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Confirmación Borrado Citología -->
+    <section class="modal fade" id="eliminarMuestrasModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body text-center fs-4 blue__color">
+            <p>Desea Eliminar la Citología.</p>
+            <p>Al eliminar la citología se eliminarán también todas sus muestras.</p>
+            <button type="button" class="btn btn__modal mt-3" id="btnborrar" data-bs-dismiss="modal">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Confirmación Borrado Muestra -->
+    <section class="modal fade" id="eliminarMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <!-- Modal QR Muestra Principal -->
+        <div class="modal fade" id="qrMuestrasModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title blue__color">Código QR de la Muestra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                <canvas id="qrCanvasMain" style="max-width: 100%;"></canvas>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn fondo" onclick="window.print()">Imprimir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Eliminar Muestra Principal -->
+        <div class="modal fade" id="eliminarMuestrasModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title text-danger">Eliminar Hematología</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center fs-5 blue__color">
+                <p>¿Desea eliminar esta muestra de hematología?</p>
+                <p class="text-muted small">Esta acción borrará todas las sub-muestras e imágenes asociadas.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmEliminarHematologia">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="footer mt-5">
+          <div class="footer-container">
+            <div class="footer__box footer__menu text-center">
+              <h3 class="footer__title">Centros Colaboradores</h3>
+              <section class="links d-flex justify-content-center flex-wrap gap-4">
+                <a href="https://www.iesbohio.es/web/" target="_blank" class="column__link">IES El Bohío</a>
+                <a href="https://www.iesryc.org/" target="_blank" class="column__link">IES Ramón y Cajal</a>
+              </section>
+            </div>
+          </div>
+        </footer>
+
+        <!-- BootStrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+          crossorigin="anonymous"></script>
+
+        <!-- Para ordenar tabla -->
+        <script src="./js/sortable.js"></script>
+        <script src="./js/qr.js"></script>
+        <script src="./js/hematologia.js"></script>
+        <script src="./js/muestra.js"></script>
+
+</body>
+
+</html>

@@ -6,17 +6,18 @@ from datetime import datetime
 import base64
 import uuid
 import random
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
     CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer,
-    TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer
+    TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer,
+    HematologiaSerializer, MuestraHematologiaSerializer, ImagenHematologiaSerializer
 )
 
 def generar_qr(prefijo):
     """Genera un código QR único con formato: prefijo + 12 caracteres"""
     random_part = str(uuid.uuid4()).replace('-', '') + str(random.randint(0, 999999))
-    return f"{prefijo}{random_part[:12]}"
+    return f"{prefijo}{str(random_part)[:12]}"
 
 class TecnicoViewSet(viewsets.ModelViewSet):
     queryset = Tecnico.objects.all()
@@ -426,6 +427,136 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
         resultado = []
         for img in imagenes:
             img_data = ImagenTuboSerializer(img).data
+            if img.imagen:
+                with open(img.imagen.path, 'rb') as f:
+                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)
+
+class HematologiaViewSet(viewsets.ModelViewSet):
+    queryset = Hematologia.objects.all().order_by('-fecha')
+    serializer_class = HematologiaSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_hematologia' not in data or not data['qr_hematologia']:
+            data['qr_hematologia'] = generar_qr('--h--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        """Carga las últimas 10 hematologías"""
+        hematologias = self.get_queryset()[:10]
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        """Carga todas las hematologías"""
+        hematologias = self.get_queryset()
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca hematología por código QR"""
+        hematologias = Hematologia.objects.filter(qr_hematologia=qr)
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        """Filtra hematologías por órgano"""
+        if organo == '*':
+            hematologias = self.get_queryset()
+        else:
+            hematologias = Hematologia.objects.filter(organo=organo).order_by('-fecha')
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    def por_numero(self, request, numero=None):
+        """Filtra hematologías por número"""
+        hematologias = Hematologia.objects.filter(hematologia=numero).order_by('-fecha')
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        """Filtra hematologías por fecha específica"""
+        hematologias = Hematologia.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        """Filtra hematologías por rango de fechas"""
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        hematologias = Hematologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(HematologiaSerializer(hematologias, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        """Actualiza el informe médico de una hematología"""
+        hematologia = self.get_object()
+        data = request.data
+        
+        if 'informe_descripcion' in data:
+            hematologia.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            hematologia.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            hematologia.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            hematologia.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            # Convertir base64 a bytes si viene como string
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            hematologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+        
+        hematologia.save()
+        return Response(HematologiaSerializer(hematologia).data)
+
+class MuestraHematologiaViewSet(viewsets.ModelViewSet):
+    queryset = MuestraHematologia.objects.all()
+    serializer_class = MuestraHematologiaSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--mh--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='hematologia/(?P<id>[^/.]+)')
+    def por_hematologia(self, request, id=None):
+        """Obtiene todas las muestras de una hematología"""
+        muestras = MuestraHematologia.objects.filter(hematologia_id=id)
+        return Response(MuestraHematologiaSerializer(muestras, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca muestra por código QR"""
+        muestras = MuestraHematologia.objects.filter(qr_muestra=qr)
+        return Response(MuestraHematologiaSerializer(muestras, many=True).data)
+
+class ImagenHematologiaViewSet(viewsets.ModelViewSet):
+    queryset = ImagenHematologia.objects.all()
+    serializer_class = ImagenHematologiaSerializer
+    
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra de hematología en base64"""
+        imagenes = ImagenHematologia.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenHematologiaSerializer(img).data
             if img.imagen:
                 with open(img.imagen.path, 'rb') as f:
                     img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
