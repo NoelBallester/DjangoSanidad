@@ -36,8 +36,8 @@
                     {% csrf_token %}
                     <p class="header">Login</p>
                     <div class="field">
-                        <input type="email" name="email" placeholder="Email" required class="input"
-                            value="{{ request.POST.email|default:'' }}">
+                        <input type="number" name="tecnico_id" placeholder="ID Técnico" required class="input"
+                            value="{{ request.POST.tecnico_id|default:'' }}">
                     </div>
                     <div class="field">
                         <input id="inputlogin_password" type="password" name="password"

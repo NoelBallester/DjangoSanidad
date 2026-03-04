@@ -1,46 +1,25 @@
 /**
  * Dark Mode Toggle Logic
+ * The initial theme is applied immediately via an inline script in <head>
+ * (see each HTML page). This file only handles the toggle button interaction.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
+    const root = document.documentElement;
     const icon = darkModeToggle ? darkModeToggle.querySelector('i') : null;
 
-    // Check for saved user preference in localStorage
-    const currentTheme = localStorage.getItem('theme');
-
-    // If a preference is saved, apply it
-    if (currentTheme) {
-        if (currentTheme === 'dark') {
-            body.classList.add('dark-theme');
-            if (icon) updateIcon(true);
-        }
-    } else {
-        // If no preference is saved, check OS preference
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        if (prefersDarkScheme.matches) {
-            body.classList.add('dark-theme');
-            if (icon) updateIcon(true);
-        }
-    }
+    // Sync icon with current theme (already applied by inline script in <head>)
+    if (root.classList.contains('dark-theme') && icon) updateIcon(true);
 
     // Toggle button click handler
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent default link behavior if it's an <a> tag
-            body.classList.toggle('dark-theme');
-            let theme = 'light';
-
-            if (body.classList.contains('dark-theme')) {
-                theme = 'dark';
-                updateIcon(true);
-            } else {
-                updateIcon(false);
-            }
-
-            // Save the user's preference
-            localStorage.setItem('theme', theme);
+            e.preventDefault();
+            root.classList.toggle('dark-theme');
+            const isDark = root.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            if (icon) updateIcon(isDark);
         });
     }
 

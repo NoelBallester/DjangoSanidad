@@ -32,6 +32,15 @@
     <link rel="stylesheet" href="css/muestras.css">
 
     <!-- Dark Mode Logic -->
+        <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <script>
+        (function(){
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
     <script src="./js/darkmode.js" defer></script>
     <!-- Page Specific Styles -->
     <link rel="stylesheet" href="./css/sortable.css" />

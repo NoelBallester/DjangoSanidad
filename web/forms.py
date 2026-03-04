@@ -114,22 +114,17 @@ class CitologiaForm(forms.ModelForm):
     class Meta:
         model = Citologia
         fields = ['citologia', 'tipo_citologia', 'fecha', 'descripcion', 'caracteristicas',
-                  'observaciones', 'descripcion_microscopica', 'diagnostico_final',
-                  'patologo_responsable', 'organo']
+                  'observaciones', 'organo']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
-            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
-            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
-            'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
-                            'descripcion_microscopica', 'diagnostico_final', 'organo', 'tipo_citologia'):
+            if name not in ('fecha', 'caracteristicas', 'observaciones', 'organo', 'tipo_citologia'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
     def save(self, commit=True, tecnico=None):

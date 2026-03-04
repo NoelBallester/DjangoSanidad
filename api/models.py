@@ -17,19 +17,20 @@ class TecnicoManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class Tecnico(AbstractBaseUser, PermissionsMixin):
-    id_tecnico = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
-    apellidos = models.CharField(max_length=255)
+    id_tecnico = models.AutoField(primary_key=True, db_column='id')
+    nombre = models.CharField(max_length=255, db_column='first_name')
+    apellidos = models.CharField(max_length=255, db_column='last_name')
+    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     centro = models.CharField(max_length=255, null=True, blank=True)
-    
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
+
     objects = TecnicoManager()
-    
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre', 'apellidos']
+    REQUIRED_FIELDS = ['nombre', 'apellidos', 'username']
     
     class Meta:
         db_table = 'tecnicos'
@@ -38,46 +39,37 @@ class Cassette(models.Model):
     id_casette = models.AutoField(primary_key=True)
     cassette = models.CharField(max_length=50)
     fecha = models.DateField()
-    descripcion = models.TextField()  # Detalle biopsia/Nombre paciente
-    caracteristicas = models.TextField()  # Descripción macroscópica
+    descripcion = models.CharField(max_length=255)
+    caracteristicas = models.TextField()
     observaciones = models.TextField(null=True, blank=True)
+    informacion_clinica = models.TextField(null=True, blank=True)
     descripcion_microscopica = models.TextField(null=True, blank=True)
     diagnostico_final = models.TextField(null=True, blank=True)
-    patologo_responsable = models.TextField(null=True, blank=True)
+    patologo_responsable = models.CharField(max_length=255, null=True, blank=True)
     qr_casette = models.CharField(max_length=255, unique=True)
     organo = models.CharField(max_length=255)
-    tecnico = models.ForeignKey(Tecnico, on_delete=models.CASCADE, db_column='tecnicoIdTecnico')
-    # Campos de Informe de Resultados
-    informe_descripcion = models.TextField(null=True, blank=True)
+    informe_descripcion = models.CharField(max_length=255, null=True, blank=True)
     informe_fecha = models.DateField(null=True, blank=True)
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
-    informe_imagen = models.BinaryField(null=True, blank=True)  # BLOB
-    
+    informe_imagen = models.BinaryField(null=True, blank=True)
+
     class Meta:
         db_table = 'cassettes'
 
 class Citologia(models.Model):
-    id_citologia = models.AutoField(primary_key=True)
+    id_citologia = models.AutoField(primary_key=True, db_column='id')
     citologia = models.CharField(max_length=50)
-    tipo_citologia = models.CharField(max_length=255)  # PAAF, Citología Líquida, Cervico Vaginal, Derrames
+    tipo_citologia = models.CharField(max_length=255)
     fecha = models.DateField()
-    descripcion = models.TextField()  # Detalle biopsia/Nombre paciente
-    caracteristicas = models.TextField()  # Descripción macroscópica
+    descripcion = models.CharField(max_length=255)
+    caracteristicas = models.TextField()
     observaciones = models.TextField(null=True, blank=True)
-    descripcion_microscopica = models.TextField(null=True, blank=True)
-    diagnostico_final = models.TextField(null=True, blank=True)
-    patologo_responsable = models.TextField(null=True, blank=True)
     qr_citologia = models.CharField(max_length=255, unique=True)
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     organo = models.CharField(max_length=255)
-    tecnico = models.ForeignKey(Tecnico, on_delete=models.CASCADE, db_column='tecnicoIdTecnico')
-    # Campos de Informe de Resultados
-    informe_descripcion = models.TextField(null=True, blank=True)
-    informe_fecha = models.DateField(null=True, blank=True)
-    informe_tincion = models.CharField(max_length=255, null=True, blank=True)
-    informe_observaciones = models.TextField(null=True, blank=True)
-    informe_imagen = models.BinaryField(null=True, blank=True)  # BLOB
-    
+    tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
+
     class Meta:
         db_table = 'citologias'
 
@@ -88,19 +80,20 @@ class Muestra(models.Model):
     observaciones = models.TextField(null=True, blank=True)
     tincion = models.CharField(max_length=255)
     qr_muestra = models.CharField(max_length=255)
-    cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE, db_column='cassetteIdCassette')
+    cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'muestras'
 
 class MuestraCitologia(models.Model):
-    id_muestra = models.AutoField(primary_key=True)
+    id_muestra = models.AutoField(primary_key=True, db_column='id')
     descripcion = models.CharField(max_length=255)
     fecha = models.DateField()
     observaciones = models.TextField(null=True, blank=True)
     tincion = models.CharField(max_length=255)
     qr_muestra = models.CharField(max_length=255)
-    citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologiaIdCitologia')
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologia_id')
 
     class Meta:
         db_table = 'muestrascitologia'
@@ -108,15 +101,15 @@ class MuestraCitologia(models.Model):
 class Imagen(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     imagen = models.ImageField(upload_to='imagenes/', null=True, blank=True)
-    muestra = models.ForeignKey(Muestra, on_delete=models.CASCADE, db_column='muestraIdMuestra')
+    muestra = models.ForeignKey(Muestra, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'imagenes'
 
 class ImagenCitologia(models.Model):
-    id_imagen = models.AutoField(primary_key=True)
+    id_imagen = models.AutoField(primary_key=True, db_column='id')
     imagen = models.ImageField(upload_to='imagenes_citologia/', null=True, blank=True)
-    muestra = models.ForeignKey(MuestraCitologia, on_delete=models.CASCADE, db_column='muestraIdMuestra')
+    muestra = models.ForeignKey(MuestraCitologia, on_delete=models.CASCADE, db_column='muestra_id')
 
     class Meta:
         db_table = 'imagenescitologia'

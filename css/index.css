@@ -10,7 +10,7 @@
   --card-bg-rgb: 255, 255, 255;
 }
 
-body.dark-theme {
+:root.dark-theme {
   --title-color: #60A5FA;
   --accent-color: #22D3EE;
   --accent-secondary: #34D399;

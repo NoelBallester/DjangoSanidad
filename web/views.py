@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.contrib import messages
 
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm)
 
@@ -17,13 +17,17 @@ def login_view(request):
         return redirect('cassettes')
     error = None
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
+        tecnico_id = request.POST.get('tecnico_id', '').strip()
         password = request.POST.get('password', '')
-        user = authenticate(request, username=email, password=password)
-        if user:
-            login(request, user)
-            return redirect(request.GET.get('next', 'cassettes'))
-        error = 'Email o contraseña incorrectos.'
+        try:
+            tecnico = Tecnico.objects.get(pk=tecnico_id)
+            if (tecnico.check_password(password) or tecnico.password == password) and tecnico.is_active:
+                tecnico.backend = 'django.contrib.auth.backends.ModelBackend'
+                login(request, tecnico)
+                return redirect(request.GET.get('next', 'cassettes'))
+        except (Tecnico.DoesNotExist, ValueError, TypeError):
+            pass
+        error = 'ID o contraseña incorrectos.'
     return render(request, 'web/login.html', {'error': error})
 
 
@@ -37,7 +41,7 @@ def logout_view(request):
 
 @login_required
 def cassette_list(request):
-    qs = Cassette.objects.select_related('tecnico').order_by('-fecha')
+    qs = Cassette.objects.order_by('-fecha')
 
     organo = request.GET.get('organo', '').strip()
     numero = request.GET.get('numero', '').strip()
@@ -60,11 +64,14 @@ def cassette_list(request):
 
     if sel_pk:
         try:
-            selected = Cassette.objects.select_related('tecnico').get(pk=sel_pk)
-            muestras_con_imagenes = [
-                {'muestra': m, 'imagenes': Imagen.objects.filter(muestra=m)}
-                for m in Muestra.objects.filter(cassette=selected)
-            ]
+            selected = Cassette.objects.get(pk=sel_pk)
+            try:
+                muestras_con_imagenes = [
+                    {'muestra': m, 'imagenes': Imagen.objects.filter(muestra=m)}
+                    for m in Muestra.objects.filter(cassette=selected)
+                ]
+            except Exception:
+                muestras_con_imagenes = []
         except Cassette.DoesNotExist:
             pass
 
@@ -231,12 +238,7 @@ def citologia_list(request):
         'citologia_form':        CitologiaForm(instance=selected) if selected else CitologiaForm(),
         'nueva_citologia_form':  CitologiaForm(),
         'muestra_form':          MuestraCitologiaForm(),
-        'informe_form': InformeForm(initial={
-            'informe_descripcion':   selected.informe_descripcion   if selected else '',
-            'informe_fecha':         selected.informe_fecha          if selected else '',
-            'informe_tincion':       selected.informe_tincion        if selected else '',
-            'informe_observaciones': selected.informe_observaciones  if selected else '',
-        }) if selected else None,
+        'informe_form': None,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 

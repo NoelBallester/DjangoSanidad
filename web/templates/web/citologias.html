@@ -21,6 +21,15 @@
     <link rel="stylesheet" href="{% static 'css/sortable.css' %}">
     <link rel="stylesheet" href="{% static 'css/cassettes.css' %}">
     <link rel="stylesheet" href="{% static 'css/citologias.css' %}">
+    <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <script>
+        (function(){
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
     <style>body { display: block !important; }</style>
     <title>Citologías</title>
 </head>
@@ -30,7 +39,7 @@
     <!-- Navigation -->
     <nav class="nav navbar navbar-expand-lg shadow-sm sticky-top">
         <div class="container-fluid d-flex align-items-center justify-content-between px-lg-5">
-            <a class="navbar-brand nav__logo-container" href="{% url 'citologias' %}">
+            <a class="navbar-brand nav__logo-container" href="/">
                 <div class="logo-box">
                     <i class='bx bxs-flask-iv'></i>
                     <i class="fa-solid fa-microscope" style="font-size: 1rem; margin-left: -5px;"></i>
@@ -44,10 +53,16 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto nav__list">
                     <li class="nav-item nav__item">
-                        <a class="nav-link nav__link" href="{% url 'cassettes' %}">Anatomía&nbsp;Patológica</a>
+                        <a class="nav-link nav__link" href="/">Inicio</a>
                     </li>
                     <li class="nav-item nav__item">
-                        <a class="nav-link nav__link active" href="{% url 'citologias' %}">Citologías</a>
+                        <a class="nav-link nav__link active" href="/anatomia.html">Anatomía&nbsp;Patológica</a>
+                    </li>
+                    <li class="nav-item nav__item">
+                        <a class="nav-link nav__link" href="/laboratorio.html">Laboratorio</a>
+                    </li>
+                    <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
+                        <a class="nav-link nav__link" href="/usuarios.html">Usuarios</a>
                     </li>
                     <li class="nav-item nav__item">
                         <form method="post" action="{% url 'logout' %}" style="display:inline">
@@ -56,6 +71,11 @@
                                 Cerrar Sesión
                             </button>
                         </form>
+                    </li>
+                    <li class="nav-item nav__item d-flex align-items-center">
+                        <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
+                            <i class='bx bx-moon fs-4'></i>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -686,6 +706,7 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
     <script src="{% static 'js/sortable.js' %}"></script>
+    <script src="{% static 'js/darkmode.js' %}" defer></script>
 
     <script>
     // ── Mimodal open / close ──────────────────────────────────────────────
