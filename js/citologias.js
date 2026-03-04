@@ -281,7 +281,7 @@ const cargarCitologia = async (citologiaId) => {
 
 // Obtener citologías por organo
 const cargarPorOrgano = async () => {
-  return await fetch(`/api/citologias/por_organo/${organos.value}/`, {
+  return await fetch(`/api/citologias/organo/${organos.value}/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

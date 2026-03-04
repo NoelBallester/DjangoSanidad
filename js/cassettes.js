@@ -279,7 +279,7 @@ const cargarCassette = async (cassetteId) => {
 
 // Obtener cassettes por organo
 const cargarPorOrgano = async () => {
-  return await fetch(`/api/cassettes/por_organo/${organos.value}/`, {
+  return await fetch(`/api/cassettes/organo/${organos.value}/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
