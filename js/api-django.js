@@ -350,3 +350,177 @@ export const imagenesCitologiaAPI = {
     return response.json();
   }
 };
+
+// ==================== TUBOS (BIOQUÍMICA) ====================
+
+export const tubosAPI = {
+  // Cargar últimos 10 tubos
+  index: async () => {
+    const response = await fetch(`${API_BASE}/tubos/index/`);
+    return response.json();
+  },
+
+  // Cargar todos los tubos
+  todos: async () => {
+    const response = await fetch(`${API_BASE}/tubos/todos/`);
+    return response.json();
+  },
+
+  // Crear nuevo tubo
+  crear: async (data) => {
+    const response = await fetch(`${API_BASE}/tubos/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
+
+  // Obtener tubo por ID
+  obtener: async (id) => {
+    const response = await fetch(`${API_BASE}/tubos/${id}/`);
+    return response.json();
+  },
+
+  // Actualizar tubo
+  actualizar: async (id, data) => {
+    const response = await fetch(`${API_BASE}/tubos/${id}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
+
+  // Eliminar tubo
+  eliminar: async (id) => {
+    const response = await fetch(`${API_BASE}/tubos/${id}/`, {
+      method: 'DELETE'
+    });
+    return response.ok;
+  },
+
+  // Buscar por órgano (Tipo de Muestra)
+  porOrgano: async (organo) => {
+    const response = await fetch(`${API_BASE}/tubos/por_organo/${organo}/`);
+    return response.json();
+  },
+
+  // Buscar por número
+  porNumero: async (numero) => {
+    const response = await fetch(`${API_BASE}/tubos/por_numero/${numero}/`);
+    return response.json();
+  },
+
+  // Buscar por fecha específica
+  porFecha: async (fecha) => {
+    const response = await fetch(`${API_BASE}/tubos/por_fecha/${fecha}/`);
+    return response.json();
+  },
+
+  // Buscar por rango de fechas
+  porRangoFechas: async (inicio, fin) => {
+    const response = await fetch(`${API_BASE}/tubos/rango_fechas/?inicio=${inicio}&fin=${fin}`);
+    return response.json();
+  },
+
+  // Buscar por QR
+  porQR: async (qr) => {
+    const response = await fetch(`${API_BASE}/tubos/por_qr/${qr}/`);
+    return response.json();
+  },
+
+  // Actualizar informe médico
+  actualizarInforme: async (id, data) => {
+    const response = await fetch(`${API_BASE}/tubos/${id}/actualizar_informe/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  }
+};
+
+// ==================== MUESTRAS TUBOS ====================
+
+export const muestrasTuboAPI = {
+  // Crear muestra
+  crear: async (data) => {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      formData.append(key, value);
+    }
+    const response = await fetch(`${API_BASE}/muestrastubo/`, {
+      method: 'POST',
+      body: formData
+    });
+    return response.json();
+  },
+
+  // Obtener muestra por ID
+  obtener: async (id) => {
+    const response = await fetch(`${API_BASE}/muestrastubo/${id}/`);
+    return response.json();
+  },
+
+  // Actualizar muestra
+  actualizar: async (id, data) => {
+    const response = await fetch(`${API_BASE}/muestrastubo/${id}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
+
+  // Eliminar muestra
+  eliminar: async (id) => {
+    const response = await fetch(`${API_BASE}/muestrastubo/${id}/`, {
+      method: 'DELETE'
+    });
+    return response.ok;
+  },
+
+  // Obtener muestras por tubo
+  porTubo: async (tuboId) => {
+    const response = await fetch(`${API_BASE}/muestrastubo/por_tubo/${tuboId}/`);
+    return response.json();
+  },
+
+  // Buscar por QR
+  porQR: async (qr) => {
+    const response = await fetch(`${API_BASE}/muestrastubo/por_qr/${qr}/`);
+    return response.json();
+  }
+};
+
+// ==================== IMÁGENES TUBOS ====================
+
+export const imagenesTuboAPI = {
+  // Crear imagen
+  crear: async (data) => {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      formData.append(key, value);
+    }
+    const response = await fetch(`${API_BASE}/imagenestubo/`, {
+      method: 'POST',
+      body: formData
+    });
+    return response.json();
+  },
+
+  // Eliminar imagen
+  eliminar: async (id) => {
+    const response = await fetch(`${API_BASE}/imagenestubo/${id}/`, {
+      method: 'DELETE'
+    });
+    return response.ok;
+  },
+
+  // Obtener imágenes por muestra de tubo
+  porMuestra: async (muestraId) => {
+    const response = await fetch(`${API_BASE}/imagenestubo/por_muestra/${muestraId}/`);
+    return response.json();
+  }
+};

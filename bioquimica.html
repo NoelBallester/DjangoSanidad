@@ -29,12 +29,12 @@
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/index.css">
-    <link rel="stylesheet" href="css/tubos.css">
+    <link rel="stylesheet" href="css/bioquimica.css">
 
     <!-- Dark Mode Logic -->
-        <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');
@@ -44,7 +44,7 @@
     <script src="./js/darkmode.js" defer></script>
     <!-- Page Specific Styles -->
     <link rel="stylesheet" href="./css/sortable.css" />
-    <link rel="stylesheet" href="./css/tubos.css">
+    <link rel="stylesheet" href="./css/bioquimica.css">
 
     <title>Tubos</title>
 </head>
@@ -879,9 +879,9 @@
 
         <!-- Para ordenar tabla -->
         <script src="./js/sortable.js"></script>
-        <script src="./js/qr.js"></script>
-        <script src="./js/tubos.js"></script>
-        <script src="./js/tubo.js"></script>
+        <script src="js/bioquimica.js"></script>
+        <script src="js/api-django.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
 </body>
 

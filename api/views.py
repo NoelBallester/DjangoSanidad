@@ -6,10 +6,11 @@ from datetime import datetime
 import base64
 import uuid
 import random
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
-    CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer
+    CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer,
+    TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer
 )
 
 def generar_qr(prefijo):
@@ -295,6 +296,136 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
         resultado = []
         for img in imagenes:
             img_data = ImagenCitologiaSerializer(img).data
+            if img.imagen:
+                with open(img.imagen.path, 'rb') as f:
+                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)
+
+class TuboViewSet(viewsets.ModelViewSet):
+    queryset = Tubo.objects.all().order_by('-fecha')
+    serializer_class = TuboSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_tubo' not in data or not data['qr_tubo']:
+            data['qr_tubo'] = generar_qr('--t--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        """Carga los últimos 10 tubos"""
+        tubos = self.get_queryset()[:10]
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        """Carga todos los tubos"""
+        tubos = self.get_queryset()
+        return Response(TuboSerializer(tubos, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca tubo por código QR"""
+        tubos = Tubo.objects.filter(qr_tubo=qr)
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        """Filtra tubos por órgano"""
+        if organo == '*':
+            tubos = self.get_queryset()
+        else:
+            tubos = Tubo.objects.filter(organo=organo).order_by('-fecha')
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    def por_numero(self, request, numero=None):
+        """Filtra tubos por número"""
+        tubos = Tubo.objects.filter(tubo=numero).order_by('-fecha')
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        """Filtra tubos por fecha específica"""
+        tubos = Tubo.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        """Filtra tubos por rango de fechas"""
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        tubos = Tubo.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(TuboSerializer(tubos, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        """Actualiza el informe médico de un tubo"""
+        tubo = self.get_object()
+        data = request.data
+        
+        if 'informe_descripcion' in data:
+            tubo.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            tubo.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            tubo.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            tubo.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            # Convertir base64 a bytes si viene como string
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            tubo.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+        
+        tubo.save()
+        return Response(TuboSerializer(tubo).data)
+
+class MuestraTuboViewSet(viewsets.ModelViewSet):
+    queryset = MuestraTubo.objects.all()
+    serializer_class = MuestraTuboSerializer
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--mt--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='tubo/(?P<id>[^/.]+)')
+    def por_tubo(self, request, id=None):
+        """Obtiene todas las muestras de un tubo"""
+        muestras = MuestraTubo.objects.filter(tubo_id=id)
+        return Response(MuestraTuboSerializer(muestras, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        """Busca muestra por código QR"""
+        muestras = MuestraTubo.objects.filter(qr_muestra=qr)
+        return Response(MuestraTuboSerializer(muestras, many=True).data)
+
+class ImagenTuboViewSet(viewsets.ModelViewSet):
+    queryset = ImagenTubo.objects.all()
+    serializer_class = ImagenTuboSerializer
+    
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra de tubo en base64"""
+        imagenes = ImagenTubo.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenTuboSerializer(img).data
             if img.imagen:
                 with open(img.imagen.path, 'rb') as f:
                     img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')

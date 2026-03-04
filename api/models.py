@@ -20,7 +20,7 @@ class Tecnico(AbstractBaseUser, PermissionsMixin):
     id_tecnico = models.AutoField(primary_key=True, db_column='id')
     nombre = models.CharField(max_length=255, db_column='first_name')
     apellidos = models.CharField(max_length=255, db_column='last_name')
-    username = models.CharField(max_length=150, unique=True)
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     centro = models.CharField(max_length=255, null=True, blank=True)
 
@@ -113,3 +113,47 @@ class ImagenCitologia(models.Model):
 
     class Meta:
         db_table = 'imagenescitologia'
+
+class Tubo(models.Model):
+    id_tubo = models.AutoField(primary_key=True, db_column='id')
+    tubo = models.CharField(max_length=50) # Numero de muestra/tubo
+    fecha = models.DateField()
+    descripcion = models.CharField(max_length=255) # Detalle / Paciente
+    caracteristicas = models.TextField() # Descripción macroscópica
+    observaciones = models.TextField(null=True, blank=True)
+    informacion_clinica = models.TextField(null=True, blank=True)
+    descripcion_microscopica = models.TextField(null=True, blank=True)
+    diagnostico_final = models.TextField(null=True, blank=True)
+    patologo_responsable = models.CharField(max_length=255, null=True, blank=True)
+    qr_tubo = models.CharField(max_length=255, unique=True)
+    organo = models.CharField(max_length=255) # Tipo de Muestra
+    tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
+    informe_descripcion = models.CharField(max_length=255, null=True, blank=True)
+    informe_fecha = models.DateField(null=True, blank=True)
+    informe_tincion = models.CharField(max_length=255, null=True, blank=True)
+    informe_observaciones = models.TextField(null=True, blank=True)
+    informe_imagen = models.BinaryField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'tubos'
+
+class MuestraTubo(models.Model):
+    id_muestra = models.AutoField(primary_key=True, db_column='id')
+    descripcion = models.CharField(max_length=255)
+    fecha = models.DateField()
+    observaciones = models.TextField(null=True, blank=True)
+    tincion = models.CharField(max_length=255)
+    qr_muestra = models.CharField(max_length=255)
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id')
+
+    class Meta:
+        db_table = 'muestrastubo'
+
+class ImagenTubo(models.Model):
+    id_imagen = models.AutoField(primary_key=True, db_column='id')
+    imagen = models.ImageField(upload_to='imagenes_tubo/', null=True, blank=True)
+    muestra = models.ForeignKey(MuestraTubo, on_delete=models.CASCADE, db_column='muestra_id')
+
+    class Meta:
+        db_table = 'imagenestubo'
