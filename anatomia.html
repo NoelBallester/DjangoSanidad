@@ -26,9 +26,9 @@
     <link rel="stylesheet" href="css/index.css">
 
     <!-- Dark Mode Logic -->
-        <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');
@@ -98,10 +98,10 @@
                 Seleccione el área de gestión que desea acceder.
             </p>
             <div class="visor__actions d-flex justify-content-center flex-wrap gap-5 mt-5">
-                <a href="/citologias/" class="visor__btn visor__btn--primary py-3 px-5">
+                <a href="./citologias.html" class="visor__btn visor__btn--primary py-3 px-5">
                     <i class="fa-solid fa-vial me-3"></i> Citologías
                 </a>
-                <a href="/cassettes/" class="visor__btn visor__btn--outline py-3 px-5">
+                <a href="./cassettes.html" class="visor__btn visor__btn--outline py-3 px-5">
                     <i class="fa-solid fa-boxes-stacked me-3"></i> Biopsias
                 </a>
             </div>

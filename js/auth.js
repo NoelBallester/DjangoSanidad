@@ -8,13 +8,12 @@
     const isLoginPage = window.location.pathname.endsWith('registro.html');
     const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
 
-    if (!isLoggedIn && !isLoginPage) {
-        // Redirect to login if not logged in and not on the login page
-        window.location.href = './registro.html';
-    } else if (isLoggedIn && isLoginPage) {
-        // Redirect to home if already logged in and trying to access the login page
-        window.location.href = './index.html';
-    }
+    // Auth guard desactivado - acceso libre sin login
+    // if (!isLoggedIn && !isLoginPage) {
+    //     window.location.href = './registro.html';
+    // } else if (isLoggedIn && isLoginPage) {
+    //     window.location.href = './index.html';
+    // }
 
     // After DOM is loaded, check if we need to show the admin menu
     document.addEventListener("DOMContentLoaded", () => {
