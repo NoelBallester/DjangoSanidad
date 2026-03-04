@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse
@@ -19,14 +19,22 @@ def login_view(request):
     if request.method == 'POST':
         tecnico_id = request.POST.get('tecnico_id', '').strip()
         password = request.POST.get('password', '')
-        try:
-            tecnico = Tecnico.objects.get(pk=tecnico_id)
-            if (tecnico.check_password(password) or tecnico.password == password) and tecnico.is_active:
-                tecnico.backend = 'django.contrib.auth.backends.ModelBackend'
-                login(request, tecnico)
-                return redirect(request.GET.get('next', 'cassettes'))
-        except (Tecnico.DoesNotExist, ValueError, TypeError):
-            pass
+        # Intentar con authenticate primero (para contraseñas hasheadas)
+        user = authenticate(request, id_tecnico=tecnico_id, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect(request.GET.get('next', 'cassettes'))
+        else:
+            # Fallback para contraseñas en plano (si existen en la BD antigua)
+            try:
+                tecnico = Tecnico.objects.get(pk=tecnico_id)
+                if tecnico.password == password and tecnico.is_active:
+                    tecnico.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, tecnico)
+                    return redirect(request.GET.get('next', 'cassettes'))
+            except (Tecnico.DoesNotExist, ValueError):
+                pass
         error = 'ID o contraseña incorrectos.'
     return render(request, 'web/login.html', {'error': error})
 
@@ -39,6 +47,7 @@ def logout_view(request):
 
 # ── Cassettes (lista + detalle) ───────────────────────────────────────────────
 
+@login_required
 def cassette_list(request):
     qs = Cassette.objects.order_by('-fecha')
 
@@ -93,6 +102,7 @@ def cassette_list(request):
 
 # ── Cassette CRUD ─────────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def cassette_create(request):
     form = CassetteForm(request.POST)
@@ -104,6 +114,7 @@ def cassette_create(request):
     return redirect('cassettes')
 
 
+@login_required
 @require_POST
 def cassette_update(request, pk):
     cassette = get_object_or_404(Cassette, pk=pk)
@@ -115,12 +126,14 @@ def cassette_update(request, pk):
     return redirect(reverse('cassettes') + f'?cassette={pk}')
 
 
+@login_required
 @require_POST
 def cassette_delete(request, pk):
     get_object_or_404(Cassette, pk=pk).delete()
     return redirect('cassettes')
 
 
+@login_required
 @require_POST
 def cassette_informe(request, pk):
     cassette = get_object_or_404(Cassette, pk=pk)
@@ -139,6 +152,7 @@ def cassette_informe(request, pk):
 
 # ── Muestras ──────────────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def muestra_create(request, cassette_pk):
     cassette = get_object_or_404(Cassette, pk=cassette_pk)
@@ -148,6 +162,7 @@ def muestra_create(request, cassette_pk):
     return redirect(reverse('cassettes') + f'?cassette={cassette_pk}')
 
 
+@login_required
 @require_POST
 def muestra_update(request, pk):
     muestra = get_object_or_404(Muestra, pk=pk)
@@ -157,6 +172,7 @@ def muestra_update(request, pk):
     return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}')
 
 
+@login_required
 @require_POST
 def muestra_delete(request, pk):
     muestra = get_object_or_404(Muestra, pk=pk)
@@ -167,6 +183,7 @@ def muestra_delete(request, pk):
 
 # ── Imágenes ──────────────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def imagen_upload(request, muestra_pk):
     muestra = get_object_or_404(Muestra, pk=muestra_pk)
@@ -178,6 +195,7 @@ def imagen_upload(request, muestra_pk):
     return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}')
 
 
+@login_required
 @require_POST
 def imagen_delete(request, pk):
     imagen = get_object_or_404(Imagen, pk=pk)
@@ -189,6 +207,7 @@ def imagen_delete(request, pk):
 
 # ── Citologías (lista + detalle) ──────────────────────────────────────────────
 
+@login_required
 def citologia_list(request):
     qs = Citologia.objects.select_related('tecnico').order_by('-fecha')
 
@@ -235,6 +254,7 @@ def citologia_list(request):
 
 # ── Citología CRUD ────────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def citologia_create(request):
     form = CitologiaForm(request.POST)
@@ -246,6 +266,7 @@ def citologia_create(request):
     return redirect('citologias')
 
 
+@login_required
 @require_POST
 def citologia_update(request, pk):
     citologia = get_object_or_404(Citologia, pk=pk)
@@ -257,12 +278,14 @@ def citologia_update(request, pk):
     return redirect(reverse('citologias') + f'?citologia={pk}')
 
 
+@login_required
 @require_POST
 def citologia_delete(request, pk):
     get_object_or_404(Citologia, pk=pk).delete()
     return redirect('citologias')
 
 
+@login_required
 @require_POST
 def citologia_informe(request, pk):
     citologia = get_object_or_404(Citologia, pk=pk)
@@ -281,6 +304,7 @@ def citologia_informe(request, pk):
 
 # ── Muestras Citología ────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def muestra_citologia_create(request, citologia_pk):
     citologia = get_object_or_404(Citologia, pk=citologia_pk)
@@ -290,6 +314,7 @@ def muestra_citologia_create(request, citologia_pk):
     return redirect(reverse('citologias') + f'?citologia={citologia_pk}')
 
 
+@login_required
 @require_POST
 def muestra_citologia_update(request, pk):
     muestra = get_object_or_404(MuestraCitologia, pk=pk)
@@ -299,6 +324,7 @@ def muestra_citologia_update(request, pk):
     return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}')
 
 
+@login_required
 @require_POST
 def muestra_citologia_delete(request, pk):
     muestra = get_object_or_404(MuestraCitologia, pk=pk)
@@ -309,6 +335,7 @@ def muestra_citologia_delete(request, pk):
 
 # ── Imágenes Citología ────────────────────────────────────────────────────────
 
+@login_required
 @require_POST
 def imagen_citologia_upload(request, muestra_pk):
     muestra = get_object_or_404(MuestraCitologia, pk=muestra_pk)
@@ -320,6 +347,7 @@ def imagen_citologia_upload(request, muestra_pk):
     return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}')
 
 
+@login_required
 @require_POST
 def imagen_citologia_delete(request, pk):
     imagen = get_object_or_404(ImagenCitologia, pk=pk)

@@ -291,7 +291,7 @@ const cargarPorOrgano = async () => {
 
 // Obtener cassettes por número de cassette
 const cargarPorNumero = async () => {
-  return await fetch(`/api/cassettes/por_numero/${numCassette.value}/`, {
+  return await fetch(`/api/cassettes/numero/${numCassette.value}/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -384,7 +384,11 @@ const consultaFechaFin = async () => {
 const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
   casettes.innerHTML = "";
   if (rebuildDropdown) {
-    numCassette.innerHTML = "<option disabled selected>Número Cassette</option>";
+    numCassette.innerHTML = "<option disabled selected>Nº Cassette</option>";
+    let optionTodos = document.createElement("OPTION");
+    optionTodos.value = "*";
+    optionTodos.textContent = "Todos";
+    numCassette.appendChild(optionTodos);
   }
 
   let fragmento = document.createDocumentFragment();
@@ -393,7 +397,8 @@ const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
     respuesta.map((casete) => {
       // Para cargar los números de cassette
       let option = document.createElement("OPTION");
-      option.textContent = casete.id_casette;
+      option.value = casete.cassette;
+      option.textContent = casete.cassette;
       fragmentselect.appendChild(option);
 
       // Para mostrar los cassettes
@@ -402,7 +407,7 @@ const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
 
       // Número de Cassette
       let ncassette = document.createElement("td");
-      ncassette.textContent = casete.id_casette;
+      ncassette.textContent = casete.cassette;
 
       let fecha = document.createElement("td");
       nuevafecha = casete.fecha;
@@ -1029,7 +1034,12 @@ organos.addEventListener("change", async () => {
 
 // Consulta por Número de Cassette
 numCassette.addEventListener("change", async () => {
-  const respuesta = await cargarPorNumero();
+  let respuesta;
+  if (numCassette.value === "*") {
+    respuesta = await cargarTodosCassettes();
+  } else {
+    respuesta = await cargarPorNumero();
+  }
   // Solicitud del usuario: filtrar la tabla pero NO el desplegable de arriba
   imprimirCasettes(respuesta, false);
 });

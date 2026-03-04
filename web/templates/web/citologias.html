@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -23,14 +24,18 @@
     <link rel="stylesheet" href="{% static 'css/citologias.css' %}">
     <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');
             }
         })();
     </script>
-    <style>body { display: block !important; }</style>
+    <style>
+        body {
+            display: block !important;
+        }
+    </style>
     <title>Citologías</title>
 </head>
 
@@ -73,7 +78,8 @@
                         </form>
                     </li>
                     <li class="nav-item nav__item d-flex align-items-center">
-                        <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
+                        <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"
+                            aria-label="Toggle Dark Mode">
                             <i class='bx bx-moon fs-4'></i>
                         </a>
                     </li>
@@ -104,91 +110,104 @@
                         <!-- Nº Citología -->
                         <div style="min-width: 140px;">
                             <input type="text" name="numero" value="{{ filtros.numero }}"
-                                class="form-control border__color unified-filter-height"
-                                placeholder="Nº Citología" style="font-size:0.85rem;">
+                                class="form-control border__color unified-filter-height" placeholder="Nº Citología"
+                                style="font-size:0.85rem;">
                         </div>
 
                         <!-- Órgano -->
                         <div style="min-width: 140px;">
-                            <select name="organo" id="organos"
-                                class="form-select border__color unified-filter-height"
-                                style="font-size:0.85rem;"
-                                onchange="document.getElementById('filtroForm').submit()">
+                            <select name="organo" id="organos" class="form-select border__color unified-filter-height"
+                                style="font-size:0.85rem;" onchange="document.getElementById('filtroForm').submit()">
                                 <option disabled {% if not filtros.organo %}selected{% endif %}>Órgano</option>
-                                <option value="*"  {% if filtros.organo == '*' %}selected{% endif %}>Todos</option>
+                                <option value="*" {% if filtros.organo=='*' %}selected{% endif %}>Todos</option>
                                 <optgroup label="Sistema Nervioso">
-                                    <option {% if filtros.organo == 'Encéfalo' %}selected{% endif %}>Encéfalo</option>
-                                    <option {% if filtros.organo == 'Médula Espinal' %}selected{% endif %}>Médula Espinal</option>
-                                    <option {% if filtros.organo == 'Nervio' %}selected{% endif %}>Nervio</option>
-                                    <option {% if filtros.organo == 'Ganglio Nervios' %}selected{% endif %}>Ganglio Nervios</option>
+                                    <option {% if filtros.organo=='Encéfalo' %}selected{% endif %}>Encéfalo</option>
+                                    <option {% if filtros.organo=='Médula Espinal' %}selected{% endif %}>Médula Espinal
+                                    </option>
+                                    <option {% if filtros.organo=='Nervio' %}selected{% endif %}>Nervio</option>
+                                    <option {% if filtros.organo=='Ganglio Nervios' %}selected{% endif %}>Ganglio
+                                        Nervios</option>
                                 </optgroup>
                                 <optgroup label="Tegumento">
-                                    <option {% if filtros.organo == 'Piel' %}selected{% endif %}>Piel</option>
-                                    <option {% if filtros.organo == 'Uña' %}selected{% endif %}>Uña</option>
-                                    <option {% if filtros.organo == 'Pelo' %}selected{% endif %}>Pelo</option>
+                                    <option {% if filtros.organo=='Piel' %}selected{% endif %}>Piel</option>
+                                    <option {% if filtros.organo=='Uña' %}selected{% endif %}>Uña</option>
+                                    <option {% if filtros.organo=='Pelo' %}selected{% endif %}>Pelo</option>
                                 </optgroup>
                                 <optgroup label="Cardiovascular">
-                                    <option {% if filtros.organo == 'Corazón' %}selected{% endif %}>Corazón</option>
-                                    <option {% if filtros.organo == 'Venas' %}selected{% endif %}>Venas</option>
-                                    <option {% if filtros.organo == 'Arteria' %}selected{% endif %}>Arteria</option>
+                                    <option {% if filtros.organo=='Corazón' %}selected{% endif %}>Corazón</option>
+                                    <option {% if filtros.organo=='Venas' %}selected{% endif %}>Venas</option>
+                                    <option {% if filtros.organo=='Arteria' %}selected{% endif %}>Arteria</option>
                                 </optgroup>
                                 <optgroup label="Linfático">
-                                    <option {% if filtros.organo == 'Ganglio Linfático' %}selected{% endif %}>Ganglio Linfático</option>
-                                    <option {% if filtros.organo == 'Vaso Linfático' %}selected{% endif %}>Vaso Linfático</option>
-                                    <option {% if filtros.organo == 'Bazo' %}selected{% endif %}>Bazo</option>
+                                    <option {% if filtros.organo=='Ganglio Linfático' %}selected{% endif %}>Ganglio
+                                        Linfático</option>
+                                    <option {% if filtros.organo=='Vaso Linfático' %}selected{% endif %}>Vaso Linfático
+                                    </option>
+                                    <option {% if filtros.organo=='Bazo' %}selected{% endif %}>Bazo</option>
                                 </optgroup>
                                 <optgroup label="Endocrino">
-                                    <option {% if filtros.organo == 'Hipófisis' %}selected{% endif %}>Hipófisis</option>
-                                    <option {% if filtros.organo == 'Glándula Tiroides' %}selected{% endif %}>Glándula Tiroides</option>
-                                    <option {% if filtros.organo == 'Glándulas Paratiroides' %}selected{% endif %}>Glándulas Paratiroides</option>
-                                    <option {% if filtros.organo == 'Glándulas Suprarrenales' %}selected{% endif %}>Glándulas Suprarrenales</option>
-                                    <option {% if filtros.organo == 'Páncreas' %}selected{% endif %}>Páncreas</option>
+                                    <option {% if filtros.organo=='Hipófisis' %}selected{% endif %}>Hipófisis</option>
+                                    <option {% if filtros.organo=='Glándula Tiroides' %}selected{% endif %}>Glándula
+                                        Tiroides</option>
+                                    <option {% if filtros.organo=='Glándulas Paratiroides' %}selected{% endif %}>
+                                        Glándulas Paratiroides</option>
+                                    <option {% if filtros.organo=='Glándulas Suprarrenales' %}selected{% endif %}>
+                                        Glándulas Suprarrenales</option>
+                                    <option {% if filtros.organo=='Páncreas' %}selected{% endif %}>Páncreas</option>
                                 </optgroup>
                                 <optgroup label="Respiratorio">
-                                    <option {% if filtros.organo == 'Fosa Nasal' %}selected{% endif %}>Fosa Nasal</option>
-                                    <option {% if filtros.organo == 'Faringe' %}selected{% endif %}>Faringe</option>
-                                    <option {% if filtros.organo == 'Laringe' %}selected{% endif %}>Laringe</option>
-                                    <option {% if filtros.organo == 'Tráquea' %}selected{% endif %}>Tráquea</option>
-                                    <option {% if filtros.organo == 'Bronquio' %}selected{% endif %}>Bronquio</option>
-                                    <option {% if filtros.organo == 'Pulmón' %}selected{% endif %}>Pulmón</option>
+                                    <option {% if filtros.organo=='Fosa Nasal' %}selected{% endif %}>Fosa Nasal</option>
+                                    <option {% if filtros.organo=='Faringe' %}selected{% endif %}>Faringe</option>
+                                    <option {% if filtros.organo=='Laringe' %}selected{% endif %}>Laringe</option>
+                                    <option {% if filtros.organo=='Tráquea' %}selected{% endif %}>Tráquea</option>
+                                    <option {% if filtros.organo=='Bronquio' %}selected{% endif %}>Bronquio</option>
+                                    <option {% if filtros.organo=='Pulmón' %}selected{% endif %}>Pulmón</option>
                                 </optgroup>
                                 <optgroup label="Digestivo">
-                                    <option {% if filtros.organo == 'Boca' %}selected{% endif %}>Boca</option>
-                                    <option {% if filtros.organo == 'Lengua' %}selected{% endif %}>Lengua</option>
-                                    <option {% if filtros.organo == 'Glándula Salival' %}selected{% endif %}>Glándula Salival</option>
-                                    <option {% if filtros.organo == 'Esófago' %}selected{% endif %}>Esófago</option>
-                                    <option {% if filtros.organo == 'Estómago' %}selected{% endif %}>Estómago</option>
-                                    <option {% if filtros.organo == 'Hígado' %}selected{% endif %}>Hígado</option>
-                                    <option {% if filtros.organo == 'Vesícula Biliar' %}selected{% endif %}>Vesícula Biliar</option>
-                                    <option {% if filtros.organo == 'Int. Delgado' %}selected{% endif %}>Int. Delgado</option>
-                                    <option {% if filtros.organo == 'Int. Grueso' %}selected{% endif %}>Int. Grueso</option>
-                                    <option {% if filtros.organo == 'Ciego' %}selected{% endif %}>Ciego</option>
-                                    <option {% if filtros.organo == 'Apéndice' %}selected{% endif %}>Apéndice</option>
-                                    <option {% if filtros.organo == 'Recto' %}selected{% endif %}>Recto</option>
-                                    <option {% if filtros.organo == 'Ano' %}selected{% endif %}>Ano</option>
+                                    <option {% if filtros.organo=='Boca' %}selected{% endif %}>Boca</option>
+                                    <option {% if filtros.organo=='Lengua' %}selected{% endif %}>Lengua</option>
+                                    <option {% if filtros.organo=='Glándula Salival' %}selected{% endif %}>Glándula
+                                        Salival</option>
+                                    <option {% if filtros.organo=='Esófago' %}selected{% endif %}>Esófago</option>
+                                    <option {% if filtros.organo=='Estómago' %}selected{% endif %}>Estómago</option>
+                                    <option {% if filtros.organo=='Hígado' %}selected{% endif %}>Hígado</option>
+                                    <option {% if filtros.organo=='Vesícula Biliar' %}selected{% endif %}>Vesícula
+                                        Biliar</option>
+                                    <option {% if filtros.organo=='Int. Delgado' %}selected{% endif %}>Int. Delgado
+                                    </option>
+                                    <option {% if filtros.organo=='Int. Grueso' %}selected{% endif %}>Int. Grueso
+                                    </option>
+                                    <option {% if filtros.organo=='Ciego' %}selected{% endif %}>Ciego</option>
+                                    <option {% if filtros.organo=='Apéndice' %}selected{% endif %}>Apéndice</option>
+                                    <option {% if filtros.organo=='Recto' %}selected{% endif %}>Recto</option>
+                                    <option {% if filtros.organo=='Ano' %}selected{% endif %}>Ano</option>
                                 </optgroup>
                                 <optgroup label="Excretor Urinario">
-                                    <option {% if filtros.organo == 'Riñón' %}selected{% endif %}>Riñón</option>
-                                    <option {% if filtros.organo == 'Pelvis Renal' %}selected{% endif %}>Pelvis Renal</option>
-                                    <option {% if filtros.organo == 'Uréter' %}selected{% endif %}>Uréter</option>
-                                    <option {% if filtros.organo == 'Vejiga Urinaria' %}selected{% endif %}>Vejiga Urinaria</option>
-                                    <option {% if filtros.organo == 'Uretra' %}selected{% endif %}>Uretra</option>
+                                    <option {% if filtros.organo=='Riñón' %}selected{% endif %}>Riñón</option>
+                                    <option {% if filtros.organo=='Pelvis Renal' %}selected{% endif %}>Pelvis Renal
+                                    </option>
+                                    <option {% if filtros.organo=='Uréter' %}selected{% endif %}>Uréter</option>
+                                    <option {% if filtros.organo=='Vejiga Urinaria' %}selected{% endif %}>Vejiga
+                                        Urinaria</option>
+                                    <option {% if filtros.organo=='Uretra' %}selected{% endif %}>Uretra</option>
                                 </optgroup>
                                 <optgroup label="Reproductor Masculino">
-                                    <option {% if filtros.organo == 'Testículo' %}selected{% endif %}>Testículo</option>
+                                    <option {% if filtros.organo=='Testículo' %}selected{% endif %}>Testículo</option>
                                 </optgroup>
                                 <optgroup label="Reproductor Femenino">
-                                    <option {% if filtros.organo == 'Ovario' %}selected{% endif %}>Ovario</option>
-                                    <option {% if filtros.organo == 'Trompa de Falopio' %}selected{% endif %}>Trompa de Falopio</option>
-                                    <option {% if filtros.organo == 'Útero' %}selected{% endif %}>Útero</option>
-                                    <option {% if filtros.organo == 'Vagina' %}selected{% endif %}>Vagina</option>
-                                    <option {% if filtros.organo == 'Vulva' %}selected{% endif %}>Vulva</option>
+                                    <option {% if filtros.organo=='Ovario' %}selected{% endif %}>Ovario</option>
+                                    <option {% if filtros.organo=='Trompa de Falopio' %}selected{% endif %}>Trompa de
+                                        Falopio</option>
+                                    <option {% if filtros.organo=='Útero' %}selected{% endif %}>Útero</option>
+                                    <option {% if filtros.organo=='Vagina' %}selected{% endif %}>Vagina</option>
+                                    <option {% if filtros.organo=='Vulva' %}selected{% endif %}>Vulva</option>
                                 </optgroup>
                                 <optgroup label="Locomotor">
-                                    <option {% if filtros.organo == 'Hueso' %}selected{% endif %}>Hueso</option>
-                                    <option {% if filtros.organo == 'Músculo Esquelético' %}selected{% endif %}>Músculo Esquelético</option>
+                                    <option {% if filtros.organo=='Hueso' %}selected{% endif %}>Hueso</option>
+                                    <option {% if filtros.organo=='Músculo Esquelético' %}selected{% endif %}>Músculo
+                                        Esquelético</option>
                                 </optgroup>
-                                <option {% if filtros.organo == 'Otros' %}selected{% endif %}>Otros</option>
+                                <option {% if filtros.organo=='Otros' %}selected{% endif %}>Otros</option>
                             </select>
                         </div>
 
@@ -369,8 +388,7 @@
                             <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
                         </button>
                         <button id="btnformnuevaMuestra" type="button" class="btn icono__efect">
-                            <i title="Nueva Muestra"
-                                class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
+                            <i title="Nueva Muestra" class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
                     </div>
                 </div>
@@ -399,10 +417,8 @@
                                         title="Modificar">
                                         <i class="fa-solid fa-file-pen blue__color--negrita"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-link p-0"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#eliminarMuestraModal"
-                                        data-muestra-pk="{{ item.muestra.pk }}"
+                                    <button type="button" class="btn btn-sm btn-link p-0" data-bs-toggle="modal"
+                                        data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ item.muestra.pk }}"
                                         title="Eliminar">
                                         <i class="fa-solid fa-trash-can text-danger"></i>
                                     </button>
@@ -417,32 +433,28 @@
                                             <img src="{{ img.imagen.url }}"
                                                 style="height:70px;border-radius:6px;object-fit:cover;" alt="">
                                             <form method="post" action="{% url 'imagen_citologia_delete' img.pk %}"
-                                                style="display:inline"
-                                                onsubmit="return confirm('¿Eliminar imagen?')">
+                                                style="display:inline" onsubmit="return confirm('¿Eliminar imagen?')">
                                                 {% csrf_token %}
                                                 <button type="submit"
                                                     class="btn btn-sm position-absolute top-0 end-0 p-0"
                                                     style="background:rgba(255,255,255,.85);border-radius:50%;line-height:1;width:20px;height:20px;"
                                                     title="Eliminar imagen">
-                                                    <i class="fa-solid fa-xmark text-danger" style="font-size:.7rem;"></i>
+                                                    <i class="fa-solid fa-xmark text-danger"
+                                                        style="font-size:.7rem;"></i>
                                                 </button>
                                             </form>
                                         </div>
                                         {% endfor %}
                                         <!-- Subir imagen -->
-                                        <form method="post"
-                                            action="{% url 'imagen_citologia_upload' item.muestra.pk %}"
-                                            enctype="multipart/form-data"
-                                            class="d-flex align-items-center">
+                                        <form method="post" action="{% url 'imagen_citologia_upload' item.muestra.pk %}"
+                                            enctype="multipart/form-data" class="d-flex align-items-center">
                                             {% csrf_token %}
-                                            <label for="img_{{ item.muestra.pk }}"
-                                                class="blue__color fs-3 m-0" style="cursor:pointer"
-                                                title="Añadir imagen">
+                                            <label for="img_{{ item.muestra.pk }}" class="blue__color fs-3 m-0"
+                                                style="cursor:pointer" title="Añadir imagen">
                                                 <i class="fa-solid fa-circle-plus"></i>
                                             </label>
-                                            <input id="img_{{ item.muestra.pk }}" type="file"
-                                                name="imagen" accept=".jpg,.jpeg,.png,.gif"
-                                                class="d-none"
+                                            <input id="img_{{ item.muestra.pk }}" type="file" name="imagen"
+                                                accept=".jpg,.jpeg,.png,.gif" class="d-none"
                                                 onchange="this.form.submit()">
                                         </form>
                                     </div>
@@ -463,13 +475,13 @@
                 <div class="container__muestra h-100 p-2">
                     <div class="title d-flex align-items-center justify-content-between">
                         <h2 class="cassette__title m-0">Informe de Resultados</h2>
-                        <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3"
-                            type="button" style="border-radius:20px;">
+                        <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
+                            style="border-radius:20px;">
                             <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
                         </button>
                     </div>
-                    <form method="post" action="{% url 'citologia_informe' selected.pk %}"
-                        enctype="multipart/form-data" class="informe__scroll p-3">
+                    <form method="post" action="{% url 'citologia_informe' selected.pk %}" enctype="multipart/form-data"
+                        class="informe__scroll p-3">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Descripción</label>
@@ -503,8 +515,7 @@
 
         <!-- ── Modal Nueva Muestra ──────────────────────────────────────────── -->
         <section class="mimodal" id="modalnuevaMuestra">
-            <form class="row g-3 miform" method="post"
-                action="{% url 'muestra_citologia_create' selected.pk %}">
+            <form class="row g-3 miform" method="post" action="{% url 'muestra_citologia_create' selected.pk %}">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title">Nueva Muestra</h2>
@@ -525,11 +536,16 @@
                     <select name="tincion" class="form-select blue__color" required>
                         <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
-                        <option>Giemsa</option><option>Gram</option>
-                        <option>Azul de Metileno</option><option>Papanicolau</option>
-                        <option>Wright</option><option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option><option>Orceína</option>
-                        <option>P.A.S</option><option>Otros</option>
+                        <option>Giemsa</option>
+                        <option>Gram</option>
+                        <option>Azul de Metileno</option>
+                        <option>Papanicolau</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
+                        <option>Tricrómica</option>
+                        <option>Orceína</option>
+                        <option>P.A.S</option>
+                        <option>Otros</option>
                     </select>
                 </div>
                 <div class="col-md-12 mt-3">
@@ -554,24 +570,28 @@
                 <hr>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Descripción</label>
-                    <input type="text" name="descripcion" id="editMuestraDescripcion"
-                        class="form-control blue__color" required>
+                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color"
+                        required>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" id="editMuestraFecha"
-                        class="form-control blue__color" required>
+                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Tinción</label>
                     <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
                         <option value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
-                        <option>Giemsa</option><option>Gram</option>
-                        <option>Azul de Metileno</option><option>Papanicolau</option>
-                        <option>Wright</option><option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option><option>Orceína</option>
-                        <option>P.A.S</option><option>Otros</option>
+                        <option>Giemsa</option>
+                        <option>Gram</option>
+                        <option>Azul de Metileno</option>
+                        <option>Papanicolau</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
+                        <option>Tricrómica</option>
+                        <option>Orceína</option>
+                        <option>P.A.S</option>
+                        <option>Otros</option>
                     </select>
                 </div>
                 <div class="col-md-12 mt-3">
@@ -604,8 +624,7 @@
 
         <!-- ── Modal Modificar Citología ──────────────────────────────────── -->
         <section class="mimodal" id="modalupdateCitologia">
-            <form class="row g-3 miform" method="post"
-                action="{% url 'citologia_update' selected.pk %}">
+            <form class="row g-3 miform" method="post" action="{% url 'citologia_update' selected.pk %}">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title">Modificar Citología</h2>
@@ -709,61 +728,62 @@
     <script src="{% static 'js/darkmode.js' %}" defer></script>
 
     <script>
-    // ── Mimodal open / close ──────────────────────────────────────────────
-    function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
-    function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+        // ── Mimodal open / close ──────────────────────────────────────────────
+        function openModal(id) { document.getElementById(id)?.classList.add('open'); }
+        function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
 
-    document.getElementById('btnformnuevacitologia')
-        ?.addEventListener('click', () => openModal('modalnuevaCitologia'));
-    document.getElementById('btnformcerrarnuevaCitologia')
-        ?.addEventListener('click', () => closeModal('modalnuevaCitologia'));
+        document.getElementById('btnformnuevacitologia')
+            ?.addEventListener('click', () => openModal('modalnuevaCitologia'));
+        document.getElementById('btnformcerrarnuevaCitologia')
+            ?.addEventListener('click', () => closeModal('modalnuevaCitologia'));
 
-    document.getElementById('btnformmodificarcitologia')
-        ?.addEventListener('click', () => openModal('modalupdateCitologia'));
-    document.getElementById('btnformcerrarmodificarCitologia')
-        ?.addEventListener('click', () => closeModal('modalupdateCitologia'));
+        document.getElementById('btnformmodificarcitologia')
+            ?.addEventListener('click', () => openModal('modalupdateCitologia'));
+        document.getElementById('btnformcerrarmodificarCitologia')
+            ?.addEventListener('click', () => closeModal('modalupdateCitologia'));
 
-    document.getElementById('btnformnuevaMuestra')
-        ?.addEventListener('click', () => openModal('modalnuevaMuestra'));
-    document.getElementById('btnformcerrarnuevaMuestra')
-        ?.addEventListener('click', () => closeModal('modalnuevaMuestra'));
-    document.getElementById('btnformcerrarmodificarMuestra')
-        ?.addEventListener('click', () => closeModal('modalmodificarMuestra'));
+        document.getElementById('btnformnuevaMuestra')
+            ?.addEventListener('click', () => openModal('modalnuevaMuestra'));
+        document.getElementById('btnformcerrarnuevaMuestra')
+            ?.addEventListener('click', () => closeModal('modalnuevaMuestra'));
+        document.getElementById('btnformcerrarmodificarMuestra')
+            ?.addEventListener('click', () => closeModal('modalmodificarMuestra'));
 
-    // Cerrar modal al hacer clic en el fondo oscuro
-    document.querySelectorAll('.mimodal').forEach(modal => {
-        modal.addEventListener('click', e => {
-            if (e.target === modal) modal.classList.remove('open');
+        // Cerrar modal al hacer clic en el fondo oscuro
+        document.querySelectorAll('.mimodal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target === modal) modal.classList.remove('open');
+            });
         });
-    });
 
-    // ── Toggle Muestras / Informe ─────────────────────────────────────────
-    document.getElementById('btnToggleInforme')?.addEventListener('click', () => {
-        document.getElementById('sectionMuestras').classList.add('d-none');
-        document.getElementById('sectionInforme').classList.remove('d-none');
-    });
-    document.getElementById('btnToggleMuestras')?.addEventListener('click', () => {
-        document.getElementById('sectionInforme').classList.add('d-none');
-        document.getElementById('sectionMuestras').classList.remove('d-none');
-    });
+        // ── Toggle Muestras / Informe ─────────────────────────────────────────
+        document.getElementById('btnToggleInforme')?.addEventListener('click', () => {
+            document.getElementById('sectionMuestras').classList.add('d-none');
+            document.getElementById('sectionInforme').classList.remove('d-none');
+        });
+        document.getElementById('btnToggleMuestras')?.addEventListener('click', () => {
+            document.getElementById('sectionInforme').classList.add('d-none');
+            document.getElementById('sectionMuestras').classList.remove('d-none');
+        });
 
-    // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-    function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
-        const form = document.getElementById('formModificarMuestra');
-        form.action = `/muestras-citologia/${pk}/editar/`;
-        document.getElementById('editMuestraDescripcion').value   = descripcion;
-        document.getElementById('editMuestraFecha').value         = fecha;
-        document.getElementById('editMuestraObservaciones').value = observaciones;
-        const sel = document.getElementById('editMuestraTincion');
-        for (let o of sel.options) { o.selected = (o.text === tincion); }
-        openModal('modalmodificarMuestra');
-    }
+        // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
+        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
+            const form = document.getElementById('formModificarMuestra');
+            form.action = `/muestras-citologia/${pk}/editar/`;
+            document.getElementById('editMuestraDescripcion').value = descripcion;
+            document.getElementById('editMuestraFecha').value = fecha;
+            document.getElementById('editMuestraObservaciones').value = observaciones;
+            const sel = document.getElementById('editMuestraTincion');
+            for (let o of sel.options) { o.selected = (o.text === tincion); }
+            openModal('modalmodificarMuestra');
+        }
 
-    // ── Confirmar borrar muestra ──────────────────────────────────────────
-    document.getElementById('eliminarMuestraModal')?.addEventListener('show.bs.modal', e => {
-        const pk = e.relatedTarget.dataset.muestraPk;
-        document.getElementById('formEliminarMuestra').action = `/muestras-citologia/${pk}/eliminar/`;
-    });
+        // ── Confirmar borrar muestra ──────────────────────────────────────────
+        document.getElementById('eliminarMuestraModal')?.addEventListener('show.bs.modal', e => {
+            const pk = e.relatedTarget.dataset.muestraPk;
+            document.getElementById('formEliminarMuestra').action = `/muestras-citologia/${pk}/eliminar/`;
+        });
     </script>
 </body>
+
 </html>

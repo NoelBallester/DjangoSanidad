@@ -6,6 +6,7 @@ from datetime import datetime
 import base64
 import uuid
 import random
+from django.contrib.auth import authenticate
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
@@ -25,15 +26,23 @@ class TecnicoViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def login(self, request):
-        email = request.data.get('email')
+        tecnico_id = request.data.get('tecnico_id')
         password = request.data.get('password')
+        
+        # Primero intentar vía authenticate
+        user = authenticate(id_tecnico=tecnico_id, password=password)
+        if user:
+            return Response(TecnicoSerializer(user).data)
+            
+        # Fallback para contraseñas plano
         try:
-            tecnico = Tecnico.objects.get(email=email)
-            if tecnico.check_password(password) or tecnico.password == password:
+            tecnico = Tecnico.objects.get(pk=tecnico_id)
+            if tecnico.password == password:
                 return Response(TecnicoSerializer(tecnico).data)
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        except Tecnico.DoesNotExist:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except (Tecnico.DoesNotExist, ValueError):
+            pass
+            
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             
     @action(detail=False, methods=['get'], url_path='mail/(?P<mail>[^/.]+)')
     def get_by_mail(self, request, mail=None):
@@ -69,7 +78,7 @@ class CassetteViewSet(viewsets.ModelViewSet):
         cassettes = self.get_queryset()
         return Response(CassetteSerializer(cassettes, many=True).data)
 
-    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
         """Busca cassette por código QR"""
         cassettes = Cassette.objects.filter(qr_casette=qr)
@@ -84,7 +93,7 @@ class CassetteViewSet(viewsets.ModelViewSet):
             cassettes = Cassette.objects.filter(organo=organo).order_by('-fecha')
         return Response(CassetteSerializer(cassettes, many=True).data)
     
-    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
     def por_numero(self, request, numero=None):
         """Filtra cassettes por número"""
         cassettes = Cassette.objects.filter(cassette=numero).order_by('-fecha')
@@ -156,7 +165,7 @@ class CitologiaViewSet(viewsets.ModelViewSet):
         citologias = self.get_queryset()
         return Response(CitologiaSerializer(citologias, many=True).data)
 
-    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
         """Busca citología por código QR"""
         citologias = Citologia.objects.filter(qr_citologia=qr)
@@ -171,7 +180,7 @@ class CitologiaViewSet(viewsets.ModelViewSet):
             citologias = Citologia.objects.filter(organo=organo).order_by('-fecha')
         return Response(CitologiaSerializer(citologias, many=True).data)
     
-    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
     def por_numero(self, request, numero=None):
         """Filtra citologías por número"""
         citologias = Citologia.objects.filter(citologia=numero).order_by('-fecha')
@@ -329,7 +338,7 @@ class TuboViewSet(viewsets.ModelViewSet):
         tubos = self.get_queryset()
         return Response(TuboSerializer(tubos, many=True).data)
 
-    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
         """Busca tubo por código QR"""
         tubos = Tubo.objects.filter(qr_tubo=qr)
@@ -344,7 +353,7 @@ class TuboViewSet(viewsets.ModelViewSet):
             tubos = Tubo.objects.filter(organo=organo).order_by('-fecha')
         return Response(TuboSerializer(tubos, many=True).data)
     
-    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
     def por_numero(self, request, numero=None):
         """Filtra tubos por número"""
         tubos = Tubo.objects.filter(tubo=numero).order_by('-fecha')
@@ -459,7 +468,7 @@ class HematologiaViewSet(viewsets.ModelViewSet):
         hematologias = self.get_queryset()
         return Response(HematologiaSerializer(hematologias, many=True).data)
 
-    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
         """Busca hematología por código QR"""
         hematologias = Hematologia.objects.filter(qr_hematologia=qr)
@@ -474,7 +483,7 @@ class HematologiaViewSet(viewsets.ModelViewSet):
             hematologias = Hematologia.objects.filter(organo=organo).order_by('-fecha')
         return Response(HematologiaSerializer(hematologias, many=True).data)
     
-    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>[^/.]+)')
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
     def por_numero(self, request, numero=None):
         """Filtra hematologías por número"""
         hematologias = Hematologia.objects.filter(hematologia=numero).order_by('-fecha')

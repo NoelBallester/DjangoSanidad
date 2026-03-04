@@ -32,9 +32,9 @@
     <link rel="stylesheet" href="css/muestras.css">
 
     <!-- Dark Mode Logic -->
-        <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');

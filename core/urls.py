@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -23,6 +24,7 @@ from django.views.decorators.cache import cache_control
 from django.views.static import serve as static_serve
 import os
 
+@login_required
 def render_html(request, page):
     return TemplateView.as_view(template_name=f"{page}.html")(request)
 

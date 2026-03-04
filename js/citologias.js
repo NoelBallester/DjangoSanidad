@@ -293,7 +293,7 @@ const cargarPorOrgano = async () => {
 
 // Obtener citologías por número de citología
 const cargarPorNumero = async () => {
-  return await fetch(`/api/citologias/por_numero/${numCitologia.value}/`, {
+  return await fetch(`/api/citologias/numero/${numCitologia.value}/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -387,7 +387,11 @@ const imprimirCitologias = (respuesta, rebuildDropdown = true) => {
   citologias.innerHTML = "";
   if (rebuildDropdown) {
     numCitologia.innerHTML =
-      "<option disabled selected>Número Citología</option>";
+      "<option disabled selected>Nº Citología</option>";
+    let optionTodos = document.createElement("OPTION");
+    optionTodos.value = "*";
+    optionTodos.textContent = "Todos";
+    numCitologia.appendChild(optionTodos);
   }
 
   let fragmento = document.createDocumentFragment();
@@ -396,7 +400,8 @@ const imprimirCitologias = (respuesta, rebuildDropdown = true) => {
     respuesta.map((citologia) => {
       // Para cargar los números de citología
       let option = document.createElement("OPTION");
-      option.textContent = citologia.id_citologia;
+      option.value = citologia.citologia; // Usamos el número, no el ID interno
+      option.textContent = citologia.citologia;
       fragmentselect.appendChild(option);
 
       // Para mostrar citologías
@@ -405,7 +410,7 @@ const imprimirCitologias = (respuesta, rebuildDropdown = true) => {
 
       // Número de citologia
       let ncitologia = document.createElement("td");
-      ncitologia.textContent = citologia.id_citologia;
+      ncitologia.textContent = citologia.citologia;
 
       let fecha = document.createElement("td");
       nuevafecha = citologia.fecha;
@@ -1026,7 +1031,12 @@ organos.addEventListener("change", async () => {
 
 // Consulta por número de Citologia
 numCitologia.addEventListener("change", async () => {
-  const respuesta = await cargarPorNumero();
+  let respuesta;
+  if (numCitologia.value === "*") {
+    respuesta = await cargarTodasCitologias();
+  } else {
+    respuesta = await cargarPorNumero();
+  }
   // Solicitud del usuario: filtrar la tabla pero NO el desplegable de arriba
   imprimirCitologias(respuesta, false);
 });

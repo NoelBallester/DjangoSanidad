@@ -29,8 +29,8 @@ class Tecnico(AbstractBaseUser, PermissionsMixin):
 
     objects = TecnicoManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre', 'apellidos', 'username']
+    USERNAME_FIELD = 'id_tecnico'
+    REQUIRED_FIELDS = ['nombre', 'apellidos']
     
     class Meta:
         db_table = 'tecnicos'
