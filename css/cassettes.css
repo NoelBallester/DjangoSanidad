@@ -366,11 +366,13 @@ td {
     border: 2px solid #dee2e6;
     border-radius: 0.5rem;
     position: absolute;
-    left: 50%;
     top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     background-color: #ffffff;
     padding: 1rem 0.5rem;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .detallemuestra {
@@ -380,70 +382,62 @@ td {
 
 .mimodal {
     background-color: rgba(1, 0, 4, 0.197);
-    position: relative;
-    width: 100%;
+    position: fixed;
+    width: 100vw;
     height: 100vh;
-    position: absolute;
-    top: -1200px;
-    left: 50%;
+    top: 0;
+    left: 0;
     opacity: 0;
-    /* display: flex; */
-    /*flex-direction: column;
-  font-family: Raleway, Helvetica, sans-serif;
-  color: #646464;
-  font-size: 0.75rem;
-  padding-top: 2rem; */
+    visibility: hidden;
+    z-index: 100;
+}
+
+.front {
+    z-index: 200;
+}
+
+.mimodal.open {
+    opacity: 1;
+    visibility: visible;
 }
 
 .showmodal {
     animation-name: showmodalanimation;
-    animation-duration: 1s;
+    animation-duration: 0.3s;
     animation-fill-mode: forwards;
 }
 
 @keyframes showmodalanimation {
     0% {
-        top: 0px;
-        left: 50%;
         opacity: 0;
-        transform: translate(-50%, -50%);
+        visibility: hidden;
     }
-
-    50% {
-        opacity: 1;
+    1% {
+        visibility: visible;
     }
-
     100% {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         opacity: 1;
+        visibility: visible;
     }
 }
 
 .hidemodal {
     animation-name: hidemodalanimation;
-    animation-duration: 1s;
+    animation-duration: 0.3s;
     animation-fill-mode: forwards;
 }
 
 @keyframes hidemodalanimation {
     0% {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         opacity: 1;
+        visibility: visible;
     }
-
-    75% {
-        opacity: 0;
+    99% {
+        visibility: visible;
     }
-
     100% {
-        top: -1000px;
-        left: 50%;
         opacity: 0;
-        transform: translate(-50%, -50%);
+        visibility: hidden;
     }
 }
 
@@ -474,9 +468,6 @@ td {
     object-fit: cover;
 }
 
-.front {
-    z-index: 5;
-}
 
 .text__pass {
     font-size: 0.7rem;

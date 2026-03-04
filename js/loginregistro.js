@@ -132,7 +132,7 @@ const getNewPassword = (event) => {
 };
 
 form_login.addEventListener("submit", userLogin);
-form_register.addEventListener("submit", userRegister);
+if (form_register) form_register.addEventListener("submit", userRegister);
 form_sendpassword.addEventListener("submit", getNewPassword);
 
 form_container.addEventListener("click", (event) => {

@@ -1,7 +1,7 @@
 import random
 import string
 from django import forms
-from api.models import Cassette, Muestra, Imagen
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia
 
 
 ORGANOS = [
@@ -60,6 +60,14 @@ TINCIONES = [
     ('Tricrómica', 'Tricrómica'), ('Orceína', 'Orceína'), ('P.A.S', 'P.A.S'), ('Otros', 'Otros'),
 ]
 
+TIPOS_CITOLOGIA = [
+    ('', 'Tipo Citología'),
+    ('PAAF', 'PAAF'),
+    ('Citología Líquida', 'Citología Líquida'),
+    ('Cervico Vaginal', 'Cervico Vaginal'),
+    ('Derrames', 'Derrames'),
+]
+
 
 def _qr(prefix):
     return prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=12))
@@ -99,6 +107,42 @@ class CassetteForm(forms.ModelForm):
         return obj
 
 
+class CitologiaForm(forms.ModelForm):
+    organo = forms.ChoiceField(choices=ORGANOS)
+    tipo_citologia = forms.ChoiceField(choices=TIPOS_CITOLOGIA)
+
+    class Meta:
+        model = Citologia
+        fields = ['citologia', 'tipo_citologia', 'fecha', 'descripcion', 'caracteristicas',
+                  'observaciones', 'descripcion_microscopica', 'diagnostico_final',
+                  'patologo_responsable', 'organo']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
+                            'descripcion_microscopica', 'diagnostico_final', 'organo', 'tipo_citologia'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, tecnico=None):
+        obj = super().save(commit=False)
+        if not obj.qr_citologia:
+            obj.qr_citologia = _qr('--cit--')
+        if tecnico:
+            obj.tecnico = tecnico
+        if commit:
+            obj.save()
+        return obj
+
+
 class MuestraForm(forms.ModelForm):
     tincion = forms.ChoiceField(choices=TINCIONES)
 
@@ -127,6 +171,34 @@ class MuestraForm(forms.ModelForm):
         return obj
 
 
+class MuestraCitologiaForm(forms.ModelForm):
+    tincion = forms.ChoiceField(choices=TINCIONES)
+
+    class Meta:
+        model = MuestraCitologia
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'observaciones', 'tincion'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, citologia=None):
+        obj = super().save(commit=False)
+        if not obj.qr_muestra:
+            obj.qr_muestra = _qr('--mc--')
+        if citologia:
+            obj.citologia = citologia
+        if commit:
+            obj.save()
+        return obj
+
+
 class InformeForm(forms.Form):
     informe_descripcion = forms.CharField(required=False,
         widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
@@ -144,4 +216,10 @@ class InformeForm(forms.Form):
 class ImagenForm(forms.ModelForm):
     class Meta:
         model = Imagen
+        fields = ['imagen']
+
+
+class ImagenCitologiaForm(forms.ModelForm):
+    class Meta:
+        model = ImagenCitologia
         fields = ['imagen']
