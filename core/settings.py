@@ -10,6 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import pymysql
+pymysql.version_info = (2, 2, 4, "final", 0)
+pymysql.__version__ = "2.2.4"
+pymysql.install_as_MySQLdb()
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -83,10 +88,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sanitariabd',
-        'USER': 'dbeaver',
-        'PASSWORD': 'MiPassSegura123',
-        'HOST': '192.168.1.173',
+        'NAME': 'sanitariaPHP',
+        'USER': 'sanidadphp',
+        'PASSWORD': '1234',
+        'HOST': '192.168.35.142',
         'PORT': '3306',
     }
 }
