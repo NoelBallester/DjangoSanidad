@@ -19,11 +19,12 @@ from django.urls import path, include, re_path
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
-from django.views.decorators.cache import cache_control
+from django.views.generic import TemplateView, RedirectView
+from django.views.decorators.cache import cache_control, never_cache
 from django.views.static import serve as static_serve
 import os
 
+@never_cache
 @login_required
 def render_html(request, page):
     return TemplateView.as_view(template_name=f"{page}.html")(request)
@@ -38,7 +39,7 @@ urlpatterns = [
     path('', include('web.urls')),          # Django template views (cassettes, login…)
     path('sanitaria/', include('api.urls')),
     path('modelo/', include('api.urls')),
-    path('', TemplateView.as_view(template_name='index.html')),
+    path('', RedirectView.as_view(url='/index.html')),
     re_path(r'^(?P<page>[\w\-]+)\.html$', render_html),
     re_path(r'^css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),
     re_path(r'^js/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'js')}),

@@ -121,95 +121,95 @@
                             <select name="organo" id="organos" class="form-select border__color unified-filter-height"
                                 style="font-size:0.85rem;" onchange="document.getElementById('filtroForm').submit()">
                                 <option disabled {% if not filtros.organo %}selected{% endif %}>Órgano</option>
-                                <option value="*" {% if filtros.organo=='*' %}selected{% endif %}>Todos</option>
+                                <option value="*" {% if filtros.organo == '*' %}selected{% endif %}>Todos</option>
                                 <optgroup label="Sistema Nervioso">
-                                    <option {% if filtros.organo=='Encéfalo' %}selected{% endif %}>Encéfalo</option>
-                                    <option {% if filtros.organo=='Médula Espinal' %}selected{% endif %}>Médula Espinal
+                                    <option {% if filtros.organo == 'Encéfalo' %}selected{% endif %}>Encéfalo</option>
+                                    <option {% if filtros.organo == 'Médula Espinal' %}selected{% endif %}>Médula Espinal
                                     </option>
-                                    <option {% if filtros.organo=='Nervio' %}selected{% endif %}>Nervio</option>
-                                    <option {% if filtros.organo=='Ganglio Nervios' %}selected{% endif %}>Ganglio
+                                    <option {% if filtros.organo == 'Nervio' %}selected{% endif %}>Nervio</option>
+                                    <option {% if filtros.organo == 'Ganglio Nervios' %}selected{% endif %}>Ganglio
                                         Nervios</option>
                                 </optgroup>
                                 <optgroup label="Tegumento">
-                                    <option {% if filtros.organo=='Piel' %}selected{% endif %}>Piel</option>
-                                    <option {% if filtros.organo=='Uña' %}selected{% endif %}>Uña</option>
-                                    <option {% if filtros.organo=='Pelo' %}selected{% endif %}>Pelo</option>
+                                    <option {% if filtros.organo == 'Piel' %}selected{% endif %}>Piel</option>
+                                    <option {% if filtros.organo == 'Uña' %}selected{% endif %}>Uña</option>
+                                    <option {% if filtros.organo == 'Pelo' %}selected{% endif %}>Pelo</option>
                                 </optgroup>
                                 <optgroup label="Cardiovascular">
-                                    <option {% if filtros.organo=='Corazón' %}selected{% endif %}>Corazón</option>
-                                    <option {% if filtros.organo=='Venas' %}selected{% endif %}>Venas</option>
-                                    <option {% if filtros.organo=='Arteria' %}selected{% endif %}>Arteria</option>
+                                    <option {% if filtros.organo == 'Corazón' %}selected{% endif %}>Corazón</option>
+                                    <option {% if filtros.organo == 'Venas' %}selected{% endif %}>Venas</option>
+                                    <option {% if filtros.organo == 'Arteria' %}selected{% endif %}>Arteria</option>
                                 </optgroup>
                                 <optgroup label="Linfático">
-                                    <option {% if filtros.organo=='Ganglio Linfático' %}selected{% endif %}>Ganglio
+                                    <option {% if filtros.organo == 'Ganglio Linfático' %}selected{% endif %}>Ganglio
                                         Linfático</option>
-                                    <option {% if filtros.organo=='Vaso Linfático' %}selected{% endif %}>Vaso Linfático
+                                    <option {% if filtros.organo == 'Vaso Linfático' %}selected{% endif %}>Vaso Linfático
                                     </option>
-                                    <option {% if filtros.organo=='Bazo' %}selected{% endif %}>Bazo</option>
+                                    <option {% if filtros.organo == 'Bazo' %}selected{% endif %}>Bazo</option>
                                 </optgroup>
                                 <optgroup label="Endocrino">
-                                    <option {% if filtros.organo=='Hipófisis' %}selected{% endif %}>Hipófisis</option>
-                                    <option {% if filtros.organo=='Glándula Tiroides' %}selected{% endif %}>Glándula
+                                    <option {% if filtros.organo == 'Hipófisis' %}selected{% endif %}>Hipófisis</option>
+                                    <option {% if filtros.organo == 'Glándula Tiroides' %}selected{% endif %}>Glándula
                                         Tiroides</option>
-                                    <option {% if filtros.organo=='Glándulas Paratiroides' %}selected{% endif %}>
+                                    <option {% if filtros.organo == 'Glándulas Paratiroides' %}selected{% endif %}>
                                         Glándulas Paratiroides</option>
-                                    <option {% if filtros.organo=='Glándulas Suprarrenales' %}selected{% endif %}>
+                                    <option {% if filtros.organo == 'Glándulas Suprarrenales' %}selected{% endif %}>
                                         Glándulas Suprarrenales</option>
-                                    <option {% if filtros.organo=='Páncreas' %}selected{% endif %}>Páncreas</option>
+                                    <option {% if filtros.organo == 'Páncreas' %}selected{% endif %}>Páncreas</option>
                                 </optgroup>
                                 <optgroup label="Respiratorio">
-                                    <option {% if filtros.organo=='Fosa Nasal' %}selected{% endif %}>Fosa Nasal</option>
-                                    <option {% if filtros.organo=='Faringe' %}selected{% endif %}>Faringe</option>
-                                    <option {% if filtros.organo=='Laringe' %}selected{% endif %}>Laringe</option>
-                                    <option {% if filtros.organo=='Tráquea' %}selected{% endif %}>Tráquea</option>
-                                    <option {% if filtros.organo=='Bronquio' %}selected{% endif %}>Bronquio</option>
-                                    <option {% if filtros.organo=='Pulmón' %}selected{% endif %}>Pulmón</option>
+                                    <option {% if filtros.organo == 'Fosa Nasal' %}selected{% endif %}>Fosa Nasal</option>
+                                    <option {% if filtros.organo == 'Faringe' %}selected{% endif %}>Faringe</option>
+                                    <option {% if filtros.organo == 'Laringe' %}selected{% endif %}>Laringe</option>
+                                    <option {% if filtros.organo == 'Tráquea' %}selected{% endif %}>Tráquea</option>
+                                    <option {% if filtros.organo == 'Bronquio' %}selected{% endif %}>Bronquio</option>
+                                    <option {% if filtros.organo == 'Pulmón' %}selected{% endif %}>Pulmón</option>
                                 </optgroup>
                                 <optgroup label="Digestivo">
-                                    <option {% if filtros.organo=='Boca' %}selected{% endif %}>Boca</option>
-                                    <option {% if filtros.organo=='Lengua' %}selected{% endif %}>Lengua</option>
-                                    <option {% if filtros.organo=='Glándula Salival' %}selected{% endif %}>Glándula
+                                    <option {% if filtros.organo == 'Boca' %}selected{% endif %}>Boca</option>
+                                    <option {% if filtros.organo == 'Lengua' %}selected{% endif %}>Lengua</option>
+                                    <option {% if filtros.organo == 'Glándula Salival' %}selected{% endif %}>Glándula
                                         Salival</option>
-                                    <option {% if filtros.organo=='Esófago' %}selected{% endif %}>Esófago</option>
-                                    <option {% if filtros.organo=='Estómago' %}selected{% endif %}>Estómago</option>
-                                    <option {% if filtros.organo=='Hígado' %}selected{% endif %}>Hígado</option>
-                                    <option {% if filtros.organo=='Vesícula Biliar' %}selected{% endif %}>Vesícula
+                                    <option {% if filtros.organo == 'Esófago' %}selected{% endif %}>Esófago</option>
+                                    <option {% if filtros.organo == 'Estómago' %}selected{% endif %}>Estómago</option>
+                                    <option {% if filtros.organo == 'Hígado' %}selected{% endif %}>Hígado</option>
+                                    <option {% if filtros.organo == 'Vesícula Biliar' %}selected{% endif %}>Vesícula
                                         Biliar</option>
-                                    <option {% if filtros.organo=='Idn. Delgado' %}selected{% endif %}>Idn. Delgado
+                                    <option {% if filtros.organo == 'Idn. Delgado' %}selected{% endif %}>Idn. Delgado
                                     </option>
-                                    <option {% if filtros.organo=='Idn. Grueso' %}selected{% endif %}>Idn. Grueso
+                                    <option {% if filtros.organo == 'Idn. Grueso' %}selected{% endif %}>Idn. Grueso
                                     </option>
-                                    <option {% if filtros.organo=='Ciego' %}selected{% endif %}>Ciego</option>
-                                    <option {% if filtros.organo=='Apéndice' %}selected{% endif %}>Apéndice</option>
-                                    <option {% if filtros.organo=='Recto' %}selected{% endif %}>Recto</option>
-                                    <option {% if filtros.organo=='Ano' %}selected{% endif %}>Ano</option>
+                                    <option {% if filtros.organo == 'Ciego' %}selected{% endif %}>Ciego</option>
+                                    <option {% if filtros.organo == 'Apéndice' %}selected{% endif %}>Apéndice</option>
+                                    <option {% if filtros.organo == 'Recto' %}selected{% endif %}>Recto</option>
+                                    <option {% if filtros.organo == 'Ano' %}selected{% endif %}>Ano</option>
                                 </optgroup>
                                 <optgroup label="Excretor Urinario">
-                                    <option {% if filtros.organo=='Riñón' %}selected{% endif %}>Riñón</option>
-                                    <option {% if filtros.organo=='Pelvis Renal' %}selected{% endif %}>Pelvis Renal
+                                    <option {% if filtros.organo == 'Riñón' %}selected{% endif %}>Riñón</option>
+                                    <option {% if filtros.organo == 'Pelvis Renal' %}selected{% endif %}>Pelvis Renal
                                     </option>
-                                    <option {% if filtros.organo=='Uréter' %}selected{% endif %}>Uréter</option>
-                                    <option {% if filtros.organo=='Vejiga Urinaria' %}selected{% endif %}>Vejiga
+                                    <option {% if filtros.organo == 'Uréter' %}selected{% endif %}>Uréter</option>
+                                    <option {% if filtros.organo == 'Vejiga Urinaria' %}selected{% endif %}>Vejiga
                                         Urinaria</option>
-                                    <option {% if filtros.organo=='Uretra' %}selected{% endif %}>Uretra</option>
+                                    <option {% if filtros.organo == 'Uretra' %}selected{% endif %}>Uretra</option>
                                 </optgroup>
                                 <optgroup label="Reproductor Masculino">
-                                    <option {% if filtros.organo=='Testículo' %}selected{% endif %}>Testículo</option>
+                                    <option {% if filtros.organo == 'Testículo' %}selected{% endif %}>Testículo</option>
                                 </optgroup>
                                 <optgroup label="Reproductor Femenino">
-                                    <option {% if filtros.organo=='Ovario' %}selected{% endif %}>Ovario</option>
-                                    <option {% if filtros.organo=='Trompa de Falopio' %}selected{% endif %}>Trompa de
+                                    <option {% if filtros.organo == 'Ovario' %}selected{% endif %}>Ovario</option>
+                                    <option {% if filtros.organo == 'Trompa de Falopio' %}selected{% endif %}>Trompa de
                                         Falopio</option>
-                                    <option {% if filtros.organo=='Útero' %}selected{% endif %}>Útero</option>
-                                    <option {% if filtros.organo=='Vagina' %}selected{% endif %}>Vagina</option>
-                                    <option {% if filtros.organo=='Vulva' %}selected{% endif %}>Vulva</option>
+                                    <option {% if filtros.organo == 'Útero' %}selected{% endif %}>Útero</option>
+                                    <option {% if filtros.organo == 'Vagina' %}selected{% endif %}>Vagina</option>
+                                    <option {% if filtros.organo == 'Vulva' %}selected{% endif %}>Vulva</option>
                                 </optgroup>
                                 <optgroup label="Locomotor">
-                                    <option {% if filtros.organo=='Hueso' %}selected{% endif %}>Hueso</option>
-                                    <option {% if filtros.organo=='Musculo Esquelético' %}selected{% endif %}>Musculo
+                                    <option {% if filtros.organo == 'Hueso' %}selected{% endif %}>Hueso</option>
+                                    <option {% if filtros.organo == 'Musculo Esquelético' %}selected{% endif %}>Musculo
                                         Esquelético</option>
                                 </optgroup>
-                                <option {% if filtros.organo=='Otros' %}selected{% endif %}>Otros</option>
+                                <option {% if filtros.organo == 'Otros' %}selected{% endif %}>Otros</option>
                             </select>
                         </div>
 

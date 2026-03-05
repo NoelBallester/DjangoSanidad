@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.contrib import messages
 
@@ -16,7 +17,7 @@ from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('cassettes')
+        return redirect('/index.html')
     error = None
     if request.method == 'POST':
         tecnico_id = request.POST.get('tecnico_id', '').strip()
@@ -26,7 +27,7 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect(request.GET.get('next', 'cassettes'))
+            return redirect(request.GET.get('next', '/index.html'))
         else:
             # Fallback para contraseñas en plano (si existen en la BD antigua)
             try:
@@ -34,7 +35,7 @@ def login_view(request):
                 if tecnico.password == password and tecnico.is_active:
                     tecnico.backend = 'django.contrib.auth.backends.ModelBackend'
                     login(request, tecnico)
-                    return redirect(request.GET.get('next', 'cassettes'))
+                    return redirect(request.GET.get('next', '/index.html'))
             except (Tecnico.DoesNotExist, ValueError):
                 pass
         error = 'ID o contraseña incorrectos.'
@@ -49,6 +50,7 @@ def logout_view(request):
 
 # ── Cassettes (lista + detalle) ───────────────────────────────────────────────
 
+@never_cache
 @login_required
 def cassette_list(request):
     qs = Cassette.objects.order_by('-fecha')
@@ -209,6 +211,7 @@ def imagen_delete(request, pk):
 
 # ── Citologías (lista + detalle) ──────────────────────────────────────────────
 
+@never_cache
 @login_required
 def citologia_list(request):
     qs = Citologia.objects.select_related('tecnico').order_by('-fecha')
@@ -361,6 +364,7 @@ def imagen_citologia_delete(request, pk):
 
 # ── Usuarios ──────────────────────────────────────────────────────────────────
 
+@never_cache
 @login_required
 def usuario_list(request):
     tecnicos = Tecnico.objects.order_by('nombre', 'apellidos')

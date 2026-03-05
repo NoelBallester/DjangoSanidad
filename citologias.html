@@ -87,7 +87,7 @@
             <a class="nav-link nav__link" href="./usuarios.html">Usuarios</a>
           </li>
           <li class="nav-item nav__item">
-            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
+            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
           </li>
           <li class="nav-item nav__item d-flex align-items-center">
             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">

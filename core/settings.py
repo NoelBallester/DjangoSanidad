@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-+s=t+a$d&#8okfsq&(l)if%++dnt7!glp(2zo$w=6t$rxxjqi$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 ]
 
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/cassettes/'
+LOGIN_REDIRECT_URL = '/index.html'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
