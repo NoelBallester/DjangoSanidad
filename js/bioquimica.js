@@ -39,16 +39,16 @@ const btnmodificar = document.getElementById("btnmodificar");
 const nuevoTubo = document.getElementById("nuevoTubo");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
 
-const tuboDescripcion = document.getElementById("tubo__descripcion");
-const tuboTipoMuestra = document.getElementById("tubo__tipo_tubo");
-const tuboTubo = document.getElementById("tubo__id");
-const tuboFecha = document.getElementById("tubo__fecha");
-const tuboTecnicoId = document.getElementById("tubo__tecnico_id");
+const tuboDescripcion = document.getElementById("tubo__descripcionMain");
+const tuboTipoMuestra = document.getElementById("tubo__tipo_tuboMain");
+const tuboTubo = document.getElementById("tubo__muestraMain");
+const tuboFecha = document.getElementById("tubo__fechaMain");
+const tuboTecnicoId = document.getElementById("tubo__tecnico_idMain");
 const tuboCaracteristicas = document.getElementById(
-  "tubo__caracteristicas"
+  "tubo__caracteristicasMain"
 );
 const tuboObservaciones = document.getElementById(
-  "tubo__observaciones"
+  "tubo__observacionesMain"
 );
 const tuboInformeDescripcion = document.getElementById("tubo__informe_descripcion");
 const tuboInformeFecha = document.getElementById("tubo__informe_fecha");
@@ -85,9 +85,9 @@ const inputImagenes = document.getElementById("inputImagenes");
 const inputTubo = document.getElementById("inputTubo");
 
 // Modificar Tubo
-const modalupdateTubo = document.getElementById("modalupdateTubo");
-const modificarTubo = document.getElementById("modificarTubo");
-const btnmodificartubo = document.getElementById("btnformmodificartubo");
+const modalupdateTubo = document.getElementById("modalupdateTuboMain");
+const modificarTubo = document.getElementById("modificarTuboFormMain");
+const btnmodificartubo = document.getElementById("btnformmodificartuboMain");
 const inputFechaUpdate = document.getElementById("inputFechaUpdate");
 const inputImagenesUpdate = document.getElementById("inputImagenesUpdate");
 
@@ -140,11 +140,11 @@ const btncerrardetalleMuestra = document.getElementById(
 );
 
 // Modificar análisis
-const modificarMuestra = document.getElementById("modificarTubo");
-const modalmodificarMuestra = document.getElementById("modalmodificarTubo");
+const modificarMuestra = document.getElementById("modificarAnalysisForm");
+const modalmodificarMuestra = document.getElementById("modalmodificarAnalysis");
 const modaldetalleMuestra = document.getElementById("modaldetalleTubo");
 const btnformmodificarMuestra = document.getElementById(
-  "btnformmodificartubo"
+  "btnformmodificartubo" // This one seems to not be duplicated in my grep? Let's check.
 );
 const btnformcerrarmodificarMuestra = document.getElementById(
   "btnformcerrarmodificarTubo"
@@ -410,7 +410,7 @@ const modificarTuboUpdate = async (event) => {
   };
 
   await fetch(`/api/tubos/${tuboId}/`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
@@ -650,12 +650,16 @@ const imprimirDataTubo = (respuesta) => {
 
   // Formato Fecha
   let newfecha = respuesta.fecha;
-  tuboFecha.textContent =
-    newfecha.substring(8) +
-    "-" +
-    newfecha.substring(5, 7) +
-    "-" +
-    newfecha.substring(0, 4);
+  if (newfecha) {
+    tuboFecha.textContent =
+      newfecha.substring(8) +
+      "-" +
+      newfecha.substring(5, 7) +
+      "-" +
+      newfecha.substring(0, 4);
+  } else {
+    tuboFecha.textContent = "";
+  }
 
   tuboCaracteristicas.textContent = respuesta.caracteristicas;
   tuboObservaciones.textContent = respuesta.observaciones;
@@ -1047,7 +1051,7 @@ btnformcerrarnuevoTubo.addEventListener("click", () => {
 nuevoTubo.addEventListener("submit", crearTubo);
 
 // Modificar Tubo
-btnformmodificartubo.addEventListener("click", () => {
+btnmodificartubo.addEventListener("click", () => {
   if (!tuboId) {
     alerttubo.classList.remove("ocultar");
   } else {

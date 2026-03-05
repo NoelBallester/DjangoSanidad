@@ -244,7 +244,7 @@
                   class="fa-solid fa-file-image tubo__icon tubo__icon--infotubo"></i>
               </div> -->
 
-                            <div id="btnformmodificartubo">
+                            <div id="btnformmodificartuboMain">
                                 <i title="Modificar Tubo"
                                     class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
                             </div>
@@ -253,11 +253,11 @@
 
                     <section class="list-group list-group-flush mt-3">
                         <div class="d-flex px-3 justify-content-between">
-                            <li class="blue__color--negrita">Detalle / Nombre Paciente: <span id="tubo__descripcion"
+                            <li class="blue__color--negrita">Detalle / Nombre Paciente: <span id="tubo__descripcionMain"
                                     class="blue__color tubo__text">
                                 </span>
                             </li>
-                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_id"
+                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_idMain"
                                     class="blue__color tubo__text">
                                 </span>
                             </li>
@@ -266,22 +266,22 @@
                         <hr class="m-1">
 
                         <div class="d-flex px-3  justify-content-between">
-                            <li class="blue__color--negrita">Tipo de Muestra: <span id="tubo__tipo_tubo"
+                            <li class="blue__color--negrita">Tipo de Muestra: <span id="tubo__tipo_tuboMain"
                                     class="blue__color tubo__text">
                                 </span>
                             </li>
-                            <li class="blue__color--negrita">Fecha: <span id="tubo__fecha"
+                            <li class="blue__color--negrita">Fecha: <span id="tubo__fechaMain"
                                     class="blue__color tubo__text">
                                 </span>
                             </li>
                         </div>
 
                         <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
-                            <p id="tubo__caracteristicas" class="blue__color tubo__text"></p>
+                            <p id="tubo__caracteristicasMain" class="blue__color tubo__text"></p>
                         </li>
 
                         <li class="list-group-item blue__color--negrita">Observaciones:
-                            <p id="tubo__observaciones" class="blue__color tubo__text"> </p>
+                            <p id="tubo__observacionesMain" class="blue__color tubo__text"> </p>
                         </li>
                     </section>
                 </div>
@@ -428,11 +428,11 @@
             </form>
         </section>
 
-        <!-- Modal Modificar Tubo-->
-        <section class="mimodal front" id="modalmodificarTubo">
+        <!-- Modal Modificar Análisis (Anidado) -->
+        <section class="mimodal front" id="modalmodificarAnalysis">
 
             <!--  No pongo enctype pq estoy enviando con un formdata -->
-            <form class="row g-3 miform" id="modificarTubo">
+            <form class="row g-3 miform" id="modificarAnalysisForm">
 
                 <div class="form__header">
                     <h2 class="tubo__title">Modificar Tubo</h2>
@@ -514,18 +514,18 @@
 
                     <section class="row  mt-3">
                         <div class="col-4 border-end">
-                            <li class="blue__color--negrita">Nº Tubo: <span id="tubo__id"
+                            <li class="blue__color--negrita">Nº Tubo: <span id="tubo__idDetail"
                                     class="blue__color tubo__text"></span></li>
 
-                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_id"
+                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_idDetail"
                                     class="blue__color tubo__text"></span></li>
 
-                            <li class="blue__color--negrita">Descripción: <span id="tubo__descripcion"
+                            <li class="blue__color--negrita">Descripción: <span id="tubo__descripcionDetail"
                                     class="blue__color tubodescripcion__text">
                                 </span>
                             </li>
 
-                            <li class="blue__color--negrita">Fecha: <span id="tubo__fecha"
+                            <li class="blue__color--negrita">Fecha: <span id="tubo__fechaDetail"
                                     class="blue__color tubo__text">
                                 </span>
                             </li>
@@ -663,8 +663,8 @@
         </section>
 
         <!-- Modal Modificar Tubo-->
-        <section class="mimodal" id="modalupdateTubo">
-            <form class="row g-3 miform" id="modificarTubo">
+        <section class="mimodal" id="modalupdateTuboMain">
+            <form class="row g-3 miform" id="modificarTuboFormMain">
 
                 <!--  <form class="row g-3 miform" id="modificarTubo" enctype="multipart/form-data"> -->
 
@@ -689,13 +689,13 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputTuboUpdate" class="form-label blue__color">Número Tubo</label>
-                    <input class="form-control blue__color" id="inputTuboUpdate" readonly>
+                    <input class="form-control blue__color" id="inputTuboUpdate">
                 </div>
 
                 <div class="row col-md-12 mt-3">
                     <div class="col-md-6">
                         <label for="inputFechaUpdate" class="form-label blue__color">Fecha</label>
-                        <input type="date" class="form-control blue__color" id="inputFechaUpdate" required disabled>
+                        <input type="date" class="form-control blue__color" id="inputFechaUpdate" required>
                     </div>
 
                     <div class="col-md-6">
