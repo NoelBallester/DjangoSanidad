@@ -1,4 +1,0 @@
-servername = "10.227.192.20:3306";
-database = "sanitariabd";
-username = "sanitariabd";
-password = "sanitariabd";

@@ -61,20 +61,22 @@ class TuboSerializer(serializers.ModelSerializer):
 
 class MuestraTuboSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
-    # Alias para compatibilidad con el frontend de PHPSanidad
-    id_muestra = serializers.IntegerField(source='id_muestra', read_only=True)
 
     class Meta:
         model = MuestraTubo
-        fields = '__all__'
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_base64']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_base64']
 
     def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                with open(obj.imagen.path, 'rb') as f:
+        # Las imágenes están en la tabla ImagenTubo, relacionada a través de MuestraTubo
+        try:
+            imagen = obj.imagentubo_set.first()  # Obtener la primera imagen
+            if imagen and imagen.imagen:
+                with open(imagen.imagen.path, 'rb') as f:
                     return base64.b64encode(f.read()).decode('utf-8')
-            except:
-                return None
+        except:
+            pass
+        return None
         return None
 
 class ImagenTuboSerializer(serializers.ModelSerializer):

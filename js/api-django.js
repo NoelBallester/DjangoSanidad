@@ -5,7 +5,7 @@ const API_BASE = '/api';
 
 // ==================== CASSETTES ====================
 
-export const cassettesAPI = {
+const cassettesAPI = {
   // Cargar últimos 10 cassettes
   index: async () => {
     const response = await fetch(`${API_BASE}/cassettes/index/`);
@@ -95,7 +95,7 @@ export const cassettesAPI = {
 
 // ==================== CITOLOGIAS ====================
 
-export const citologiasAPI = {
+const citologiasAPI = {
   // Cargar últimas 10 citologías
   index: async () => {
     const response = await fetch(`${API_BASE}/citologias/index/`);
@@ -185,7 +185,7 @@ export const citologiasAPI = {
 
 // ==================== MUESTRAS (CASSETTES) ====================
 
-export const muestrasAPI = {
+const muestrasAPI = {
   // Crear muestra
   crear: async (data) => {
     const formData = new FormData();
@@ -238,7 +238,7 @@ export const muestrasAPI = {
 
 // ==================== MUESTRAS CITOLOGIA ====================
 
-export const muestrasCitologiaAPI = {
+const muestrasCitologiaAPI = {
   // Crear muestra
   crear: async (data) => {
     const formData = new FormData();
@@ -291,7 +291,7 @@ export const muestrasCitologiaAPI = {
 
 // ==================== IMÁGENES ====================
 
-export const imagenesAPI = {
+const imagenesAPI = {
   // Crear imagen
   crear: async (data) => {
     const formData = new FormData();
@@ -322,7 +322,7 @@ export const imagenesAPI = {
 
 // ==================== IMÁGENES CITOLOGÍA ====================
 
-export const imagenesCitologiaAPI = {
+const imagenesCitologiaAPI = {
   // Crear imagen
   crear: async (data) => {
     const formData = new FormData();
@@ -353,7 +353,7 @@ export const imagenesCitologiaAPI = {
 
 // ==================== TUBOS (BIOQUÍMICA) ====================
 
-export const tubosAPI = {
+const tubosAPI = {
   // Cargar últimos 10 tubos
   index: async () => {
     const response = await fetch(`${API_BASE}/tubos/index/`);
@@ -443,7 +443,7 @@ export const tubosAPI = {
 
 // ==================== MUESTRAS TUBOS ====================
 
-export const muestrasTuboAPI = {
+const muestrasTuboAPI = {
   // Crear muestra
   crear: async (data) => {
     const formData = new FormData();
@@ -496,7 +496,7 @@ export const muestrasTuboAPI = {
 
 // ==================== IMÁGENES TUBOS ====================
 
-export const imagenesTuboAPI = {
+const imagenesTuboAPI = {
   // Crear imagen
   crear: async (data) => {
     const formData = new FormData();
