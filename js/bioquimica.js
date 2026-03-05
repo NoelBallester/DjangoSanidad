@@ -643,10 +643,16 @@ const detalleTubo = async (event) => {
 
 // Muestra el detalle de un tubo
 const imprimirDataTubo = (respuesta) => {
-  tuboDescripcion.textContent = respuesta.descripcion.substring(0, 50);
+  tuboDescripcion.textContent = respuesta.descripcion;
   tuboTipoMuestra.textContent = respuesta.tipo_muestra;
-  tuboTubo.textContent = respuesta.muestra;
+  // tuboTubo.textContent = respuesta.muestra; // Element doesn't exist in HTML
   tuboTecnicoId.textContent = respuesta.tecnico;
+  
+  // Show the muestra/paciente number in the header
+  const tuboNumElement = document.getElementById("tubo__tubo");
+  if (tuboNumElement) {
+    tuboNumElement.textContent = respuesta.muestra;
+  }
 
   // Formato Fecha
   let newfecha = respuesta.fecha;

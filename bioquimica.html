@@ -207,10 +207,11 @@
                     <table class="table sortable-theme-finder" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="row">Muestra / Paciente</th>
-                                <th scope="row">Fecha</th>
-                                <th scope="row">Tipo de Muestra</th>
-                                <th data-sortable="false"></th>
+                                <th scope="col">Muestra / Paciente</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Tipo de Muestra</th>
+                                <th scope="col" data-sortable="false"></th>
                             </tr>
                         </thead>
                         <tbody id="tubos_lista" class="table-group-divider">
@@ -222,70 +223,69 @@
 
             <!-- Detalle Tubo -->
             <section class="tubo col-12 col-lg-5" id="tubo">
-                <div class="p-2">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center">
-                        <h2 class="tubo__title text-center">Detalle Muestra / Paciente: </h2>
-                        <span id="tubo__tubo" class="blue__color tubo__num">
-                        </span>
-                        <div class="d-flex pt-2 align-items-start">
-
-                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrTuboModal">
-                                <i title="Imprimir QR"
-                                    class="fa-sharp fa-solid fa-qrcode  tubo__icon tubo__icon--infotubo"></i>
+                <div class="p-3">
+                    <!-- Header con título y controles -->
+                    <div class="d-flex flex-wrap align-items-end justify-content-between mb-3">
+                        <div class="flex-grow-1">
+                            <h2 class="tubo__title mb-0">Detalle Muestra</h2>
+                            <span id="tubo__tubo" class="blue__color tubo__num"></span>
+                        </div>
+                        <div class="d-flex gap-3 align-items-center">
+                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrTuboModal" title="Imprimir QR">
+                                <i class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
                             </div>
-
-                            <div data-bs-toggle="modal" data-bs-target="#eliminarTuboModal">
-                                <i title="Borrar Tubo"
-                                    class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                            <div data-bs-toggle="modal" data-bs-target="#eliminarTuboModal" title="Borrar Tubo">
+                                <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
                             </div>
-
-                            <!-- <div data-bs-toggle="modal" data-bs-target="#imagenTuboModal">
-                <i title="Mostrar Imagen Tubo"
-                  class="fa-solid fa-file-image tubo__icon tubo__icon--infotubo"></i>
-              </div> -->
-
-                            <div id="btnformmodificartuboMain">
-                                <i title="Modificar Tubo"
-                                    class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
+                            <div id="btnformmodificartuboMain" title="Modificar Tubo">
+                                <i class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
                             </div>
                         </div>
                     </div>
 
-                    <section class="list-group list-group-flush mt-3">
-                        <div class="d-flex px-3 justify-content-between">
-                            <li class="blue__color--negrita">Detalle / Nombre Paciente: <span id="tubo__descripcionMain"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
-                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_idMain"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
+                    <!-- Contenido del detalle -->
+                    <section class="tubo__content">
+                        <!-- Fila 1: Detalle y Técnico -->
+                        <div class="tubo__info-row mb-3">
+                            <div class="tubo__info-field">
+                                <label class="blue__color--negrita">Detalle / Paciente:</label>
+                                <span id="tubo__descripcionMain" class="blue__color tubo__text"></span>
+                            </div>
+                            <div class="tubo__info-field">
+                                <label class="blue__color--negrita">Técnico ID:</label>
+                                <span id="tubo__tecnico_idMain" class="blue__color tubo__text"></span>
+                            </div>
                         </div>
 
-                        <hr class="m-1">
+                        <hr class="my-2">
 
-                        <div class="d-flex px-3  justify-content-between">
-                            <li class="blue__color--negrita">Tipo de Muestra: <span id="tubo__tipo_tuboMain"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
-                            <li class="blue__color--negrita">Fecha: <span id="tubo__fechaMain"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
+                        <!-- Fila 2: Tipo de Muestra y Fecha -->
+                        <div class="tubo__info-row mb-3">
+                            <div class="tubo__info-field">
+                                <label class="blue__color--negrita">Tipo de Muestra:</label>
+                                <span id="tubo__tipo_tuboMain" class="blue__color tubo__text"></span>
+                            </div>
+                            <div class="tubo__info-field">
+                                <label class="blue__color--negrita">Fecha:</label>
+                                <span id="tubo__fechaMain" class="blue__color tubo__text"></span>
+                            </div>
                         </div>
 
-                        <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
-                            <p id="tubo__caracteristicasMain" class="blue__color tubo__text"></p>
-                        </li>
+                        <hr class="my-2">
 
-                        <li class="list-group-item blue__color--negrita">Observaciones:
-                            <p id="tubo__observacionesMain" class="blue__color tubo__text"> </p>
-                        </li>
+                        <!-- Descripción Macroscópica -->
+                        <div class="tubo__info-field mb-3">
+                            <label class="blue__color--negrita">Descripción Macroscópica:</label>
+                            <p id="tubo__caracteristicasMain" class="blue__color tubo__text m-0"></p>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="tubo__info-field">
+                            <label class="blue__color--negrita">Observaciones:</label>
+                            <p id="tubo__observacionesMain" class="blue__color tubo__text m-0"></p>
+                        </div>
                     </section>
                 </div>
-
             </section>
         </section>
 
