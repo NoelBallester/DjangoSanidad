@@ -111,7 +111,7 @@
                     <div style="min-width: 140px;">
                         <select class="form-select border__color unified-filter-height" id="numTubo"
                             style="font-size: 0.85rem;">
-                            <option selected disabled>Nº Tubo</option>
+                            <option selected disabled>Nº Muestra</option>
                         </select>
                     </div>
 
@@ -149,9 +149,16 @@
                     </div>
 
                     <div>
-                        <a href="./citologias.html"
+                        <a href="./hematologia.html"
                             class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
-                            <i class="fa-solid fa-vial me-2"></i> Ver Informe Médico
+                            <i class="fa-solid fa-vial me-2"></i> Ir a Hematología
+                        </a>
+                    </div>
+
+                     <div>
+                        <a href="./microbiologia.html"
+                            class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
+                            <i class="fa-solid fa-vial me-2"></i> Ir a Microbiología
                         </a>
                     </div>
                 </div>
@@ -175,7 +182,7 @@
 
     <!-- Alert rango fechas -->
     <div class="alert alert-danger text-center ocultar" role="alert" id="alerttubo">
-        <span class=" fs-4"> Seleccione un Tubo</span>
+        <span class=" fs-4"> Seleccione una Muestra</span>
     </div>
 
     <main class="container-fluid pt-3 px-5">
@@ -185,11 +192,11 @@
             <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
                 <div class="title d-flex">
                     <div class="col-10 ps-5">
-                        <h2 class="tubo__title">Tubos</h2>
+                        <h2 class="tubo__title">Muestras</h2>
                     </div>
                     <div class="col-2 justify-content-end">
                         <button type="button" class="btn m-0 p-0  icono__efect" id="btnformnuevotubo"><i
-                                title="Nuevo Tubo"
+                                title="Nueva Muestra"
                                 class=" m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
 
@@ -294,7 +301,7 @@
             <!-- Tubos -->
             <div id="sectionTubos" class="container__tubo m-auto w-100 p-2">
                 <div class="title d-flex align-items-center justify-content-between">
-                    <h2 class="tubo__title m-0">Tubos</h2>
+                    <h2 class="tubo__title m-0">Muestras</h2>
                     <div class="d-flex align-items-center gap-2">
                         <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius: 20px;">
@@ -312,7 +319,7 @@
                             <tr>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Descripción</th>
-                                <th scope="col">Tinción</th>
+                                <th scope="col">Analíticas</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -329,7 +336,7 @@
                         <h2 class="tubo__title m-0">Informe de Resultados</h2>
                         <button id="btnToggleTubos" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius: 20px;">
-                            <i class="fa-solid fa-vials me-1"></i> Volver a Tubos
+                            <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
                         </button>
                     </div>
                     <div class="informe__scroll p-3">
@@ -343,9 +350,9 @@
                             <input type="date" id="tubo__informe_fecha" class="form-control blue__color bg-light">
                         </div>
                         <div class="mb-3">
-                            <label for="tubo__informe_tincion" class="blue__color--negrita d-block">Tinción</label>
+                            <label for="tubo__informe_tincion" class="blue__color--negrita d-block">Muestras</label>
                             <select id="tubo__informe_tincion" class="form-select blue__color bg-light">
-                                <option selected disabled value="">Seleccionar Tinción</option>
+                                <option selected disabled value="">Resultados</option>
                                 <option>Hematoxilina Eosina (HE)</option>
                                 <option>Giemsa</option>
                                 <option>Gram</option>
@@ -397,9 +404,9 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectTincionMuestra" class="form-label blue__color">Tinción</label>
+                    <label for="selectTincionMuestra" class="form-label blue__color">Tipo</label>
                     <select class="form-select blue__color" id="selectTincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Tinción</option>
+                        <option selected disabled value="">Seleccionar Tipo</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -450,9 +457,9 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tinción</label>
+                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo</label>
                     <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Tinción</option>
+                        <option selected disabled value="">Seleccionar Tipo</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -495,7 +502,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="blue__color--negrita">Tinción:</label>
+                        <label class="blue__color--negrita">Tipo:</label>
                         <p id="muestra__tincion" class="blue__color tubo__text"></p>
                     </div>
 
