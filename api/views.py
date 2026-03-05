@@ -330,8 +330,11 @@ class TuboViewSet(viewsets.ModelViewSet):
         
         # Generar número de tubo si no existe
         if 'tubo' not in data or not data['tubo']:
-            import time
-            data['tubo'] = f"T-{int(time.time())}"
+            if 'muestra' in data and data['muestra']:
+                data['tubo'] = data['muestra']
+            else:
+                import time
+                data['tubo'] = f"T-{int(time.time())}"
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

@@ -41,7 +41,7 @@ const nuevaMuestra = document.getElementById("nuevaMuestra");
 
 const tuboDescripcion = document.getElementById("tubo__descripcion");
 const tuboTipoMuestra = document.getElementById("tubo__tipo_tubo");
-const tuboTubo = document.getElementById("tubo__tubo");
+const tuboTubo = document.getElementById("tubo__id");
 const tuboFecha = document.getElementById("tubo__fecha");
 const tuboTecnicoId = document.getElementById("tubo__tecnico_id");
 const tuboCaracteristicas = document.getElementById(
@@ -82,6 +82,7 @@ const inputDiagnostico = document.getElementById("inputDiagnostico");
 const inputPatologo = document.getElementById("inputPatologo");
 const inputSelect = document.getElementById("inputSelect");
 const inputImagenes = document.getElementById("inputImagenes");
+const inputTubo = document.getElementById("inputTubo");
 
 // Modificar Tubo
 const modalupdateTubo = document.getElementById("modalupdateTubo");
@@ -104,6 +105,7 @@ const inputDiagnosticoUpdate = document.getElementById("inputDiagnosticoUpdate")
 const inputPatologoUpdate = document.getElementById("inputPatologoUpdate");
 const inputSelectUpdate = document.getElementById("inputSelectUpdate");
 const inputClinicaUpdate = document.getElementById("inputClinicaUpdate");
+const inputTuboUpdate = document.getElementById("inputTuboUpdate");
 
 // Crear un análisis (Tubos)
 const btnformnuevaMuestra = document.getElementById("btnformnuevaTubo");
@@ -270,16 +272,17 @@ const crearTubo = async (event) => {
   }
 
   const data = {
+    muestra: inputTubo.value,
     fecha: inputFecha.value,
     descripcion: inputDescripcion.value,
     caracteristicas: inputCaracteristicas.value,
     observaciones: inputObservaciones.value,
-    informacion_clinica: inputClinica.value || "",
-    descripcion_microscopica: inputMicroscopia.value || "",
-    diagnostico_final: inputDiagnostico.value || "",
-    patologo_responsable: inputPatologo.value || "",
-    tecnico: tecnicoId,
     organo: inputSelect.value,
+    informacion_clinica: inputClinica.value,
+    descripcion_microscopica: inputMicroscopia.value,
+    diagnostico_final: inputDiagnostico.value,
+    patologo_responsable: inputPatologo.value,
+    tecnico: tecnicoId,
   };
 
   fetch("/api/tubos/", {
@@ -290,23 +293,21 @@ const crearTubo = async (event) => {
     },
     body: JSON.stringify(data),
   })
-    .then((response) => {
+    .then(async (response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Muestra creada:", data);
+      const data = await response.json();
+
       // Limpiar formulario
       nuevoTubo.reset();
       // Cerrar modal
       modalnuevoTubo.classList.remove("showmodal");
       modalnuevoTubo.classList.add("hidemodal");
-      // Recargar la página para ver el nuevo tubo
-      setTimeout(() => {
-        location.href = "bioquimica.html";
-      }, 500);
+
+      // En vez de recargar la página, actualizamos los datos
+      const respuesta = await cargarTodosTubos();
+      imprimirTubos(respuesta);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -381,6 +382,7 @@ const cargarTuboUpdateModal = async (event) => {
     inputDiagnosticoUpdate.value = tubo.diagnostico_final || "";
     inputPatologoUpdate.value = tubo.patologo_responsable || "";
     inputSelectUpdate.value = tubo.organo;
+    inputTuboUpdate.value = tubo.muestra;
   }
 };
 
@@ -394,6 +396,7 @@ const modificarTuboUpdate = async (event) => {
   }
 
   const data = {
+    tubo: inputTuboUpdate.value,
     fecha: inputFechaUpdate.value,
     descripcion: inputDescripcionUpdate.value,
     caracteristicas: inputCaracteristicasUpdate.value,
@@ -418,10 +421,8 @@ const modificarTuboUpdate = async (event) => {
       if (response.ok) {
         console.log("Muestra actualizada");
         modalupdateTubo.classList.remove("showmodal");
-        modalupdateTubo.classList.add("hidemodal");
-        setTimeout(() => {
-          location.href = "bioquimica.html";
-        }, 500);
+        // En vez de recargar la página, actualizamos los datos
+        actualizarVistaYLista(tuboId);
       } else {
         alert("Error al actualizar la muestra");
       }
@@ -430,6 +431,13 @@ const modificarTuboUpdate = async (event) => {
       console.error("Error:", error);
       alert("Error al actualizar la muestra: " + error.message);
     });
+};
+
+const actualizarVistaYLista = async (id) => {
+  let tubo = await cargarTubo(id);
+  imprimirDataTubo(tubo);
+  const respuesta = await cargarTodosTubos();
+  imprimirTubos(respuesta);
 };
 
 const cargarMuestras = async (tuboId) => {
@@ -638,6 +646,7 @@ const imprimirDataTubo = (respuesta) => {
   tuboDescripcion.textContent = respuesta.descripcion.substring(0, 50);
   tuboTipoMuestra.textContent = respuesta.tipo_muestra;
   tuboTubo.textContent = respuesta.muestra;
+  tuboTecnicoId.textContent = respuesta.tecnico;
 
   // Formato Fecha
   let newfecha = respuesta.fecha;
@@ -1251,21 +1260,21 @@ if (btnGuardarInforme) {
 }
 
 // Toggle section views
-const sectionMuestras = document.getElementById("sectionMuestras");
+const sectionTubosTable = document.getElementById("sectionTubos"); // El contenedor de la tabla de análisis
 const sectionInforme = document.getElementById("sectionInforme");
 const btnToggleInforme = document.getElementById("btnToggleInforme");
-const btnToggleMuestras = document.getElementById("btnToggleMuestras");
+const btnToggleTubos = document.getElementById("btnToggleTubos");
 
-if (btnToggleInforme && sectionMuestras && sectionInforme) {
+if (btnToggleInforme && sectionTubosTable && sectionInforme) {
   btnToggleInforme.addEventListener("click", () => {
-    sectionMuestras.classList.add("d-none");
+    sectionTubosTable.classList.add("d-none");
     sectionInforme.classList.remove("d-none");
   });
 }
 
-if (btnToggleMuestras && sectionMuestras && sectionInforme) {
-  btnToggleMuestras.addEventListener("click", () => {
+if (btnToggleTubos && sectionTubosTable && sectionInforme) {
+  btnToggleTubos.addEventListener("click", () => {
     sectionInforme.classList.add("d-none");
-    sectionMuestras.classList.remove("d-none");
+    sectionTubosTable.classList.remove("d-none");
   });
 }
