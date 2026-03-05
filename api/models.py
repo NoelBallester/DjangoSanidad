@@ -152,7 +152,7 @@ class MuestraTubo(models.Model):
 
 class ImagenTubo(models.Model):
     id_imagen = models.AutoField(primary_key=True, db_column='id')
-    imagen = models.ImageField(upload_to='imagenes_tubo/', null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True)
     muestra = models.ForeignKey(MuestraTubo, on_delete=models.CASCADE, db_column='muestra_id')
 
     class Meta:

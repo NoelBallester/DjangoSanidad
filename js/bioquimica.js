@@ -140,6 +140,12 @@ const muestra__img = document.getElementById("muestra__img");
 const btncerrardetalleMuestra = document.getElementById(
   "btncerrardetalleMuestra"
 );
+const btncerrarmuestradetalle = document.getElementById(
+  "btncerrarmuestradetalle"
+);
+const btnaniadirimagenmuestra = document.getElementById(
+  "btnaniadirimagenmuestra"
+);
 
 // Modificar análisis
 const modificarMuestra = document.getElementById("modificarAnalysisForm");
@@ -803,7 +809,7 @@ const imprimirMuestras = (respuesta) => {
 
 // Obtenemos un análisis
 const cargarMuestra = async (muestraid) => {
-  const response = await fetch(`/api/muestrastubo/${muestraId}/`);
+  const response = await fetch(`/api/muestrastubo/${muestraid}/`);
   return await response.json();
 };
 
@@ -815,19 +821,23 @@ const obtenerImagenesMuestra = async (muestraid) => {
 
 // Rellenamos los datos del análisis
 const rellenarDatosMuestra = async (muestra) => {
-  muestra__descripcion.textContent = muestra.descripcion.substring(0, 60);
+  muestra__descripcion.textContent = muestra.descripcion || 'Sin descripción';
   muestra__descripcion.title = muestra.descripcion;
 
   let newfecha = muestra.fecha;
-  muestra__fecha.textContent =
-    newfecha.substring(8) +
-    "-" +
-    newfecha.substring(5, 7) +
-    "-" +
-    newfecha.substring(0, 4);
+  if (newfecha) {
+    muestra__fecha.textContent =
+      newfecha.substring(8) +
+      "-" +
+      newfecha.substring(5, 7) +
+      "-" +
+      newfecha.substring(0, 4);
+  } else {
+    muestra__fecha.textContent = 'Sin fecha';
+  }
 
-  muestra__observaciones.textContent = muestra.observaciones;
-  muestra__tincion.textContent = muestra.tincion;
+  muestra__observaciones.textContent = muestra.observaciones || 'Sin observaciones';
+  muestra__tincion.textContent = muestra.tincion || 'Sin tinción';
 };
 
 const borrarImagenMuestra = async () => {
@@ -870,31 +880,43 @@ const detailMuestra = async (muestraid) => {
 
 const aniadirImagenMuestra = async () => {
   try {
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [
-        {
-          description: "Imágenes",
-          accept: { "image/*": [".png", ".gif", ".jpeg", ".jpg"] },
+    // Crear un input file temporal
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      let newImage = new FormData();
+      newImage.append("imagen", file);
+      newImage.append("muestra", muestraId);
+
+      console.log("Subiendo imagen para muestra:", muestraId);
+
+      const response = await fetch("/api/imagenestubo/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
         },
-      ],
-    });
-    const file = await fileHandle.getFile();
+        body: newImage,
+      });
 
-    let newImage = new FormData();
-    newImage.append("imagen", file);
-    newImage.append("muestra", muestraId);
+      if (response.ok) {
+        console.log("Imagen subida exitosamente");
+        await mostrarImagenesMuestra(muestraId);
+      } else {
+        console.error("Error al subir imagen:", response.status);
+        alert("Error al subir la imagen");
+      }
+    };
 
-    fetch("/api/imagenestubo/", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: newImage,
-    }).then(async () => {
-      await mostrarImagenesMuestra(muestraId);
-    });
+    // Abrir el selector de archivos
+    input.click();
   } catch (err) {
-    console.error(err);
+    console.error("Error en aniadirImagenMuestra:", err);
+    alert("Error al añadir imagen: " + err.message);
   }
 };
 
@@ -923,12 +945,14 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
   let imagenes = await obtenerImagenesMuestra(muestraId_val);
   // Imagen de sustitución si no hay imágenes
   if (imagenes.length == 0) {
+    muestra__img.style.display = "none";
     if (typeof visor__img !== 'undefined') visor__img.src = "./assets/images/no_disponible.jpg";
   } else {
+    muestra__img.style.display = "flex";
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = `data:image/jpeg;base64,${imagen.imagen}`;
+      newimg.src = `data:image/jpeg;base64,${imagen.imagen_base64}`;
 
       newimg.classList.add("muestra__img");
 
@@ -1187,6 +1211,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         modaldetalleMuestra.classList.remove("showmodal");
       }
       muestra__img.innerHTML = "";
+    });
+  }
+
+  if (btncerrarmuestradetalle) {
+    btncerrarmuestradetalle.addEventListener("click", () => {
+      if (!modaldetalleMuestra.classList.contains("hidemodal")) {
+        modaldetalleMuestra.classList.add("hidemodal");
+        modaldetalleMuestra.classList.remove("showmodal");
+      }
+      muestra__img.innerHTML = "";
+    });
+  }
+
+  if (btnborrarmuestra) {
+    btnborrarmuestra.addEventListener("click", () => {
+      if (confirm("¿Estás seguro de eliminar este análisis?")) {
+        borrarMuestra();
+      }
+    });
+  }
+
+  if (btnaniadirimagenmuestra) {
+    btnaniadirimagenmuestra.addEventListener("click", () => {
+      aniadirImagenMuestra();
     });
   }
 

@@ -512,14 +512,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <img id="muestra__img" class="img-fluid" src="" alt="Imagen Análisis" style="max-width: 100%; display: none;">
+                        <label class="blue__color--negrita">Imágenes:</label>
+                        <div id="muestra__img" class="d-flex flex-wrap gap-2"></div>
                     </div>
 
                     <div class="d-flex gap-2 mt-4">
-                        <button class="btn btn__modal" id="btnborrarmuestra">
+                        <button type="button" class="btn btn-success" id="btnaniadirimagenmuestra">
+                            <i class="fa-solid fa-plus me-2"></i> Añadir Imagen
+                        </button>
+                        <button type="button" class="btn btn__modal" id="btnborrarmuestra">
                             <i class="fa-solid fa-trash-can me-2"></i> Eliminar
                         </button>
-                        <button class="btn btn-outline-primary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-outline-primary" id="btncerrarmuestradetalle">
                             Cerrar
                         </button>
                     </div>

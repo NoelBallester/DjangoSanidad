@@ -292,14 +292,8 @@ class ImagenViewSet(viewsets.ModelViewSet):
     def por_muestra(self, request, id=None):
         """Obtiene todas las imágenes de una muestra en base64"""
         imagenes = Imagen.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenSerializer(img).data
-            if img.imagen:
-                with open(img.imagen.path, 'rb') as f:
-                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
-            resultado.append(img_data)
-        return Response(resultado)
+        # El serializer ya incluye imagen_base64 con el método get_imagen_base64
+        return Response(ImagenTuboSerializer(imagenes, many=True).data)
 
 class ImagenCitologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
@@ -424,9 +418,22 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
             data['qr_muestra'] = generar_qr('--mt--')
+        
+        # Separar la imagen de los datos si existe
+        imagen_file = request.FILES.get('imagen', None)
+        
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        muestra = serializer.save()
+        
+        # Si hay imagen, crear el registro en ImagenTubo con datos binarios
+        if imagen_file:
+            imagen_bytes = imagen_file.read()
+            ImagenTubo.objects.create(
+                imagen=imagen_bytes,
+                muestra=muestra
+            )
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_path='tubo/(?P<id>[^/.]+)')
@@ -446,6 +453,28 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
     serializer_class = ImagenTuboSerializer
     authentication_classes = []
     
+    def create(self, request):
+        """Crea una imagen guardando el archivo como binario en la BD"""
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+        
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Leer el archivo y convertirlo a bytes
+        imagen_bytes = imagen_file.read()
+        
+        # Crear el objeto ImagenTubo
+        imagen_tubo = ImagenTubo.objects.create(
+            imagen=imagen_bytes,
+            muestra_id=muestra_id
+        )
+        
+        return Response(ImagenTuboSerializer(imagen_tubo).data, status=status.HTTP_201_CREATED)
+    
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
         """Obtiene todas las imágenes de una muestra de tubo en base64"""
@@ -453,9 +482,7 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
         resultado = []
         for img in imagenes:
             img_data = ImagenTuboSerializer(img).data
-            if img.imagen:
-                with open(img.imagen.path, 'rb') as f:
-                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            # El serializer ya incluye imagen_base64
             resultado.append(img_data)
         return Response(resultado)
 

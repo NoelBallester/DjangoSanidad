@@ -1,4 +1,5 @@
 import base64
+import os
 from rest_framework import serializers
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
 
@@ -77,22 +78,21 @@ class MuestraTuboSerializer(serializers.ModelSerializer):
         except:
             pass
         return None
-        return None
 
 class ImagenTuboSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenTubo
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_base64']
+        read_only_fields = ['id_imagen', 'imagen_base64']
 
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                with open(obj.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
-            except:
-                return None
+                return base64.b64encode(obj.imagen).decode('utf-8')
+            except Exception as e:
+                print(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
 
 class HematologiaSerializer(serializers.ModelSerializer):
