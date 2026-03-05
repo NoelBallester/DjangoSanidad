@@ -1,6 +1,33 @@
 // Hematología front-end logic (inspired by citologias.js)
 const token = sessionStorage.getItem("token");
 
+// CSRF helper: get cookie and return headers for fetch calls
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function getHeaders(method = 'GET', isForm = false) {
+  const headers = {};
+  const m = method.toUpperCase();
+  if (!isForm && m !== 'GET') headers['Content-Type'] = 'application/json';
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(m)) {
+    const csrf = getCookie('csrftoken');
+    if (csrf) headers['X-CSRFToken'] = csrf;
+  }
+  return headers;
+}
+
 const numMuestras = document.getElementById("numMuestras");
 const organos = document.getElementById("organos");
 const Muestras = document.getElementById("Muestras"); // tabla superior (hematologías)
@@ -22,7 +49,7 @@ const Muestras__Muestras = document.getElementById("Muestras__Muestras");
 const fechainicio = document.getElementById("fechainicio");
 const fechafin = document.getElementById("fechafin");
 
-let currentHematologiaId = null;
+let hematologiaId = null;
 // Clean, unified hematologia frontend
 (() => {
   const MuestrasTable = document.getElementById("Muestras");
@@ -414,7 +441,7 @@ formnuevaMuestras?.addEventListener("submit", async (e) => {
 
     const res = await fetch("/api/hematologia/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders('POST'),
         body: JSON.stringify(data)
     });
     if (res.ok) location.reload();
@@ -435,6 +462,7 @@ formnuevaMuestra?.addEventListener("submit", async (e) => {
 
     const res = await fetch("/api/muestrashematologia/", {
         method: "POST",
+        headers: getHeaders('POST', true),
         body: formData
     });
     if (res.ok) {
@@ -453,7 +481,10 @@ formnuevaMuestra?.addEventListener("submit", async (e) => {
         return;
       }
       if (!confirm("¿Desea eliminar esta sub-muestra?")) return;
-      const res = await fetch(`/api/muestrashematologia/${subMuestraId}/`, { method: "DELETE" });
+      const res = await fetch(`/api/muestrashematologia/${subMuestraId}/`, { 
+        method: "DELETE",
+        headers: getHeaders('DELETE')
+      });
       if (res.ok) {
         modaldetalleMuestra.classList.remove("showmodal");
         const subs = await cargarSubMuestras(hematologiaId);
@@ -466,7 +497,7 @@ formnuevaMuestra?.addEventListener("submit", async (e) => {
 
 // Guardar Informe
 btnGuardarInforme?.addEventListener("click", async () => {
-    if (!currentHematologiaId) return;
+    if (!hematologiaId) return;
 
     const formData = new FormData();
     formData.append("informe_descripcion", muestraInformeDescripcion.value);
@@ -477,8 +508,9 @@ btnGuardarInforme?.addEventListener("click", async () => {
     const file = muestraInformeImagen.files[0];
     if (file) formData.append("informe_imagen", file);
 
-    const res = await fetch(`/api/hematologia/${currentHematologiaId}/actualizar_informe/`, {
+    const res = await fetch(`/api/hematologia/${hematologiaId}/actualizar_informe/`, {
         method: "POST",
+        headers: getHeaders('POST', true),
         body: formData
     });
     if (res.ok) alert("Informe guardado correctamente");

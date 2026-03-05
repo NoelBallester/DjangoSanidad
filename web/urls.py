@@ -29,6 +29,18 @@ urlpatterns = [
     path('muestras-citologia/<int:muestra_pk>/imagenes/subir/',     views.imagen_citologia_upload,   name='imagen_citologia_upload'),
     path('imagenes-citologia/<int:pk>/eliminar/',                   views.imagen_citologia_delete,   name='imagen_citologia_delete'),
 
+    # Hematologías
+    path('hematologias/',                                             views.hematologia_list,            name='hematologias'),
+    path('hematologias/crear/',                                       views.hematologia_create,          name='hematologia_create'),
+    path('hematologias/<int:pk>/editar/',                             views.hematologia_update,          name='hematologia_update'),
+    path('hematologias/<int:pk>/eliminar/',                           views.hematologia_delete,          name='hematologia_delete'),
+    path('hematologias/<int:pk>/informe/',                            views.hematologia_informe,         name='hematologia_informe'),
+    path('hematologias/<int:hematologia_pk>/muestras/crear/',         views.muestra_hematologia_create,  name='muestra_hematologia_create'),
+    path('muestras-hematologia/<int:pk>/editar/',                     views.muestra_hematologia_update,  name='muestra_hematologia_update'),
+    path('muestras-hematologia/<int:pk>/eliminar/',                   views.muestra_hematologia_delete,  name='muestra_hematologia_delete'),
+    path('muestras-hematologia/<int:muestra_pk>/imagenes/subir/',     views.imagen_hematologia_upload,   name='imagen_hematologia_upload'),
+    path('imagenes-hematologia/<int:pk>/eliminar/',                   views.imagen_hematologia_delete,   name='imagen_hematologia_delete'),
+
     # Usuarios
     path('usuarios/',                          views.usuario_list,   name='usuarios'),
     path('usuarios/crear/',                    views.usuario_create, name='usuario_create'),
