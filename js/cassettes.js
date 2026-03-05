@@ -829,27 +829,25 @@ const rellenarDatosMuestra = async (muestra) => {
 const mostrarImagenesMuestra = async (muestaId) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId);
-  // Imagen de sustitución si no hay imagenes para una muestra
-  if (imagenes.length == 0) {
-    visor__img.src = "./assets/images/no_disponible.jpg";
-  } else {
+  // Mostrar imágenes en el contenedor
+  if (imagenes.length > 0) {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
       newimg.src = `data:image/jpeg;base64,${imagen.imagen}`;
-
-      newimg.classList.add("muestra__img");
+      newimg.classList.add("muestra__img", "rounded");
+      newimg.style.maxWidth = "150px";
+      newimg.style.maxHeight = "150px";
+      newimg.style.objectFit = "cover";
+      newimg.style.border = "1px solid #ccc";
+      newimg.style.cursor = "pointer";
 
       if (index == 0) {
-        visor__img.src = newimg.src;
         imageId = newimg.id;
       }
 
       // Añadimos cada una de las imagenes
-      let newdiv = document.createElement("DIV");
-      newdiv.classList.add("container__muestraimg", "border", "m-1");
-      newdiv.appendChild(newimg);
-      muestra__img.appendChild(newdiv);
+      muestra__img.appendChild(newimg);
     });
   }
 
@@ -1247,10 +1245,9 @@ muestras.addEventListener("click", (event) => {
   }
 });
 
-// Visualizamos la imagen seleccionada
+// Gestionar click en imágenes para seleccionar/eliminar
 muestra__img.addEventListener("click", async (event) => {
   if (event.target.nodeName === "IMG") {
-    visor__img.src = event.target.src;
     imageId = event.target.id;
   }
   if (event.target.nodeName === "I") aniadirImagenMuestra();

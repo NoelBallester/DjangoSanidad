@@ -379,6 +379,29 @@ td {
   max-width: 900px;
 }
 
+.detallemuestra .mb-3 {
+  background-color: rgba(240, 249, 255, 0.7);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(29, 78, 216, 0.1);
+}
+
+.detallemuestra .mb-3 > label {
+  color: #1D4ED8;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.detallemuestra .mb-3 > p {
+  color: #0F172A;
+  margin: 0;
+}
+
+.detallemuestra #muestra__img {
+  gap: 1rem;
+}
+
 .mimodal {
   background-color: rgba(1, 0, 4, 0.197);
   position: fixed;
@@ -499,7 +522,35 @@ td {
 :root.dark-theme .detallemuestra {
   background-color: rgba(30, 41, 59, 0.95) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-main) !important;
+  color: #f8fafc !important;
+}
+
+:root.dark-theme .detallemuestra .mb-3 {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:root.dark-theme .detallemuestra .mb-3 > label {
+  color: #60A5FA !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+:root.dark-theme .detallemuestra .mb-3 > p {
+  color: #e2e8f0 !important;
+  margin: 0 !important;
+}
+
+:root.dark-theme .detallemuestra #muestra__img {
+  gap: 1rem !important;
+}
+
+:root.dark-theme .detallemuestra #muestra__img img {
+  border-radius: 0.5rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
 }
 
 :root.dark-theme .blue__color {

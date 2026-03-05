@@ -570,71 +570,62 @@
                 </div>
                 <hr>
 
-                <div class="p-2">
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex align-items-start">
-                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal">
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal" style="cursor: pointer;">
                                 <i title="Imprimer QR Muestra"
-                                    class="fa-sharp fa-solid fa-qrcode  cassette__icon cassette__icon--infocassette"></i>
+                                    class="fa-sharp fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
-
-                            <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal">
+                            <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal" style="cursor: pointer;">
                                 <i title="Borrar Muestra"
                                     class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
-
-                            <div id="btnformmodificarmuestra">
+                            <div id="btnformmodificarmuestra" style="cursor: pointer;">
                                 <i title="Modificar Muestra"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
-
-                        </div>
-                        <div>
-                            <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra" alt=""
-                                class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                         </div>
                     </div>
 
-                    <section class="row  mt-3">
-                        <div class="col-4 border-end">
-                            <li class="blue__color--negrita">Descripción: <span id="muestra__descripcion"
-                                    class="blue__color muestradescripcion__text">
-                                </span>
-                            </li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Descripción:</label>
+                        <p id="muestra__descripcion" class="blue__color"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Fecha: <span id="muestra__fecha"
-                                    class="blue__color cassette__text">
-                                </span>
-                            </li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Fecha:</label>
+                        <p id="muestra__fecha" class="blue__color"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Tinción: <span id="muestra__tincion"
-                                    class="blue__color cassette__text">
-                                </span>
-                            </li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Tinción:</label>
+                        <p id="muestra__tincion" class="blue__color"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Observaciones:
-                                <p id="muestra__observaciones" class="blue__color muestra__text"></p>
-                            </li>
-                        </div>
-                        <div class="col-8">
-                            <img id="visor__img" class="visor__img" src="" alt="">
-                        </div>
-                        <hr class="mt-4">
-                        <div class="d-flex">
-                            <div id="muestra__img" class="d-flex flex-wrap">
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Observaciones:</label>
+                        <p id="muestra__observaciones" class="blue__color"></p>
+                    </div>
 
-                            </div>
-                            <div class="container__aniadir d-flex align-items-center mt-1 mx-2 blue__color fs-1">
-                                <label for="file-input">
-                                    <i class="fa-solid fa-circle-plus"></i>
-                                </label>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Imágenes:</label>
+                        <div id="muestra__img" class="d-flex flex-wrap gap-2"></div>
+                    </div>
 
-                                <input id="file-input" type="file" />
-                            </div>
+                    <input id="file-input" type="file" accept=".jpg,.jpeg,.png,.gif" style="display: none;" />
 
-                        </div>
-
-                    </section>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-success" id="btnaniadirimagenmuestra">
+                            <i class="fa-solid fa-plus me-2"></i> Añadir Imagen
+                        </button>
+                        <button type="button" class="btn btn__modal" id="btnborrarmuestra">
+                            <i class="fa-solid fa-trash-can me-2"></i> Eliminar
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="btncerrardetalleMuestra">
+                            Cerrar
+                        </button>
+                    </div>
                 </div>
 
 
