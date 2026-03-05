@@ -39,6 +39,11 @@ class ImagenCitologiaSerializer(serializers.ModelSerializer):
 
 class TuboSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
+    # Aliases para compatibilidad con el frontend de PHPSanidad
+    id_muestra = serializers.IntegerField(source='id_tubo', read_only=True)
+    muestra = serializers.CharField(source='tubo', read_only=True)
+    qr_muestra = serializers.CharField(source='qr_tubo', read_only=True)
+    tipo_muestra = serializers.CharField(source='organo', read_only=True)
 
     class Meta:
         model = Tubo
@@ -51,6 +56,8 @@ class TuboSerializer(serializers.ModelSerializer):
 
 class MuestraTuboSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
+    # Alias para compatibilidad con el frontend de PHPSanidad
+    id_muestra = serializers.IntegerField(source='id_muestra', read_only=True)
 
     class Meta:
         model = MuestraTubo

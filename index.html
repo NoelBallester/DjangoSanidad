@@ -30,7 +30,7 @@
 
     <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');
@@ -40,6 +40,14 @@
     <script src="./js/darkmode.js" defer></script>
     <link rel="stylesheet" href="css/forms.css">
 
+    <script>
+        {% if user.is_authenticated %}
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('tecnico_id', '{{ user.id_tecnico }}');
+        sessionStorage.setItem('rol', '{% if user.is_superuser %}admin{% else %}user{% endif %}');
+        {% endif %}
+    </script>
+    {% csrf_token %}
     <title>Sanitaria Ribera...</title>
 </head>
 
@@ -87,7 +95,10 @@
                         </li>
                         {% endif %}
                         <li class="nav-item nav__item">
-                            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
+                            <form method="post" action="/logout/" style="display:inline"><input type="hidden"
+                                    name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit"
+                                    class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar
+                                    Sesión</button></form>
                         </li>
                         <li class="nav-item nav__item d-flex align-items-center">
                             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"

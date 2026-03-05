@@ -34,28 +34,27 @@ const inputpassword_id = document.getElementById("inputpassword_id");
 const userLogin = (event) => {
   event.preventDefault();
 
-  fetch("modelo/tecnicos/tecnicos.php", {
+  fetch("/api/tecnicos/login/", {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-type": "application/json; charset=UTF-8",
     },
     body: JSON.stringify({
-      accion: "login",
-      identificador: inputlogin_id.value,
+      tecnico_id: inputlogin_id.value,
       password: inputlogin_password.value,
     }),
   })
     .then((response) => response.json())
     .then((response) => {
       if (response.error) {
-        login__error.textContent = response.error;
+        login__error.textContent = response.error === 'Invalid credentials' ? 'ID o contraseña incorrectos.' : response.error;
         login__error.style.display = "block";
       } else {
         // Store session data
         sessionStorage.setItem("isLoggedIn", "true");
-        sessionStorage.setItem("userId", response['user.id_tecnico']);
-        sessionStorage.setItem("rol", response.rol);
+        sessionStorage.setItem("tecnico_id", response.id_tecnico);
+        sessionStorage.setItem("rol", response.is_superuser ? "admin" : "user");
 
         form_login.reset();
         window.location.href = "./index.html";
@@ -71,23 +70,24 @@ const userRegister = (event) => {
     register__error.textContent = "Las contraseñas no son iguales";
     register__error.style.display = "block";
   } else {
-    fetch("modelo/tecnicos/tecnicos.php", {
+    // Note: Django Tecnico model requires email. Assuming a temporary email or adding it to form.
+    // For now, using username = tecnico_id logic or similar if backend allows.
+    fetch("/api/tecnicos/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        accion: "registro",
-
         nombre: input_name.value,
         apellidos: input_lastname.value,
         centro: input_center.value,
         password: input_password.value,
+        email: `${input_name.value.toLowerCase()}.${Date.now()}@example.com` // Hack if email is not in form
       }),
     })
       .then((response) => response.json())
       .then((response) => {
-        if (response.user) {
+        if (response.id_tecnico) {
           form_register.reset();
           register__error.textContent = "¡Registro exitoso! Tu identificador es: " + response.id_tecnico;
           register__error.classList.add('success-msg');
@@ -101,7 +101,7 @@ const userRegister = (event) => {
           }, 8000);
         } else {
           register__error.classList.remove('success-msg');
-          register__error.textContent = response.error;
+          register__error.textContent = response.error || "Error en el registro";
           register__error.style.display = "block";
           register__error.style.color = ""; // Limpiar cualquier color inline previo
         }

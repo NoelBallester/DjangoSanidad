@@ -44,6 +44,12 @@ class TecnicoViewSet(viewsets.ModelViewSet):
             
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        if request.user.is_authenticated:
+            return Response(TecnicoSerializer(request.user).data)
+        return Response({'error': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            
     @action(detail=False, methods=['get'], url_path='mail/(?P<mail>[^/.]+)')
     def get_by_mail(self, request, mail=None):
         try:
@@ -321,6 +327,11 @@ class TuboViewSet(viewsets.ModelViewSet):
         # Generar QR automáticamente si no existe
         if 'qr_tubo' not in data or not data['qr_tubo']:
             data['qr_tubo'] = generar_qr('--t--')
+        
+        # Generar número de tubo si no existe
+        if 'tubo' not in data or not data['tubo']:
+            import time
+            data['tubo'] = f"T-{int(time.time())}"
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

@@ -131,6 +131,13 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR]
 
 # Custom configurations
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}
+
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'api.Tecnico'
 MEDIA_URL = '/media/'

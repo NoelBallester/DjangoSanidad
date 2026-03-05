@@ -367,12 +367,11 @@ td {
     max-width: 550px;
     border: 2px solid #dee2e6;
     border-radius: 0.5rem;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     background-color: #ffffff;
     padding: 1rem 0.5rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    pointer-events: auto;
 }
 
 .detallemuestra {
@@ -382,43 +381,34 @@ td {
 
 .mimodal {
     background-color: rgba(1, 0, 4, 0.197);
-    position: relative;
+    position: fixed;
     width: 100%;
     height: 100vh;
-    position: absolute;
-    top: -1200px;
-    left: 50%;
+    top: 0;
+    left: 0;
     opacity: 0;
-    /* display: flex; */
-    /*flex-direction: column;
-  font-family: Raleway, Helvetica, sans-serif;
-  color: #646464;
-  font-size: 0.75rem;
-  padding-top: 2rem; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    visibility: hidden;
 }
 
 .showmodal {
     animation-name: showmodalanimation;
     animation-duration: 1s;
     animation-fill-mode: forwards;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    z-index: 1000 !important;
 }
 
 @keyframes showmodalanimation {
     0% {
-        top: 0px;
-        left: 50%;
         opacity: 0;
-        transform: translate(-50%, -50%);
-    }
-
-    50% {
-        opacity: 1;
     }
 
     100% {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         opacity: 1;
     }
 }
@@ -427,25 +417,16 @@ td {
     animation-name: hidemodalanimation;
     animation-duration: 1s;
     animation-fill-mode: forwards;
+    pointer-events: none !important;
 }
 
 @keyframes hidemodalanimation {
     0% {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         opacity: 1;
     }
 
-    75% {
-        opacity: 0;
-    }
-
     100% {
-        top: -1000px;
-        left: 50%;
         opacity: 0;
-        transform: translate(-50%, -50%);
     }
 }
 
@@ -719,4 +700,144 @@ hr {
     backdrop-filter: blur(10px) !important;
     border: none !important;
     box-shadow: var(--shadow-soft) !important;
+}
+
+/* -------------- PREMIUM DARK MODE OVERRIDES -------------- */
+.dark-theme {
+    --primary: #818cf8;
+    --primary-light: #4f46e5;
+    --secondary: #f472b6;
+    --title-color: #f8fafc;
+    --text-main: #cbd5e1;
+    --bg-light: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text-main);
+}
+
+.dark-theme .barra_org {
+    background: rgba(30, 41, 59, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .container__table:hover,
+.dark-theme .container__tubo:hover,
+.dark-theme .tubo:hover,
+.dark-theme .container__muestra:hover,
+.dark-theme .muestra:hover {
+    border-color: rgba(129, 140, 248, 0.5) !important;
+}
+
+.dark-theme .table tbody tr {
+    background: #1e293b;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .table tbody tr:hover {
+    box-shadow: 0 10px 25px rgba(129, 140, 248, 0.15);
+}
+
+.dark-theme table[data-sortable].sortable-theme-finder tbody>tr:nth-child(odd)>td {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme table[data-sortable].sortable-theme-finder thead th {
+    background: rgba(30, 41, 59, 0.9) !important;
+    background-image: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .border__color {
+    background: rgba(30, 41, 59, 0.9) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .miform,
+.dark-theme .detallemuestra {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .btn-switch-module {
+    color: white !important;
+}
+
+.dark-theme input.bg-light,
+.dark-theme select.bg-light,
+.dark-theme textarea.bg-light {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark-theme .text__video {
+    color: var(--title-color);
+}
+/* --- Global Table Fixes for Dark Mode --- */
+.dark-theme table.table,
+.dark-theme table[data-sortable].sortable-theme-finder {
+    background: transparent !important;
+    border: none !important;
+}
+
+.dark-theme table.table thead th,
+.dark-theme table[data-sortable].sortable-theme-finder thead th {
+    background: rgba(30, 41, 59, 0.9) !important;
+    background-image: none !important;
+    color: var(--primary, #818cf8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme table.table tbody tr,
+.dark-theme table[data-sortable].sortable-theme-finder tbody tr {
+    background: rgba(30, 41, 59, 0.5) !important;
+    color: var(--text-main) !important;
+}
+
+.dark-theme table.table tbody tr:nth-child(odd),
+.dark-theme table[data-sortable].sortable-theme-finder tbody tr:nth-child(odd),
+.dark-theme table[data-sortable].sortable-theme-finder tbody>tr:nth-child(odd)>td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: var(--text-main) !important;
+}
+
+.dark-theme table.table tbody tr:hover,
+.dark-theme table[data-sortable].sortable-theme-finder tbody tr:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* --- Dark Mode: Fondo button fix --- */
+html.dark-theme .fondo {
+  background: linear-gradient(135deg, #1e3a5f, #2563a8) !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+}
+html.dark-theme .fondo:hover {
+  background: linear-gradient(135deg, #2563a8, #3b82f6) !important;
+  filter: brightness(1.15);
+}
+
+/* --- Dark Mode: Filter inputs visibility fix --- */
+html.dark-theme input.border__color,
+html.dark-theme select.border__color,
+html.dark-theme textarea.border__color,
+.dark-theme input.border__color,
+.dark-theme select.border__color,
+.dark-theme textarea.border__color {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.4) !important;
+}
+
+html.dark-theme input.border__color::placeholder,
+.dark-theme input.border__color::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indicator,
+.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }

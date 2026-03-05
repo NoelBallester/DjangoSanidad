@@ -1,10 +1,11 @@
-const inputCassete = document.getElementById("inputCassete");
+const inputNumTubo = document.getElementById("inputNumTubo");
 const token = sessionStorage.getItem("token");
 
-const casettes = document.getElementById("casettes");
-const muestras = document.getElementById("muestras");
-const organos = document.getElementById("organos");
-const numMuestra = document.getElementById("numMuestra");
+const body = document.getElementById("body");
+const tubos = document.getElementById("tubos_lista");  // tabla de muestras principales
+const muestras = document.getElementById("tubos");  // tabla de tubos/análisis
+const tipo_tubos = document.getElementById("tipo_tubos");
+const numTubo = document.getElementById("numTubo");
 
 // Botón Modal modificar datos Usuario
 const btnformmodificarUser = document.getElementById("btnformmodificarUser");
@@ -23,71 +24,75 @@ const inputUpdatePass2User = document.getElementById("inputUpdatePass2User");
 const inputUpdateCentroUser = document.getElementById("inputUpdateCentroUser");
 
 const btnborrar = document.getElementById("btnborrar");
-const modalNuevoMuestra = document.getElementById("modalNuevoMuestra");
-const btnNuevoMuestra = document.getElementById("btnNuevoMuestra");
-const btnformmodificarmuestra = document.getElementById(
-  "btnformmodificarmuestra"
+const modalnuevoTubo = document.getElementById("modalnuevoTubo");
+const btnformnuevotubo = document.getElementById("btnformnuevotubo");
+const btnformmodificartubo = document.getElementById(
+  "btnformmodificartubo"
 );
-const btnCerrarNuevoMuestra = document.getElementById("btnCerrarNuevoMuestra");
-const btnCerrarModificarMuestra = document.getElementById(
-  "btnCerrarModificarMuestra"
+const btnformcerrarnuevoTubo = document.getElementById(
+  "btnformcerrarnuevoTubo"
+);
+const btnformcerrarmodificarTubo = document.getElementById(
+  "btnformcerrarmodificarTubo"
 );
 const btnmodificar = document.getElementById("btnmodificar");
-const formNuevoMuestra = document.getElementById("formNuevoMuestra");
-const formNuevoDetalle = document.getElementById("formNuevoDetalle");
+const nuevoTubo = document.getElementById("nuevoTubo");
+const nuevaMuestra = document.getElementById("nuevaMuestra");
 
-const muestraDescripcion = document.getElementById("muestra__descripcion");
-const muestraOrgano = document.getElementById("muestra__organo");
-const muestraMuestra = document.getElementById("muestra__muestra");
-const muestraFecha = document.getElementById("muestra__fecha");
-const muestraCaracteristicas = document.getElementById(
-  "muestra__caracteristicas"
+const tuboDescripcion = document.getElementById("tubo__descripcion");
+const tuboTipoMuestra = document.getElementById("tubo__tipo_tubo");
+const tuboTubo = document.getElementById("tubo__tubo");
+const tuboFecha = document.getElementById("tubo__fecha");
+const tuboTecnicoId = document.getElementById("tubo__tecnico_id");
+const tuboCaracteristicas = document.getElementById(
+  "tubo__caracteristicas"
 );
-const muestraObservaciones = document.getElementById("muestra__observaciones");
+const tuboObservaciones = document.getElementById(
+  "tubo__observaciones"
+);
+const tuboInformeDescripcion = document.getElementById("tubo__informe_descripcion");
+const tuboInformeFecha = document.getElementById("tubo__informe_fecha");
+const tuboInformeTincion = document.getElementById("tubo__informe_tincion");
+const tuboInformeObservaciones = document.getElementById("tubo__informe_observaciones");
+const tuboInformeImagen = document.getElementById("tubo__informe_imagen");
 
-const muestraInformeDescripcion = document.getElementById("muestra__informe_descripcion");
-const muestraInformeFecha = document.getElementById("muestra__informe_fecha");
-const muestraInformeTincion = document.getElementById("muestra__informe_tincion");
-const muestraInformeObservaciones = document.getElementById("muestra__informe_observaciones");
-const muestraInformeImagen = document.getElementById("muestra__informe_imagen");
+const tuboImagen = document.getElementById("tubo__imagen");
+const eliminarTuboModal = document.getElementById("eliminarTuboModal");
+
+// Detalle Tubo
+let currentTuboId = null;
 const btnGuardarInforme = document.getElementById("btnGuardarInforme");
-let currentMuestraId = null;
-
-const muestraImagen = document.getElementById("muestra__imagen");
-const eliminarMuestraModal = document.getElementById("eliminarMuestraModal");
-
-// Detalle Muestra Principal
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
 
 // Modal qr
-const imgcassette__qr = document.getElementById("imgcassette__qr");
-const inputcassette__qr = document.getElementById("inputcassette__qr");
+const imgtubo__qr = document.getElementById("imgtubo__qr");
+const inputtubo__qr = document.getElementById("inputtubo__qr");
 
-// Todas las muestras
-const btnTodosMuestras = document.getElementById("btnTodosMuestras");
+// Todos los tubos
+const todosTubos = document.getElementById("todosTubos");
 
-// Nueva Muestra Principal
+// Nuevo Tubo (Muestra)
 const inputFecha = document.getElementById("inputFecha");
-const inputNumMuestra = document.getElementById("inputNumMuestra");
 const inputDescripcion = document.getElementById("inputDescripcion");
-const inputClinica = document.getElementById("inputClinica");
 const inputCaracteristicas = document.getElementById("inputCaracteristicas");
 const inputObservaciones = document.getElementById("inputObservaciones");
+const inputClinica = document.getElementById("inputClinica");
 const inputMicroscopia = document.getElementById("inputMicroscopia");
 const inputDiagnostico = document.getElementById("inputDiagnostico");
 const inputPatologo = document.getElementById("inputPatologo");
 const inputSelect = document.getElementById("inputSelect");
+const inputImagenes = document.getElementById("inputImagenes");
 
-// Modificar Muestra Principal
-const modalModificarMuestra = document.getElementById("modalModificarMuestra");
-const formModificarMuestra = document.getElementById("formModificarMuestra");
+// Modificar Tubo
+const modalupdateTubo = document.getElementById("modalupdateTubo");
+const modificarTubo = document.getElementById("modificarTubo");
+const btnmodificartubo = document.getElementById("btnformmodificartubo");
 const inputFechaUpdate = document.getElementById("inputFechaUpdate");
+const inputImagenesUpdate = document.getElementById("inputImagenesUpdate");
 
 const inputDescripcionUpdate = document.getElementById(
   "inputDescripcionUpdate"
 );
-const inputTuboUpdate = document.getElementById("inputTuboUpdate");
-const inputClinicaUpdate = document.getElementById("inputClinicaUpdate");
 const inputCaracteristicasUpdate = document.getElementById(
   "inputCaracteristicasUpdate"
 );
@@ -98,212 +103,409 @@ const inputMicroscopiaUpdate = document.getElementById("inputMicroscopiaUpdate")
 const inputDiagnosticoUpdate = document.getElementById("inputDiagnosticoUpdate");
 const inputPatologoUpdate = document.getElementById("inputPatologoUpdate");
 const inputSelectUpdate = document.getElementById("inputSelectUpdate");
+const inputClinicaUpdate = document.getElementById("inputClinicaUpdate");
 
-// Crear un detalle (sub-muestra)
-const btnNuevoDetalle = document.getElementById("btnNuevoDetalle");
-const btnCerrarNuevoDetalle = document.getElementById("btnCerrarNuevoDetalle");
-const modalNuevoDetalle = document.getElementById("modalNuevoDetalle");
+// Crear un análisis (Tubos)
+const btnformnuevaMuestra = document.getElementById("btnformnuevaTubo");
+const btnformcerrarnuevaMuestra = document.getElementById(
+  "btnformcerrarnuevaTubo"
+);
 
-// Nuevo Detalle (sub-muestra)
-const inputdescripcionTubo = document.getElementById("inputdescripcionTubo");
-const inputFechaTubo = document.getElementById("inputFechaTubo");
-const selectTincionTubo = document.getElementById("selectTincionTubo");
-const inputObservacionesTubo = document.getElementById("inputObservacionesTubo");
-const inputImagenesTubo = document.getElementById("inputImagenesTubo");
+const modalnuevaMuestra = document.getElementById("modalnuevaTubo");
 
-// Detalle sub-muestra (modal ver)
-const modal_muestra__descripcion = document.getElementById("modal_muestra__descripcion");
-const modal_muestra__fecha = document.getElementById("modal_muestra__fecha");
-const modal_muestra__observaciones = document.getElementById("modal_muestra__observaciones");
-const modal_muestra__tincion = document.getElementById("modal_muestra__tincion");
+// Nueva Análisis
+const inputdescripcionMuestra = document.getElementById(
+  "inputdescripcionMuestra"
+);
+const inputFechaMuestra = document.getElementById("inputFechaMuestra");
+const selectTincionMuestra = document.getElementById("selectTincionMuestra");
+const inputObservacionesMuestra = document.getElementById(
+  "inputObservacionesMuestra"
+);
+const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
+
+// Detalle Análisis
+const muestra__descripcion = document.getElementById("muestra__descripcion");
+const muestra__fecha = document.getElementById("muestra__fecha");
+const muestra__observaciones = document.getElementById(
+  "muestra__observaciones"
+);
+const muestra__tincion = document.getElementById("muestra__tincion");
 
 const muestra__img = document.getElementById("muestra__img");
-const modalVerDetalle = document.getElementById("modalVerDetalle");
-const btnCerrarVerDetalle = document.getElementById("btnCerrarVerDetalle");
+const btncerrardetalleMuestra = document.getElementById(
+  "btncerrardetalleMuestra"
+);
 
-// Modificar sub-muestra
-const modalmodificarTubo = document.getElementById("modalmodificarTubo");
-const formModificarTubo = document.getElementById("modificarTubo");
-const btnModificarDetalle = document.getElementById("btnModificarDetalle");
-const btnformcerrarmodificarTubo = document.getElementById("btnformcerrarmodificarTubo");
+// Modificar análisis
+const modificarMuestra = document.getElementById("modificarTubo");
+const modalmodificarMuestra = document.getElementById("modalmodificarTubo");
+const modaldetalleMuestra = document.getElementById("modaldetalleTubo");
+const btnformmodificarMuestra = document.getElementById(
+  "btnformmodificartubo"
+);
+const btnformcerrarmodificarMuestra = document.getElementById(
+  "btnformcerrarmodificarTubo"
+);
 
-const inputmodificardescripcionTubo = document.getElementById("inputmodificardescripcionTubo");
-const inputmodificarfechaTubo = document.getElementById("inputmodificarfechaTubo");
-const selectmodificartincionTubo = document.getElementById("selectmodificartincionTubo");
-const inputmodificarobservacionesTubo = document.getElementById("inputmodificarobservacionesTubo");
+// Datos para modificar un análisis
+const inputmodificardescripcionMuestra = document.getElementById(
+  "inputmodificardescripcionMuestra"
+);
 
-// Borrar sub-muestra
+const inputmodificarfechaMuestra = document.getElementById(
+  "inputmodificarfechaMuestra"
+);
+
+const selectmodificartincionMuestra = document.getElementById(
+  "selectmodificartincionMuestra"
+);
+
+const inputmodificarobservacionesMuestra = document.getElementById(
+  "inputmodificarobservacionesMuestra"
+);
+// Borrar Análisis
 const btnborrarmuestra = document.getElementById("btnborrarmuestra");
-// Borrar Imagen sub-muestra
-const btnborrarimagenmuestra = document.getElementById("btnborrarimagenmuestra");
+
+// Borrar Imagen Análisis
+const btnborrarimagenmuestra = document.getElementById(
+  "btnborrarimagenmuestra"
+);
 
 const qrMuestraModal = document.getElementById("qrMuestraModal");
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
 const inputmuestra__qr = document.getElementById("inputmuestra__qr");
-const btn__imprimirqrmuestra = document.getElementById("btn__imprimirqrmuestra");
+const btn__imprimirqrmuestra = document.getElementById(
+  "btn__imprimirqrmuestra"
+);
 
 // Consultar por código qr
 const btn__consultarqr = document.getElementById("btn__consultarqr");
 const input__consultarqr = document.getElementById("input__consultarqr");
 const qrConsultaModal = document.getElementById("qrConsultaModal");
+let mimodal = new bootstrap.Modal(document.getElementById("qrConsultaModal"));
 
 // Fecha inicio fin para consultas
 const fechainicio = document.getElementById("fechainicio");
 const fechafin = document.getElementById("fechafin");
 
 // Alert error
-const alertmuestra = document.getElementById("alertmuestra");
+const alerttubo = document.getElementById("alerttubo");
 const alertfecha = document.getElementById("alertfecha");
 const alertfecha_text = document.getElementById("alertfecha_text");
 
-// id de la muestra principal de trabajo
+// id del tubo de trabajo
+let tuboId = null;
+
+// qr tubo
+let tuboqr = null;
+
+// id análisis del tubo
 let muestraId = null;
-// qr cassete
-let cassetteqr = null;
-// id sub-muestra
-let subMuestraId = null;
+
 // id imagen seleccionada
 let imageId = null;
 
-const body = document.getElementById("body");
-const visor__img = document.getElementById("visor__img");
-const imagenMuestraModal = document.getElementById("imagenMuestraModal");
+const files = document.getElementById("files");
 
-// Carga Muestras al inicio
-const cargarMuestrasIndex = async () => {
-  return await fetch("/api/tubos/index/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+// Utility to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
     }
-  }).then((data) => data.json());
-};
+  }
+  return cookieValue;
+}
 
-// Crear muestra principal
-const crearMuestra = async (event) => {
-  event.preventDefault();
-
-  try {
-    const tecnicoId = sessionStorage.getItem("user") || 1;
-
-    const response = await fetch("/api/tubos/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tubo: inputNumMuestra.value,
-        fecha: inputFecha.value,
-        descripcion: inputDescripcion.value,
-        informacion_clinica: inputClinica ? inputClinica.value : "",
-        caracteristicas: inputCaracteristicas.value,
-        observaciones: inputObservaciones.value,
-        descripcion_microscopica: inputMicroscopia ? inputMicroscopia.value : "",
-        diagnostico_final: inputDiagnostico ? inputDiagnostico.value : "",
-        patologo_responsable: inputPatologo ? inputPatologo.value : "",
-        tecnico: tecnicoId,
-        organo: inputSelect.value,
-      }),
-    });
-
-    if (response.ok) {
-      location.href = "bioquimica.html";
-    } else {
-      const error = await response.json();
-      console.error("Error al crear muestra:", error);
-      alert("Error al crear la muestra: " + JSON.stringify(error));
+// Initialize Authentication from server if missing
+const initAuth = async () => {
+  if (!sessionStorage.getItem("tecnico_id")) {
+    try {
+      const response = await fetch("/api/tecnicos/me/");
+      if (response.ok) {
+        const data = await response.json();
+        sessionStorage.setItem("isLoggedIn", "true");
+        sessionStorage.setItem("tecnico_id", data.id_tecnico);
+        sessionStorage.setItem("rol", data.is_superuser ? "admin" : "user");
+        console.log("Sesión restaurada desde el servidor");
+      }
+    } catch (error) {
+      console.error("Error al restaurar sesión:", error);
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Error al crear la muestra");
   }
 };
 
-// Carga todas las muestras desde el botón
-const cargarTodasMuestras = async () => {
-  return await fetch("/api/tubos/todos/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }).then((data) => data.json());
+initAuth();
+
+// Carga Tubos al inicio
+const cargarTubosIndex = async () => {
+  return await fetch("/api/tubos/index/").then(data => data.json());
 };
 
-// Carga el detalle de la muestra seleccionada
-const cargarMuestra = async (id) => {
-  return await fetch(`/api/tubos/${id}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }).then((data) => data.json());
+// Carga el detalle del tubo seleccionado
+const cargarTubo = async (tuboId) => {
+  return await fetch(`/api/tubos/${tuboId}/`).then(data => data.json());
 };
 
-// Obtener muestras por organo (tipo de muestra)
-const cargarPorOrgano = async () => {
-  return await fetch(`/api/tubos/organo/${organos.value}/`, {
-    method: "GET",
+const crearTubo = async (event) => {
+  event.preventDefault();
+
+  // Si no hay tecnico_id, intentar recuperarlo antes de fallar
+  if (!sessionStorage.getItem("tecnico_id")) {
+    await initAuth();
+  }
+
+  // Validar que tecnico_id esté disponible
+  const tecnicoId = sessionStorage.getItem("tecnico_id");
+  if (!tecnicoId) {
+    alert("Error: Usuario no autenticado. Por favor inicia sesión nuevamente.");
+    return;
+  }
+
+  const data = {
+    fecha: inputFecha.value,
+    descripcion: inputDescripcion.value,
+    caracteristicas: inputCaracteristicas.value,
+    observaciones: inputObservaciones.value,
+    informacion_clinica: inputClinica.value || "",
+    descripcion_microscopica: inputMicroscopia.value || "",
+    diagnostico_final: inputDiagnostico.value || "",
+    patologo_responsable: inputPatologo.value || "",
+    tecnico: tecnicoId,
+    organo: inputSelect.value,
+  };
+
+  fetch("/api/tubos/", {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
-    }
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify(data),
   })
-    .then((data) => data.json())
-    .catch((error) => console.log("No se esta ejecutando" + error));
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Muestra creada:", data);
+      // Limpiar formulario
+      nuevoTubo.reset();
+      // Cerrar modal
+      modalnuevoTubo.classList.remove("showmodal");
+      modalnuevoTubo.classList.add("hidemodal");
+      // Recargar la página para ver el nuevo tubo
+      setTimeout(() => {
+        location.href = "bioquimica.html";
+      }, 500);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Error al crear la muestra: " + error.message);
+    });
 };
 
-// Obtener muestras por número de muestra
+const cargarTodosTubos = async () => {
+  return await fetch("/api/tubos/todos/").then((data) => data.json());
+};
+
+const cargarPorTipo = async () => {
+  return await fetch(`/api/tubos/por_organo/?organo=${tipo_tubos.value}`)
+    .then((data) => data.json())
+    .catch((error) => console.log("Error en cargarPorTipo: " + error));
+};
+
 const cargarPorNumero = async () => {
-  return await fetch(`/api/tubos/numero/${numMuestra.value}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
+  return await fetch(`/api/tubos/por_numero/?numero=${numTubo.value}`)
     .then((data) => data.json())
-    .catch((error) => console.log("No se esta ejecutando" + error));
+    .catch((error) => console.log("Error en cargarPorNumero: " + error));
 };
 
-// Obtener muestras por fecha
-const obtenerMuestrasFecha = async (fecha) => {
-  const response = await fetch(`/api/tubos/fecha/${fecha}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  });
+const obtenerTubosFecha = async (fecha) => {
+  const response = await fetch(`/api/tubos/por_fecha/?fecha=${fecha}`);
   return await response.json();
 };
 
-// Obtener muestras por rango de fechas
-const obtenerMuestrasFechaRango = async (fechainicio, fechafin) => {
-  const response = await fetch(`/api/tubos/rango_fechas/?inicio=${fechainicio}&fin=${fechafin}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  });
+const obtenerTubosFechaRango = async (inicio, fin) => {
+  const response = await fetch(`/api/tubos/rango_fechas/?inicio=${inicio}&fin=${fin}`);
   return await response.json();
 };
 
-// Borrar una muestra principal
-const borrarMuestra = () => {
-  fetch(`/api/tubos/${muestraId}/`, {
+const borrarTubo = () => {
+  fetch(`/api/tubos/${tuboId}/`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
     }
   })
-    .then((response) => response.json())
-    .catch((error) => console.log(error));
-  location.href = "bioquimica.html";
+    .then((response) => {
+      if (response.ok) {
+        console.log("Muestra eliminada");
+        eliminarTuboModal.classList.remove("showmodal");
+        eliminarTuboModal.classList.add("hidemodal");
+        setTimeout(() => {
+          location.href = "bioquimica.html";
+        }, 500);
+      } else {
+        alert("Error al eliminar la muestra");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Error al eliminar la muestra: " + error.message);
+    });
 };
 
-// Consulta muestras en una fecha
+const cargarTuboUpdateModal = async (event) => {
+  if (!tuboId) {
+    if (event) event.preventDefault();
+    alerttubo.classList.remove("ocultar");
+  } else {
+    let tubo = await cargarTubo(tuboId);
+    inputDescripcionUpdate.value = tubo.descripcion;
+    inputFechaUpdate.value = tubo.fecha;
+    inputCaracteristicasUpdate.value = tubo.caracteristicas;
+    inputObservacionesUpdate.value = tubo.observaciones;
+    inputClinicaUpdate.value = tubo.informacion_clinica || "";
+    inputMicroscopiaUpdate.value = tubo.descripcion_microscopica || "";
+    inputDiagnosticoUpdate.value = tubo.diagnostico_final || "";
+    inputPatologoUpdate.value = tubo.patologo_responsable || "";
+    inputSelectUpdate.value = tubo.organo;
+  }
+};
+
+const modificarTuboUpdate = async (event) => {
+  event.preventDefault();
+
+  const tecnicoId = sessionStorage.getItem("tecnico_id");
+  if (!tecnicoId) {
+    alert("Error: Usuario no autenticado. Por favor inicia sesión nuevamente.");
+    return;
+  }
+
+  const data = {
+    fecha: inputFechaUpdate.value,
+    descripcion: inputDescripcionUpdate.value,
+    caracteristicas: inputCaracteristicasUpdate.value,
+    observaciones: inputObservacionesUpdate.value,
+    organo: inputSelectUpdate.value,
+    informacion_clinica: inputClinicaUpdate.value,
+    descripcion_microscopica: inputMicroscopiaUpdate.value,
+    diagnostico_final: inputDiagnosticoUpdate.value,
+    patologo_responsable: inputPatologoUpdate.value,
+    tecnico: tecnicoId,
+  };
+
+  await fetch(`/api/tubos/${tuboId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log("Muestra actualizada");
+        modalupdateTubo.classList.remove("showmodal");
+        modalupdateTubo.classList.add("hidemodal");
+        setTimeout(() => {
+          location.href = "bioquimica.html";
+        }, 500);
+      } else {
+        alert("Error al actualizar la muestra");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Error al actualizar la muestra: " + error.message);
+    });
+};
+
+const cargarMuestras = async (tuboId) => {
+  return await fetch(`/api/muestrastubo/tubo/${tuboId}/`).then((data) => data.json());
+};
+
+const limpiarModalMuestra = () => {
+  inputdescripcionMuestra.value = "";
+  inputFechaMuestra.value = "";
+  inputObservacionesMuestra.value = "";
+  selectTincionMuestra.value = "";
+  inputImagenesMuestra.value = "";
+};
+
+const cargarMuestraUpdateModal = async (event) => {
+  if (!tuboId) {
+    if (event) event.preventDefault();
+    alerttubo.classList.remove("ocultar");
+  } else {
+    const response = await fetch(`/api/muestrastubo/${muestraId}/`);
+    let muestra = await response.json();
+    inputmodificardescripcionMuestra.value = muestra.descripcion;
+    inputmodificarfechaMuestra.value = muestra.fecha;
+    selectmodificartincionMuestra.value = muestra.tincion;
+    inputmodificarobservacionesMuestra.value = muestra.observaciones;
+  }
+};
+
+const modificarMuestraUpdate = async (event) => {
+  event.preventDefault();
+
+  const data = {
+    fecha: inputmodificarfechaMuestra.value,
+    descripcion: inputmodificardescripcionMuestra.value,
+    observaciones: inputmodificarobservacionesMuestra.value,
+    tincion: selectmodificartincionMuestra.value,
+    tubo: tuboId
+  };
+
+  await fetch(`/api/muestrastubo/${muestraId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify(data),
+  })
+    .then(async () => {
+      // Actualizamos los datos del detalle del análisis
+      muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
+      let newfecha = inputmodificarfechaMuestra.value;
+      muestra__fecha.textContent =
+        newfecha.substring(8) +
+        "-" +
+        newfecha.substring(5, 7) +
+        "-" +
+        newfecha.substring(0, 4);
+
+      muestra__observaciones.textContent =
+        inputmodificarobservacionesMuestra.value;
+      muestra__tincion.textContent = selectmodificartincionMuestra.value;
+
+      // Mostramos los análisis para que se actualicen
+      let respuesta = await cargarMuestras(tuboId);
+      imprimirMuestras(respuesta);
+
+      modalmodificarMuestra.classList.remove("showmodal");
+      modalmodificarMuestra.classList.add("hidemodal");
+    })
+};
+
 const consultaFechaInicio = async () => {
   alertfecha.classList.add("ocultar");
   let respuesta;
   if (!fechafin.value) {
-    respuesta = await obtenerMuestrasFecha(fechainicio.value);
+    respuesta = await obtenerTubosFecha(fechainicio.value);
   } else {
     if (new Date(fechainicio.value) > new Date(fechafin.value)) {
       alertfecha.classList.add("ocultar");
@@ -311,16 +513,15 @@ const consultaFechaInicio = async () => {
       alertfecha.classList.remove("ocultar");
     } else {
       alertfecha.classList.add("ocultar");
-      respuesta = await obtenerMuestrasFechaRango(
+      respuesta = await obtenerTubosFechaRango(
         fechainicio.value,
         fechafin.value
       );
     }
   }
-  imprimirCasettes(respuesta, false);
+  imprimirTubos(respuesta, false);
 };
 
-// Consulta muestras entre dos fechas
 const consultaFechaFin = async () => {
   if (!fechainicio.value) {
     alertfecha_text.textContent = "Seleccione una fecha de inicio";
@@ -332,69 +533,68 @@ const consultaFechaFin = async () => {
       alertfecha.classList.remove("ocultar");
     } else {
       alertfecha.classList.add("ocultar");
-      const respuesta = await obtenerMuestrasFechaRango(
+      const respuesta = await obtenerTubosFechaRango(
         fechainicio.value,
         fechafin.value
       );
-      imprimirCasettes(respuesta, false);
+      imprimirTubos(respuesta, false);
     }
   }
 };
 
-// Muestra los datos de las muestras por pantalla
-const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
-  casettes.innerHTML = "";
+const imprimirTubos = (respuesta, rebuildDropdown = true) => {
+  tubos.innerHTML = "";
   if (rebuildDropdown) {
-    numMuestra.innerHTML =
-      "<option disabled selected>Número Muestra</option>";
+    numTubo.innerHTML = "<option disabled selected>Nº Tubo</option>";
   }
 
   let fragmento = document.createDocumentFragment();
   let fragmentselect = document.createDocumentFragment();
   if (respuesta.length > 0) {
-    respuesta.map((item) => {
-      // Para cargar los números de muestra
+    respuesta.map((tubo) => {
+      // Para cargar los números de tubo
       let option = document.createElement("OPTION");
-      option.textContent = item.tubo;
+      option.textContent = tubo.muestra;
       fragmentselect.appendChild(option);
 
-      // Para mostrar muestras
+      // Para mostrar los tubos
       let tr = document.createElement("tr");
       tr.classList.add("table__row");
 
-      // Número de muestra
-      let nmuestra = document.createElement("td");
-      nmuestra.textContent = item.tubo;
+      // Muestra / Paciente
+      let ntubo = document.createElement("td");
+      ntubo.textContent = tubo.muestra;
 
       let fecha = document.createElement("td");
-      let nuevafecha = item.fecha;
+      let newfecha = tubo.fecha;
 
       fecha.textContent =
-        nuevafecha.substring(8) +
+        newfecha.substring(8) +
         "-" +
-        nuevafecha.substring(5, 7) +
+        newfecha.substring(5, 7) +
         "-" +
-        nuevafecha.substring(0, 4);
-      let descripcion = document.createElement("td");
-      descripcion.textContent = item.descripcion.substring(0, 50);
-      descripcion.title = item.descripcion;
+        newfecha.substring(0, 4);
 
-      let organo = document.createElement("td");
-      organo.textContent = item.organo;
+      let descripcion = document.createElement("td");
+      descripcion.textContent = tubo.descripcion.substring(0, 50);
+      descripcion.title = tubo.descripcion;
+
+      let tipo_muestra = document.createElement("td");
+      tipo_muestra.textContent = tubo.tipo_muestra;
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block muestra__icon fa-solid fa-file-invoice muestra__icon--infomuestra";
-      btndetalle.value = item.id_tubo;
+        "d-inline-block tubo__icon fa-solid fa-file-invoice tubo__icon--infotubo";
+      btndetalle.dataset.id = tubo.id_muestra;
       btndetalle.title = "Detalle Muestra";
 
       let btnCont = document.createElement("td");
       btnCont.appendChild(btndetalle);
 
-      tr.appendChild(nmuestra);
+      tr.appendChild(ntubo);
       tr.appendChild(fecha);
       tr.appendChild(descripcion);
-      tr.appendChild(organo);
+      tr.appendChild(tipo_muestra);
       tr.appendChild(btnCont);
 
       fragmento.appendChild(tr);
@@ -408,63 +608,60 @@ const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
       "text-danger",
       "text-opacity-50"
     );
-    tr.textContent = "No se ha encontrado niguna Muestra";
+    tr.textContent = "No se ha encontrado ninguna muestra";
     fragmento.appendChild(tr);
   }
 
-  casettes.appendChild(fragmento);
+  tubos.appendChild(fragmento);
   if (rebuildDropdown) {
-    numMuestra.appendChild(fragmentselect);
+    numTubo.appendChild(fragmentselect);
   }
 };
 
-// Peticiones de muestra y sub-muestras al seleccionar una muestra
-const detalleMuestra = async (event) => {
-  if (event.target.classList.contains("fa-file-invoice")) {
-    alertmuestra.classList.add("ocultar");
-    muestraId = event.target.value;
+// Peticiones al seleccionar un tubo
+const detalleTubo = async (event) => {
+  const icon = event.target.closest("i.fa-file-invoice");
+  if (icon) {
+    alerttubo.classList.add("ocultar");
+    tuboId = icon.dataset.id;
 
-    let respuesta = await cargarMuestra(muestraId);
-    imprimirDetalleMuestra(respuesta);
+    let respuesta = await cargarTubo(tuboId);
+    imprimirDataTubo(respuesta);
 
-    respuesta = await cargarSubMuestras(muestraId);
-    imprimirSubMuestras(respuesta);
-  }
-
-  if (event.target.classList.contains("fa-trash-can")) {
-    console.log(event.target.data - value);
+    let muestras_resp = await cargarMuestras(tuboId);
+    imprimirMuestras(muestras_resp);
   }
 };
 
-// Muestra el detalle de una muestra
-const imprimirDetalleMuestra = (respuesta) => {
-  muestraDescripcion.textContent = respuesta.descripcion.substring(0, 50);
-  muestraOrgano.textContent = respuesta.organo;
-  muestraMuestra.textContent = respuesta.tubo;
+// Muestra el detalle de un tubo
+const imprimirDataTubo = (respuesta) => {
+  tuboDescripcion.textContent = respuesta.descripcion.substring(0, 50);
+  tuboTipoMuestra.textContent = respuesta.tipo_muestra;
+  tuboTubo.textContent = respuesta.muestra;
 
   // Formato Fecha
-  let nuevafecha = respuesta.fecha;
-  muestraFecha.textContent =
-    nuevafecha.substring(8) +
+  let newfecha = respuesta.fecha;
+  tuboFecha.textContent =
+    newfecha.substring(8) +
     "-" +
-    nuevafecha.substring(5, 7) +
+    newfecha.substring(5, 7) +
     "-" +
-    nuevafecha.substring(0, 4);
+    newfecha.substring(0, 4);
 
-  muestraCaracteristicas.textContent = respuesta.caracteristicas;
-  muestraObservaciones.textContent = respuesta.observaciones;
+  tuboCaracteristicas.textContent = respuesta.caracteristicas;
+  tuboObservaciones.textContent = respuesta.observaciones;
 
-  muestraInformeDescripcion.value = respuesta.informe_descripcion || "";
-  muestraInformeFecha.value = respuesta.informe_fecha || "";
-  muestraInformeTincion.value = respuesta.informe_tincion || "";
-  muestraInformeObservaciones.value = respuesta.informe_observaciones || "";
-  currentMuestraId = respuesta.id_tubo;
+  tuboInformeDescripcion.value = respuesta.informe_descripcion || "";
+  tuboInformeFecha.value = respuesta.informe_fecha || "";
+  tuboInformeTincion.value = respuesta.informe_tincion || "";
+  tuboInformeObservaciones.value = respuesta.informe_observaciones || "";
+  currentTuboId = respuesta.id_muestra;
 
   // generamos el codigo QR
   if (window.QRious) {
     new QRious({
-      element: document.querySelector("#imgcassette__qr"),
-      value: respuesta.qr_casette,
+      element: document.querySelector("#imgtubo__qr"),
+      value: respuesta.qr_muestra,
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -473,11 +670,184 @@ const imprimirDetalleMuestra = (respuesta) => {
   }
 };
 
-// Saca por impresora codigo QR
+// Crear nuevo análisis
+const crearMuestra = async (event) => {
+  event.preventDefault();
+  let newMuestra = new FormData();
+  newMuestra.append("descripcion", inputdescripcionMuestra.value);
+  newMuestra.append("fecha", inputFechaMuestra.value);
+  newMuestra.append("observaciones", inputObservacionesMuestra.value);
+  newMuestra.append("tincion", selectTincionMuestra.value);
+  if (inputImagenesMuestra.files[0]) {
+    newMuestra.append("imagen", inputImagenesMuestra.files[0]);
+  }
+  newMuestra.append("tubo", tuboId);
+  await fetch("/api/muestrastubo/", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: newMuestra,
+  }).then(async () => {
+    modalnuevaMuestra.classList.remove("showmodal");
+    modalnuevaMuestra.classList.add("hidemodal");
+    limpiarModalMuestra();
+    let muestras_resp = await cargarMuestras(tuboId);
+    imprimirMuestras(muestras_resp);
+  }).catch(err => console.error(err));
+};
+
+// Imprimir análisis
+const imprimirMuestras = (respuesta) => {
+  muestras.innerHTML = "";
+
+  let fragmento = document.createDocumentFragment();
+  if (respuesta.length > 0) {
+    respuesta.forEach((muestra) => {
+      let tr = document.createElement("tr");
+
+      tr.classList.add("table__row");
+      let descripcion = document.createElement("td");
+      descripcion.textContent = muestra.descripcion.substring(0, 80);
+      descripcion.title = muestra.descripcion;
+
+      let fecha = document.createElement("td");
+      let newfecha = muestra.fecha;
+      fecha.textContent =
+        newfecha.substring(8) +
+        "-" +
+        newfecha.substring(5, 7) +
+        "-" +
+        newfecha.substring(0, 4);
+
+      let tincion = document.createElement("td");
+      tincion.textContent = muestra.tincion;
+
+      let btn = document.createElement("td");
+      let btndetalle = document.createElement("I");
+      btndetalle.className =
+        "d-inline-block tubo__icon fa-solid fa-file-invoice tubo__icon--infotubo";
+      btndetalle.dataset.id = muestra.id_muestra;
+      btndetalle.title = "Detalle Análisis";
+      btn.appendChild(btndetalle);
+
+      tr.appendChild(fecha);
+      tr.appendChild(descripcion);
+      tr.appendChild(tincion);
+      tr.appendChild(btn);
+
+      fragmento.appendChild(tr);
+    });
+  } else {
+    let tr = document.createElement("span");
+    tr.classList.add("fw-bold", "text-danger", "text-opacity-50");
+    tr.textContent = "No se ha encontrado ningún análisis";
+    fragmento.appendChild(tr);
+  }
+  muestras.appendChild(fragmento);
+};
+
+// Obtenemos un análisis
+const cargarMuestra = async (muestraid) => {
+  const response = await fetch(`/api/muestrastubo/${muestraId}/`);
+  return await response.json();
+};
+
+// Obtenemos las imágenes de un análisis
+const obtenerImagenesMuestra = async (muestraid) => {
+  const response = await fetch(`/api/imagenestubo/muestra/${muestraid}/`);
+  return await response.json();
+};
+
+// Rellenamos los datos del análisis
+const rellenarDatosMuestra = async (muestra) => {
+  muestra__descripcion.textContent = muestra.descripcion.substring(0, 60);
+  muestra__descripcion.title = muestra.descripcion;
+
+  let newfecha = muestra.fecha;
+  muestra__fecha.textContent =
+    newfecha.substring(8) +
+    "-" +
+    newfecha.substring(5, 7) +
+    "-" +
+    newfecha.substring(0, 4);
+
+  muestra__observaciones.textContent = muestra.observaciones;
+  muestra__tincion.textContent = muestra.tincion;
+};
+
+const borrarImagenMuestra = async () => {
+  if (imageId != undefined) {
+    fetch(`/api/imagenestubo/${imageId}/`, {
+      method: "DELETE",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+    }).then(() => {
+      mostrarImagenesMuestra(muestraId);
+    });
+  }
+};
+
+const detailMuestra = async (muestraid) => {
+  // Cargamos el análisis
+  let muestra = await cargarMuestra(muestraid);
+  muestraId = muestra.id_muestra;
+  rellenarDatosMuestra(muestra);
+
+  // Generamos el código QR
+  if (window.QRious) {
+    new QRious({
+      element: imgmuestra__qr,
+      value: muestra.qr_muestra,
+      size: 70,
+      backgroundAlpha: 0,
+      foreground: "#4ca0cc",
+      level: "H",
+    });
+  }
+
+  // Mostramos las imágenes del análisis
+  mostrarImagenesMuestra(muestraId);
+
+  modaldetalleMuestra.classList.add("showmodal");
+  modaldetalleMuestra.classList.remove("hidemodal");
+};
+
+const aniadirImagenMuestra = async () => {
+  try {
+    const [fileHandle] = await window.showOpenFilePicker({
+      types: [
+        {
+          description: "Imágenes",
+          accept: { "image/*": [".png", ".gif", ".jpeg", ".jpg"] },
+        },
+      ],
+    });
+    const file = await fileHandle.getFile();
+
+    let newImage = new FormData();
+    newImage.append("imagen", file);
+    newImage.append("muestra", muestraId);
+
+    fetch("/api/imagenestubo/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: newImage,
+    }).then(async () => {
+      await mostrarImagenesMuestra(muestraId);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const imprimirQR = (elemento) => {
   let qrimprimir;
-  if (elemento == "cassette") {
-    qrimprimir = imgcassette__qr.src;
+  if (elemento == "tubo") {
+    qrimprimir = imgtubo__qr.src;
   } else {
     if (elemento == "muestra") {
       qrimprimir = imgmuestra__qr.src;
@@ -494,260 +864,12 @@ const imprimirQR = (elemento) => {
   printWindow.close();
 };
 
-// Cargamos el modal datos muestra principal modificar
-const cargarMuestraUpdateModal = async (event) => {
-  if (!muestraId) {
-    if (event) event.preventDefault();
-    alertmuestra.classList.remove("ocultar");
-  } else {
-    let muestra = await cargarMuestra(muestraId);
-    inputTuboUpdate.value = muestra.tubo;
-    inputDescripcionUpdate.value = muestra.descripcion;
-    inputClinicaUpdate.value = muestra.informacion_clinica || "";
-    inputFechaUpdate.value = muestra.fecha;
-    inputCaracteristicasUpdate.value = muestra.caracteristicas;
-    inputObservacionesUpdate.value = muestra.observaciones;
-    inputMicroscopiaUpdate.value = muestra.descripcion_microscopica || "";
-    inputDiagnosticoUpdate.value = muestra.diagnostico_final || "";
-    inputPatologoUpdate.value = muestra.patologo_responsable || "";
-    inputSelectUpdate.value = muestra.organo;
-  }
-};
-
-const modificarMuestraUpdate = async (event) => {
-  event.preventDefault();
-  await fetch(`/api/tubos/${muestraId}/`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      tubo: inputTuboUpdate.value,
-      fecha: inputFechaUpdate.value,
-      descripcion: inputDescripcionUpdate.value,
-      informacion_clinica: inputClinicaUpdate ? inputClinicaUpdate.value : "",
-      caracteristicas: inputCaracteristicasUpdate.value,
-      observaciones: inputObservacionesUpdate.value,
-      descripcion_microscopica: inputMicroscopiaUpdate ? inputMicroscopiaUpdate.value : "",
-      diagnostico_final: inputDiagnosticoUpdate ? inputDiagnosticoUpdate.value : "",
-      patologo_responsable: inputPatologoUpdate ? inputPatologoUpdate.value : "",
-      tecnico: sessionStorage.getItem("user"),
-      organo: inputSelectUpdate.value,
-    }),
-  })
-    .then((response) => {
-      if (response.ok) {
-        location.href = "bioquimica.html";
-      }
-    })
-    .catch((error) => console.log(error));
-};
-
-// SUB-MUESTRAS (detalles de procesamiento)
-
-// Carga Sub-Muestras de una muestra principal
-const cargarSubMuestras = async (tuboId) => {
-  return await fetch(`/api/muestrastubo/tubo/${tuboId}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((data) => data.json());
-};
-
-// Crear nueva sub-muestra
-const crearSubMuestra = async (event) => {
-  event.preventDefault();
-
-  let newMuestra = new FormData();
-  newMuestra.append("descripcion", inputdescripcionTubo.value);
-  newMuestra.append("fecha", inputFechaTubo.value);
-  newMuestra.append("observaciones", inputObservacionesTubo.value);
-  newMuestra.append("tincion", selectTincionTubo.value);
-  newMuestra.append("tubo", muestraId);
-
-  await fetch("/api/muestrastubo/", {
-    method: "POST",
-    body: newMuestra,
-  })
-    .then(async () => {
-      modalNuevoDetalle.classList.remove("showmodal");
-      modalNuevoDetalle.classList.add("hidemodal");
-      limpiarModalSubMuestra();
-      imprimirSubMuestras(await cargarSubMuestras(muestraId));
-    })
-    .catch((error) =>
-      console.log("No se esta ejecutando correctamente la inserción" + error)
-    );
-};
-
-const limpiarModalSubMuestra = () => {
-  inputdescripcionTubo.value = "";
-  inputFechaTubo.value = "";
-  inputObservacionesTubo.value = "";
-  selectTincionTubo.value = "";
-  if (inputImagenesTubo) inputImagenesTubo.value = "";
-};
-
-// Cargamos el modal datos sub-muestra a modificar
-const cargarSubMuestraUpdateModal = async (event) => {
-  if (!muestraId) {
-    if (event) event.preventDefault();
-    alertmuestra.classList.remove("ocultar");
-  } else {
-    const response = await fetch(`/api/muestrastubo/${subMuestraId}/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    let muestra = await response.json();
-    inputmodificardescripcionTubo.value = muestra.descripcion;
-    inputmodificarfechaTubo.value = muestra.fecha;
-    selectmodificartincionTubo.value = muestra.tincion;
-    inputmodificarobservacionesTubo.value = muestra.observaciones;
-  }
-};
-
-// Modificar sub-muestra
-const modificarSubMuestraUpdate = async (event) => {
-  event.preventDefault();
-
-  await fetch(`/api/muestrastubo/${subMuestraId}/`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      fecha: inputmodificarfechaTubo.value,
-      descripcion: inputmodificardescripcionTubo.value,
-      observaciones: inputmodificarobservacionesTubo.value,
-      tincion: selectmodificartincionTubo.value,
-    }),
-  })
-    .then(async () => {
-      // Actualizamos los datos del detalle de la sub-muestra
-      modal_muestra__descripcion.textContent = inputmodificardescripcionTubo.value;
-      let nuevafecha = inputmodificarfechaTubo.value;
-      modal_muestra__fecha.textContent =
-        nuevafecha.substring(8) +
-        "-" +
-        nuevafecha.substring(5, 7) +
-        "-" +
-        nuevafecha.substring(0, 4);
-
-      modal_muestra__observaciones.textContent =
-        inputmodificarobservacionesTubo.value;
-      modal_muestra__tincion.textContent = selectmodificartincionTubo.value;
-
-      // Mostramos las sub-muestras para que se actualicen los cambios
-      let respuesta = await cargarSubMuestras(muestraId);
-      imprimirSubMuestras(respuesta);
-    })
-
-    .catch((error) => console.log(error));
-
-  // Ocultamos el modal de modificación
-  modalmodificarTubo.classList.remove("showmodal");
-};
-
-// Imprimir sub-muestras
-const imprimirSubMuestras = (respuesta) => {
-  muestras.innerHTML = "";
-
-  let fragmento = document.createDocumentFragment();
-  if (respuesta.length > 0) {
-    respuesta.forEach((muestra) => {
-      let tr = document.createElement("tr");
-
-      tr.classList.add("table__row");
-      let descripcion = document.createElement("td");
-      descripcion.textContent = muestra.descripcion.substring(0, 80);
-      descripcion.title = muestra.descripcion;
-
-      let fecha = document.createElement("td");
-      let nuevafecha = muestra.fecha;
-      fecha.textContent =
-        nuevafecha.substring(8) +
-        "-" +
-        nuevafecha.substring(5, 7) +
-        "-" +
-        nuevafecha.substring(0, 4);
-
-      let tincion = document.createElement("td");
-      tincion.textContent = muestra.tincion;
-
-      let btn = document.createElement("td");
-      let btndetalle = document.createElement("I");
-      btndetalle.className =
-        "d-inline-block muestra__icon fa-solid fa-file-invoice muestra__icon--infomuestra";
-      btndetalle.value = muestra.id_muestra;
-      btndetalle.title = "Detalle Muestra";
-      btn.appendChild(btndetalle);
-
-      tr.appendChild(fecha);
-      tr.appendChild(descripcion);
-      tr.appendChild(tincion);
-      tr.appendChild(btn);
-
-      fragmento.appendChild(tr);
-    });
-  } else {
-    let tr = document.createElement("span");
-    tr.classList.add("fw-bold", "text-danger", "text-opacity-50");
-    tr.textContent = "No se ha encontrado ninguna muestra";
-    fragmento.appendChild(tr);
-  }
-  muestras.appendChild(fragmento);
-};
-
-// Obtenemos una sub-muestra
-const cargarSubMuestra = async (muestraid) => {
-  const response = await fetch(`/api/muestrastubo/${muestraid}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return await response.json();
-};
-
-// Obtenemos las imagenes de una sub-muestra
-const obtenerImagenesSubMuestra = async (muestraid) => {
-  const response = await fetch(`/api/imagenestubo/muestra/${muestraid}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  let imagenes = await response.json();
-  return imagenes;
-};
-
-// Rellenamos los datos texto de la sub-muestra
-const rellenarDatosSubMuestra = async (muestra) => {
-  modal_muestra__descripcion.textContent = muestra.descripcion.substring(0, 60);
-  modal_muestra__descripcion.title = muestra.descripcion;
-
-  let nuevafecha = muestra.fecha;
-  modal_muestra__fecha.textContent =
-    nuevafecha.substring(8) +
-    "-" +
-    nuevafecha.substring(5, 7) +
-    "-" +
-    nuevafecha.substring(0, 4);
-
-  modal_muestra__observaciones.textContent = muestra.observaciones;
-  modal_muestra__tincion.textContent = muestra.tincion;
-};
-
-const mostrarImagenesSubMuestra = async (subMuestraIdParam) => {
+const mostrarImagenesMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
-  let imagenes = await obtenerImagenesSubMuestra(subMuestraIdParam);
-  // Imagen de sustitución si no hay imagenes para una sub-muestra
+  let imagenes = await obtenerImagenesMuestra(muestraId_val);
+  // Imagen de sustitución si no hay imágenes
   if (imagenes.length == 0) {
-    visor__img.src = "./assets/images/no_disponible.jpg";
+    if (typeof visor__img !== 'undefined') visor__img.src = "./assets/images/no_disponible.jpg";
   } else {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
@@ -757,413 +879,367 @@ const mostrarImagenesSubMuestra = async (subMuestraIdParam) => {
       newimg.classList.add("muestra__img");
 
       if (index == 0) {
-        visor__img.src = newimg.src;
+        if (typeof visor__img !== 'undefined') visor__img.src = newimg.src;
         imageId = newimg.id;
       }
 
-      // Añadimos cada una de las imagenes
+      // Añadimos cada una de las imágenes
       let newdiv = document.createElement("DIV");
       newdiv.classList.add("container__muestraimg", "border", "m-1");
       newdiv.appendChild(newimg);
       muestra__img.appendChild(newdiv);
     });
   }
-
-  let newdiv = document.createElement("DIV");
-  newdiv.classList.add(
-    "container__aniadir",
-    "d-flex",
-    "align-items-center",
-    "mt-1",
-    "mx-2",
-    "blue__color",
-    "fs-1"
-  );
-  newdiv.innerHTML = '<i class="fa-solid fa-circle-plus"></i>';
-  newdiv.title = "Añadir imagen";
-
-  muestra__img.appendChild(newdiv);
 };
 
-const borrarSubMuestra = async () => {
-  fetch(`/api/muestrastubo/${subMuestraId}/`, {
+const borrarMuestra = async () => {
+  fetch(`/api/muestrastubo/${muestraId}/`, {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
     },
   })
     .then(async () => {
-      modalVerDetalle.classList.remove("showmodal");
-      // Mostramos las sub-muestras
-      let muestras_list = await cargarSubMuestras(muestraId);
-      imprimirSubMuestras(muestras_list);
-    })
-    .catch((error) => console.log(error));
+      modaldetalleMuestra.classList.remove("showmodal");
+      let muestras = await cargarMuestras(tuboId);
+      imprimirMuestras(muestras);
+    }).catch(err => console.error(err));
 };
 
-const borrarImagenSubMuestra = async () => {
-  if (imageId != undefined) {
-    fetch(`/api/imagenestubo/${imageId}/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then(() => {
-      mostrarImagenesSubMuestra(subMuestraId);
-    });
-  }
-};
-
-// Mostramos Detalle sub-muestra seleccionada
-const detailSubMuestra = async (muestraid) => {
-  // Cargamos la sub-muestra
-  let muestra = await cargarSubMuestra(muestraid);
-  subMuestraId = muestra.id_muestra;
-  rellenarDatosSubMuestra(muestra);
-
-  // generamos el codigo QR
-  if (window.QRious) {
-    new QRious({
-      element: imgmuestra__qr,
-      value: muestra.qr_muestra,
-      size: 70,
-      backgroundAlpha: 0,
-      foreground: "#4ca0cc",
-      level: "H",
-    });
-  }
-
-  // Mostramos las imagenes de la sub-muestra seleccionada
-  mostrarImagenesSubMuestra(subMuestraId);
-
-  modalVerDetalle.classList.add("showmodal");
-  modalVerDetalle.classList.remove("hidemodal");
-};
-
-// Añadir una imagen a la sub-muestra
-const aniadirImagenSubMuestra = async () => {
-  try {
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [
-        {
-          description: "Imágenes",
-          accept: { "image/*": [".png", ".gif", ".jpeg", ".jpg"] },
-        },
-      ],
-    });
-    const file = await fileHandle.getFile();
-
-    let newImage = new FormData();
-    newImage.append("imagen", file);
-    newImage.append("muestratubo", subMuestraId);
-
-    fetch("/api/imagenestubo/", {
-      method: "POST",
-      body: newImage,
-    }).then(async () => {
-      await mostrarImagenesSubMuestra(subMuestraId);
-    });
-  } catch (err) {
-    console.error(err);
+const consultarTuboQR = async (qr) => {
+  const response = await fetch(`/api/tubos/por_qr/?qr=${qr}`);
+  let tubo = await response.json();
+  if (tubo.length > 0) {
+    imprimirTubos(tubo);
+    tubo = tubo[0];
+    imprimirDataTubo(tubo);
+    tuboId = tubo.id_muestra;
+    let muestras_resp = await cargarMuestras(tuboId);
+    imprimirMuestras(muestras_resp);
+  } else {
+    alert("No se encontró ningún tubo con ese QR");
   }
 };
 
 const consultarMuestraQR = async (qr) => {
-  const response = await fetch(`/api/tubos/qr/${qr}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  });
-  let muestras_data = await response.json();
-
-  imprimirCasettes(muestras_data);
-  if (muestras_data.length > 0) {
-    let item = muestras_data[0];
-    imprimirDetalleMuestra(item);
-    muestraId = item.id_tubo;
-    let subMuestras = await cargarSubMuestras(muestraId);
-    imprimirSubMuestras(subMuestras);
+  let response = await fetch(`/api/muestrastubo/por_qr/?qr=${qr}`);
+  let muestra = await response.json();
+  if (muestra.length > 0) {
+    let tubo_response = await fetch(`/api/tubos/${muestra[0].tubo}/`);
+    let tubo = await tubo_response.json();
+    consultarTuboQR(tubo.qr_muestra);
+    detailMuestra(muestra[0].id_muestra);
+  } else {
+    alert("No se encontró ninguna muestra");
   }
 };
 
-// Cargamos el modal datos user modificar
+// Cargamos el modal datos de usuario para modificar
 const cargarUserUpdateModal = async (event) => {
-  let userId = sessionStorage.getItem("user");
-  if (!userId) return;
-
-  const response = await fetch(`/api/tecnicos/${userId}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  let userId = sessionStorage.getItem("tecnico_id");
+  const response = await fetch(
+    "modelo/tecnicos/tecnicos.php",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({
+        accion: "cargarTecnicoId",
+        id_tecnico: userId,
+      }),
     }
-  });
+  );
 
-  if (response.ok) {
-    let user = await response.json();
-    if (inputUpdateNombreUser) inputUpdateNombreUser.value = user.nombre;
-    if (inputUpdateApellidosUser) inputUpdateApellidosUser.value = user.apellidos;
-    if (inputUpdateCentroUser) inputUpdateCentroUser.value = user.centro;
-    if (inputUpdateCorreoUser) inputUpdateCorreoUser.value = user.email;
-  }
+  let user = await response.json();
+
+  inputUpdateNombreUser.value = user.nombre || user.name || "";
+  inputUpdateApellidosUser.value = user.apellidos;
+  inputUpdateCentroUser.value = user.centro;
+  inputUpdateCorreoUser.value = user.email;
 };
 
-// ==================== EVENTOS ====================
+// EVENTOS
 
-// Consulta Muestras Recientes
+// Modificar Usuario
+if (btnformmodificarUser) {
+  btnformmodificarUser.addEventListener("click", () => {
+    cargarUserUpdateModal();
+    if (!modalupdateUser.classList.contains("showmodal")) {
+      modalupdateUser.classList.add("showmodal");
+      modalupdateUser.classList.remove("hidemodal");
+    }
+  });
+}
+
+if (btnformcerrarmodificarUser) {
+  btnformcerrarmodificarUser.addEventListener("click", () => {
+    if (!modalupdateUser.classList.contains("hidemodal")) {
+      modalupdateUser.classList.add("hidemodal");
+      modalupdateUser.classList.remove("showmodal");
+    }
+  });
+}
+
+// Consulta Tubos Recientes
 document.addEventListener("DOMContentLoaded", async () => {
   body.style.display = "block";
-  const respuesta = await cargarMuestrasIndex();
-  imprimirCasettes(respuesta);
+  const respuesta = await cargarTubosIndex();
+  imprimirTubos(respuesta);
   let fechaActual = new Date().toISOString().split("T")[0];
-  if (inputFecha) inputFecha.setAttribute("min", fechaActual);
-  if (inputFechaUpdate) inputFechaUpdate.setAttribute("min", fechaActual);
-  if (inputFechaTubo) inputFechaTubo.setAttribute("min", fechaActual);
+  // Para que no se pueda seleccionar una fecha anterior a la actual
+  inputFecha.setAttribute("min", fechaActual);
+  inputFechaUpdate.setAttribute("min", fechaActual);
+  inputFechaMuestra.setAttribute("min", fechaActual);
 });
 
-// Consulta por Organo (Tipo de Muestra)
-organos.addEventListener("change", async () => {
-  const respuesta = await cargarPorOrgano();
-  imprimirCasettes(respuesta, false);
+// Consulta por Tipo de Muestra
+tipo_tubos.addEventListener("change", async () => {
+  const respuesta = await cargarPorTipo();
+  imprimirTubos(respuesta, false);
 });
 
-// Consulta por número de Muestra
-numMuestra.addEventListener("change", async () => {
+// Consulta por Número de Tubo
+numTubo.addEventListener("change", async () => {
   const respuesta = await cargarPorNumero();
-  imprimirCasettes(respuesta, false);
+  imprimirTubos(respuesta, false);
 });
 
-// Consulta Detalle Muestra y Sub-Muestras
-casettes.addEventListener("click", detalleMuestra);
+// Consulta Detalle Tubo y Análisis
+tubos.addEventListener("click", detalleTubo);
 
 // Consulta por fecha
 fechainicio.addEventListener("change", consultaFechaInicio);
+
 fechafin.addEventListener("change", consultaFechaFin);
 
-// Todas las muestras
-btnTodosMuestras.addEventListener("click", async () => {
-  const respuesta = await cargarTodasMuestras();
-  imprimirCasettes(respuesta);
+// Todos los tubos
+todosTubos.addEventListener("click", async () => {
+  const respuesta = await cargarTodosTubos();
+  imprimirTubos(respuesta);
 });
 
-// Crear Muestra Principal
-btnNuevoMuestra.addEventListener("click", () => {
-  if (!modalNuevoMuestra.classList.contains("showmodal")) {
-    modalNuevoMuestra.classList.add("showmodal");
-    modalNuevoMuestra.classList.remove("hidemodal");
+// Crear nuevos Tubos
+btnformnuevotubo.addEventListener("click", () => {
+  if (!modalnuevoTubo.classList.contains("showmodal")) {
+    modalnuevoTubo.classList.add("showmodal");
+    modalnuevoTubo.classList.remove("hidemodal");
   }
 });
 
-btnCerrarNuevoMuestra.addEventListener("click", () => {
-  if (!modalNuevoMuestra.classList.contains("hidemodal")) {
-    modalNuevoMuestra.classList.add("hidemodal");
-    modalNuevoMuestra.classList.remove("showmodal");
+btnformcerrarnuevoTubo.addEventListener("click", () => {
+  if (!modalnuevoTubo.classList.contains("hidemodal")) {
+    modalnuevoTubo.classList.add("hidemodal");
+    modalnuevoTubo.classList.remove("showmodal");
   }
 });
 
-formNuevoMuestra.addEventListener("submit", crearMuestra);
+nuevoTubo.addEventListener("submit", crearTubo);
 
-// Modificar Muestra Principal
-btnformmodificarmuestra.addEventListener("click", () => {
-  if (!muestraId) {
-    alertmuestra.classList.remove("ocultar");
+// Modificar Tubo
+btnformmodificartubo.addEventListener("click", () => {
+  if (!tuboId) {
+    alerttubo.classList.remove("ocultar");
   } else {
-    cargarMuestraUpdateModal();
-    if (!modalModificarMuestra.classList.contains("showmodal")) {
-      modalModificarMuestra.classList.add("showmodal");
-      modalModificarMuestra.classList.remove("hidemodal");
+    cargarTuboUpdateModal();
+    if (!modalupdateTubo.classList.contains("showmodal")) {
+      modalupdateTubo.classList.add("showmodal");
+      modalupdateTubo.classList.remove("hidemodal");
     }
   }
 });
 
-btnCerrarModificarMuestra.addEventListener("click", () => {
-  if (!modalModificarMuestra.classList.contains("hidemodal")) {
-    modalModificarMuestra.classList.add("hidemodal");
-    modalModificarMuestra.classList.remove("showmodal");
+btnformcerrarmodificarTubo.addEventListener("click", () => {
+  if (!modalupdateTubo.classList.contains("hidemodal")) {
+    modalupdateTubo.classList.add("hidemodal");
+    modalupdateTubo.classList.remove("showmodal");
   }
 });
 
-formModificarMuestra.addEventListener("submit", modificarMuestraUpdate);
+modificarTubo.addEventListener("submit", modificarTuboUpdate);
 
-// Borrar Muestra Principal
-eliminarMuestraModal.addEventListener("show.bs.modal", (event) => {
+// Borrar Tubo
+eliminarTuboModal.addEventListener("show.bs.modal", (event) => {
+  if (!tuboId) {
+    event.preventDefault();
+    alerttubo.classList.remove("ocultar");
+  }
+});
+
+btnborrar.addEventListener("click", borrarTubo);
+
+// Modal QR análisis
+qrMuestraModal.addEventListener("show.bs.modal", (event) => {
+  inputmuestra__qr.style.display = "none";
+  inputmuestra__qr.focus();
+});
+
+// Modal QR análisis - segundo listener
+qrMuestraModal.addEventListener("show.bs.modal", (event) => {
   if (!muestraId) {
     event.preventDefault();
-    alertmuestra.classList.remove("ocultar");
+    alerttubo.classList.remove("ocultar");
   }
 });
 
-btnborrar.addEventListener("click", borrarMuestra);
-
-// mostrar modal imagen muestra
-if (imagenMuestraModal) {
-  imagenMuestraModal.addEventListener("show.bs.modal", (event) => {
-    if (!muestraId) {
-      event.preventDefault();
-      alertmuestra.classList.remove("ocultar");
-    }
-  });
-}
-
-// mostrar modal qr sub-muestra
-if (qrMuestraModal) {
-  qrMuestraModal.addEventListener("show.bs.modal", (event) => {
-    if (inputmuestra__qr) {
-      inputmuestra__qr.style.display = "none";
-      inputmuestra__qr.focus();
-    }
-  });
-}
-
-// Crear Sub-Muestra (Detalle)
-btnNuevoDetalle.addEventListener("click", () => {
-  if (!muestraId) {
-    alertmuestra.classList.remove("ocultar");
+// Crear Análisis
+btnformnuevaMuestra.addEventListener("click", () => {
+  if (!tuboId) {
+    alerttubo.classList.remove("ocultar");
   } else {
-    if (!modalNuevoDetalle.classList.contains("showmodal")) {
-      modalNuevoDetalle.classList.add("showmodal");
-      modalNuevoDetalle.classList.remove("hidemodal");
+    if (!modalnuevaMuestra.classList.contains("showmodal")) {
+      modalnuevaMuestra.classList.add("showmodal");
+      modalnuevaMuestra.classList.remove("hidemodal");
     }
   }
 });
 
-btnCerrarNuevoDetalle.addEventListener("click", () => {
-  if (!modalNuevoDetalle.classList.contains("hidemodal")) {
-    modalNuevoDetalle.classList.add("hidemodal");
-    modalNuevoDetalle.classList.remove("showmodal");
+btnformcerrarnuevaMuestra.addEventListener("click", () => {
+  if (!modalnuevaMuestra.classList.contains("hidemodal")) {
+    modalnuevaMuestra.classList.add("hidemodal");
+    modalnuevaMuestra.classList.remove("showmodal");
   }
 });
 
-if (btnCerrarVerDetalle) {
-  btnCerrarVerDetalle.addEventListener("click", () => {
-    if (!modalVerDetalle.classList.contains("hidemodal")) {
-      modalVerDetalle.classList.add("hidemodal");
-      modalVerDetalle.classList.remove("showmodal");
+if (btncerrardetalleMuestra) {
+  btncerrardetalleMuestra.addEventListener("click", () => {
+    if (!modaldetalleMuestra.classList.contains("hidemodal")) {
+      modaldetalleMuestra.classList.add("hidemodal");
+      modaldetalleMuestra.classList.remove("showmodal");
     }
     muestra__img.innerHTML = "";
   });
 }
 
-formNuevoDetalle.addEventListener("submit", crearSubMuestra);
+nuevaMuestra.addEventListener("submit", crearMuestra);
 
-// Modificar Sub-Muestra
-if (btnModificarDetalle) {
-  btnModificarDetalle.addEventListener("click", () => {
-    if (!muestraId) {
-      alertmuestra.classList.remove("ocultar");
-    } else {
-      cargarSubMuestraUpdateModal();
-      if (!modalmodificarTubo.classList.contains("showmodal")) {
-        modalmodificarTubo.classList.add("showmodal");
-        modalmodificarTubo.classList.remove("hidemodal");
-      }
+// Modificar Análisis
+btnformmodificarMuestra.addEventListener("click", () => {
+  if (!tuboId) {
+    alerttubo.classList.remove("ocultar");
+  } else {
+    cargarMuestraUpdateModal();
+    if (!modalmodificarMuestra.classList.contains("showmodal")) {
+      modalmodificarMuestra.classList.add("showmodal");
+      modalmodificarMuestra.classList.remove("hidemodal");
+    }
+  }
+});
+
+if (btnformcerrarmodificarMuestra) {
+  btnformcerrarmodificarMuestra.addEventListener("click", () => {
+    if (!modalmodificarMuestra.classList.contains("hidemodal")) {
+      modalmodificarMuestra.classList.add("hidemodal");
+      modalmodificarMuestra.classList.remove("showmodal");
     }
   });
 }
 
-if (btnformcerrarmodificarTubo) {
-  btnformcerrarmodificarTubo.addEventListener("click", () => {
-    if (!modalmodificarTubo.classList.contains("hidemodal")) {
-      modalmodificarTubo.classList.add("hidemodal");
-      modalmodificarTubo.classList.remove("showmodal");
-    }
-  });
-}
-
-if (formModificarTubo) {
-  formModificarTubo.addEventListener("submit", modificarSubMuestraUpdate);
-}
-
-// Consulta Detalle Sub-Muestras
+// Consulta Detalle Análisis
 muestras.addEventListener("click", (event) => {
   if (event.target.nodeName == "I") {
-    detailSubMuestra(event.target.value);
+    detailMuestra(event.target.dataset.id);
   }
 });
 
 // Visualizamos la imagen seleccionada
-muestra__img.addEventListener("click", async (event) => {
-  if (event.target.nodeName === "IMG") {
-    visor__img.src = event.target.src;
-    imageId = event.target.id;
-  }
-  if (event.target.nodeName === "I") aniadirImagenSubMuestra();
-});
-
-if (inputcassette__qr) inputcassette__qr.value = "";
-if (input__consultarqr) input__consultarqr.value = "";
-
-// Lectura codigo qr
-if (qrConsultaModal) {
-  qrConsultaModal.addEventListener("show.bs.modal", () => {
-    if (input__consultarqr) {
-      input__consultarqr.style.display = "none";
-      input__consultarqr.focus();
+if (muestra__img) {
+  muestra__img.addEventListener("click", async (event) => {
+    if (event.target.nodeName === "IMG") {
+      if (typeof visor__img !== 'undefined') visor__img.src = event.target.src;
+      imageId = event.target.id;
     }
-  });
-
-  qrConsultaModal.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      let tipo = input__consultarqr.value.substring(0, 5);
-      if (tipo === "--c--" || tipo === "--m--") {
-        consultarMuestraQR(input__consultarqr.value);
-      }
-      let mimodal = bootstrap.Modal.getInstance(qrConsultaModal);
-      if (mimodal) mimodal.hide();
-      input__consultarqr.value = "";
-    } else {
-      input__consultarqr.value += event.key;
-    }
+    if (event.target.nodeName === "I") aniadirImagenMuestra();
   });
 }
 
-if (btn__imprimrqr) btn__imprimrqr.addEventListener("click", () => imprimirQR("cassette"));
-if (btn__imprimirqrmuestra) btn__imprimirqrmuestra.addEventListener("click", () => imprimirQR("muestra"));
+inputtubo__qr.value = "";
+input__consultarqr.value = "";
 
-if (btnborrarmuestra) btnborrarmuestra.addEventListener("click", borrarSubMuestra);
-if (btnborrarimagenmuestra) btnborrarimagenmuestra.addEventListener("click", borrarImagenSubMuestra);
+// Lectura código QR del análisis
+qrMuestraModal.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    consultarMuestraQR(inputmuestra__qr.value);
+    inputmuestra__qr.value = "";
+  } else {
+    inputmuestra__qr.value += event.key;
+  }
+});
+
+qrConsultaModal.addEventListener("show.bs.modal", () => {
+  input__consultarqr.style.display = "none";
+  input__consultarqr.focus();
+});
+
+// Consulta por QR tanto de Tubo como de Análisis
+qrConsultaModal.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    let tipo = input__consultarqr.value.substring(0, 5);
+    if (tipo === "--m--") {
+      consultarTuboQR(input__consultarqr.value);
+    }
+    if (tipo === "--a--") {
+      consultarMuestraQR(input__consultarqr.value);
+    }
+    mimodal.hide();
+    input__consultarqr.value = "";
+  } else {
+    input__consultarqr.value += event.key;
+  }
+});
+
+btn__imprimrqr.addEventListener("click", () => imprimirQR("tubo"));
+
+btn__imprimirqrmuestra.addEventListener("click", () => imprimirQR("muestra"));
+
+if (btnborrarmuestra) {
+  btnborrarmuestra.addEventListener("click", borrarMuestra);
+}
+
+if (btnborrarimagenmuestra) {
+  btnborrarimagenmuestra.addEventListener("click", borrarImagenMuestra);
+}
 
 // Guardar solo el informe de resultados
 const guardarInformeMedico = async () => {
-  if (!currentMuestraId) {
+  if (!currentTuboId) {
     alert("Por favor, selecciona una muestra primero.");
     return;
   }
 
   const datosReporte = {
     accion: "actualizarInformeMedico",
-    muestraId: currentMuestraId,
-    descripcion: muestraInformeDescripcion.value,
-    fecha: muestraInformeFecha.value,
-    tincion: muestraInformeTincion.value,
-    observaciones: muestraInformeObservaciones.value,
-    imagen: "",
+    muestraId: currentTuboId,
+    descripcion: tuboInformeDescripcion.value,
+    fecha: tuboInformeFecha.value,
+    tincion: tuboInformeTincion.value,
+    observaciones: tuboInformeObservaciones.value,
+    imagen: tuboInformeImagen.files.length > 0 ? "" : "",
   };
 
-  if (muestraInformeImagen && muestraInformeImagen.files && muestraInformeImagen.files.length > 0) {
+  if (tuboInformeImagen.files.length > 0) {
     const imgReader = new FileReader();
-    imgReader.readAsDataURL(muestraInformeImagen.files[0]);
+    imgReader.readAsDataURL(tuboInformeImagen.files[0]);
     imgReader.onload = async function () {
       datosReporte.imagen = imgReader.result.split(',')[1];
-      guardarDatosReporteMuestra(datosReporte);
+      guardarDatosReporteTubo(datosReporte);
     };
     return;
   }
-  guardarDatosReporteMuestra(datosReporte);
+  guardarDatosReporteTubo(datosReporte);
 };
 
-const guardarDatosReporteMuestra = async (datosReporte) => {
+const guardarDatosReporteTubo = async (datosReporte) => {
   try {
-    const res = await fetch(`/api/tubos/${currentMuestraId}/actualizar_informe/`, {
+    const res = await fetch(`/api/tubos/${datosReporte.muestraId}/actualizar_informe/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datosReporte),
     });
 
     const data = await res.json();
-    alert("Informe actualizado correctamente");
+    alert(data);
   } catch (error) {
     console.error("Error al guardar el informe:", error);
     alert("Error al guardar el informe de resultados.");
@@ -1178,7 +1254,7 @@ if (btnGuardarInforme) {
 const sectionMuestras = document.getElementById("sectionMuestras");
 const sectionInforme = document.getElementById("sectionInforme");
 const btnToggleInforme = document.getElementById("btnToggleInforme");
-const btnToggleTubos = document.getElementById("btnToggleTubos");
+const btnToggleMuestras = document.getElementById("btnToggleMuestras");
 
 if (btnToggleInforme && sectionMuestras && sectionInforme) {
   btnToggleInforme.addEventListener("click", () => {
@@ -1187,8 +1263,8 @@ if (btnToggleInforme && sectionMuestras && sectionInforme) {
   });
 }
 
-if (btnToggleTubos && sectionMuestras && sectionInforme) {
-  btnToggleTubos.addEventListener("click", () => {
+if (btnToggleMuestras && sectionMuestras && sectionInforme) {
+  btnToggleMuestras.addEventListener("click", () => {
     sectionInforme.classList.add("d-none");
     sectionMuestras.classList.remove("d-none");
   });
