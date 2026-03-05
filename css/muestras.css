@@ -495,3 +495,32 @@ td {
     background-color: tomato;
     display: none;
 }
+
+/* ========== DARK THEME OVERRIDES FOR MUESTRAS ========== */
+:root.dark-theme .table {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .table tbody tr {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .table__muestra .button-details {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:root.dark-theme .miform,
+:root.dark-theme .detallemuestra {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .blue__color {
+    color: #60A5FA !important;
+}

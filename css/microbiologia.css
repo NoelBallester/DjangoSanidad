@@ -189,7 +189,7 @@ li {
 }
 
 .table {
-    background-color: white;
+    background-color: var(--bg-light);
     border: 1px solid #4ca0cc;
     color: #4ca0cc;
 }
@@ -209,7 +209,7 @@ li {
 }
 
 .table__muestra .button-details {
-    background-color: white;
+    background-color: var(--bg-light);
     border: 1px solid gray;
     font-size: 14px;
 }
@@ -719,4 +719,33 @@ hr {
     backdrop-filter: blur(10px) !important;
     border: none !important;
     box-shadow: var(--shadow-soft) !important;
+}
+
+/* ========== DARK THEME OVERRIDES FOR MICROBIOLOGIA ========== */
+:root.dark-theme .table {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .table tbody tr {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .table__muestra .button-details {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:root.dark-theme .miform,
+:root.dark-theme .detallemuestra {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+}
+
+:root.dark-theme .blue__color {
+    color: #60A5FA !important;
 }
