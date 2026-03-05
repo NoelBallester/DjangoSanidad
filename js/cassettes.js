@@ -932,39 +932,33 @@ const detailMuestra = async (muestraid) => {
 };
 
 // Añadir una imagen a la muestra
-const aniadirImagenMuestra = async () => {
-  try {
-    // Abrir el cuadro de para seleccionar un archivo,
-    // Puede fallar con algún navegador.... con chrome, edge sin problemas
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [
-        {
-          description: "Imágenes",
-          accept: { "image/*": [".png", ".gif", ".jpeg", ".jpg"] },
-        },
-      ],
-    });
-    const file = await fileHandle.getFile();
-
+const aniadirImagenMuestra = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     let newImage = new FormData();
     newImage.append("imagen", file);
     newImage.append("muestra", muestraId);
-
-    const response = await fetch("/api/imagenes/", {
-      method: "POST",
-      headers: getHeaders('POST', true),
-      body: newImage,
-    });
-    if (response.ok) {
-      await mostrarImagenesMuestra(muestraId);
-    } else {
-      let err = null;
-      try { err = await response.json(); } catch (e) { err = null; }
-      console.error('Error añadiendo imagen', err || response.statusText || response.status);
+    try {
+      const response = await fetch("/api/imagenes/", {
+        method: "POST",
+        headers: getHeaders('POST', true),
+        body: newImage,
+      });
+      if (response.ok) {
+        await mostrarImagenesMuestra(muestraId);
+      } else {
+        console.error('Error añadiendo imagen', response.status);
+        alert('Error al subir la imagen');
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
+  };
+  input.click();
 };
 
 const consultarCassetteQR = async (qr) => {
@@ -1294,6 +1288,11 @@ btn__imprimirqrmuestra.addEventListener("click", () => imprimirQR("muestra"));
 
 btnborrarmuestra.addEventListener("click", borrarMuestra);
 btnborrarimagenmuestra.addEventListener("click", borrarImagenMuestra);
+
+const btnaniadirimagenmuestra = document.getElementById("btnaniadirimagenmuestra");
+if (btnaniadirimagenmuestra) {
+  btnaniadirimagenmuestra.addEventListener("click", aniadirImagenMuestra);
+}
 
 // Guardar solo el informe de resultados
 const guardarInformeMedico = async () => {
