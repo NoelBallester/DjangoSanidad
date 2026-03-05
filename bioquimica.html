@@ -300,7 +300,7 @@
                             style="border-radius: 20px;">
                             <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
                         </button>
-                        <button id="btnformnuevaTubo" type="button" class="btn icono__efect"><i title="Nueva Tubo"
+                        <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Análisis"
                                 class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
                     </div>
@@ -310,10 +310,10 @@
                     <table class="table table__tubo sortable-theme-finder" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="row">Fecha</th>
-                                <th scope="row">Descripción</th>
-                                <th scope="row">Tinción</th>
-                                <th> </th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Tinción</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody id="tubos" class="table-group-divider">
@@ -374,87 +374,84 @@
             </div>
         </section>
 
-        <!-- Modal Nueva Tubo-->
-        <section class="mimodal" id="modalnuevaTubo">
+        <!-- Modal Nueva Análisis -->
+        <section class="mimodal" id="modalnuevaMuestra">
 
-
-            <form class="row g-3 miform" id="nuevaTubo" enctype="multipart/form-data">
+            <form class="row g-3 miform" id="nuevaMuestra" enctype="multipart/form-data">
 
                 <div class="form__header">
-                    <h2 class="tubo__title">Nuevo Tubo</h2>
-                    <i class="fa-solid fa-xmark tubo__icon tubo__icon--infotubo fs-2" id="btnformcerrarnuevaTubo"></i>
+                    <h2 class="tubo__title">Nuevo Análisis</h2>
+                    <i class="fa-solid fa-xmark tubo__icon tubo__icon--infotubo fs-2" id="btnformcerrarnuevaMuestra"></i>
                 </div>
 
                 <hr>
 
                 <div class="col-md-12">
-                    <label for="inputdescripcionTubo" class="form-label blue__color">Descripcion</label>
-                    <input type="text" class="form-control blue__color" id="inputdescripcionTubo" required>
+                    <label for="inputdescripcionMuestra" class="form-label blue__color">Descripción</label>
+                    <input type="text" class="form-control blue__color" id="inputdescripcionMuestra" required>
                 </div>
 
                 <div class="col-md-12">
-                    <label for="inputFechaTubo" class="form-label blue__color">Fecha</label>
-                    <input type="date" class="form-control blue__color" id="inputFechaTubo" required>
+                    <label for="inputFechaMuestra" class="form-label blue__color">Fecha</label>
+                    <input type="date" class="form-control blue__color" id="inputFechaMuestra" required>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectTincionTubo" class="form-label blue__color">Tinción</label>
-                    <select class="form-select blue__color" id="selectTincionTubo" required>
+                    <label for="selectTincionMuestra" class="form-label blue__color">Tinción</label>
+                    <select class="form-select blue__color" id="selectTincionMuestra" required>
                         <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
                         <option>Azul de Metileno</option>
                         <option>Papanicolau</option>
-
                     </select>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputObservacionesTubo" class="form-label blue__color">Observaciones</label>
-                    <textarea class="form-control blue__color" id="inputObservacionesTubo" required></textarea>
+                    <label for="inputObservacionesMuestra" class="form-label blue__color">Observaciones</label>
+                    <textarea class="form-control blue__color" id="inputObservacionesMuestra" required></textarea>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputImagenesTubo" class="form-label blue__color">Imagen</label>
+                    <label for="inputImagenesMuestra" class="form-label blue__color">Imagen</label>
                     <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color"
-                        id="inputImagenesTubo">
+                        id="inputImagenesMuestra">
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit"> Crear Tubo</button>
+                    <button class="btn btn__modal blue__color" type="submit">Crear Análisis</button>
                 </div>
 
             </form>
         </section>
 
-        <!-- Modal Modificar Análisis (Anidado) -->
+        <!-- Modal Modificar Análisis -->
         <section class="mimodal front" id="modalmodificarAnalysis">
 
-            <!--  No pongo enctype pq estoy enviando con un formdata -->
             <form class="row g-3 miform" id="modificarAnalysisForm">
 
                 <div class="form__header">
-                    <h2 class="tubo__title">Modificar Tubo</h2>
+                    <h2 class="tubo__title">Modificar Análisis</h2>
                     <i class="fa-solid fa-xmark tubo__icon tubo__icon--infotubo fs-2"
-                        id="btnformcerrarmodificarTubo"></i>
+                        id="btnformcerrarmodificarMuestra"></i>
                 </div>
 
                 <hr>
 
                 <div class="col-md-12">
-                    <label for="inputdescripcionTubo" class="form-label blue__color">Descripcion</label>
-                    <input type="text" class="form-control blue__color" id="inputmodificardescripcionTubo" required>
+                    <label for="inputmodificardescripcionMuestra" class="form-label blue__color">Descripción</label>
+                    <input type="text" class="form-control blue__color" id="inputmodificardescripcionMuestra" required>
                 </div>
 
                 <div class="col-md-12">
-                    <label for="inputFechaTubo" class="form-label blue__color">Fecha</label>
-                    <input type="date" class="form-control blue__color" id="inputmodificarfechaTubo" required disabled>
+                    <label for="inputmodificarfechaMuestra" class="form-label blue__color">Fecha</label>
+                    <input type="date" class="form-control blue__color" id="inputmodificarfechaMuestra" required disabled>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectmodificartincionTubo" class="form-label blue__color">Tinción</label>
-                    <select class="form-select blue__color" id="selectmodificartincionTubo" required>
+                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tinción</label>
+                    <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
                         <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
@@ -465,104 +462,61 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputObservacionesTubo" class="form-label blue__color">Observaciones</label>
-                    <textarea class="form-control blue__color" id="inputmodificarobservacionesTubo" required></textarea>
+                    <label for="inputmodificarobservacionesMuestra" class="form-label blue__color">Observaciones</label>
+                    <textarea class="form-control blue__color" id="inputmodificarobservacionesMuestra" required></textarea>
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit"> Modificar Tubo</button>
+                    <button class="btn btn__modal blue__color" type="submit">Modificar Análisis</button>
                 </div>
 
             </form>
         </section>
 
-        <!-- Modal Detalle Tubo-->
+        <!-- Modal Detalle Análisis/Muestra -->
         <section class="mimodal" id="modaldetalleTubo">
 
-            <!-- Detalle Tubo-->
-            <section class="detalletubo" id="">
+            <section class="detalletubo">
                 <div class="form__header">
-                    <h2 class="tubo__title">Detalle Tubo</h2>
-                    <i class="fa-solid fa-xmark tubo__icon tubo__icon--infotubo fs-2" id="btncerrardetalleTubo"></i>
+                    <h2 class="tubo__title">Detalle Análisis</h2>
+                    <i class="fa-solid fa-xmark tubo__icon tubo__icon--infotubo fs-2" id="btncerrardetalleMuestra"></i>
                 </div>
                 <hr>
 
-                <div class="p-2">
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex align-items-start">
-                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrTuboModal">
-                                <i title="Imprimer QR Tubo"
-                                    class="fa-sharp fa-solid fa-qrcode  tubo__icon tubo__icon--infotubo"></i>
-                            </div>
-
-                            <div data-bs-toggle="modal" data-bs-target="#eliminarTuboModal">
-                                <i title="Borrar Tubo"
-                                    class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
-                            </div>
-
-                            <div id="btnformmodificartubo">
-                                <i title="Modificar Tubo"
-                                    class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
-                            </div>
-
-                        </div>
-                        <div>
-                            <i title="Borrar Imagen Tubo" id="btnborrarimagentubo" alt=""
-                                class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
-                        </div>
+                <div class="p-3">
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Descripción:</label>
+                        <p id="muestra__descripcion" class="blue__color tubo__text"></p>
                     </div>
 
-                    <section class="row  mt-3">
-                        <div class="col-4 border-end">
-                            <li class="blue__color--negrita">Nº Tubo: <span id="tubo__idDetail"
-                                    class="blue__color tubo__text"></span></li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Fecha:</label>
+                        <p id="muestra__fecha" class="blue__color tubo__text"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Técnico ID: <span id="tubo__tecnico_idDetail"
-                                    class="blue__color tubo__text"></span></li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Tinción:</label>
+                        <p id="muestra__tincion" class="blue__color tubo__text"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Descripción: <span id="tubo__descripcionDetail"
-                                    class="blue__color tubodescripcion__text">
-                                </span>
-                            </li>
+                    <div class="mb-3">
+                        <label class="blue__color--negrita">Observaciones:</label>
+                        <p id="muestra__observaciones" class="blue__color tubo__text"></p>
+                    </div>
 
-                            <li class="blue__color--negrita">Fecha: <span id="tubo__fechaDetail"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
+                    <div class="mb-3">
+                        <img id="muestra__img" class="img-fluid" src="" alt="Imagen Análisis" style="max-width: 100%; display: none;">
+                    </div>
 
-                            <li class="blue__color--negrita">Tinción: <span id="tubo__tincion"
-                                    class="blue__color tubo__text">
-                                </span>
-                            </li>
-
-                            <li class="blue__color--negrita">Observaciones:
-                                <p id="tubo__observaciones" class="blue__color tubo__text"></p>
-                            </li>
-                        </div>
-                        <div class="col-8">
-                            <img id="visor__img" class="visor__img" src="" alt="">
-                        </div>
-                        <hr class="mt-4">
-                        <div class="d-flex">
-                            <div id="tubo__img" class="d-flex flex-wrap">
-
-                            </div>
-                            <div class="container__aniadir d-flex align-items-center mt-1 mx-2 blue__color fs-1">
-                                <label for="file-input">
-                                    <i class="fa-solid fa-circle-plus"></i>
-                                </label>
-
-                                <input id="file-input" type="file" />
-                            </div>
-
-                        </div>
-
-                    </section>
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn__modal" id="btnborrarmuestra">
+                            <i class="fa-solid fa-trash-can me-2"></i> Eliminar
+                        </button>
+                        <button class="btn btn-outline-primary" data-bs-dismiss="modal">
+                            Cerrar
+                        </button>
+                    </div>
                 </div>
-
-
-
-
             </section>
 
         </section>
@@ -869,6 +823,27 @@
                         <p>Al eliminar la tubo se borraran todas las imágenes de la tubo.</p>
                         <button type="button" class="btn btn__modal mt-3" id="btnborrartubo"
                             data-bs-dismiss="modal">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal QR Muestra/Análisis -->
+        <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">QR Análisis</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body text-center fs-4 blue__color">
+                        <p>Impresión QR Análisis</p>
+                        <img src="" alt="Imprimir Muestra" id="imgmuestra__qr" style="width: 150px; height: 150px;">
+                        <input type="text" value="qr" id="inputmuestra__qr" style="display: none;">
+                        <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrmuestra"
+                            data-bs-dismiss="modal">Imprimir</button>
                     </div>
                 </div>
             </div>

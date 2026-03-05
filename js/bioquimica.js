@@ -1011,6 +1011,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   inputFecha.setAttribute("min", fechaActual);
   inputFechaUpdate.setAttribute("min", fechaActual);
   inputFechaMuestra.setAttribute("min", fechaActual);
+
+  // Toggle section views
+  const sectionTubosTable = document.getElementById("sectionTubos");
+  const sectionInforme = document.getElementById("sectionInforme");
+  const btnToggleInforme = document.getElementById("btnToggleInforme");
+  const btnToggleTubos = document.getElementById("btnToggleTubos");
+
+  if (btnToggleInforme && sectionTubosTable && sectionInforme) {
+    btnToggleInforme.addEventListener("click", () => {
+      sectionTubosTable.classList.add("d-none");
+      sectionInforme.classList.remove("d-none");
+    });
+  }
+
+  if (btnToggleTubos && sectionTubosTable && sectionInforme) {
+    btnToggleTubos.addEventListener("click", () => {
+      sectionInforme.classList.add("d-none");
+      sectionTubosTable.classList.remove("d-none");
+    });
+  }
 });
 
 // Consulta por Tipo de Muestra
@@ -1269,22 +1289,3 @@ if (btnGuardarInforme) {
   btnGuardarInforme.addEventListener("click", guardarInformeMedico);
 }
 
-// Toggle section views
-const sectionTubosTable = document.getElementById("sectionTubos"); // El contenedor de la tabla de análisis
-const sectionInforme = document.getElementById("sectionInforme");
-const btnToggleInforme = document.getElementById("btnToggleInforme");
-const btnToggleTubos = document.getElementById("btnToggleTubos");
-
-if (btnToggleInforme && sectionTubosTable && sectionInforme) {
-  btnToggleInforme.addEventListener("click", () => {
-    sectionTubosTable.classList.add("d-none");
-    sectionInforme.classList.remove("d-none");
-  });
-}
-
-if (btnToggleTubos && sectionTubosTable && sectionInforme) {
-  btnToggleTubos.addEventListener("click", () => {
-    sectionInforme.classList.add("d-none");
-    sectionTubosTable.classList.remove("d-none");
-  });
-}
