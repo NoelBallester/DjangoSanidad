@@ -561,3 +561,132 @@ td {
 :root.dark-theme .blue__color {
     color: #60A5FA !important;
 }
+
+/* --- Fondo del cuerpo en dark mode --- */
+html.dark-theme body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    color: #f8fafc !important;
+}
+
+/* --- Tabla sortable: encabezados --- */
+:root.dark-theme table.table thead th,
+:root.dark-theme table[data-sortable].sortable-theme-finder thead th {
+    background: rgba(30, 41, 59, 0.9) !important;
+    background-image: none !important;
+    color: #60A5FA !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* --- Tabla sortable: filas --- */
+:root.dark-theme table.table tbody tr,
+:root.dark-theme table[data-sortable].sortable-theme-finder tbody tr {
+    background: rgba(30, 41, 59, 0.5) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme table.table tbody tr:nth-child(odd),
+:root.dark-theme table[data-sortable].sortable-theme-finder tbody tr:nth-child(odd),
+:root.dark-theme table[data-sortable].sortable-theme-finder tbody > tr:nth-child(odd) > td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme table.table tbody tr:hover,
+:root.dark-theme table[data-sortable].sortable-theme-finder tbody tr:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* --- Inputs de filtro (border__color) --- */
+:root.dark-theme input.border__color,
+:root.dark-theme select.border__color,
+:root.dark-theme textarea.border__color,
+html.dark-theme input.border__color,
+html.dark-theme select.border__color,
+html.dark-theme textarea.border__color {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.4) !important;
+}
+
+:root.dark-theme input.border__color::placeholder,
+html.dark-theme input.border__color::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* --- Selector de fecha: icono calendario --- */
+html.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indicator,
+:root.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* --- Inputs del modal (bg-light) y form-control / form-select generales --- */
+:root.dark-theme input.bg-light,
+:root.dark-theme select.bg-light,
+:root.dark-theme textarea.bg-light {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:root.dark-theme .form-control,
+:root.dark-theme .form-select {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme .form-control:focus,
+:root.dark-theme .form-select:focus {
+    background-color: #334155 !important;
+    border-color: rgba(96, 165, 250, 0.5) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+/* --- Botón de buscar (fondo) --- */
+html.dark-theme .fondo,
+:root.dark-theme .fondo {
+    background: linear-gradient(135deg, #1e3a5f, #2563a8) !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark-theme .fondo:hover,
+:root.dark-theme .fondo:hover {
+    background: linear-gradient(135deg, #2563a8, #3b82f6) !important;
+    filter: brightness(1.15);
+}
+
+/* --- Modales Bootstrap (usado en usuarios) --- */
+:root.dark-theme .modal-content {
+    background-color: rgba(30, 41, 59, 0.97) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme .modal-header {
+    background-color: rgba(30, 41, 59, 0.9) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark-theme .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark-theme .modal-title {
+    color: #60A5FA !important;
+}
+
+:root.dark-theme .form-label {
+    color: #60A5FA !important;
+}
+
+:root.dark-theme .btn-outline-primary {
+    color: #60A5FA !important;
+    border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+:root.dark-theme .btn-outline-primary:hover {
+    background-color: rgba(96, 165, 250, 0.1) !important;
+    border-color: #60A5FA !important;
+}
