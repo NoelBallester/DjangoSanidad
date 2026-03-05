@@ -216,7 +216,7 @@
               <tr>
                 <th scope="row">Muestra</th>
                 <th scope="row">Fecha</th>
-                <th scope="row">Detalle Biopsia</th>
+                <th scope="row">Detalle de Muestra</th>
                 <th scope="row">Tipo de Muestra</th>
                 <th data-sortable="false"></th>
               </tr>
@@ -268,7 +268,7 @@
             <hr class="m-1">
 
             <div class="d-flex px-3  justify-content-between">
-              <li class="blue__color--negrita">Órgano: <span id="Muestras__organo" class="blue__color Muestras__text">
+              <li class="blue__color--negrita">Tipo de Muestra: <span id="Muestras__organo" class="blue__color Muestras__text">
                 </span>
               </li>
               <li class="blue__color--negrita">Fecha: <span id="Muestras__fecha" class="blue__color Muestras__text">
@@ -312,7 +312,7 @@
               <tr>
                 <th scope="row">Fecha</th>
                 <th scope="row">Descripción</th>
-                <th scope="row">Tipo de Prueba</th>
+                <th scope="row">Tipo de Muestra</th>
                 <th> </th>
               </tr>
             </thead>
@@ -403,17 +403,18 @@
         <div class="col-md-12 mt-3">
           <label for="selectTincionMuestra" class="form-label blue__color">Tipo de muestra</label>
           <select class="form-select blue__color" id="selectTincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tinción</option>
-            <option>Hematoxilina Eosina (HE)</option>
-            <option>Giemsa</option>
-            <option>Gram</option>
-            <option>Azul de Metileno</option>
-            <option>Papanicolau</option>
-            <option>Zienhl-Neelsen</option>
-            <option>Tricorómico</option>
-            <option>Orceína</option>
-            <option>P.A.S</option>
-            <option>Otros</option>
+            <option selected disabled value="">Seleccionar Tipo de Muestra</option>
+                             <option>Orina</option>
+                            <option>Sangre Anticoagulada</option>
+                            <option>Plasma</option>
+                            <option>Suero</option>
+                            <option>Esputos</option>
+                            <option>Exudados</option>
+                            <option>Heces</option>
+                            <option>Raspados</option>
+                            <option>Uñas</option>
+                            <option>Fluidos Biológicos</option>
+                            <option>Otros</option>
 
           </select>
         </div>
@@ -424,7 +425,7 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputImagenesMuestra" class="form-label blue__color">Tinción</label>
+          <label for="inputImagenesMuestra" class="form-label blue__color">Tipo de Muestra</label>
           <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" id="inputImagenesMuestra">
         </div>
 
@@ -460,18 +461,19 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de tinción</label>
+          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de Muestra</label>
           <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tinción</option>
-            <option>Hematoxilina Eosina (HE)</option>
-            <option>Giemsa</option>
-            <option>Gram</option>
-            <option>Azul de Metileno</option>
-            <option>Papanicolau</option>
-            <option>Zienhl-Neelsen</option>
-            <option>Tricorómico</option>
-            <option>Orceína</option>
-            <option>P.A.S</option>
+            <option selected disabled value="">Seleccionar Tipo de Muestra</option>
+            <option>Orina</option>
+            <option>Sangre Anticoagulada</option>
+            <option>Plasma</option>
+            <option>Suero</option>
+            <option>Esputos</option>
+            <option>Exudados</option>
+            <option>Heces</option>
+            <option>Raspados</option>
+            <option>Uñas</option>
+            <option>Fluidos Biológicos</option>
             <option>Otros</option>
           </select>
         </div>
