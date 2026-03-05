@@ -321,6 +321,7 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
 class TuboViewSet(viewsets.ModelViewSet):
     queryset = Tubo.objects.all().order_by('-fecha')
     serializer_class = TuboSerializer
+    authentication_classes = []
     
     def create(self, request):
         data = request.data.copy()
@@ -416,6 +417,7 @@ class TuboViewSet(viewsets.ModelViewSet):
 class MuestraTuboViewSet(viewsets.ModelViewSet):
     queryset = MuestraTubo.objects.all()
     serializer_class = MuestraTuboSerializer
+    authentication_classes = []
     
     def create(self, request):
         data = request.data.copy()
@@ -442,6 +444,7 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
 class ImagenTuboViewSet(viewsets.ModelViewSet):
     queryset = ImagenTubo.objects.all()
     serializer_class = ImagenTuboSerializer
+    authentication_classes = []
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
@@ -459,6 +462,7 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
 class HematologiaViewSet(viewsets.ModelViewSet):
     queryset = Hematologia.objects.all().order_by('-fecha')
     serializer_class = HematologiaSerializer
+    authentication_classes = []  # No requiere autenticación
     
     def create(self, request):
         data = request.data.copy()
@@ -546,6 +550,7 @@ class HematologiaViewSet(viewsets.ModelViewSet):
 class MuestraHematologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraHematologia.objects.all()
     serializer_class = MuestraHematologiaSerializer
+    authentication_classes = []
     
     def create(self, request):
         data = request.data.copy()
@@ -572,6 +577,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
 class ImagenHematologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenHematologia.objects.all()
     serializer_class = ImagenHematologiaSerializer
+    authentication_classes = []
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):

@@ -100,7 +100,13 @@ class HematologiaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hematologia
-        fields = '__all__'
+        fields = [
+            'id_hematologia', 'hematologia', 'fecha', 'descripcion', 'caracteristicas', 
+            'observaciones', 'informacion_clinica', 'descripcion_microscopica', 
+            'diagnostico_final', 'patologo_responsable', 'qr_hematologia', 'organo', 
+            'tecnico', 'informe_descripcion', 'informe_fecha', 'informe_tincion', 
+            'informe_observaciones', 'imagen_base64'
+        ]
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:

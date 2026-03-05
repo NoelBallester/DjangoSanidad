@@ -6,10 +6,11 @@ from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.contrib import messages
 
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
 from django.contrib.auth.hashers import make_password
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
+                    HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
                     TecnicoForm)
 
 
@@ -360,6 +361,159 @@ def imagen_citologia_delete(request, pk):
     imagen.imagen.delete(save=False)
     imagen.delete()
     return redirect(reverse('citologias') + f'?citologia={cid}')
+
+
+# ── Hematologías (lista + detalle) ──────────────────────────────────────────────
+
+@never_cache
+@login_required
+def hematologia_list(request):
+    qs = Hematologia.objects.select_related('tecnico').order_by('-fecha')
+
+    organo = request.GET.get('organo', '').strip()
+    numero = request.GET.get('numero', '').strip()
+    inicio = request.GET.get('inicio', '').strip()
+    fin    = request.GET.get('fin', '').strip()
+    sel_pk = request.GET.get('hematologia', '').strip()
+
+    if organo and organo != '*':
+        qs = qs.filter(organo__icontains=organo)
+    if numero:
+        qs = qs.filter(hematologia__icontains=numero)
+    if inicio and fin:
+        qs = qs.filter(fecha__gte=inicio, fecha__lte=fin)
+
+    if not any([organo, numero, inicio, fin]):
+        qs = qs[:10]
+
+    selected = None
+    muestras_con_imagenes = []
+
+    if sel_pk:
+        try:
+            selected = Hematologia.objects.select_related('tecnico').get(pk=sel_pk)
+            muestras_con_imagenes = [
+                {'muestra': m, 'imagenes': ImagenHematologia.objects.filter(muestra=m)}
+                for m in MuestraHematologia.objects.filter(hematologia=selected)
+            ]
+        except Hematologia.DoesNotExist:
+            pass
+
+    return render(request, 'web/hematologias.html', {
+        'hematologias':          qs,
+        'selected':              selected,
+        'muestras_con_imagenes': muestras_con_imagenes,
+        'hematologia_form':      HematologiaForm(instance=selected) if selected else HematologiaForm(),
+        'nueva_hematologia_form': HematologiaForm(),
+        'muestra_form':          MuestraHematologiaForm(),
+        'informe_form': None,
+        'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
+    })
+
+
+# ── Hematología CRUD ────────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def hematologia_create(request):
+    form = HematologiaForm(request.POST)
+    if form.is_valid():
+        tecnico = request.user if request.user.is_authenticated else None
+        h = form.save(tecnico=tecnico)
+        return redirect(reverse('hematologias') + f'?hematologia={h.pk}')
+    messages.error(request, 'Error al crear la hematología. Revisa los campos.')
+    return redirect('hematologias')
+
+
+@login_required
+@require_POST
+def hematologia_update(request, pk):
+    hematologia = get_object_or_404(Hematologia, pk=pk)
+    form = HematologiaForm(request.POST, instance=hematologia)
+    if form.is_valid():
+        form.save()
+        return redirect(reverse('hematologias') + f'?hematologia={pk}')
+    messages.error(request, 'Error al modificar la hematología.')
+    return redirect(reverse('hematologias') + f'?hematologia={pk}')
+
+
+@login_required
+@require_POST
+def hematologia_delete(request, pk):
+    get_object_or_404(Hematologia, pk=pk).delete()
+    return redirect('hematologias')
+
+
+@login_required
+@require_POST
+def hematologia_informe(request, pk):
+    hematologia = get_object_or_404(Hematologia, pk=pk)
+    form = InformeForm(request.POST, request.FILES)
+    if form.is_valid():
+        hematologia.informe_descripcion   = form.cleaned_data['informe_descripcion']
+        hematologia.informe_fecha         = form.cleaned_data['informe_fecha']
+        hematologia.informe_tincion       = form.cleaned_data['informe_tincion']
+        hematologia.informe_observaciones = form.cleaned_data['informe_observaciones']
+        img = form.cleaned_data.get('informe_imagen')
+        if img:
+            hematologia.informe_imagen = img.read()
+        hematologia.save()
+    return redirect(reverse('hematologias') + f'?hematologia={pk}')
+
+
+# ── Muestras Hematología ────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def muestra_hematologia_create(request, hematologia_pk):
+    hematologia = get_object_or_404(Hematologia, pk=hematologia_pk)
+    form = MuestraHematologiaForm(request.POST)
+    if form.is_valid():
+        form.save(hematologia=hematologia)
+    return redirect(reverse('hematologias') + f'?hematologia={hematologia_pk}')
+
+
+@login_required
+@require_POST
+def muestra_hematologia_update(request, pk):
+    muestra = get_object_or_404(MuestraHematologia, pk=pk)
+    form = MuestraHematologiaForm(request.POST, instance=muestra)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse('hematologias') + f'?hematologia={muestra.hematologia_id}')
+
+
+@login_required
+@require_POST
+def muestra_hematologia_delete(request, pk):
+    muestra = get_object_or_404(MuestraHematologia, pk=pk)
+    hid = muestra.hematologia_id
+    muestra.delete()
+    return redirect(reverse('hematologias') + f'?hematologia={hid}')
+
+
+# ── Imágenes Hematología ────────────────────────────────────────────────────────
+
+@login_required
+@require_POST
+def imagen_hematologia_upload(request, muestra_pk):
+    muestra = get_object_or_404(MuestraHematologia, pk=muestra_pk)
+    form = ImagenHematologiaForm(request.POST, request.FILES)
+    if form.is_valid():
+        img = form.save(commit=False)
+        img.muestra = muestra
+        img.save()
+    return redirect(reverse('hematologias') + f'?hematologia={muestra.hematologia_id}')
+
+
+@login_required
+@require_POST
+def imagen_hematologia_delete(request, pk):
+    imagen = get_object_or_404(ImagenHematologia, pk=pk)
+    hid = imagen.muestra.hematologia_id
+    imagen.imagen.delete(save=False)
+    imagen.delete()
+    return redirect(reverse('hematologias') + f'?hematologia={hid}')
 
 
 # ── Usuarios ──────────────────────────────────────────────────────────────────

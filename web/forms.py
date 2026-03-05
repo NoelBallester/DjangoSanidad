@@ -1,7 +1,7 @@
 import random
 import string
 from django import forms
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
 
 
 ORGANOS = [
@@ -217,6 +217,74 @@ class ImagenForm(forms.ModelForm):
 class ImagenCitologiaForm(forms.ModelForm):
     class Meta:
         model = ImagenCitologia
+        fields = ['imagen']
+
+
+class HematologiaForm(forms.ModelForm):
+    organo = forms.ChoiceField(choices=ORGANOS)
+
+    class Meta:
+        model = Hematologia
+        fields = ['hematologia', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
+                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
+                            'descripcion_microscopica', 'diagnostico_final', 'organo'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, tecnico=None):
+        obj = super().save(commit=False)
+        if not obj.qr_hematologia:
+            obj.qr_hematologia = _qr('--h--')
+        if tecnico:
+            obj.tecnico = tecnico
+        if commit:
+            obj.save()
+        return obj
+
+
+class MuestraHematologiaForm(forms.ModelForm):
+    tincion = forms.ChoiceField(choices=TINCIONES)
+
+    class Meta:
+        model = MuestraHematologia
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'observaciones', 'tincion'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, hematologia=None):
+        obj = super().save(commit=False)
+        if not obj.qr_muestra:
+            obj.qr_muestra = _qr('--mh--')
+        if hematologia:
+            obj.hematologia = hematologia
+        if commit:
+            obj.save()
+        return obj
+
+
+class ImagenHematologiaForm(forms.ModelForm):
+    class Meta:
+        model = ImagenHematologia
         fields = ['imagen']
 
 
