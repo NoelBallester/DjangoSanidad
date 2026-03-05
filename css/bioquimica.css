@@ -921,3 +921,81 @@ html.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indica
 .dark-theme input[type="date"].border__color::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+/* --- Additional Dark Mode Table Fixes --- */
+.dark-theme .table {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-main) !important;
+}
+
+.dark-theme .table__muestra .button-details {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark-theme .table__muestra .button-details:hover {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* --- Dark Mode Modal and Form Fixes --- */
+.dark-theme .detallemuestra,
+.dark-theme .detalletubo {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-main) !important;
+}
+
+.dark-theme .form-label,
+.dark-theme .form-label.blue__color {
+  color: var(--title-color) !important;
+}
+
+.dark-theme .form-control,
+.dark-theme .form-select {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #f8fafc !important;
+}
+
+.dark-theme .form-control:focus,
+.dark-theme .form-select:focus {
+  background-color: #334155 !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  color: #f8fafc !important;
+}
+
+/* --- Dark Mode Button Fixes --- */
+.dark-theme .btn {
+  color: #f8fafc;
+}
+
+.dark-theme .btn-outline-primary {
+  color: #60A5FA !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+.dark-theme .btn-outline-primary:hover {
+  background-color: rgba(96, 165, 250, 0.2) !important;
+  border-color: #60A5FA !important;
+  color: #60A5FA !important;
+}
+
+.dark-theme .btn-success {
+  background-color: #34D399 !important;
+  border-color: #34D399 !important;
+  color: #0f172a !important;
+}
+
+.dark-theme .btn-success:hover {
+  background-color: #10B981 !important;
+  border-color: #10B981 !important;
+}
+
+/* --- Dark Mode Input Placeholder --- */
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder,
+.dark-theme select {
+  color: #94a3b8 !important;
+}

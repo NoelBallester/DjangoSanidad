@@ -1,0 +1,283 @@
+/* ========== COMPREHENSIVE DARK THEME STYLESHEET ========== */
+/* This file contains all dark-theme rules centralized for consistency */
+
+/* --- Root Variables Override --- */
+:root.dark-theme {
+  --primary-bg: #0f172a;
+  --secondary-bg: #1e293b;
+  --tertiary-bg: #334155;
+  --text-light: #f8fafc;
+  --text-muted: #cbd5e1;
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Global Elements --- */
+:root.dark-theme body,
+:root.dark-theme main {
+  background-color: var(--bg-light) !important;
+  color: var(--text-main) !important;
+}
+
+/* --- Footer Dark Mode --- */
+:root.dark-theme footer,
+:root.dark-theme .footer {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-muted) !important;
+}
+
+:root.dark-theme footer a,
+:root.dark-theme .footer a {
+  color: #60A5FA !important;
+}
+
+:root.dark-theme footer a:hover,
+:root.dark-theme .footer a:hover {
+  color: #3B82F6 !important;
+}
+
+/* --- Header Navigation --- */
+:root.dark-theme nav,
+:root.dark-theme .navbar {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark-theme .nav-link {
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .nav-link:hover {
+  color: #60A5FA !important;
+}
+
+/* --- Cards and Containers --- */
+:root.dark-theme .card {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .container,
+:root.dark-theme .section {
+  background-color: transparent;
+  color: var(--text-light);
+}
+
+/* --- Tables Universal --- */
+:root.dark-theme table,
+:root.dark-theme .table {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme table thead th,
+:root.dark-theme .table thead th {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  border-color: var(--border-light) !important;
+  color: #60A5FA !important;
+}
+
+:root.dark-theme table tbody tr,
+:root.dark-theme .table tbody tr {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  color: var(--text-light) !important;
+  border-color: var(--border-light) !important;
+}
+
+:root.dark-theme table tbody tr:hover,
+:root.dark-theme .table tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* --- Forms Universal --- */
+:root.dark-theme label,
+:root.dark-theme .form-label {
+  color: #60A5FA !important;
+}
+
+:root.dark-theme input,
+:root.dark-theme select,
+:root.dark-theme textarea,
+:root.dark-theme .form-control,
+:root.dark-theme .form-select {
+  background-color: #1e293b !important;
+  border-color: var(--border-medium) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme input::placeholder,
+:root.dark-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+:root.dark-theme input:focus,
+:root.dark-theme select:focus,
+:root.dark-theme textarea:focus,
+:root.dark-theme .form-control:focus,
+:root.dark-theme .form-select:focus {
+  background-color: #334155 !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+  color: var(--text-light) !important;
+  box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+/* --- Buttons Universal --- */
+:root.dark-theme .btn {
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .btn-primary {
+  background-color: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+  color: white !important;
+}
+
+:root.dark-theme .btn-primary:hover {
+  background-color: #2563EB !important;
+  border-color: #2563EB !important;
+}
+
+:root.dark-theme .btn-outline-primary {
+  color: #60A5FA !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+:root.dark-theme .btn-outline-primary:hover {
+  background-color: rgba(96, 165, 250, 0.1) !important;
+  border-color: #60A5FA !important;
+}
+
+:root.dark-theme .btn-success {
+  background-color: #34D399 !important;
+  border-color: #34D399 !important;
+  color: #0f172a !important;
+}
+
+:root.dark-theme .btn-danger {
+  background-color: #EF4444 !important;
+  border-color: #EF4444 !important;
+}
+
+/* --- Modals --- */
+:root.dark-theme .modal-content {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .modal-header {
+  border-bottom-color: var(--border-light) !important;
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+:root.dark-theme .modal-footer {
+  border-top-color: var(--border-light) !important;
+}
+
+:root.dark-theme .modal-title {
+  color: #60A5FA !important;
+}
+
+:root.dark-theme .btn-close {
+  filter: invert(1);
+}
+
+/* --- Alerts and Badges --- */
+:root.dark-theme .alert {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .badge {
+  background-color: rgba(96, 165, 250, 0.2) !important;
+  color: #60A5FA !important;
+}
+
+/* --- Code Blocks --- */
+:root.dark-theme code,
+:root.dark-theme pre {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+  color: #a3e635 !important;
+  border-color: var(--border-light) !important;
+}
+
+/* --- Scrollbars --- */
+:root.dark-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+:root.dark-theme ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+:root.dark-theme ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 5px;
+}
+
+:root.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* --- Date Picker Icon --- */
+:root.dark-theme input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+/* --- Dropdown Menus --- */
+:root.dark-theme .dropdown-menu {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+}
+
+:root.dark-theme .dropdown-item {
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .dropdown-item:hover,
+:root.dark-theme .dropdown-item:focus {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+  color: #60A5FA !important;
+}
+
+/* --- Tooltip and Popover --- */
+:root.dark-theme .tooltip-inner {
+  background-color: #1e293b !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .popover {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+}
+
+/* --- Links --- */
+:root.dark-theme a {
+  color: #60A5FA;
+}
+
+:root.dark-theme a:hover {
+  color: #93c5fd;
+}
+
+/* --- HR --- */
+:root.dark-theme hr {
+  border-color: var(--border-light) !important;
+}
+
+/* --- List Groups --- */
+:root.dark-theme .list-group-item {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .list-group-item.active {
+  background-color: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+}

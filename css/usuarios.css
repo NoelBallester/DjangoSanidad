@@ -63,42 +63,42 @@
     color: #fff;
 }
 
-body.dark-mode .container__table {
+:root.dark-theme .container__table {
     background-color: var(--body-color);
     box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
 }
 
-body.dark-mode .table {
+:root.dark-theme .table {
     color: var(--text-color);
 }
 
-body.dark-mode .table th {
+:root.dark-theme .table th {
     color: var(--title-color);
 }
 
-body.dark-mode .modal-content {
+:root.dark-theme .modal-content {
     background-color: var(--body-color);
     color: var(--text-color);
 }
 
-body.dark-mode .modal-header {
+:root.dark-theme .modal-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-body.dark-mode .modal-title.blue__color,
-body.dark-mode .form-label.blue__color {
+:root.dark-theme .modal-title.blue__color,
+:root.dark-theme .form-label.blue__color {
     color: var(--title-color) !important;
 }
 
-body.dark-mode .form-control,
-body.dark-mode .form-select {
+:root.dark-theme .form-control,
+:root.dark-theme .form-select {
     background-color: #2a2a35;
     border-color: #444;
     color: #fff;
 }
 
-body.dark-mode .form-control:focus,
-body.dark-mode .form-select:focus {
+:root.dark-theme .form-control:focus,
+:root.dark-theme .form-select:focus {
     background-color: #333342;
     color: #fff;
 }
