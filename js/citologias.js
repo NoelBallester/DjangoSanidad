@@ -272,23 +272,36 @@ const crearCitologia = async (event) => {
     });
 
     if (response.ok) {
-      // Use created object to show detail and allow adding muestras immediately
-      const created = await response.json();
-      // imprimirDetalleCitologia expects the API shape (id_citologia)
-      imprimirDetalleCitologia(created);
-      // load its muestras
-      citologiaId = created.id_citologia || created.id || created.pk;
-      const muestrasResp = await cargarMuestras(citologiaId);
-      imprimirMuestras(muestrasResp);
-      // close modal
-      if (modalnuevaCitologia) {
-        modalnuevaCitologia.classList.remove('showmodal');
-        modalnuevaCitologia.classList.add('hidemodal');
+      // Try to parse JSON response; some backends may return 201 with empty body
+      let created = null;
+      try {
+        const ct = response.headers.get('content-type') || '';
+        if (ct.includes('application/json')) created = await response.json();
+      } catch (e) {
+        created = null;
+      }
+
+      if (created) {
+        // imprimirDetalleCitologia expects the API shape (id_citologia)
+        imprimirDetalleCitologia(created);
+        // load its muestras
+        citologiaId = created.id_citologia || created.id || created.pk;
+        const muestrasResp = await cargarMuestras(citologiaId);
+        imprimirMuestras(muestrasResp);
+        // close modal
+        if (modalnuevaCitologia) {
+          modalnuevaCitologia.classList.remove('showmodal');
+          modalnuevaCitologia.classList.add('hidemodal');
+        }
+      } else {
+        // Backend did not return JSON; refresh list to show created item without throwing error
+        location.href = 'citologias.html';
       }
     } else {
-      const error = await response.json();
-      console.error("Error al crear citología:", error);
-      alert("Error al crear la citología: " + JSON.stringify(error));
+      let errorObj = null;
+      try { errorObj = await response.json(); } catch (e) { errorObj = null; }
+      console.error("Error al crear citología:", errorObj || response.statusText || response.status);
+      alert("Error al crear la citología: " + (errorObj ? JSON.stringify(errorObj) : response.statusText || response.status));
     }
   } catch (error) {
     console.error("Error:", error);
