@@ -23,389 +23,232 @@ const fechainicio = document.getElementById("fechainicio");
 const fechafin = document.getElementById("fechafin");
 
 let currentHematologiaId = null;
+// Clean, unified hematologia frontend
+(() => {
+  const MuestrasTable = document.getElementById("Muestras");
+  const muestrasSubTable = document.getElementById("muestras");
+  const numMuestrasSelect = document.getElementById("numMuestras");
 
-// --------- API calls ---------
-const cargarHematologiaIndex = async () => {
-  return await fetch("/api/hematologia/index/", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
+  const muestraDescripcion = document.getElementById("Muestras__descripcion");
+  const muestraTipo = document.getElementById("Muestras__tipo");
+  const muestraOrgano = document.getElementById("Muestras__organo");
+  const muestraMuestraNum = document.getElementById("Muestras__Muestras");
+  const muestraFecha = document.getElementById("Muestras__fecha");
+  const muestraCaracteristicas = document.getElementById("Muestras__caracteristicas");
+  const muestraObservaciones = document.getElementById("Muestras__observaciones");
 
-const cargarTodasHematologias = async () => {
-  return await fetch("/api/hematologia/todos/", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
+  const formnuevaMuestra = document.getElementById("nuevaMuestra");
+  const modalnuevaMuestra = document.getElementById("modalnuevaMuestra");
+  const modaldetalleMuestra = document.getElementById("modaldetalleMuestra");
 
-const cargarHematologia = async (id) => {
-  return await fetch(`/api/hematologia/${id}/`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
+  const det_muestra__descripcion = document.getElementById("muestra__descripcion");
+  const det_muestra__fecha = document.getElementById("muestra__fecha");
+  const det_muestra__tincion = document.getElementById("muestra__tincion");
+  const det_muestra__observaciones = document.getElementById("muestra__observaciones");
+  const visor__img = document.getElementById("visor__img");
+  const listado__img = document.getElementById("muestra__img");
 
-const cargarPorOrgano = async (organo) => {
-  return await fetch(`/api/hematologia/organo/${encodeURIComponent(organo)}/`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
+  let hematologiaId = null;
+  let subMuestraId = null;
 
-const cargarPorNumero = async (numero) => {
-  return await fetch(`/api/hematologia/numero/${encodeURIComponent(numero)}/`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
+  const api = {
+    index: () => fetch("/api/hematologia/index/").then((r) => r.json()),
+    todos: () => fetch("/api/hematologia/todos/").then((r) => r.json()),
+    get: (id) => fetch(`/api/hematologia/${id}/`).then((r) => r.json()),
+    subByHematologia: (id) => fetch(`/api/muestrashematologia/hematologia/${id}/`).then((r) => r.json()),
+    getSub: (id) => fetch(`/api/muestrashematologia/${id}/`).then((r) => r.json()),
+    postSub: (formData) => fetch(`/api/muestrashematologia/`, { method: "POST", body: formData }),
+    deleteSub: (id) => fetch(`/api/muestrashematologia/${id}/`, { method: "DELETE" }),
+    deleteHematologia: (id) => fetch(`/api/hematologia/${id}/`, { method: "DELETE" }),
+    imagenesSub: (id) => fetch(`/api/imageneshematologia/muestra/${id}/`).then((r) => r.json()),
+  };
 
-const obtenerHematologiaFechaRango = async (inicio, fin) => {
-  return await fetch(`/api/hematologia/rango_fechas/?inicio=${inicio}&fin=${fin}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
-
-// Muestras de una hematología
-const cargarMuestras = async (hematologiaId) => {
-  return await fetch(`/api/muestrashematologia/hematologia/${hematologiaId}/`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => r.json());
-};
-
-// --------- Render helpers ---------
-const imprimirHematologias = (lista, rebuildDropdown = true) => {
-  if (!Muestras) return;
-  Muestras.innerHTML = "";
-  if (rebuildDropdown && numMuestras) {
-    numMuestras.innerHTML = "<option disabled selected>Nº Muestra</option>";
-    let optionTodos = document.createElement("OPTION");
-    optionTodos.value = "*";
-    optionTodos.textContent = "Todos";
-    numMuestras.appendChild(optionTodos);
+  function formatDateISOToDMY(iso) {
+    if (!iso) return "";
+    const parts = iso.split("-");
+    if (parts.length !== 3) return iso;
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
   }
 
-  const frag = document.createDocumentFragment();
-  lista.forEach((h) => {
-    // add option to number selector
-    if (rebuildDropdown && numMuestras) {
-      const opt = document.createElement("OPTION");
-      opt.value = h.hematologia || h.id || "";
-      opt.textContent = h.hematologia || h.id || "-";
-      numMuestras.appendChild(opt);
-    }
-
-    const tr = document.createElement("TR");
-    tr.innerHTML = `
-      <td>${h.hematologia || "-"}</td>
-      <td>${h.fecha || "-"}</td>
-      <td>${h.descripcion || h.detalle || "-"}</td>
-      <td>${h.organo || "-"}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary btn-ver-hematologia" data-id="${h.id}">Ver</button>
-      </td>
-    `;
-    frag.appendChild(tr);
-  });
-  Muestras.appendChild(frag);
-
-  // attach listeners
-  document.querySelectorAll(".btn-ver-hematologia").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const id = e.currentTarget.dataset.id;
-      const detalle = await cargarHematologia(id);
-      if (detalle) {
-        currentHematologiaId = id;
-        llenarDetalleHematologia(detalle);
-        const resp = await cargarMuestras(id);
-        imprimirMuestras(resp);
-      }
-    });
-  });
-};
-
-const imprimirMuestras = (lista) => {
-  if (!muestras) return;
-  muestras.innerHTML = "";
-  const frag = document.createDocumentFragment();
-  lista.forEach((m) => {
-    const tr = document.createElement("TR");
-    tr.innerHTML = `
-      <td>${m.fecha || "-"}</td>
-      <td>${m.descripcion || m.detalle || "-"}</td>
-      <td>${m.tincion || m.tipo || "-"}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-secondary btn-detalle-muestra" data-id="${m.id}">Detalle</button>
-      </td>
-    `;
-    frag.appendChild(tr);
-  });
-  muestras.appendChild(frag);
-
-  document.querySelectorAll(".btn-detalle-muestra").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const id = e.currentTarget.dataset.id;
-      // Obtener detalle de la muestra desde la API de imagenes o muestras si necesario
-      // Por ahora cargamos desde la lista mostrada (no mantenemos cache aquí).
-      const res = await fetch(`/api/muestras/${id}/`, { method: "GET", headers: { "Content-Type": "application/json" } });
-      if (res.ok) {
-        const d = await res.json();
-        mostrarDetalleMuestra(d);
-      }
-    });
-  });
-};
-
-const llenarDetalleHematologia = (h) => {
-  if (Muestras__descripcion) Muestras__descripcion.textContent = h.descripcion || "";
-  if (Muestras__tipo) Muestras__tipo.textContent = h.tipo || "";
-  if (Muestras__organo) Muestras__organo.textContent = h.organo || "";
-  if (Muestras__fecha) Muestras__fecha.textContent = h.fecha || "";
-  if (Muestras__caracteristicas) Muestras__caracteristicas.textContent = h.caracteristicas || "";
-  if (Muestras__observaciones) Muestras__observaciones.textContent = h.observaciones || "";
-  if (Muestras__Muestras) Muestras__Muestras.textContent = h.hematologia || h.id || "";
-};
-
-const mostrarDetalleMuestra = (m) => {
-  // Actualiza modal o detalles de muestra si existen elementos
-  const elDesc = document.getElementById("muestra__descripcion");
-  const elFecha = document.getElementById("muestra__fecha");
-  const elTinc = document.getElementById("muestra__tincion");
-  const elObs = document.getElementById("muestra__observaciones");
-  if (elDesc) elDesc.textContent = m.descripcion || m.detalle || "";
-  if (elFecha) elFecha.textContent = m.fecha || "";
-  if (elTinc) elTinc.textContent = m.tincion || m.tipo || "";
-  if (elObs) elObs.textContent = m.observaciones || "";
-
-  const modalEl = document.getElementById("detalleMuestraModal") || document.getElementById("qrMuestrasModal") || document.getElementById("qrMuestraModal");
-  if (modalEl) {
-    try {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
-    } catch (e) {
-      // bootstrap not available or modal id different
-    }
-  }
-};
-
-// --------- Event bindings ---------
-if (todasMuestrasBtn) {
-  todasMuestrasBtn.addEventListener("click", async () => {
-    const resp = await cargarTodasHematologias();
-    imprimirHematologias(resp, true);
-  });
-}
-
-if (organos) {
-  organos.addEventListener("change", async () => {
-    if (organos.value === "*") {
-      const resp = await cargarTodasHematologias();
-      imprimirHematologias(resp);
-    } else {
-      const resp = await cargarPorOrgano(organos.value);
-      imprimirHematologias(resp);
-    }
-  });
-}
-
-if (numMuestras) {
-  numMuestras.addEventListener("change", async () => {
-    if (numMuestras.value === "*") {
-      const resp = await cargarTodasHematologias();
-      imprimirHematologias(resp, false);
-    } else {
-      const resp = await cargarPorNumero(numMuestras.value);
-      imprimirHematologias(resp, false);
-    }
-  });
-}
-
-if (fechainicio) {
-  fechainicio.addEventListener("change", async () => {
-    if (!fechafin.value) {
-      const resp = await fetch(`/api/hematologia/fecha/${fechainicio.value}/`).then(r=>r.json());
-      imprimirHematologias(resp, false);
-    } else {
-      if (new Date(fechainicio.value) > new Date(fechafin.value)) return;
-      const resp = await obtenerHematologiaFechaRango(fechainicio.value, fechafin.value);
-      imprimirHematologias(resp, false);
-    }
-  });
-}
-
-if (fechafin) {
-  fechafin.addEventListener("change", async () => {
-    if (!fechainicio.value) return;
-    if (new Date(fechainicio.value) > new Date(fechafin.value)) return;
-    const resp = await obtenerHematologiaFechaRango(fechainicio.value, fechafin.value);
-    imprimirHematologias(resp, false);
-  });
-}
-
-// Load index on start
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const resp = await cargarHematologiaIndex();
-    imprimirHematologias(resp, true);
-  } catch (e) {
-    console.error("Error cargando hematologías:", e);
-  }
-});
-console.log("Hematologia.js cargado correctamente");
-const token = sessionStorage.getItem("token");
-console.log("Token:", token);
-
-const MuestrasTable = document.getElementById("Muestras"); // La tabla principal
-const muestrasSubTable = document.getElementById("muestras"); // La tabla de sub-muestras
-const organosSelect = document.getElementById("organos");
-const numMuestrasSelect = document.getElementById("numMuestras");
-
-// Mapeo detallado de elementos basado en hematologia.html
-const muestraDescripcion = document.getElementById("Muestras__descripcion");
-const muestraTipo = document.getElementById("Muestras__tipo");
-const muestraOrgano = document.getElementById("Muestras__organo");
-const muestraMuestraNum = document.getElementById("Muestras__Muestras");
-const muestraFecha = document.getElementById("Muestras__fecha");
-const muestraCaracteristicas = document.getElementById("Muestras__caracteristicas");
-const muestraObservaciones = document.getElementById("Muestras__observaciones");
-
-const muestraInformeDescripcion = document.getElementById("Muestras__informe_descripcion");
-const muestraInformeFecha = document.getElementById("Muestras__informe_fecha");
-const muestraInformeTincion = document.getElementById("Muestras__informe_tincion");
-const muestraInformeObservaciones = document.getElementById("Muestras__informe_observaciones");
-const muestraInformeImagen = document.getElementById("Muestras__informe_imagen");
-const btnGuardarInforme = document.getElementById("btnGuardarInforme");
-
-let currentHematologiaId = null;
-let hematologiaId = null; // Para manejo de seleccion
-let subMuestraId = null;
-let imageId = null;
-
-// Modales y botones de control
-const modalnuevaMuestras = document.getElementById("modalnuevaMuestras");
-const btnformnuevaMuestras = document.getElementById("btnformnuevaMuestras");
-const btnformcerrarnuevaMuestras = document.getElementById("btnformcerrarnuevaMuestras");
-const formnuevaMuestras = document.getElementById("nuevaMuestras");
-
-const modalupdateMuestras = document.getElementById("modalupdateMuestras");
-const btnformmodificarMuestras = document.getElementById("btnformmodificarMuestras");
-const btnformcerrarmodificarMuestras = document.getElementById("btnformcerrarmodificarMuestras");
-const formmodificarMuestras = document.getElementById("modificarMuestras");
-
-// Modal Nueva Sub-Muestra
-const modalnuevaMuestra = document.getElementById("modalnuevaMuestra");
-const btnformnuevaMuestra = document.getElementById("btnformnuevaMuestra");
-const btnformcerrarnuevaMuestra = document.getElementById("btnformcerrarnuevaMuestra");
-const formnuevaMuestra = document.getElementById("nuevaMuestra");
-
-// Modal Detalle Sub-Muestra
-const modaldetalleMuestra = document.getElementById("modaldetalleMuestra");
-const btncerrardetalleMuestra = document.getElementById("btncerrardetalleMuestra");
-
-// Elementos detalle sub-muestra
-const det_muestra__descripcion = document.getElementById("muestra__descripcion");
-const det_muestra__fecha = document.getElementById("muestra__fecha");
-const det_muestra__tincion = document.getElementById("muestra__tincion");
-const det_muestra__observaciones = document.getElementById("muestra__observaciones");
-const visor__img = document.getElementById("visor__img");
-const listado__img = document.getElementById("muestra__img");
-
-const btnborrarimagenmuestra = document.getElementById("btnborrarimagenmuestra");
-
-// QR Modals
-const qrMuestrasModal = document.getElementById("qrMuestrasModal");
-const imgcassette__qr = document.getElementById("imgcassette__qr"); // Ojo: ID de citologia/bioquimica en HTML? 
-// No, en hematologia.html el modal es #qrMuestrasModal y el img parece ser qrMuestrasModal img? No lo vi.
-// Reviso hematologia.html: <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestrasModal">
-
-// Consultas
-const fechainicio = document.getElementById("fechainicio");
-const fechafin = document.getElementById("fechafin");
-const alertMuestras = document.getElementById("alertMuestras");
-const alertfecha = document.getElementById("alertfecha");
-const alertfecha_text = document.getElementById("alertfecha_text");
-
-// Section toggle
-const btnToggleInforme = document.getElementById("btnToggleInforme");
-const btnToggleMuestras = document.getElementById("btnToggleMuestras");
-const sectionMuestras = document.getElementById("sectionMuestras");
-const sectionInforme = document.getElementById("sectionInforme");
-
-// --- FUNCIONES API ---
-
-const cargarHematologiasIndex = async () => {
-    return await fetch("/api/hematologia/index/").then(r => r.json());
-};
-
-const cargarTodasHematologias = async () => {
-    return await fetch("/api/hematologia/todos/").then(r => r.json());
-};
-
-const cargarHematologia = async (id) => {
-    return await fetch(`/api/hematologia/${id}/`).then(r => r.json());
-};
-
-const cargarSubMuestras = async (id) => {
-    return await fetch(`/api/muestrashematologia/hematologia/${id}/`).then(r => r.json());
-};
-
-const cargarImagenesSubMuestra = async (muestraid) => {
-    return await fetch(`/api/imageneshematologia/muestra/${muestraid}/`).then(r => r.json());
-};
-
-// --- RENDERIZADO ---
-
-const imprimirHematologias = (lista, rebuildSelect = true) => {
+  function renderHematologias(list) {
+    if (!MuestrasTable) return;
     MuestrasTable.innerHTML = "";
-    if (rebuildSelect) numMuestrasSelect.innerHTML = "<option selected disabled>Nº Muestra</option>";
+    if (numMuestrasSelect) numMuestrasSelect.innerHTML = "<option selected disabled>Nº Muestra</option>";
 
-    lista.forEach(item => {
-        // Opción select
-        if (rebuildSelect) {
-            const opt = document.createElement("option");
-            opt.value = item.hematologia;
-            opt.textContent = item.hematologia;
-            numMuestrasSelect.appendChild(opt);
-        }
-
-        // Fila tabla
-        const tr = document.createElement("tr");
-        tr.classList.add("table__row");
-
-        const f = item.fecha.split("-");
-        const fechaFormateada = `${f[2]}-${f[1]}-${f[0]}`;
-
-        tr.innerHTML = `
-            <td>${item.hematologia}</td>
-            <td>${fechaFormateada}</td>
-            <td title="${item.descripcion}">${item.descripcion.substring(0, 50)}</td>
-            <td>${item.organo}</td>
-            <td>
-                <i class="fa-solid fa-file-invoice blue__color--negrita fs-5 icono__efect" 
-                   data-id="${item.id_hematologia}" title="Ver Detalle"></i>
-            </td>
-        `;
-        MuestrasTable.appendChild(tr);
+    list.forEach((h) => {
+      const tr = document.createElement("tr");
+      const fecha = formatDateISOToDMY(h.fecha);
+      const idField = h.id_hematologia || h.id || h.pk || h.id_hematologia;
+      tr.innerHTML = `
+        <td>${h.hematologia || "-"}</td>
+        <td>${fecha}</td>
+        <td title="${h.descripcion || ""}">${(h.descripcion || "").substring(0, 50)}</td>
+        <td>${h.organo || "-"}</td>
+        <td><i class="fa-solid fa-file-invoice blue__color--negrita fs-5 icono__efect" data-id="${idField}" title="Ver Detalle"></i></td>
+      `;
+      MuestrasTable.appendChild(tr);
+      if (numMuestrasSelect && h.hematologia) {
+        const opt = document.createElement("option");
+        opt.value = h.hematologia;
+        opt.textContent = h.hematologia;
+        numMuestrasSelect.appendChild(opt);
+      }
     });
-};
+  }
 
-const imprimirSubMuestras = (lista) => {
+  function renderSubMuestras(list) {
+    if (!muestrasSubTable) return;
     muestrasSubTable.innerHTML = "";
-    lista.forEach(m => {
-        const tr = document.createElement("tr");
-        tr.classList.add("table__row");
-        const f = m.fecha.split("-");
-        const fechaFormateada = `${f[2]}-${f[1]}-${f[0]}`;
+    list.forEach((m) => {
+      const tr = document.createElement("tr");
+      const fecha = formatDateISOToDMY(m.fecha);
+      const idField = m.id_muestra || m.id || m.pk;
+      tr.innerHTML = `
+        <td>${fecha}</td>
+        <td>${m.descripcion || ""}</td>
+        <td>${m.tincion || ""}</td>
+        <td><i class="fa-solid fa-file-invoice blue__color--negrita fs-5 icono__efect btn-detalle-sub" data-id="${idField}" title="Detalle Sub-muestra"></i></td>
+      `;
+      muestrasSubTable.appendChild(tr);
+    });
+  }
 
-        tr.innerHTML = `
-            <td>${fechaFormateada}</td>
-            <td>${m.descripcion}</td>
-            <td>${m.tincion}</td>
-            <td>
-                <i class="fa-solid fa-file-invoice blue__color--negrita fs-5 icono__efect btn-detalle-sub" 
-                   data-id="${m.id_muestra}" title="Detalle Sub-muestra"></i>
+  async function showHematologiaDetail(id) {
+    try {
+      const h = await api.get(id);
+      hematologiaId = h.id_hematologia || h.id || h.pk || id;
+      if (muestraMuestraNum) muestraMuestraNum.textContent = h.hematologia || "";
+      if (muestraDescripcion) muestraDescripcion.textContent = (h.descripcion || "").substring(0, 200);
+      if (muestraTipo) muestraTipo.textContent = h.organo || "";
+      if (muestraOrgano) muestraOrgano.textContent = h.organo || "";
+      if (muestraFecha) muestraFecha.textContent = formatDateISOToDMY(h.fecha);
+      if (muestraCaracteristicas) muestraCaracteristicas.textContent = h.caracteristicas || "";
+      if (muestraObservaciones) muestraObservaciones.textContent = h.observaciones || "";
+
+      const subs = await api.subByHematologia(hematologiaId);
+      renderSubMuestras(subs || []);
+    } catch (e) {
+      console.error("Error mostrando detalle:", e);
+    }
+  }
+
+  // Click handlers delegated from tables
+  MuestrasTable?.addEventListener("click", async (ev) => {
+    const t = ev.target.closest("[data-id]");
+    if (!t) return;
+    const id = t.getAttribute("data-id");
+    await showHematologiaDetail(id);
+  });
+
+  muestrasSubTable?.addEventListener("click", async (ev) => {
+    const t = ev.target.closest("[data-id]");
+    if (!t) return;
+    subMuestraId = t.getAttribute("data-id");
+    const sub = await api.getSub(subMuestraId);
+    if (!sub) return;
+    if (det_muestra__descripcion) det_muestra__descripcion.textContent = sub.descripcion || "";
+    if (det_muestra__fecha) det_muestra__fecha.textContent = formatDateISOToDMY(sub.fecha);
+    if (det_muestra__tincion) det_muestra__tincion.textContent = sub.tincion || "";
+    if (det_muestra__observaciones) det_muestra__observaciones.textContent = sub.observaciones || "";
+
+    // load images
+    if (listado__img) listado__img.innerHTML = "";
+    try {
+      const imgs = await api.imagenesSub(subMuestraId);
+      if (imgs && imgs.length > 0) {
+        imgs.forEach((img, idx) => {
+          const imgEl = document.createElement("img");
+          imgEl.src = `data:image/jpeg;base64,${img.imagen_base64}`;
+          imgEl.className = "muestra__img m-1";
+          imgEl.style.width = "60px";
+          imgEl.style.cursor = "pointer";
+          imgEl.addEventListener("click", () => { if (visor__img) visor__img.src = imgEl.src; });
+          listado__img.appendChild(imgEl);
+          if (idx === 0 && visor__img) visor__img.src = imgEl.src;
+        });
+      } else if (visor__img) {
+        visor__img.src = "./assets/images/no_disponible.jpg";
+      }
+    } catch (e) {
+      console.error("Error cargando imágenes:", e);
+    }
+
+    // show detail modal
+    if (modaldetalleMuestra) modaldetalleMuestra.classList.add("showmodal");
+  });
+
+  // Create sub-muestra
+  formnuevaMuestra?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!hematologiaId) {
+      alert("Seleccione una hematología antes de crear una sub-muestra");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("descripcion", document.getElementById("inputdescripcionMuestra").value);
+    formData.append("fecha", document.getElementById("inputFechaMuestra").value);
+    formData.append("tincion", document.getElementById("selectTincionMuestra").value);
+    formData.append("observaciones", document.getElementById("inputObservacionesMuestra").value);
+    formData.append("hematologia", hematologiaId);
+    const file = document.getElementById("inputImagenesMuestra").files[0];
+    if (file) formData.append("imagen", file);
+
+    try {
+      const res = await api.postSub(formData);
+      if (res.ok) {
+        if (modalnuevaMuestra) modalnuevaMuestra.classList.remove("showmodal");
+        const subs = await api.subByHematologia(hematologiaId);
+        renderSubMuestras(subs || []);
+      } else {
+        const err = await res.text();
+        console.error("Error creando sub-muestra:", err);
+        alert("Error creando sub-muestra");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error creando sub-muestra");
+    }
+  });
+
+  // Delete sub-muestra (icon inside detail modal with title "Borrar Muestra")
+  const deleteIcon = modaldetalleMuestra?.querySelector('[title="Borrar Muestra"]');
+  if (deleteIcon) {
+    deleteIcon.addEventListener("click", async () => {
+      if (!subMuestraId) { alert("Seleccione una sub-muestra"); return; }
+      if (!confirm("¿Desea eliminar esta sub-muestra?")) return;
+      try {
+        const res = await api.deleteSub(subMuestraId);
+        if (res.ok) {
+          modaldetalleMuestra.classList.remove("showmodal");
+          const subs = await api.subByHematologia(hematologiaId);
+          renderSubMuestras(subs || []);
+        } else {
+          alert("Error al eliminar la sub-muestra");
+        }
+      } catch (e) { console.error(e); alert("Error al eliminar la sub-muestra"); }
+    });
+  }
+
+  // Delete hematologia (confirm button id confirmEliminarHematologia)
+  const confirmEliminarHematologia = document.getElementById("confirmEliminarHematologia");
+  if (confirmEliminarHematologia) {
+    confirmEliminarHematologia.addEventListener("click", async () => {
+      if (!hematologiaId) { alert("Seleccione una hematología"); return; }
+      try {
+        const res = await api.deleteHematologia(hematologiaId);
+        if (res.ok) location.reload(); else alert("Error al eliminar hematología");
+      } catch (e) { console.error(e); alert("Error al eliminar hematología"); }
+    });
+  }
+
+  // Initial load
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const data = await api.index();
+      renderHematologias(data || []);
+    } catch (e) { console.error("Error cargando hematologías:", e); }
+  });
+})();
             </td>
         `;
         muestrasSubTable.appendChild(tr);

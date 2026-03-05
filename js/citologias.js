@@ -1,6 +1,33 @@
 const inputCassete = document.getElementById("inputCassete");
 const token = sessionStorage.getItem("token");
 
+// CSRF helper: get cookie and return headers for fetch calls
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function getHeaders(method = 'GET', isForm = false) {
+  const headers = {};
+  const m = method.toUpperCase();
+  if (!isForm && m !== 'GET') headers['Content-Type'] = 'application/json';
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(m)) {
+    const csrf = getCookie('csrftoken');
+    if (csrf) headers['X-CSRFToken'] = csrf;
+  }
+  return headers;
+}
+
 const citologias = document.getElementById("citologias");
 const muestras = document.getElementById("muestras");
 const organos = document.getElementById("organos");
@@ -228,9 +255,7 @@ const crearCitologia = async (event) => {
 
     const response = await fetch("/api/citologias/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders('POST', false),
       body: JSON.stringify({
         citologia: inputCitologia.value,
         fecha: inputFecha.value,
@@ -247,7 +272,19 @@ const crearCitologia = async (event) => {
     });
 
     if (response.ok) {
-      location.href = "citologias.html";
+      // Use created object to show detail and allow adding muestras immediately
+      const created = await response.json();
+      // imprimirDetalleCitologia expects the API shape (id_citologia)
+      imprimirDetalleCitologia(created);
+      // load its muestras
+      citologiaId = created.id_citologia || created.id || created.pk;
+      const muestrasResp = await cargarMuestras(citologiaId);
+      imprimirMuestras(muestrasResp);
+      // close modal
+      if (modalnuevaCitologia) {
+        modalnuevaCitologia.classList.remove('showmodal');
+        modalnuevaCitologia.classList.add('hidemodal');
+      }
     } else {
       const error = await response.json();
       console.error("Error al crear citología:", error);
@@ -328,15 +365,24 @@ const obtenerCitologiaFechaRango = async (fechainicio, fechafin) => {
 
 // Borrar una citología
 const borrarCitologia = () => {
-  fetch(`/api/citologias/${citologiaId}/`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
+  (async () => {
+    try {
+      const res = await fetch(`/api/citologias/${citologiaId}/`, {
+        method: 'DELETE',
+        headers: getHeaders('DELETE', false)
+      });
+      if (res.ok) {
+        // refresh page or reload list
+        location.href = 'citologias.html';
+      } else {
+        console.error('Error borrando citología', res.status);
+        alert('Error al borrar la citología');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error al borrar la citología');
     }
-  })
-    .then((response) => response.json())
-    .catch((error) => console.log(error));
-  location.href = "citologias.html";
+  })();
 };
 
 // Consulta citologías en una fecha
@@ -627,10 +673,8 @@ const crearMuestra = async (event) => {
 
   await fetch("/api/muestrascitologia/", {
     method: "POST",
-    // NO PONERLO, SI LO PONEMOS NO FUNCIONA LA INSERCIÓN!!!!
-    /*   headers: {
-      "Content-Type": "application/json",
-    }, */
+    // Include CSRF token header but do not set Content-Type (browser will set multipart boundary)
+    headers: getHeaders('POST', true),
     body: newMuestra,
   })
     .then(async () => {
@@ -679,9 +723,7 @@ const modificarMuestraUpdate = async (event) => {
 
   await fetch(`/api/muestrascitologia/${muestraId}/`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders('PUT', false),
     body: JSON.stringify({
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
@@ -856,9 +898,7 @@ const mostrarImagenesMuestra = async (muestaId) => {
 const borrarMuestra = async () => {
   fetch(`/api/muestrascitologia/${muestraId}/`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders('DELETE', false),
   })
     .then(async () => {
       modaldetalleMuestra.classList.remove("showmodal");
@@ -873,9 +913,7 @@ const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
     fetch(`/api/imagenescitologia/${imageId}/`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders('DELETE', false),
     }).then(() => {
       mostrarImagenesMuestra(muestraId);
     });
@@ -927,6 +965,7 @@ const aniadirImagenMuestra = async () => {
 
     fetch("/api/imagenescitologia/", {
       method: "POST",
+      headers: getHeaders('POST', true),
       body: newImage,
     }).then(async () => {
       await mostrarImagenesMuestra(muestraId);
@@ -1272,9 +1311,7 @@ const guardarDatosReporteCitologia = async (datosReporte) => {
   try {
     const res = await fetch(`/api/citologias/${currentCitologiaId}/actualizar_informe/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders('POST', false),
       body: JSON.stringify(datosReporte),
     });
 
