@@ -268,18 +268,60 @@ class CassetteCRUDTests(TestCase):
 
 class CitologiaCRUDTests(TestCase):
 
+    DATOS_VALIDOS = {
+        'citologia': 'CIT001', 'tipo_citologia': 'PAAF',
+        'fecha': '2024-06-01', 'descripcion': 'Desc',
+        'caracteristicas': 'Caract', 'organo': 'Pulmón',
+    }
+
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
         self.client.force_login(self.tecnico)
 
     def test_crear_citologia(self):
-        self.client.post(reverse('citologia_create'), {
-            'citologia': 'CIT001', 'tipo_citologia': 'PAAF',
-            'fecha': '2024-06-01', 'descripcion': 'Desc',
-            'caracteristicas': 'Caract', 'organo': 'Pulmón',
-        })
+        r = self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        self.assertEqual(r.status_code, 302)
         self.assertTrue(Citologia.objects.filter(citologia='CIT001').exists())
+
+    def test_crear_citologia_genera_qr(self):
+        self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        c = Citologia.objects.get(citologia='CIT001')
+        self.assertTrue(c.qr_citologia.startswith('--cit--'))
+
+    def test_crear_citologia_asocia_tecnico(self):
+        self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        c = Citologia.objects.get(citologia='CIT001')
+        self.assertEqual(c.tecnico, self.tecnico)
+
+    def test_crear_citologia_sin_tipo_no_crea(self):
+        """ChoiceField required=True — tipo vacío debe rechazarse."""
+        datos = {**self.DATOS_VALIDOS, 'tipo_citologia': ''}
+        self.client.post(reverse('citologia_create'), datos)
+        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+
+    def test_crear_citologia_sin_organo_no_crea(self):
+        datos = {**self.DATOS_VALIDOS, 'organo': ''}
+        self.client.post(reverse('citologia_create'), datos)
+        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+
+    def test_crear_citologia_sin_descripcion_no_crea(self):
+        datos = {**self.DATOS_VALIDOS, 'descripcion': ''}
+        self.client.post(reverse('citologia_create'), datos)
+        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+
+    def test_crear_citologia_tipo_invalido_no_crea(self):
+        """Un tipo que no existe en TIPOS_CITOLOGIA debe rechazarse."""
+        datos = {**self.DATOS_VALIDOS, 'tipo_citologia': 'Exfoliativa'}
+        self.client.post(reverse('citologia_create'), datos)
+        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+
+    def test_crear_citologia_sin_sesion_redirige_login(self):
+        self.client.logout()
+        r = self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/login/', r['Location'])
+        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
 
     def test_editar_citologia(self):
         c = make_citologia(self.tecnico, 1)
@@ -291,16 +333,54 @@ class CitologiaCRUDTests(TestCase):
         c.refresh_from_db()
         self.assertEqual(c.descripcion, 'Desc actualizada')
 
+    def test_editar_citologia_tipo_invalido_no_modifica(self):
+        c = make_citologia(self.tecnico, 1)
+        desc_original = c.descripcion
+        self.client.post(reverse('citologia_update', args=[c.pk]), {
+            'citologia': c.citologia, 'tipo_citologia': 'TipoFalso',
+            'fecha': c.fecha, 'descripcion': 'Desc cambiada',
+            'caracteristicas': c.caracteristicas, 'organo': c.organo,
+        })
+        c.refresh_from_db()
+        self.assertEqual(c.descripcion, desc_original)
+
     def test_eliminar_citologia(self):
         c = make_citologia(self.tecnico, 1)
         self.client.post(reverse('citologia_delete', args=[c.pk]))
         self.assertFalse(Citologia.objects.filter(pk=c.pk).exists())
+
+    def test_eliminar_citologia_inexistente_devuelve_404(self):
+        r = self.client.post(reverse('citologia_delete', args=[99999]))
+        self.assertEqual(r.status_code, 404)
 
     def test_listar_sin_filtros_devuelve_10(self):
         for i in range(15):
             make_citologia(self.tecnico, i + 1)
         r = self.client.get(reverse('citologias'))
         self.assertEqual(len(r.context['citologias']), 10)
+
+    def test_filtro_por_organo(self):
+        make_citologia(self.tecnico, 1)  # organo='Pulmón'
+        Citologia.objects.create(
+            citologia='CIT999', tipo_citologia='PAAF', fecha='2024-01-01',
+            descripcion='D', caracteristicas='C', qr_citologia='QRCFILTRO',
+            organo='Riñón',
+        )
+        r = self.client.get(reverse('citologias') + '?organo=Riñón')
+        self.assertEqual(len(r.context['citologias']), 1)
+        self.assertEqual(r.context['citologias'][0].organo, 'Riñón')
+
+    def test_detalle_citologia_por_param(self):
+        c = make_citologia(self.tecnico, 1)
+        r = self.client.get(reverse('citologias') + f'?citologia={c.pk}')
+        self.assertEqual(r.context['selected'].pk, c.pk)
+
+    def test_todos_los_tipos_validos_crean_citologia(self):
+        tipos = ['PAAF', 'Citología Líquida', 'Cervico Vaginal', 'Derrames']
+        for i, tipo in enumerate(tipos):
+            datos = {**self.DATOS_VALIDOS, 'citologia': f'T{i}', 'tipo_citologia': tipo}
+            self.client.post(reverse('citologia_create'), datos)
+        self.assertEqual(Citologia.objects.count(), len(tipos))
 
 
 # ── 6. Muestras ───────────────────────────────────────────────────────────────

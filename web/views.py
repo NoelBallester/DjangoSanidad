@@ -113,9 +113,17 @@ def cassette_create(request):
     form = CassetteForm(request.POST)
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
-        c = form.save(tecnico=tecnico)
-        return redirect(reverse('cassettes') + f'?cassette={c.pk}')
-    messages.error(request, 'Error al crear el cassette. Revisa los campos.')
+        try:
+            c = form.save(tecnico=tecnico)
+            return redirect(reverse('cassettes') + f'?cassette={c.pk}')
+        except Exception as e:
+            messages.error(request, f'Error al guardar el cassette: {e}')
+            return redirect('cassettes')
+    error_detail = '; '.join(
+        f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
+        for k, v in form.errors.items()
+    )
+    messages.error(request, f'Error al crear el cassette — {error_detail}')
     return redirect('cassettes')
 
 
@@ -266,9 +274,17 @@ def citologia_create(request):
     form = CitologiaForm(request.POST)
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
-        c = form.save(tecnico=tecnico)
-        return redirect(reverse('citologias') + f'?citologia={c.pk}')
-    messages.error(request, 'Error al crear la citología. Revisa los campos.')
+        try:
+            c = form.save(tecnico=tecnico)
+            return redirect(reverse('citologias') + f'?citologia={c.pk}')
+        except Exception as e:
+            messages.error(request, f'Error al guardar la citología: {e}')
+            return redirect('citologias')
+    error_detail = '; '.join(
+        f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
+        for k, v in form.errors.items()
+    )
+    messages.error(request, f'Error al crear la citología — {error_detail}')
     return redirect('citologias')
 
 

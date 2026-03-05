@@ -581,7 +581,7 @@ const imprimirDetalleCitologia = (respuesta) => {
   // generamos el codigo QR
   new QRious({
     element: document.querySelector("#imgcassette__qr"),
-    value: respuesta.qr_casette, // La URL o el texto
+    value: respuesta.qr_citologia, // La URL o el texto
     size: 70,
     backgroundAlpha: 0, // 0 para fondo transparente
     foreground: "#4ca0cc", // Color del QR
