@@ -1,6 +1,33 @@
 const inputCassete = document.getElementById("inputCassete");
 const token = sessionStorage.getItem("token");
 
+// CSRF helper: get cookie and return headers for fetch calls
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function getHeaders(method = 'GET', isForm = false) {
+  const headers = {};
+  const m = method.toUpperCase();
+  if (!isForm && m !== 'GET') headers['Content-Type'] = 'application/json';
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(m)) {
+    const csrf = getCookie('csrftoken');
+    if (csrf) headers['X-CSRFToken'] = csrf;
+  }
+  return headers;
+}
+
 const body = document.getElementById("body");
 const casettes = document.getElementById("casettes");
 const muestras = document.getElementById("muestras");
@@ -221,15 +248,11 @@ const crearCassette = async (event) => {
   event.preventDefault();
 
   try {
-    // Get or use default technician
     const tecnicoId = sessionStorage.getItem("user") || 1;
 
     const response = await fetch("/api/cassettes/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
+      headers: getHeaders('POST', false),
       body: JSON.stringify({
         cassette: inputCassette.value,
         fecha: inputFecha.value,
@@ -245,11 +268,26 @@ const crearCassette = async (event) => {
     });
 
     if (response.ok) {
-      location.href = "cassettes.html";
+      // backend may return 201 with or without JSON
+      let created = null;
+      try {
+        const ct = response.headers.get('content-type') || '';
+        if (ct.includes('application/json')) created = await response.json();
+      } catch (e) {
+        created = null;
+      }
+
+      if (created) {
+        // if created object returned, navigate to its detail or refresh list
+        location.href = 'cassettes.html';
+      } else {
+        location.href = 'cassettes.html';
+      }
     } else {
-      const error = await response.json();
-      console.error("Error al crear cassette:", error);
-      alert("Error al crear el cassette: " + JSON.stringify(error));
+      let errorObj = null;
+      try { errorObj = await response.json(); } catch (e) { errorObj = null; }
+      console.error("Error al crear cassette:", errorObj || response.statusText || response.status);
+      alert("Error al crear el cassette: " + (errorObj ? JSON.stringify(errorObj) : response.statusText || response.status));
     }
   } catch (error) {
     console.error("Error:", error);
@@ -325,17 +363,7 @@ const obtenerCassettesFechaRango = async (fechainicio, fechafin) => {
 };
 
 // Borrar un cassette
-const borrarCassette = () => {
-  fetch(`/api/cassettes/${cassetteId}/`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
-    .then((response) => response.json())
-    .catch((error) => console.log(error));
-  location.href = "cassettes.html";
-};
+// (implementation moved later in file with CSRF handling)
 
 // Consulta cassettes en una fecha
 const consultaFechaInicio = async () => {
@@ -569,9 +597,7 @@ const modificarCassetteUpdate = async (event) => {
   event.preventDefault();
   await fetch(`/api/cassettes/${cassetteId}/`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders('PUT', false),
     body: JSON.stringify({
       cassette: inputCassetteUpdate.value,
       fecha: inputFechaUpdate.value,
@@ -617,19 +643,26 @@ const crearMuestra = async (event) => {
   newMuestra.append("imagen", inputImagenesMuestra.files[0]);
   newMuestra.append("cassette", cassetteId);
 
-  await fetch("/api/muestras/", {
-    method: "POST",
-    body: newMuestra,
-  })
-    .then(async () => {
+  try {
+    const response = await fetch("/api/muestras/", {
+      method: "POST",
+      headers: getHeaders('POST', true),
+      body: newMuestra,
+    });
+    if (response.ok) {
       modalnuevaMuestra.classList.remove("showmodal");
       modalnuevaMuestra.classList.add("hidemodal");
       limpiarModalMuestra();
       imprimirMuestras(await cargarMuestras(cassetteId));
-    })
-    .catch((error) =>
-      console.log("No se esta ejecutando correctamente la inserción" + error)
-    );
+    } else {
+      let err = null;
+      try { err = await response.json(); } catch (e) { err = null; }
+      console.error('Error creando muestra', err || response.statusText || response.status);
+      alert('Error creando muestra: ' + (err ? JSON.stringify(err) : response.statusText || response.status));
+    }
+  } catch (error) {
+    console.log("No se esta ejecutando correctamente la inserción" + error);
+  }
 };
 
 const limpiarModalMuestra = () => {
@@ -667,9 +700,7 @@ const modificarMuestraUpdate = async (event) => {
 
   await fetch(`/api/muestras/${muestraId}/`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders('PUT', false),
     body: JSON.stringify({
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
@@ -839,31 +870,42 @@ const mostrarImagenesMuestra = async (muestaId) => {
 };
 
 const borrarMuestra = async () => {
-  fetch(`/api/muestras/${muestraId}/`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
-    .then(async () => {
+  try {
+    const response = await fetch(`/api/muestras/${muestraId}/`, {
+      method: "DELETE",
+      headers: getHeaders('DELETE', false),
+    });
+    if (response.ok) {
       modaldetalleMuestra.classList.remove("showmodal");
-      // Mostramos las muestras del cassette
       let muestras = await cargarMuestras(cassetteId);
       imprimirMuestras(muestras);
-    })
-    .catch((error) => console.log(error));
+    } else {
+      let err = null;
+      try { err = await response.json(); } catch (e) { err = null; }
+      console.error('Error borrando muestra', err || response.statusText || response.status);
+      alert('Error borrando muestra: ' + (err ? JSON.stringify(err) : response.statusText || response.status));
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
 };
 
 const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
-    fetch(`/api/imagenes/${imageId}/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
+    try {
+      const response = await fetch(`/api/imagenes/${imageId}/`, {
+        method: "DELETE",
+        headers: getHeaders('DELETE', false),
+      });
+      if (response.ok) {
+        mostrarImagenesMuestra(muestraId);
+      } else {
+        console.error('Error borrando imagen', response.statusText || response.status);
       }
-    }).then(() => {
-      mostrarImagenesMuestra(muestraId);
-    });
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 
@@ -910,12 +952,18 @@ const aniadirImagenMuestra = async () => {
     newImage.append("imagen", file);
     newImage.append("muestra", muestraId);
 
-    fetch("/api/imagenes/", {
+    const response = await fetch("/api/imagenes/", {
       method: "POST",
+      headers: getHeaders('POST', true),
       body: newImage,
-    }).then(async () => {
-      await mostrarImagenesMuestra(muestraId);
     });
+    if (response.ok) {
+      await mostrarImagenesMuestra(muestraId);
+    } else {
+      let err = null;
+      try { err = await response.json(); } catch (e) { err = null; }
+      console.error('Error añadiendo imagen', err || response.statusText || response.status);
+    }
   } catch (err) {
     console.error(err);
   }
@@ -1097,18 +1145,26 @@ btnformcerrarmodificarCassette.addEventListener("click", () => {
 
 modificarCassette.addEventListener("submit", modificarCassetteUpdate);
 
-// Borrar Cassette
-eliminarCassetteModal.addEventListener("show.bs.modal", (event) => {
-  // comprobamos si ha seleccionado un cassette
-  if (!cassetteId) {
-    event.preventDefault();
-    alertcassette.classList.remove("ocultar");
+// Borrar un cassette
+const borrarCassette = async () => {
+  try {
+    const response = await fetch(`/api/cassettes/${cassetteId}/`, {
+      method: "DELETE",
+      headers: getHeaders('DELETE', false),
+    });
+    if (response.ok) {
+      location.href = "cassettes.html";
+    } else {
+      let err = null;
+      try { err = await response.json(); } catch (e) { err = null; }
+      console.error('Error borrando cassette', err || response.statusText || response.status);
+      alert('Error borrando cassette: ' + (err ? JSON.stringify(err) : response.statusText || response.status));
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Error borrando cassette');
   }
-});
-
-btnborrar.addEventListener("click", borrarCassette);
-
-// mostrar modal imagen cassette
+};
 imagenCassetteModal.addEventListener("show.bs.modal", (event) => {
   // comprobamos si ha seleccionado un cassette
   if (!cassetteId) {
@@ -1272,9 +1328,7 @@ const guardarDatosReporteCassette = async (datosReporte) => {
   try {
     const res = await fetch(`/api/cassettes/${currentCassetteId}/actualizar_informe/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders('POST', false),
       body: JSON.stringify(datosReporte),
     });
 

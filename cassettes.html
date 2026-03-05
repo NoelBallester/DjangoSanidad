@@ -675,63 +675,78 @@
                     <div class="col-md-6 mt-2">
                         <label for="inputSelect" class="form-label blue__color">Órgano</label>
                         <select class="form-select blue__color" id="inputSelect" required>
-                            <option selected disabled value="">Seleccionar Órgano</option>
+                           <option disabled selected>Órgano</option>
+                            <option value="*">Todos</option>
                             <optgroup label="Sistema Nervioso">
                                 <option>Encéfalo</option>
                                 <option>Médula Espinal</option>
                                 <option>Nervio</option>
                                 <option>Ganglio Nervios</option>
                             </optgroup>
-
                             <optgroup label="Tegumento">
                                 <option>Piel</option>
                                 <option>Uña</option>
                                 <option>Pelo</option>
                             </optgroup>
-
                             <optgroup label="Cardiovascular">
                                 <option>Corazón</option>
                                 <option>Venas</option>
                                 <option>Arteria</option>
                             </optgroup>
-
                             <optgroup label="Linfático">
                                 <option>Ganglio Linfático</option>
-                                <option>Timo</option>
+                                <option>Vaso Linfático</option>
                                 <option>Bazo</option>
                             </optgroup>
-
-                            <optgroup label="Sistema Digestivo">
+                            <optgroup label="Endocrino">
+                                <option>Hipófisis</option>
+                                <option>Glándula Tiroides</option>
+                                <option>Glándulas Paratiroides</option>
+                                <option>Glándulas Suprarrenales</option>
+                                <option>Páncreas</option>
+                            </optgroup>
+                            <optgroup label="Respiratorio">
+                                <option>Fosa Nasal</option>
+                                <option>Faringe</option>
+                                <option>Laringe</option>
+                                <option>Tráquea</option>
+                                <option>Bronquio</option>
+                                <option>Pulmón</option>
+                            </optgroup>
+                            <optgroup label="Digestivo">
+                                <option>Boca</option>
                                 <option>Lengua</option>
+                                <option>Glándula Salival</option>
+                                <option>Faringe</option>
                                 <option>Esófago</option>
                                 <option>Estómago</option>
-                                <option>Intestino Delgado</option>
-                                <option>Intestino Grueso</option>
-                                <option>Diente</option>
-                                <option>Glándula Salivar</option>
-                                <option>Páncrea</option>
                                 <option>Hígado</option>
+                                <option>Vesícula Biliar</option>
+                                <option>Páncreas</option>
+                                <option>Idn. Delgado</option>
+                                <option>Idn. Grueso</option>
+                                <option>Ciego</option>
+                                <option>Apéndice</option>
+                                <option>Recto</option>
+                                <option>Ano</option>
                             </optgroup>
-
-                            <optgroup label="Aparato Excretor">
+                            <optgroup label="Excretor Uriznario">
                                 <option>Riñón</option>
-                                <option>Vejiga</option>
+                                <option>Pelvis Renal</option>
+                                <option>Uréter</option>
+                                <option>Vejiga Urinaria</option>
+                                <option>Uretra</option>
                             </optgroup>
-
-                            <optgroup label="Respiratorio">
-                                <option>Tránquea</option>
-                                <option>Bronquios</option>
-                                <option>Tejido Respiratorio</option>
-                            </optgroup>
-
-                            <optgroup label="Endocrino">
-                                <option>Tiroides</option>
-                                <option>Parótidas</option>
-                                <option>Suprarrenales</option>
-                                <option>Ovario</option>
+                            <optgroup label="Reproductor Masculino">
                                 <option>Testículo</option>
                             </optgroup>
-
+                            <optgroup label="Reproductor Femenino">
+                                <option>Ovario</option>
+                                <option>Trompa de Falopio</option>
+                                <option>Útero</option>
+                                <option>Vagina</option>
+                                <option>Vulva</option>
+                            </optgroup>
                             <optgroup label="Locomotor">
                                 <option>Hueso</option>
                                 <option>Musculo Esquelético</option>
