@@ -100,7 +100,7 @@ class MuestraCitologia(models.Model):
 
 class Imagen(models.Model):
     id_imagen = models.AutoField(primary_key=True)
-    imagen = models.ImageField(upload_to='imagenes/', null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True, editable=True)
     muestra = models.ForeignKey(Muestra, on_delete=models.CASCADE)
 
     class Meta:
@@ -108,7 +108,7 @@ class Imagen(models.Model):
 
 class ImagenCitologia(models.Model):
     id_imagen = models.AutoField(primary_key=True, db_column='id')
-    imagen = models.ImageField(upload_to='imagenes_citologia/', null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True, editable=True)
     muestra = models.ForeignKey(MuestraCitologia, on_delete=models.CASCADE, db_column='muestra_id')
 
     class Meta:
@@ -241,8 +241,24 @@ class MuestraMicrobiologia(models.Model):
 
 class ImagenMicrobiologia(models.Model):
     id_imagen = models.AutoField(primary_key=True, db_column='id')
-    imagen = models.ImageField(upload_to='imagenes_microbiologia/', null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True, editable=True)
     muestra = models.ForeignKey(MuestraMicrobiologia, on_delete=models.CASCADE, db_column='muestra_id')
 
     class Meta:
         db_table = 'imagenesmicrobiologia'
+
+
+class InformeResultado(models.Model):
+    id_informe = models.AutoField(primary_key=True, db_column='id')
+    descripcion = models.CharField(max_length=255, null=True, blank=True)
+    fecha = models.DateField(null=True, blank=True)
+    tincion = models.CharField(max_length=255, null=True, blank=True)
+    observaciones = models.TextField(null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True)
+    tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id', null=True, blank=True)
+    hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id', null=True, blank=True)
+    microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id', null=True, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'informesresultado'

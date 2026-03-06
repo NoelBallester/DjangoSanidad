@@ -349,45 +349,89 @@
                         </button>
                     </div>
                     <div class="informe__scroll p-3">
-                        <div class="mb-3">
-                            <label for="microbiologia__informe_descripcion"
-                                class="blue__color--negrita d-block">Descripción</label>
-                            <input type="text" id="microbiologia__informe_descripcion"
-                                class="form-control blue__color bg-light">
+                        <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
+                            <span class="blue__color--negrita">Muestra seleccionada:</span>
+                            <span id="informeContextNum" class="blue__color">—</span>
+                            <span class="mx-2">·</span>
+                            <span class="blue__color--negrita">Detalle:</span>
+                            <span id="informeContextDescripcion" class="blue__color">Selecciona una cita para ver los detalles</span>
                         </div>
-                        <div class="mb-3">
-                            <label for="microbiologia__informe_fecha" class="blue__color--negrita d-block">Fecha</label>
-                            <input type="date" id="microbiologia__informe_fecha"
-                                class="form-control blue__color bg-light">
+                        <div id="informeStatus" class="alert d-none py-2 px-3 mb-3" role="alert"></div>
+                        <h3 class="microbiologia__title m-0 mb-2">Historial de Informes</h3>
+                        <div class="table__scroll table__scroll--m">
+                            <table class="table table__microbiologia sortable-theme-finder" data-sortable>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Descripción</th>
+                                        <th scope="col">Resultado</th>
+                                        <th scope="col" data-sortable="false"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="informes_lista_microbiologia" class="table-group-divider">
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="mb-3">
-                            <label for="microbiologia__informe_tincion"
-                                class="blue__color--negrita d-block">Muestras</label>
-                            <select id="microbiologia__informe_tincion" class="form-select blue__color bg-light">
-                                <option selected disabled value="">Resultados</option>
-                                <option>Hematoxilina Eosina (HE)</option>
-                                <option>Giemsa</option>
-                                <option>Gram</option>
-                                <option>Azul de Metileno</option>
-                                <option>Papanicolau</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="microbiologia__informe_observaciones"
-                                class="blue__color--negrita d-block">Observaciones</label>
-                            <textarea id="microbiologia__informe_observaciones"
-                                class="form-control blue__color bg-light" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="microbiologia__informe_imagen"
-                                class="blue__color--negrita d-block">Imagen</label>
-                            <input type="file" id="microbiologia__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
-                                class="form-control blue__color bg-light">
-                        </div>
-                        <div class="text-end mt-4">
-                            <button id="btnGuardarInforme" class="btn fondo w-100 py-2">
-                                <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+
+                        <div class="text-end mt-3">
+                            <button id="btnNuevoInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
+                                style="border-radius: 20px;">
+                                <i class="fa-solid fa-circle-plus me-1"></i> Añadir informe
                             </button>
+                        </div>
+
+                        <div id="modalNuevoInforme"
+                            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center bg-dark bg-opacity-50"
+                            style="z-index: 2000;">
+                            <div id="nuevoInformePanel" class="w-100 mx-3 p-3 rounded"
+                                style="max-width: 720px; background: var(--bg-light); border: 1px solid var(--border-color);">
+                                <h3 class="microbiologia__title mb-3">Nuevo informe de resultados</h3>
+                                <div class="mb-3">
+                                    <label for="microbiologia__informe_descripcion"
+                                        class="blue__color--negrita d-block">Descripción</label>
+                                    <input type="text" id="microbiologia__informe_descripcion"
+                                        class="form-control blue__color bg-light">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="microbiologia__informe_fecha"
+                                        class="blue__color--negrita d-block">Fecha</label>
+                                    <input type="date" id="microbiologia__informe_fecha"
+                                        class="form-control blue__color bg-light">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="microbiologia__informe_tincion"
+                                        class="blue__color--negrita d-block">Muestras</label>
+                                    <select id="microbiologia__informe_tincion" class="form-select blue__color bg-light">
+                                        <option selected disabled value="">Resultados</option>
+                                        <option>Hematoxilina Eosina (HE)</option>
+                                        <option>Giemsa</option>
+                                        <option>Gram</option>
+                                        <option>Azul de Metileno</option>
+                                        <option>Papanicolau</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="microbiologia__informe_observaciones"
+                                        class="blue__color--negrita d-block">Observaciones</label>
+                                    <textarea id="microbiologia__informe_observaciones"
+                                        class="form-control blue__color bg-light" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="microbiologia__informe_imagen"
+                                        class="blue__color--negrita d-block">Imagen</label>
+                                    <input type="file" id="microbiologia__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
+                                        class="form-control blue__color bg-light">
+                                </div>
+                                <div class="d-flex gap-2 mt-4">
+                                    <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="button">
+                                        <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+                                    </button>
+                                    <button id="btnCancelarInforme" class="btn btn-outline-secondary w-100 py-2"
+                                        type="button">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -42,6 +42,11 @@ const btnformcerrarmodificarMuestras = document.getElementById("btnformcerrarmod
 
 // Mostrar todas las muestras
 const todasMuestras = document.getElementById("todasMuestras");
+const informesListaHematologia = document.getElementById("informes_lista_hematologia");
+const btnNuevoInforme = document.getElementById("btnNuevoInforme");
+const btnCancelarInforme = document.getElementById("btnCancelarInforme");
+const modalNuevoInforme = document.getElementById("modalNuevoInforme");
+const nuevoInformePanel = document.getElementById("nuevoInformePanel");
 
 // Campos detalle hematología principal
 const muestrasNumDisplay = document.getElementById("Muestras__Muestras");
@@ -62,6 +67,10 @@ let muestrasInformeTincion = null;
 let muestrasInformeObservaciones = null;
 let muestrasInformeImagen = null;
 let btnGuardarInforme = null;
+const informeStatus = document.getElementById("informeStatus");
+const informeContextNum = document.getElementById("informeContextNum");
+const informeContextDescripcion = document.getElementById("informeContextDescripcion");
+const INFORME_TAB_KEY = "hematologia_active_tab";
 
 // Detalle sub-muestra
 let currentHematologiaId = null;
@@ -181,6 +190,132 @@ function formatFecha(fechaStr) {
     fechaStr.substring(0, 4)
   );
 }
+
+function mostrarEstadoInforme(mensaje, tipo = "success") {
+  if (!informeStatus) return;
+  informeStatus.className = `alert alert-${tipo} py-2 px-3 mb-3`;
+  informeStatus.textContent = mensaje;
+}
+
+function limpiarEstadoInforme() {
+  if (!informeStatus) return;
+  informeStatus.classList.add("d-none");
+  informeStatus.textContent = "";
+}
+
+function cambiarEstadoBotonGuardar(guardando) {
+  if (!btnGuardarInforme) return;
+  if (guardando) {
+    btnGuardarInforme.disabled = true;
+    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
+  } else {
+    btnGuardarInforme.disabled = false;
+    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados';
+  }
+}
+
+function actualizarContextoInformeHematologia(numero = "", descripcion = "") {
+  if (informeContextNum) informeContextNum.textContent = numero || "—";
+  if (informeContextDescripcion) {
+    informeContextDescripcion.textContent = descripcion || "Selecciona una cita para ver los detalles";
+  }
+}
+
+const cargarInformesHematologia = async (idHematologia) => {
+  const response = await fetch(`/api/informesresultado/hematologia/${idHematologia}/`);
+  return await response.json();
+};
+
+const cargarInformeEnFormularioHematologia = (informe) => {
+  if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = informe.descripcion || "";
+  if (muestrasInformeFecha) muestrasInformeFecha.value = informe.fecha || "";
+  if (muestrasInformeTincion) muestrasInformeTincion.value = informe.tincion || "";
+  if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = informe.observaciones || "";
+  mostrarEstadoInforme("Informe cargado en el formulario.", "info");
+};
+
+const borrarInformeHematologia = async (informeId) => {
+  await fetch(`/api/informesresultado/${informeId}/`, {
+    method: "DELETE",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  });
+};
+
+const imprimirInformesHematologia = (informes) => {
+  if (!informesListaHematologia) return;
+  informesListaHematologia.innerHTML = "";
+
+  if (!informes || informes.length === 0) {
+    informesListaHematologia.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td></tr>';
+    return;
+  }
+
+  const fragmento = document.createDocumentFragment();
+  informes.forEach((informe) => {
+    const tr = document.createElement("tr");
+    tr.classList.add("table__row");
+
+    const tdFecha = document.createElement("td");
+    tdFecha.textContent = informe.fecha ? formatFecha(informe.fecha) : "Sin fecha";
+
+    const tdDescripcion = document.createElement("td");
+    tdDescripcion.textContent = (informe.descripcion || "").substring(0, 70) || "Sin descripción";
+    tdDescripcion.title = informe.descripcion || "";
+
+    const tdTincion = document.createElement("td");
+    tdTincion.textContent = informe.tincion || "Sin resultado";
+
+    const tdAcciones = document.createElement("td");
+    tdAcciones.classList.add("text-end");
+    tdAcciones.innerHTML = `
+      <i class="fa-solid fa-file-import Muestras__icon Muestras__icon--infoMuestras me-2" title="Cargar en formulario" data-action="cargar" data-id="${informe.id_informe}"></i>
+      <i class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
+    `;
+
+    tr.appendChild(tdFecha);
+    tr.appendChild(tdDescripcion);
+    tr.appendChild(tdTincion);
+    tr.appendChild(tdAcciones);
+    fragmento.appendChild(tr);
+  });
+
+  informesListaHematologia.appendChild(fragmento);
+};
+
+const refrescarInformesHematologia = async (idHematologia) => {
+  if (!idHematologia) {
+    imprimirInformesHematologia([]);
+    return;
+  }
+  const informes = await cargarInformesHematologia(idHematologia);
+  imprimirInformesHematologia(informes);
+  return informes;
+};
+
+const limpiarFormularioInformeHematologia = () => {
+  if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = "";
+  if (muestrasInformeFecha) muestrasInformeFecha.value = "";
+  if (muestrasInformeTincion) muestrasInformeTincion.value = "";
+  if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = "";
+  if (muestrasInformeImagen) muestrasInformeImagen.value = "";
+};
+
+const mostrarPanelNuevoInformeHematologia = (limpiar = true) => {
+  if (!modalNuevoInforme) return;
+  if (limpiar) limpiarFormularioInformeHematologia();
+  modalNuevoInforme.classList.remove("d-none");
+  modalNuevoInforme.classList.add("d-flex");
+  document.body.classList.add("overflow-hidden");
+};
+
+const ocultarPanelNuevoInformeHematologia = () => {
+  if (!modalNuevoInforme) return;
+  modalNuevoInforme.classList.add("d-none");
+  modalNuevoInforme.classList.remove("d-flex");
+  document.body.classList.remove("overflow-hidden");
+};
 
 // ============================================================
 // AUTENTICACIÓN
@@ -495,6 +630,9 @@ const imprimirDetalleHematologia = (h) => {
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = h.informe_observaciones || "";
 
   currentHematologiaId = h.id_hematologia;
+  actualizarContextoInformeHematologia(h.hematologia || "", h.descripcion || "");
+  limpiarEstadoInforme();
+  refrescarInformesHematologia(currentHematologiaId);
 
   // QR principal
   if (window.QRious && imgMuestras__qr) {
@@ -518,6 +656,15 @@ const limpiarDetalleHematologia = () => {
   if (muestrasCaracteristicas) muestrasCaracteristicas.textContent = "";
   if (muestrasObservaciones) muestrasObservaciones.textContent = "";
   if (listaTubos) listaTubos.innerHTML = "";
+  if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = "";
+  if (muestrasInformeFecha) muestrasInformeFecha.value = "";
+  if (muestrasInformeTincion) muestrasInformeTincion.value = "";
+  if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = "";
+  if (muestrasInformeImagen) muestrasInformeImagen.value = "";
+  ocultarPanelNuevoInformeHematologia();
+  actualizarContextoInformeHematologia();
+  limpiarEstadoInforme();
+  imprimirInformesHematologia([]);
 };
 
 // ============================================================
@@ -934,15 +1081,19 @@ function cerrarModal(modal) {
 
 const guardarInformeMedico = async () => {
   if (!currentHematologiaId) {
-    alert("Por favor, selecciona una muestra de hematología primero.");
+    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
     return;
   }
 
+  mostrarEstadoInforme("Guardando informe...", "info");
+  cambiarEstadoBotonGuardar(true);
+
   const datosReporte = {
-    informe_descripcion: muestrasInformeDescripcion ? muestrasInformeDescripcion.value : "",
-    informe_fecha: muestrasInformeFecha ? muestrasInformeFecha.value : "",
-    informe_tincion: muestrasInformeTincion ? muestrasInformeTincion.value : "",
-    informe_observaciones: muestrasInformeObservaciones ? muestrasInformeObservaciones.value : "",
+    descripcion: muestrasInformeDescripcion ? muestrasInformeDescripcion.value : "",
+    fecha: muestrasInformeFecha ? muestrasInformeFecha.value : "",
+    tincion: muestrasInformeTincion ? muestrasInformeTincion.value : "",
+    observaciones: muestrasInformeObservaciones ? muestrasInformeObservaciones.value : "",
+    hematologia: currentHematologiaId,
   };
 
   // Procesar imagen si existe
@@ -952,7 +1103,7 @@ const guardarInformeMedico = async () => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        datosReporte.informe_imagen = reader.result;
+        datosReporte.imagen = reader.result;
         resolve();
       };
       reader.onerror = () => reject(new Error("Error al leer la imagen"));
@@ -960,8 +1111,7 @@ const guardarInformeMedico = async () => {
   }
 
   try {
-    // El informe se guarda en la muestra principal de hematología
-    const res = await fetch(`/api/hematologia/${currentHematologiaId}/actualizar_informe/`, {
+    const res = await fetch(`/api/informesresultado/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -971,14 +1121,20 @@ const guardarInformeMedico = async () => {
     });
 
     if (res.ok) {
-      alert("Informe guardado correctamente");
+      mostrarEstadoInforme("Informe guardado correctamente.", "success");
       if (muestrasInformeImagen) muestrasInformeImagen.value = "";
+      ocultarPanelNuevoInformeHematologia();
+      await refrescarInformesHematologia(currentHematologiaId);
     } else {
       const errorData = await res.json();
-      alert("Error al guardar el informe: " + JSON.stringify(errorData));
+      console.error("Error al guardar informe:", errorData);
+      mostrarEstadoInforme("Error al guardar el informe.", "danger");
     }
   } catch (error) {
-    alert("Error al guardar el informe: " + error.message);
+    console.error("Error al guardar informe:", error);
+    mostrarEstadoInforme("Error al guardar el informe.", "danger");
+  } finally {
+    cambiarEstadoBotonGuardar(false);
   }
 };
 
@@ -1004,6 +1160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Cargar hematologías iniciales
   const respuesta = await cargarHematologiasIndex();
   imprimirHematologias(respuesta);
+  limpiarDetalleHematologia();
 
   // Fechas mínimas
   const fechaActual = new Date().toISOString().split("T")[0];
@@ -1021,12 +1178,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnToggleInforme.addEventListener("click", () => {
       sectionMuestrasDiv.classList.add("d-none");
       sectionInformeDiv.classList.remove("d-none");
+      localStorage.setItem(INFORME_TAB_KEY, "informe");
     });
   }
   if (btnToggleMuestras && sectionMuestrasDiv && sectionInformeDiv) {
     btnToggleMuestras.addEventListener("click", () => {
       sectionInformeDiv.classList.add("d-none");
       sectionMuestrasDiv.classList.remove("d-none");
+      localStorage.setItem(INFORME_TAB_KEY, "muestras");
+    });
+  }
+
+  const tabActiva = localStorage.getItem(INFORME_TAB_KEY);
+  if (tabActiva === "informe" && sectionMuestrasDiv && sectionInformeDiv) {
+    sectionMuestrasDiv.classList.add("d-none");
+    sectionInformeDiv.classList.remove("d-none");
+  }
+
+  if (btnNuevoInforme) {
+    btnNuevoInforme.addEventListener("click", () => {
+      mostrarPanelNuevoInformeHematologia(true);
+    });
+  }
+
+  if (btnCancelarInforme) {
+    btnCancelarInforme.addEventListener("click", () => {
+      ocultarPanelNuevoInformeHematologia();
+    });
+  }
+
+  if (modalNuevoInforme) {
+    modalNuevoInforme.addEventListener("click", (event) => {
+      if (event.target === modalNuevoInforme) {
+        ocultarPanelNuevoInformeHematologia();
+      }
     });
   }
 
@@ -1257,8 +1442,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---- Informe de resultados ----
   if (btnGuardarInforme) {
-    btnGuardarInforme.addEventListener("click", () => {
+    btnGuardarInforme.addEventListener("click", (event) => {
+      event.preventDefault();
       guardarInformeMedico();
+    });
+  }
+
+  if (informesListaHematologia) {
+    informesListaHematologia.addEventListener("click", async (event) => {
+      const target = event.target.closest("i[data-action]");
+      if (!target) return;
+      const action = target.dataset.action;
+      const informeId = target.dataset.id;
+      if (!currentHematologiaId || !informeId) return;
+
+      const informes = await cargarInformesHematologia(currentHematologiaId);
+      const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+      if (!informe) return;
+
+      if (action === "cargar") {
+        cargarInformeEnFormularioHematologia(informe);
+        mostrarPanelNuevoInformeHematologia(false);
+      }
+
+      if (action === "eliminar") {
+        if (!confirm("¿Eliminar este informe?")) return;
+        await borrarInformeHematologia(informeId);
+        mostrarEstadoInforme("Informe eliminado correctamente.", "success");
+        await refrescarInformesHematologia(currentHematologiaId);
+      }
     });
   }
 

@@ -7,13 +7,14 @@ import base64
 import uuid
 import random
 from django.contrib.auth import authenticate
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
     CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer,
     TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer,
     HematologiaSerializer, MuestraHematologiaSerializer, ImagenHematologiaSerializer,
-    MicrobiologiaSerializer, MuestraMicrobiologiaSerializer, ImagenMicrobiologiaSerializer
+    MicrobiologiaSerializer, MuestraMicrobiologiaSerializer, ImagenMicrobiologiaSerializer,
+    InformeResultadoSerializer
 )
 
 def generar_qr(prefijo):
@@ -288,6 +289,21 @@ class MuestraCitologiaViewSet(viewsets.ModelViewSet):
 class ImagenViewSet(viewsets.ModelViewSet):
     queryset = Imagen.objects.all()
     serializer_class = ImagenSerializer
+
+    def create(self, request):
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        imagen_obj = Imagen.objects.create(
+            imagen=imagen_file.read(),
+            muestra_id=muestra_id
+        )
+        return Response(ImagenSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
@@ -299,6 +315,21 @@ class ImagenViewSet(viewsets.ModelViewSet):
 class ImagenCitologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
     serializer_class = ImagenCitologiaSerializer
+
+    def create(self, request):
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        imagen_obj = ImagenCitologia.objects.create(
+            imagen=imagen_file.read(),
+            muestra_id=muestra_id
+        )
+        return Response(ImagenCitologiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
@@ -308,8 +339,7 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
         for img in imagenes:
             img_data = ImagenCitologiaSerializer(img).data
             if img.imagen:
-                with open(img.imagen.path, 'rb') as f:
-                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
             resultado.append(img_data)
         return Response(resultado)
 
@@ -631,7 +661,7 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_hematologia = ImagenHematologia.objects.create(
-            imagen=imagen_file,
+            imagen=imagen_file.read(),
             muestra_id=muestra_id
         )
         
@@ -646,8 +676,7 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
             img_data = ImagenHematologiaSerializer(img).data
             if img.imagen:
                 try:
-                    with open(img.imagen.path, 'rb') as f:
-                        img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                    img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
                 except Exception:
                     img_data['imagen_base64'] = None
             resultado.append(img_data)
@@ -798,7 +827,7 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_microbiologia = ImagenMicrobiologia.objects.create(
-            imagen=imagen_file,
+            imagen=imagen_file.read(),
             muestra_id=muestra_id
         )
         
@@ -812,9 +841,63 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
             img_data = ImagenMicrobiologiaSerializer(img).data
             if img.imagen:
                 try:
-                    with open(img.imagen.path, 'rb') as f:
-                        img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                    img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
                 except Exception:
                     pass
             resultado.append(img_data)
         return Response(resultado)
+
+
+class InformeResultadoViewSet(viewsets.ModelViewSet):
+    queryset = InformeResultado.objects.all().order_by('-fecha', '-id_informe')
+    serializer_class = InformeResultadoSerializer
+    authentication_classes = []
+
+    def create(self, request):
+        if request.FILES.get('imagen'):
+            return Response(
+                {'error': 'Las imágenes del informe deben enviarse en base64 y se almacenan en base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        data = request.data.copy()
+        imagen_bytes = None
+
+        imagen_data = data.get('imagen')
+        if imagen_data:
+            if not isinstance(imagen_data, str):
+                return Response({'error': 'Formato de imagen inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+            if imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            try:
+                imagen_bytes = base64.b64decode(imagen_data, validate=True)
+            except Exception:
+                return Response({'error': 'La imagen no es base64 válido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if 'imagen' in data:
+            data.pop('imagen')
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        informe = serializer.save()
+
+        if imagen_bytes:
+            informe.imagen = imagen_bytes
+            informe.save(update_fields=['imagen'])
+
+        return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='tubo/(?P<id>[^/.]+)')
+    def por_tubo(self, request, id=None):
+        informes = InformeResultado.objects.filter(tubo_id=id).order_by('-fecha', '-id_informe')
+        return Response(InformeResultadoSerializer(informes, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='hematologia/(?P<id>[^/.]+)')
+    def por_hematologia(self, request, id=None):
+        informes = InformeResultado.objects.filter(hematologia_id=id).order_by('-fecha', '-id_informe')
+        return Response(InformeResultadoSerializer(informes, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='microbiologia/(?P<id>[^/.]+)')
+    def por_microbiologia(self, request, id=None):
+        informes = InformeResultado.objects.filter(microbiologia_id=id).order_by('-fecha', '-id_informe')
+        return Response(InformeResultadoSerializer(informes, many=True).data)

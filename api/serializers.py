@@ -1,7 +1,7 @@
 import base64
 import os
 from rest_framework import serializers
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 
 class TecnicoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,8 +73,7 @@ class MuestraTuboSerializer(serializers.ModelSerializer):
         try:
             imagen = obj.imagentubo_set.first()  # Obtener la primera imagen
             if imagen and imagen.imagen:
-                with open(imagen.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
+                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
         except:
             pass
         return None
@@ -181,12 +180,12 @@ class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_imagen_base64(self, obj):
-        if hasattr(obj, 'imagen') and obj.imagen:
-            try:
-                with open(obj.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
-            except:
-                return None
+        try:
+            imagen = obj.imagenmicrobiologia_set.first()
+            if imagen and imagen.imagen:
+                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
+        except:
+            return None
         return None
 
 class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
@@ -199,8 +198,28 @@ class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                with open(obj.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
+                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
             except:
+                return None
+        return None
+
+
+class InformeResultadoSerializer(serializers.ModelSerializer):
+    imagen = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = InformeResultado
+        fields = [
+            'id_informe', 'descripcion', 'fecha', 'tincion', 'observaciones', 'imagen', 'imagen_base64',
+            'tubo', 'hematologia', 'microbiologia', 'creado_en'
+        ]
+        read_only_fields = ['id_informe', 'imagen_base64', 'creado_en']
+
+    def get_imagen_base64(self, obj):
+        if obj.imagen:
+            try:
+                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+            except Exception:
                 return None
         return None
