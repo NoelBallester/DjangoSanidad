@@ -340,7 +340,7 @@ const cargarPorNumero = async () => {
 };
 
 const obtenerTubosFecha = async (fecha) => {
-  const response = await fetch(`/api/tubos/por_fecha/?fecha=${fecha}`);
+  const response = await fetch(`/api/tubos/fecha/${fecha}/`);
   return await response.json();
 };
 
@@ -519,6 +519,7 @@ const modificarMuestraUpdate = async (event) => {
 
 const consultaFechaInicio = async () => {
   alertfecha.classList.add("ocultar");
+  mostrarEstadoSinSeleccion();
   let respuesta;
   if (!fechafin.value) {
     respuesta = await obtenerTubosFecha(fechainicio.value);
@@ -539,6 +540,7 @@ const consultaFechaInicio = async () => {
 };
 
 const consultaFechaFin = async () => {
+  mostrarEstadoSinSeleccion();
   if (!fechainicio.value) {
     alertfecha_text.textContent = "Seleccione una fecha de inicio";
     alertfecha.classList.remove("ocultar");
@@ -556,6 +558,37 @@ const consultaFechaFin = async () => {
       imprimirTubos(respuesta, false);
     }
   }
+};
+
+const mostrarEstadoSinSeleccion = () => {
+  tuboId = null;
+  muestraId = null;
+  imageId = null;
+  currentTuboId = null;
+
+  const tuboNumElement = document.getElementById("tubo__tubo");
+  if (tuboNumElement) {
+    tuboNumElement.textContent = "";
+  }
+
+  tuboDescripcion.textContent = "Selecciona una cita para ver los detalles";
+  tuboTipoMuestra.textContent = "";
+  tuboTecnicoId.textContent = "";
+  tuboFecha.textContent = "";
+  tuboCaracteristicas.textContent = "";
+  tuboObservaciones.textContent = "";
+
+  if (tuboInformeDescripcion) tuboInformeDescripcion.value = "";
+  if (tuboInformeFecha) tuboInformeFecha.value = "";
+  if (tuboInformeTincion) tuboInformeTincion.value = "";
+  if (tuboInformeObservaciones) tuboInformeObservaciones.value = "";
+  if (tuboInformeImagen) tuboInformeImagen.value = "";
+
+  muestras.innerHTML = "";
+  const estado = document.createElement("span");
+  estado.classList.add("fw-bold", "text-danger", "text-opacity-50");
+  estado.textContent = "Selecciona una cita para ver los detalles";
+  muestras.appendChild(estado);
 };
 
 const imprimirTubos = (respuesta, rebuildDropdown = true) => {
@@ -1087,6 +1120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   body.style.display = "block";
   const respuesta = await cargarTubosIndex();
   imprimirTubos(respuesta);
+  mostrarEstadoSinSeleccion();
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
   inputFecha.setAttribute("min", fechaActual);
@@ -1115,6 +1149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Tipo de Muestra
   tipo_tubos.addEventListener("change", async () => {
+    mostrarEstadoSinSeleccion();
     if (!tipo_tubos.value || tipo_tubos.value === "" || tipo_tubos.value === "*") {
       if (numTubo) numTubo.value = "";
       if (fechainicio) fechainicio.value = "";
@@ -1130,6 +1165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Número de Tubo
   numTubo.addEventListener("change", async () => {
+    mostrarEstadoSinSeleccion();
     if (!numTubo.value || numTubo.value === "") {
       const respuesta = await cargarTodosTubos();
       imprimirTubos(respuesta, true);
@@ -1152,6 +1188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Todos los tubos
   todosTubos.addEventListener("click", async () => {
+    mostrarEstadoSinSeleccion();
     const respuesta = await cargarTodosTubos();
     imprimirTubos(respuesta);
   });

@@ -340,7 +340,7 @@ const cargarPorNumero = async () => {
 };
 
 const obtenerMicrobiologiasFecha = async (fecha) => {
-  const response = await fetch(`/api/microbiologias/por_fecha/?fecha=${fecha}`);
+  const response = await fetch(`/api/microbiologias/fecha/${fecha}/`);
   return await response.json();
 };
 
@@ -519,6 +519,7 @@ const modificarMuestraUpdate = async (event) => {
 
 const consultaFechaInicio = async () => {
   alertfecha.classList.add("ocultar");
+  mostrarEstadoSinSeleccion();
   let respuesta;
   if (!fechafin.value) {
     respuesta = await obtenerMicrobiologiasFecha(fechainicio.value);
@@ -539,6 +540,7 @@ const consultaFechaInicio = async () => {
 };
 
 const consultaFechaFin = async () => {
+  mostrarEstadoSinSeleccion();
   if (!fechainicio.value) {
     alertfecha_text.textContent = "Seleccione una fecha de inicio";
     alertfecha.classList.remove("ocultar");
@@ -556,6 +558,37 @@ const consultaFechaFin = async () => {
       imprimirMicrobiologias(respuesta, false);
     }
   }
+};
+
+const mostrarEstadoSinSeleccion = () => {
+  microbiologiaId = null;
+  muestraId = null;
+  imageId = null;
+  currentMicrobiologiaId = null;
+
+  const microbiologiaNumElement = document.getElementById("microbiologia__microbiologia");
+  if (microbiologiaNumElement) {
+    microbiologiaNumElement.textContent = "";
+  }
+
+  microbiologiaDescripcion.textContent = "Selecciona una cita para ver los detalles";
+  microbiologiaTipoMuestra.textContent = "";
+  microbiologiaTecnicoId.textContent = "";
+  microbiologiaFecha.textContent = "";
+  microbiologiaCaracteristicas.textContent = "";
+  microbiologiaObservaciones.textContent = "";
+
+  if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
+  if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
+  if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
+  if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = "";
+  if (microbiologiaInformeImagen) microbiologiaInformeImagen.value = "";
+
+  muestras.innerHTML = "";
+  const estado = document.createElement("span");
+  estado.classList.add("fw-bold", "text-danger", "text-opacity-50");
+  estado.textContent = "Selecciona una cita para ver los detalles";
+  muestras.appendChild(estado);
 };
 
 const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
@@ -1087,6 +1120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   body.style.display = "block";
   const respuesta = await cargarMicrobiologiasIndex();
   imprimirMicrobiologias(respuesta);
+  mostrarEstadoSinSeleccion();
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
   inputFecha.setAttribute("min", fechaActual);
@@ -1115,6 +1149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Tipo de Muestra
   tipo_microbiologias.addEventListener("change", async () => {
+    mostrarEstadoSinSeleccion();
     // Si está vacío o es "Todos", cargar todo
     if (!tipo_microbiologias.value || tipo_microbiologias.value === "" || tipo_microbiologias.value === "*") {
       if (numMicrobiologia) numMicrobiologia.value = "";
@@ -1133,6 +1168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Número de Microbiologia
   numMicrobiologia.addEventListener("change", async () => {
+    mostrarEstadoSinSeleccion();
     // Permitir volver a la primera opción (vacía)
     if (!numMicrobiologia.value || numMicrobiologia.value === "") {
       // Si selecciona la opción inicial, cargar todos
@@ -1158,6 +1194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Todos los microbiologias
   todosMicrobiologias.addEventListener("click", async () => {
+    mostrarEstadoSinSeleccion();
     const respuesta = await cargarTodosMicrobiologias();
     imprimirMicrobiologias(respuesta);
   });
@@ -1185,20 +1222,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Modificar Microbiologia
   btnmodificarmicrobiologia.addEventListener("click", () => {
-    if (!modalupdateMicrobiologiaMain.classList.contains("showmodal")) {
+    if (!modalupdateMicrobiologia.classList.contains("showmodal")) {
       cargarMicrobiologiaUpdateModal();
-      modalupdateMicrobiologiaMain.classList.add("showmodal");
-      modalupdateMicrobiologiaMain.classList.remove("hidemodal");
-      modalupdateMicrobiologiaMain.style.display = "flex";
+      modalupdateMicrobiologia.classList.add("showmodal");
+      modalupdateMicrobiologia.classList.remove("hidemodal");
+      modalupdateMicrobiologia.style.display = "flex";
     }
   });
 
   btnformcerrarmodificarMicrobiologia.addEventListener("click", () => {
-    if (!modalupdateMicrobiologiaMain.classList.contains("hidemodal")) {
-      modalupdateMicrobiologiaMain.classList.add("hidemodal");
-      modalupdateMicrobiologiaMain.classList.remove("showmodal");
+    if (!modalupdateMicrobiologia.classList.contains("hidemodal")) {
+      modalupdateMicrobiologia.classList.add("hidemodal");
+      modalupdateMicrobiologia.classList.remove("showmodal");
       setTimeout(() => {
-        modalupdateMicrobiologiaMain.style.display = "none";
+        modalupdateMicrobiologia.style.display = "none";
       }, 300);
     }
   });
