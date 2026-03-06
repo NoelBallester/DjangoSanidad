@@ -1,7 +1,7 @@
 import base64
 import os
 from rest_framework import serializers
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia
 
 class TecnicoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -134,6 +134,60 @@ class ImagenHematologiaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImagenHematologia
+        fields = '__all__'
+
+    def get_imagen_base64(self, obj):
+        if obj.imagen:
+            try:
+                with open(obj.imagen.path, 'rb') as f:
+                    return base64.b64encode(f.read()).decode('utf-8')
+            except:
+                return None
+        return None
+
+class MicrobiologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+    # Aliases para compatibilidad con el frontend
+    id_muestra = serializers.IntegerField(source='id_microbiologia', read_only=True)
+    muestra = serializers.CharField(source='microbiologia', required=False)
+    tipo_muestra = serializers.CharField(source='organo', required=False)
+
+    class Meta:
+        model = Microbiologia
+        fields = [
+            'id_muestra', 'muestra', 'tipo_muestra', 'id_microbiologia', 'microbiologia', 'fecha', 
+            'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
+            'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
+            'qr_microbiologia', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
+            'informe_tincion', 'informe_observaciones', 'imagen_base64'
+        ]
+
+    def get_imagen_base64(self, obj):
+        if obj.informe_imagen:
+            return base64.b64encode(obj.informe_imagen).decode('utf-8')
+        return None
+
+class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MuestraMicrobiologia
+        fields = '__all__'
+
+    def get_imagen_base64(self, obj):
+        if hasattr(obj, 'imagen') and obj.imagen:
+            try:
+                with open(obj.imagen.path, 'rb') as f:
+                    return base64.b64encode(f.read()).decode('utf-8')
+            except:
+                return None
+        return None
+
+class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImagenMicrobiologia
         fields = '__all__'
 
     def get_imagen_base64(self, obj):

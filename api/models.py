@@ -201,3 +201,47 @@ class ImagenHematologia(models.Model):
 
     class Meta:
         db_table = 'imageneshematologia'
+
+class Microbiologia(models.Model):
+    id_microbiologia = models.AutoField(primary_key=True, db_column='id')
+    microbiologia = models.CharField(max_length=50) # Numero de muestra
+    fecha = models.DateField()
+    descripcion = models.CharField(max_length=255) # Detalle / Paciente
+    caracteristicas = models.TextField() # Descripción macroscópica
+    observaciones = models.TextField(null=True, blank=True)
+    informacion_clinica = models.TextField(null=True, blank=True)
+    descripcion_microscopica = models.TextField(null=True, blank=True)
+    diagnostico_final = models.TextField(null=True, blank=True)
+    patologo_responsable = models.CharField(max_length=255, null=True, blank=True)
+    qr_microbiologia = models.CharField(max_length=255, unique=True)
+    organo = models.CharField(max_length=255) # Tipo de Muestra
+    tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
+    informe_descripcion = models.CharField(max_length=255, null=True, blank=True)
+    informe_fecha = models.DateField(null=True, blank=True)
+    informe_tincion = models.CharField(max_length=255, null=True, blank=True)
+    informe_observaciones = models.TextField(null=True, blank=True)
+    informe_imagen = models.BinaryField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'microbiologias'
+
+class MuestraMicrobiologia(models.Model):
+    id_muestra = models.AutoField(primary_key=True, db_column='id')
+    descripcion = models.CharField(max_length=255)
+    fecha = models.DateField()
+    observaciones = models.TextField(null=True, blank=True)
+    tincion = models.CharField(max_length=255)
+    qr_muestra = models.CharField(max_length=255)
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id')
+
+    class Meta:
+        db_table = 'muestrasmicrobiologia'
+
+class ImagenMicrobiologia(models.Model):
+    id_imagen = models.AutoField(primary_key=True, db_column='id')
+    imagen = models.ImageField(upload_to='imagenes_microbiologia/', null=True, blank=True)
+    muestra = models.ForeignKey(MuestraMicrobiologia, on_delete=models.CASCADE, db_column='muestra_id')
+
+    class Meta:
+        db_table = 'imagenesmicrobiologia'

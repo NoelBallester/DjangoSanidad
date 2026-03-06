@@ -7,12 +7,13 @@ import base64
 import uuid
 import random
 from django.contrib.auth import authenticate
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
     CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer,
     TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer,
-    HematologiaSerializer, MuestraHematologiaSerializer, ImagenHematologiaSerializer
+    HematologiaSerializer, MuestraHematologiaSerializer, ImagenHematologiaSerializer,
+    MicrobiologiaSerializer, MuestraMicrobiologiaSerializer, ImagenMicrobiologiaSerializer
 )
 
 def generar_qr(prefijo):
@@ -616,5 +617,171 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
             if img.imagen:
                 with open(img.imagen.path, 'rb') as f:
                     img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)
+
+class MicrobiologiaViewSet(viewsets.ModelViewSet):
+    queryset = Microbiologia.objects.all().order_by('-fecha')
+    serializer_class = MicrobiologiaSerializer
+    authentication_classes = []  # No requiere autenticación
+    
+    def create(self, request):
+        data = request.data.copy()
+        # Generar QR automáticamente si no existe
+        if 'qr_microbiologia' not in data or not data['qr_microbiologia']:
+            data['qr_microbiologia'] = generar_qr('--mb--')
+        
+        # Generar número de tubo si no existe
+        if 'microbiologia' not in data or not data['microbiologia']:
+            if 'muestra' in data and data['muestra']:
+                data['microbiologia'] = data['muestra']
+            else:
+                import time
+                data['microbiologia'] = f"MB-{int(time.time())}"
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        """Carga los últimos 10 de microbiología"""
+        microbiologias = self.get_queryset()[:10]
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        """Carga todos"""
+        microbiologias = self.get_queryset()
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
+    def por_qr(self, request, qr=None):
+        """Busca por código QR"""
+        microbiologias = Microbiologia.objects.filter(qr_microbiologia=qr)
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        """Filtra por órgano"""
+        if organo == '*':
+            microbiologias = self.get_queryset()
+        else:
+            microbiologias = Microbiologia.objects.filter(organo=organo).order_by('-fecha')
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
+    def por_numero(self, request, numero=None):
+        """Filtra por número"""
+        microbiologias = Microbiologia.objects.filter(microbiologia=numero).order_by('-fecha')
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        """Filtra por fecha específica"""
+        microbiologias = Microbiologia.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        """Filtra por rango de fechas"""
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        microbiologias = Microbiologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        """Actualiza el informe médico"""
+        microbiologia = self.get_object()
+        data = request.data
+        
+        if 'informe_descripcion' in data:
+            microbiologia.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            microbiologia.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            microbiologia.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            microbiologia.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            microbiologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+        
+        microbiologia.save()
+        return Response(MicrobiologiaSerializer(microbiologia).data)
+
+class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
+    queryset = MuestraMicrobiologia.objects.all()
+    serializer_class = MuestraMicrobiologiaSerializer
+    authentication_classes = []
+    
+    def create(self, request):
+        data = request.data.copy()
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--mmb--')
+        
+        imagen_file = request.FILES.get('imagen', None)
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        muestra = serializer.save()
+        
+        if imagen_file:
+            ImagenMicrobiologia.objects.create(
+                imagen=imagen_file,
+                muestra=muestra
+            )
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='microbiologia/(?P<id>[^/.]+)')
+    def por_microbiologia(self, request, id=None):
+        muestras = MuestraMicrobiologia.objects.filter(microbiologia_id=id)
+        return Response(MuestraMicrobiologiaSerializer(muestras, many=True).data)
+    
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        muestras = MuestraMicrobiologia.objects.filter(qr_muestra=qr)
+        return Response(MuestraMicrobiologiaSerializer(muestras, many=True).data)
+
+class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
+    queryset = ImagenMicrobiologia.objects.all()
+    serializer_class = ImagenMicrobiologiaSerializer
+    authentication_classes = []
+    
+    def create(self, request):
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+        
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        imagen_microbiologia = ImagenMicrobiologia.objects.create(
+            imagen=imagen_file,
+            muestra_id=muestra_id
+        )
+        
+        return Response(ImagenMicrobiologiaSerializer(imagen_microbiologia).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        imagenes = ImagenMicrobiologia.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenMicrobiologiaSerializer(img).data
+            if img.imagen:
+                try:
+                    with open(img.imagen.path, 'rb') as f:
+                        img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                except Exception:
+                    pass
             resultado.append(img_data)
         return Response(resultado)

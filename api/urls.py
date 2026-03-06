@@ -4,7 +4,8 @@ from .views import (
     TecnicoViewSet, CassetteViewSet, MuestraViewSet, ImagenViewSet,
     CitologiaViewSet, MuestraCitologiaViewSet, ImagenCitologiaViewSet,
     TuboViewSet, MuestraTuboViewSet, ImagenTuboViewSet,
-    HematologiaViewSet, MuestraHematologiaViewSet, ImagenHematologiaViewSet
+    HematologiaViewSet, MuestraHematologiaViewSet, ImagenHematologiaViewSet,
+    MicrobiologiaViewSet, MuestraMicrobiologiaViewSet, ImagenMicrobiologiaViewSet
 )
 
 router = DefaultRouter()
@@ -21,6 +22,10 @@ router.register(r'imagenestubo', ImagenTuboViewSet, basename='imagentubo')
 router.register(r'hematologia', HematologiaViewSet, basename='hematologia')
 router.register(r'muestrashematologia', MuestraHematologiaViewSet, basename='muestrahematologia')
 router.register(r'imageneshematologia', ImagenHematologiaViewSet, basename='imagenhematologia')
+
+router.register(r'microbiologias', MicrobiologiaViewSet, basename='microbiologia')
+router.register(r'muestrasmicrobiologia', MuestraMicrobiologiaViewSet, basename='muestramicrobiologia')
+router.register(r'imagenesmicrobiologia', ImagenMicrobiologiaViewSet, basename='imagenmicrobiologia')
 
 urlpatterns = [
     path('', include(router.urls)),
