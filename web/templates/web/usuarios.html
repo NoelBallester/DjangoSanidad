@@ -94,6 +94,22 @@
         html.dark-theme .blue__color {
             color: #60a5fa !important;
         }
+
+        .logout-form {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav__logout-btn {
+            border: 0;
+            background: transparent;
+            padding: 0.5rem 0;
+            margin: 0;
+            line-height: 1.5;
+            font: inherit;
+            cursor: pointer;
+        }
     </style>
     <title>Usuarios</title>
 </head>
@@ -131,9 +147,9 @@
                     </li>
                     {% endif %}
                     <li class="nav-item nav__item">
-                        <form method="post" action="{% url 'logout' %}" style="display:inline">
+                        <form method="post" action="{% url 'logout' %}" class="logout-form">
                             {% csrf_token %}
-                            <button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">
+                            <button type="submit" class="nav-link nav__link nav__logout-btn">
                                 Cerrar Sesión
                             </button>
                         </form>

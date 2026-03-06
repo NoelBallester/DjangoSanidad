@@ -137,6 +137,34 @@
   font-weight: 800 !important;
 }
 
+/* Logout button inside navbar forms: keep same geometry as links */
+.nav__item form {
+  display: inline-flex !important;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.nav__item form .nav-link,
+.nav__item form .nav__link,
+.nav__item form button.nav-link,
+.nav__item form button.nav__link {
+  border: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0.5rem 0 !important;
+  line-height: 1.5 !important;
+  font: inherit !important;
+  text-decoration: none;
+  box-shadow: none !important;
+}
+
+.nav__item form button.nav-link:focus,
+.nav__item form button.nav__link:focus {
+  outline: none;
+}
+
 .header__icon--user {
   font-size: 1.75rem;
   color: var(--text-muted);
