@@ -413,6 +413,9 @@ td {
     opacity: 0;
     visibility: hidden;
     z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .front {
@@ -422,6 +425,7 @@ td {
 .mimodal.open {
     opacity: 1;
     visibility: visible;
+    display: flex;
 }
 
 .showmodal {

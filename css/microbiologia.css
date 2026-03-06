@@ -459,40 +459,58 @@ td {
 .mimodal {
     background-color: rgba(1, 0, 4, 0.197);
     position: fixed;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     top: 0;
     left: 0;
     opacity: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
     visibility: hidden;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.front {
+    z-index: 200;
+}
+
+.mimodal.open {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+    pointer-events: auto;
+    z-index: 1000;
 }
 
 .showmodal {
     animation-name: showmodalanimation;
-    animation-duration: 1s;
+    animation-duration: 0.3s;
     animation-fill-mode: forwards;
     pointer-events: auto !important;
     visibility: visible !important;
     z-index: 1000 !important;
+    display: flex !important;
 }
 
 @keyframes showmodalanimation {
     0% {
         opacity: 0;
+        visibility: hidden;
     }
-
+    1% {
+        visibility: visible;
+    }
     100% {
         opacity: 1;
+        visibility: visible;
     }
 }
 
 .hidemodal {
     animation-name: hidemodalanimation;
-    animation-duration: 1s;
+    animation-duration: 0.3s;
     animation-fill-mode: forwards;
     pointer-events: none !important;
 }
@@ -500,10 +518,14 @@ td {
 @keyframes hidemodalanimation {
     0% {
         opacity: 1;
+        visibility: visible;
     }
-
+    99% {
+        visibility: visible;
+    }
     100% {
         opacity: 0;
+        visibility: hidden;
     }
 }
 

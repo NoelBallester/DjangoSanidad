@@ -412,25 +412,19 @@ td {
   opacity: 0;
   visibility: hidden;
   z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .front {
-  z-index: 200;
+    z-index: 200;
 }
 
 .mimodal.open {
-  opacity: 1;
-  visibility: visible;
-}
-
-.showmodal {
-  animation-name: showmodalanimation;
-  animation-duration: 0.3s;
-  animation-fill-mode: forwards;
-}
-
-@keyframes showmodalanimation {
-  0% {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
     opacity: 0;
     visibility: hidden;
   }

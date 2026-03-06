@@ -1114,6 +1114,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Tipo de Muestra
   tipo_microbiologias.addEventListener("change", async () => {
+    // Limpiar otros filtros si selecciona "Todos"
+    if (tipo_microbiologias.value === "*") {
+      if (numMicrobiologia) numMicrobiologia.value = "Nº Muestra";
+      if (fechainicio) fechainicio.value = "";
+      if (fechafin) fechafin.value = "";
+    } else {
+      // Solo limpiar número si selecciona un tipo específico
+      if (numMicrobiologia) numMicrobiologia.value = "Nº Muestra";
+    }
     const respuesta = await cargarPorTipo();
     imprimirMicrobiologias(respuesta, false);
   });
@@ -1143,6 +1152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!modalnuevoMicrobiologia.classList.contains("showmodal")) {
       modalnuevoMicrobiologia.classList.add("showmodal");
       modalnuevoMicrobiologia.classList.remove("hidemodal");
+      modalnuevoMicrobiologia.style.display = "flex";
     }
   });
 
@@ -1150,6 +1160,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!modalnuevoMicrobiologia.classList.contains("hidemodal")) {
       modalnuevoMicrobiologia.classList.add("hidemodal");
       modalnuevoMicrobiologia.classList.remove("showmodal");
+      setTimeout(() => {
+        modalnuevoMicrobiologia.style.display = "none";
+      }, 300);
     }
   });
 
@@ -1157,13 +1170,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Modificar Microbiologia
   btnmodificarmicrobiologia.addEventListener("click", () => {
-    btnformmodificarmicrobiologiaMain.click();
+    if (!modalupdateMicrobiologiaMain.classList.contains("showmodal")) {
+      cargarMicrobiologiaUpdateModal();
+      modalupdateMicrobiologiaMain.classList.add("showmodal");
+      modalupdateMicrobiologiaMain.classList.remove("hidemodal");
+      modalupdateMicrobiologiaMain.style.display = "flex";
+    }
   });
 
   btnformcerrarmodificarMicrobiologia.addEventListener("click", () => {
     if (!modalupdateMicrobiologiaMain.classList.contains("hidemodal")) {
       modalupdateMicrobiologiaMain.classList.add("hidemodal");
       modalupdateMicrobiologiaMain.classList.remove("showmodal");
+      setTimeout(() => {
+        modalupdateMicrobiologiaMain.style.display = "none";
+      }, 300);
     }
   });
 
@@ -1191,6 +1212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modalnuevaMuestra.classList.contains("showmodal")) {
         modalnuevaMuestra.classList.add("showmodal");
         modalnuevaMuestra.classList.remove("hidemodal");
+        modalnuevaMuestra.style.display = "flex";
       }
     }
   });
@@ -1200,6 +1222,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modalnuevaMuestra.classList.contains("hidemodal")) {
         modalnuevaMuestra.classList.add("hidemodal");
         modalnuevaMuestra.classList.remove("showmodal");
+        setTimeout(() => {
+          modalnuevaMuestra.style.display = "none";
+        }, 300);
       }
     });
   }
@@ -1209,6 +1234,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modaldetalleMuestra.classList.contains("hidemodal")) {
         modaldetalleMuestra.classList.add("hidemodal");
         modaldetalleMuestra.classList.remove("showmodal");
+        setTimeout(() => {
+          modaldetalleMuestra.style.display = "none";
+        }, 300);
       }
       muestra__img.innerHTML = "";
     });
@@ -1219,6 +1247,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modaldetalleMuestra.classList.contains("hidemodal")) {
         modaldetalleMuestra.classList.add("hidemodal");
         modaldetalleMuestra.classList.remove("showmodal");
+        setTimeout(() => {
+          modaldetalleMuestra.style.display = "none";
+        }, 300);
       }
       muestra__img.innerHTML = "";
     });
@@ -1250,6 +1281,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!modalmodificarMuestra.classList.contains("showmodal")) {
           modalmodificarMuestra.classList.add("showmodal");
           modalmodificarMuestra.classList.remove("hidemodal");
+          // Asegurar que el modal se muestre con flexbox
+          modalmodificarMuestra.style.display = "flex";
         }
       }
     });
@@ -1260,6 +1293,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modalmodificarMuestra.classList.contains("hidemodal")) {
         modalmodificarMuestra.classList.add("hidemodal");
         modalmodificarMuestra.classList.remove("showmodal");
+        // Ocultar después de la animación
+        setTimeout(() => {
+          modalmodificarMuestra.style.display = "none";
+        }, 300);
       }
     });
   }

@@ -120,7 +120,7 @@
                         <!-- Órgano -->
                         <div style="min-width: 140px;">
                             <select name="organo" id="organos" class="form-select border__color unified-filter-height"
-                                style="font-size:0.85rem;" onchange="document.getElementById('filtroForm').submit()">
+                                style="font-size:0.85rem;" onchange="filtrarPorOrgano()">
                                 <option disabled {% if not filtros.organo %}selected{% endif %}>Órgano</option>
                                 <option value="*" {% if filtros.organo == '*' %}selected{% endif %}>Todos</option>
                                 <optgroup label="Sistema Nervioso">
@@ -217,9 +217,9 @@
                         <!-- Rango de fechas -->
                         <div class="d-flex gap-2">
                             <input type="date" name="inicio" value="{{ filtros.inicio }}"
-                                class="form-control border__color unified-filter-height px-2">
+                                class="form-control border__color unified-filter-height px-2" id="fechainicio">
                             <input type="date" name="fin" value="{{ filtros.fin }}"
-                                class="form-control border__color unified-filter-height px-2"
+                                class="form-control border__color unified-filter-height px-2" id="fechafin"
                                 onchange="document.getElementById('filtroForm').submit()">
                         </div>
 
@@ -756,9 +756,42 @@
     <script src="{% static 'js/darkmode.js' %}" defer></script>
 
     <script>
+        // ── Filtro por órgano ─────────────────────────────────────────────────
+        function filtrarPorOrgano() {
+            const organoSelect = document.getElementById('organos');
+            const numeroInput = document.querySelector('input[name="numero"]');
+            const inicioInput = document.getElementById('fechainicio');
+            const finInput = document.getElementById('fechafin');
+            
+            // Si selecciona "Todos", limpiar los otros filtros
+            if (organoSelect.value === '*') {
+                if (numeroInput) numeroInput.value = '';
+                if (inicioInput) inicioInput.value = '';
+                if (finInput) finInput.value = '';
+            } else {
+                // Si selecciona un órgano específico, solo limpiar el número
+                if (numeroInput) numeroInput.value = '';
+            }
+            
+            document.getElementById('filtroForm').submit();
+        }
+
         // ── Mimodal open / close ──────────────────────────────────────────────
-        function openModal(id) { document.getElementById(id)?.classList.add('open'); }
-        function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+        function openModal(id) { 
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('open');
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+            }
+        }
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('open');
+            }
+        }
 
         document.getElementById('btnformnuevacitologia')
             ?.addEventListener('click', () => openModal('modalnuevaCitologia'));
