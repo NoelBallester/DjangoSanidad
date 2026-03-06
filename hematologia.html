@@ -84,13 +84,11 @@
           <li class="nav-item nav__item">
             <a class="nav-link nav__link active" href="./laboratorio.html">Laboratorio</a>
           </li>
-          {% if user.is_staff %}
-                        <li class="nav-item nav__item">
-                            <a class="nav-link nav__link" href="/usuarios/">Usuarios</a>
-                        </li>
-                        {% endif %}
+          <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
+            <a class="nav-link nav__link" href="./usuarios.html">Usuarios</a>
+          </li>
           <li class="nav-item nav__item">
-            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
+            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
           </li>
           <li class="nav-item nav__item d-flex align-items-center">
             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
@@ -114,25 +112,25 @@
           <div style="min-width: 140px;">
             <select class="form-select border__color unified-filter-height" id="numMuestras"
               style="font-size: 0.85rem;">
-              <option selected disabled>Nº Muestra</option>
+              <option selected value="">Nº Muestra</option>
             </select>
           </div>
 
           <!-- Select Organos -->
           <div style="min-width: 140px;">
             <select class="form-select border__color unified-filter-height" id="organos" style="font-size: 0.85rem;">
-                            <option value="*">Todos</option>
-                            <option>Orina</option>
-                            <option>Sangre Anticoagulada</option>
-                            <option>Plasma</option>
-                            <option>Suero</option>
-                            <option>Esputos</option>
-                            <option>Exudados</option>
-                            <option>Heces</option>
-                            <option>Raspados</option>
-                            <option>Uñas</option>
-                            <option>Fluidos Biológicos</option>
-                            <option>Otros</option>     
+              <option value="*">Todos</option>
+              <option>Orina</option>
+              <option>Sangre Anticoagulada</option>
+              <option>Plasma</option>
+              <option>Suero</option>
+              <option>Esputos</option>
+              <option>Exudados</option>
+              <option>Heces</option>
+              <option>Raspados</option>
+              <option>Uñas</option>
+              <option>Fluidos Biológicos</option>
+              <option>Otros</option>
             </select>
           </div>
 
@@ -151,14 +149,14 @@
           <div>
             <a href="./bioquimica.html"
               class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
-              <i class="fa-solid fa-boxes-stacked me-2"></i> Ir a Bioquímica
+              <i class="fa-solid fa-vial me-2"></i> Ir a Bioquímica
             </a>
           </div>
 
           <div>
             <a href="./microbiologia.html"
               class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
-              <i class="fa-solid fa-boxes-stacked me-2"></i> Ir a Microbiología
+              <i class="fa-solid fa-vial me-2"></i> Ir a Microbiología
             </a>
           </div>
         </div>
@@ -176,8 +174,8 @@
   </header>
 
   <!-- Alert mensajes borrar y modificar Hematología -->
-  <div class="alert alert-danger text-center ocultar" role="alert" id="alertfecha">
-    <span class=" fs-3" id="alertfecha_text"> Seleccione una Citología</span>
+  <div class="alert text-center ocultar" role="alert" id="alertfecha">
+    <span class=" fs-3" id="alertfecha_text"> Seleccione una Muestra</span>
   </div>
 
   <!-- Alert rango fechas -->
@@ -267,7 +265,8 @@
             <hr class="m-1">
 
             <div class="d-flex px-3  justify-content-between">
-              <li class="blue__color--negrita">Tipo de Muestra: <span id="Muestras__organo" class="blue__color Muestras__text">
+              <li class="blue__color--negrita">Tipo de Muestra: <span id="Muestras__organo"
+                  class="blue__color Muestras__text">
                 </span>
               </li>
               <li class="blue__color--negrita">Fecha: <span id="Muestras__fecha" class="blue__color Muestras__text">
@@ -392,7 +391,8 @@
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label for="Muestras__informe_observaciones" class="blue__color--negrita d-block">Observaciones</label>
+                  <label for="Muestras__informe_observaciones"
+                    class="blue__color--negrita d-block">Observaciones</label>
                   <textarea id="Muestras__informe_observaciones" class="form-control blue__color bg-light"
                     rows="3"></textarea>
                 </div>
@@ -401,7 +401,8 @@
                   <input type="file" id="Muestras__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
                     class="form-control blue__color bg-light">
                 </div>
-                <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
+                <div class="d-flex gap-2 mt-4"
+                  style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
                   <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="button">
                     <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
                   </button>
@@ -411,8 +412,8 @@
                 </div>
                 <div id="Muestras__informe_preview_wrap" class="d-none mb-3">
                   <label class="blue__color--negrita d-block">Vista previa</label>
-                  <img id="Muestras__informe_preview" alt="Vista previa del informe"
-                    class="img-fluid rounded border" style="max-height: 160px; object-fit: contain;">
+                  <img id="Muestras__informe_preview" alt="Vista previa del informe" class="img-fluid rounded border"
+                    style="max-height: 160px; object-fit: contain;">
                 </div>
               </div>
             </div>
@@ -449,17 +450,17 @@
           <label for="selectTincionMuestra" class="form-label blue__color">Tipo de muestra</label>
           <select class="form-select blue__color" id="selectTincionMuestra" required>
             <option selected disabled value="">Seleccionar Tipo de Muestra</option>
-                             <option>Orina</option>
-                            <option>Sangre Anticoagulada</option>
-                            <option>Plasma</option>
-                            <option>Suero</option>
-                            <option>Esputos</option>
-                            <option>Exudados</option>
-                            <option>Heces</option>
-                            <option>Raspados</option>
-                            <option>Uñas</option>
-                            <option>Fluidos Biológicos</option>
-                            <option>Otros</option>
+            <option>Orina</option>
+            <option>Sangre Anticoagulada</option>
+            <option>Plasma</option>
+            <option>Suero</option>
+            <option>Esputos</option>
+            <option>Exudados</option>
+            <option>Heces</option>
+            <option>Raspados</option>
+            <option>Uñas</option>
+            <option>Fluidos Biológicos</option>
+            <option>Otros</option>
 
           </select>
         </div>
@@ -611,11 +612,9 @@
 
     </section>
 
-    <!-- Modal Nueva Citología-->
+    <!-- Modal Nueva Muestra-->
     <section class="mimodal" id="modalnuevaMuestras">
       <form class="row g-3 miform" id="nuevaMuestras">
-        <!--   <form class="row g-3 miform" id="nuevoCassette" enctype="multipart/form-data"> -->
-
         <div class="form__header">
           <h2 class="Muestras__title m-0">Nueva Muestra</h2>
           <i class="fa-solid fa-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
@@ -633,10 +632,9 @@
           <input class="form-control blue__color" id="inputDescripcion" required>
         </div>
 
- <div class="col-md-12 mt-3">
-          <label for="inputDescripcion" class="form-label blue__color">Información Clínica / Antecedentes</label>
-          <input class="form-control blue__color" id="inputDescripcion" required>
-        </div>
+        <div class="col-md-12 mt-3">
+          <label for="inputClinica" class="form-label blue__color">Información Clínica / Antecedentes</label>
+          <input class="form-control blue__color" id="inputClinica" required>
         </div>
 
         <div class="row col-md-12">
@@ -646,21 +644,19 @@
           </div>
 
           <div class="col-md-6 mt-2">
-            <label for="inputSelect" class="form-label blue__color"></label>
+            <label for="inputSelect" class="form-label blue__color">Tipo de Muestra</label>
             <select class="form-select blue__color" id="inputSelect" required>
-              <option selected disabled value="">Tipo de Muestra</option>
-                            <option>Orina</option>
-                            <option>Sangre Anticoagulada</option>
-                            <option>Plasma</option>
-                            <option>Suero</option>
-                            <option>Esputos</option>
-                            <option>Exudados</option>
-                            <option>Heces</option>
-                            <option>Raspados</option>
-                            <option>Uñas</option>
-                            <option>Fluidos Biológicos</option>
-                            <option>Otros</option>
-                        </select>
+              <option selected disabled value="">Seleccionar Tipo</option>
+              <option>Orina</option>
+              <option>Sangre Anticoagulada</option>
+              <option>Plasma</option>
+              <option>Suero</option>
+              <option>Esputos</option>
+              <option>Exudados</option>
+              <option>Heces</option>
+              <option>Raspados</option>
+              <option>Uñas</option>
+              <option>Fluidos Biológicos</option>
               <option>Otros</option>
             </select>
           </div>
@@ -668,7 +664,6 @@
 
         <div class="col-md-12 mt-3">
           <label for="inputCaracteristicas" class="form-label blue__color">Descripción Macroscópica</label>
-
           <textarea class="form-control blue__color textarea__text" id="inputCaracteristicas" required></textarea>
         </div>
 
@@ -695,7 +690,6 @@
         <div class="col-12">
           <button class="btn btn__modal blue__color" type="submit"> Crear Muestra</button>
         </div>
-
       </form>
     </section>
 
@@ -744,17 +738,17 @@
             <label for="inputSelectUpdate" class="form-label blue__color">Órgano</label>
             <select class="form-select blue__color" id="inputSelectUpdate" required>
               <option selected disabled value="">Seleccionar tipo de Muestra</option>
-                            <option>Orina</option>
-                            <option>Sangre Anticoagulada</option>
-                            <option>Plasma</option>
-                            <option>Suero</option>
-                            <option>Esputos</option>
-                            <option>Exudados</option>
-                            <option>Heces</option>
-                            <option>Raspados</option>
-                            <option>Uñas</option>
-                            <option>Fluidos Biológicos</option>
-                            <option>Otros</option>
+              <option>Orina</option>
+              <option>Sangre Anticoagulada</option>
+              <option>Plasma</option>
+              <option>Suero</option>
+              <option>Esputos</option>
+              <option>Exudados</option>
+              <option>Heces</option>
+              <option>Raspados</option>
+              <option>Uñas</option>
+              <option>Fluidos Biológicos</option>
+              <option>Otros</option>
           </div>
         </div>
 
