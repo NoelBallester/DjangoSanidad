@@ -5,13 +5,23 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.contrib import messages
+import base64
 
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado
 from django.contrib.auth.hashers import make_password
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
                     HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
                     TecnicoForm)
+
+
+def _imagen_bytes_a_base64(imagen_bytes):
+    if not imagen_bytes:
+        return ''
+    try:
+        return base64.b64encode(bytes(imagen_bytes)).decode('utf-8')
+    except Exception:
+        return ''
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -61,6 +71,7 @@ def cassette_list(request):
     inicio = request.GET.get('inicio', '').strip()
     fin    = request.GET.get('fin', '').strip()
     sel_pk = request.GET.get('cassette', '').strip()
+    informe_pk = request.GET.get('informe', '').strip()
 
     if organo and organo != '*':
         qs = qs.filter(organo__icontains=organo)
@@ -74,6 +85,9 @@ def cassette_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    informes_resultado = []
+    informe_activo = None
+    informe_imagen_base64 = ''
 
     if sel_pk:
         try:
@@ -85,8 +99,37 @@ def cassette_list(request):
                 ]
             except Exception:
                 muestras_con_imagenes = []
+
+            informes_resultado = list(
+                InformeResultado.objects.filter(cassette=selected).order_by('-fecha', '-creado_en', '-id_informe')
+            )
+
+            if informe_pk and informe_pk != 'nuevo':
+                informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
+
+            if informe_activo and informe_activo.imagen:
+                informe_imagen_base64 = _imagen_bytes_a_base64(informe_activo.imagen)
+            elif selected.informe_imagen:
+                informe_imagen_base64 = _imagen_bytes_a_base64(selected.informe_imagen)
         except Cassette.DoesNotExist:
             pass
+
+    informe_initial = None
+    if selected:
+        if informe_activo:
+            informe_initial = {
+                'informe_descripcion': informe_activo.descripcion or '',
+                'informe_fecha': informe_activo.fecha,
+                'informe_tincion': informe_activo.tincion or '',
+                'informe_observaciones': informe_activo.observaciones or '',
+            }
+        else:
+            informe_initial = {
+                'informe_descripcion': selected.informe_descripcion or '',
+                'informe_fecha': selected.informe_fecha,
+                'informe_tincion': selected.informe_tincion or '',
+                'informe_observaciones': selected.informe_observaciones or '',
+            }
 
     return render(request, 'web/cassettes.html', {
         'cassettes':             qs,
@@ -95,12 +138,10 @@ def cassette_list(request):
         'cassette_form':         CassetteForm(instance=selected) if selected else CassetteForm(),
         'nuevo_cassette_form':   CassetteForm(),
         'muestra_form':          MuestraForm(),
-        'informe_form': InformeForm(initial={
-            'informe_descripcion':   selected.informe_descripcion   if selected else '',
-            'informe_fecha':         selected.informe_fecha          if selected else '',
-            'informe_tincion':       selected.informe_tincion        if selected else '',
-            'informe_observaciones': selected.informe_observaciones  if selected else '',
-        }) if selected else None,
+        'informe_form': InformeForm(initial=informe_initial) if selected else None,
+        'informes_resultado': informes_resultado,
+        'informe_activo': informe_activo,
+        'informe_imagen_base64': informe_imagen_base64,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 
@@ -152,17 +193,39 @@ def cassette_informe(request, pk):
     cassette = get_object_or_404(Cassette, pk=pk)
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
-        cassette.informe_descripcion   = form.cleaned_data['informe_descripcion']
-        cassette.informe_fecha         = form.cleaned_data['informe_fecha']
-        cassette.informe_tincion       = form.cleaned_data['informe_tincion']
-        cassette.informe_observaciones = form.cleaned_data['informe_observaciones']
+        informe_id = request.POST.get('informe_id', '').strip()
+        informe = None
+
+        if informe_id:
+            informe = InformeResultado.objects.filter(pk=informe_id, cassette=cassette).first()
+
+        if informe is None:
+            informe = InformeResultado(cassette=cassette)
+
+        informe.descripcion = form.cleaned_data['informe_descripcion']
+        informe.fecha = form.cleaned_data['informe_fecha']
+        informe.tincion = form.cleaned_data['informe_tincion']
+        informe.observaciones = form.cleaned_data['informe_observaciones']
+
         img = form.cleaned_data.get('informe_imagen')
         if img:
-            cassette.informe_imagen = img.read()
-        cassette.save()
+            informe.imagen = img.read()
+
+        informe.save()
         messages.success(request, 'Informe de resultados guardado correctamente.')
+        return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe&informe={informe.pk}')
     else:
         messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe')
+
+
+@login_required
+@require_POST
+def cassette_informe_delete(request, pk, informe_pk):
+    cassette = get_object_or_404(Cassette, pk=pk)
+    informe = get_object_or_404(InformeResultado, pk=informe_pk, cassette=cassette)
+    informe.delete()
+    messages.success(request, 'Informe eliminado correctamente.')
     return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe')
 
 
@@ -233,6 +296,7 @@ def citologia_list(request):
     inicio = request.GET.get('inicio', '').strip()
     fin    = request.GET.get('fin', '').strip()
     sel_pk = request.GET.get('citologia', '').strip()
+    informe_pk = request.GET.get('informe', '').strip()
 
     if organo and organo != '*':
         qs = qs.filter(organo__icontains=organo)
@@ -246,6 +310,9 @@ def citologia_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    informes_resultado = []
+    informe_activo = None
+    informe_imagen_base64 = ''
 
     if sel_pk:
         try:
@@ -254,25 +321,35 @@ def citologia_list(request):
                 {'muestra': m, 'imagenes': ImagenCitologia.objects.filter(muestra=m)}
                 for m in MuestraCitologia.objects.filter(citologia=selected)
             ]
+
+            informes_resultado = list(
+                InformeResultado.objects.filter(citologia=selected).order_by('-fecha', '-creado_en', '-id_informe')
+            )
+
+            if informe_pk and informe_pk != 'nuevo':
+                informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
+
+            if informe_activo and informe_activo.imagen:
+                informe_imagen_base64 = _imagen_bytes_a_base64(informe_activo.imagen)
         except Citologia.DoesNotExist:
             pass
 
     informe_initial = None
     if selected:
-        informe_initial = {
-            'informe_descripcion': getattr(selected, 'informe_descripcion', '') or '',
-            'informe_fecha': getattr(selected, 'informe_fecha', '') or '',
-            'informe_tincion': getattr(selected, 'informe_tincion', '') or '',
-            'informe_observaciones': getattr(selected, 'informe_observaciones', '') or '',
-        }
-        informe_session = request.session.get('citologia_informes', {}).get(str(selected.pk), {})
-        if informe_session:
-            informe_initial.update({
-                'informe_descripcion': informe_session.get('informe_descripcion', informe_initial['informe_descripcion']),
-                'informe_fecha': informe_session.get('informe_fecha', informe_initial['informe_fecha']),
-                'informe_tincion': informe_session.get('informe_tincion', informe_initial['informe_tincion']),
-                'informe_observaciones': informe_session.get('informe_observaciones', informe_initial['informe_observaciones']),
-            })
+        if informe_activo:
+            informe_initial = {
+                'informe_descripcion': informe_activo.descripcion or '',
+                'informe_fecha': informe_activo.fecha,
+                'informe_tincion': informe_activo.tincion or '',
+                'informe_observaciones': informe_activo.observaciones or '',
+            }
+        else:
+            informe_initial = {
+                'informe_descripcion': '',
+                'informe_fecha': '',
+                'informe_tincion': '',
+                'informe_observaciones': '',
+            }
 
     return render(request, 'web/citologias.html', {
         'citologias':            qs,
@@ -282,6 +359,9 @@ def citologia_list(request):
         'nueva_citologia_form':  CitologiaForm(),
         'muestra_form':          MuestraCitologiaForm(),
         'informe_form': InformeForm(initial=informe_initial) if selected else None,
+        'informes_resultado': informes_resultado,
+        'informe_activo': informe_activo,
+        'informe_imagen_base64': informe_imagen_base64,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 
@@ -333,38 +413,39 @@ def citologia_informe(request, pk):
     citologia = get_object_or_404(Citologia, pk=pk)
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
-        tiene_campos_informe = all(
-            hasattr(citologia, campo)
-            for campo in ['informe_descripcion', 'informe_fecha', 'informe_tincion', 'informe_observaciones', 'informe_imagen']
-        )
+        informe_id = request.POST.get('informe_id', '').strip()
+        informe = None
 
-        if tiene_campos_informe:
-            citologia.informe_descripcion = form.cleaned_data['informe_descripcion']
-            citologia.informe_fecha = form.cleaned_data['informe_fecha']
-            citologia.informe_tincion = form.cleaned_data['informe_tincion']
-            citologia.informe_observaciones = form.cleaned_data['informe_observaciones']
-            img = form.cleaned_data.get('informe_imagen')
-            if img:
-                citologia.informe_imagen = img.read()
-            citologia.save()
-            messages.success(request, 'Informe de resultados guardado correctamente.')
-        else:
-            informes = request.session.get('citologia_informes', {})
-            informes[str(pk)] = {
-                'informe_descripcion': form.cleaned_data.get('informe_descripcion') or '',
-                'informe_fecha': form.cleaned_data.get('informe_fecha').isoformat() if form.cleaned_data.get('informe_fecha') else '',
-                'informe_tincion': form.cleaned_data.get('informe_tincion') or '',
-                'informe_observaciones': form.cleaned_data.get('informe_observaciones') or '',
-            }
-            request.session['citologia_informes'] = informes
-            request.session.modified = True
+        if informe_id:
+            informe = InformeResultado.objects.filter(pk=informe_id, citologia=citologia).first()
 
-            if form.cleaned_data.get('informe_imagen'):
-                messages.warning(request, 'El texto del informe se guardó correctamente, pero la imagen requiere campos de informe en el modelo de citologías.')
-            else:
-                messages.success(request, 'Informe de resultados guardado correctamente.')
+        if informe is None:
+            informe = InformeResultado(citologia=citologia)
+
+        informe.descripcion = form.cleaned_data['informe_descripcion']
+        informe.fecha = form.cleaned_data['informe_fecha']
+        informe.tincion = form.cleaned_data['informe_tincion']
+        informe.observaciones = form.cleaned_data['informe_observaciones']
+
+        img = form.cleaned_data.get('informe_imagen')
+        if img:
+            informe.imagen = img.read()
+
+        informe.save()
+        messages.success(request, 'Informe de resultados guardado correctamente.')
+        return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe&informe={informe.pk}')
     else:
         messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe')
+
+
+@login_required
+@require_POST
+def citologia_informe_delete(request, pk, informe_pk):
+    citologia = get_object_or_404(Citologia, pk=pk)
+    informe = get_object_or_404(InformeResultado, pk=informe_pk, citologia=citologia)
+    informe.delete()
+    messages.success(request, 'Informe eliminado correctamente.')
     return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe')
 
 

@@ -489,12 +489,60 @@
                     <form id="formInformeCitologia" method="post" action="{% url 'citologia_informe' selected.pk %}" enctype="multipart/form-data"
                         class="informe__scroll p-3">
                         {% csrf_token %}
+                        <input type="hidden" name="informe_id" value="{% if informe_activo %}{{ informe_activo.pk }}{% endif %}">
                         <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
                             <span class="blue__color--negrita">Citología seleccionada:</span>
                             <span class="blue__color">{{ selected.citologia }}</span>
                             <span class="mx-2">·</span>
                             <span class="blue__color--negrita">Paciente:</span>
                             <span class="blue__color">{{ selected.descripcion|truncatechars:45 }}</span>
+                        </div>
+                        <div class="mb-3 p-3 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="blue__color--negrita">Historial de informes</span>
+                                <a href="{% url 'citologias' %}?citologia={{ selected.pk }}&tab=informe&informe=nuevo"
+                                    class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-plus me-1"></i> Añadir informe
+                                </a>
+                            </div>
+                            <div class="table__scroll" style="max-height: 12rem;">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Descripción</th>
+                                            <th>Tinción</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for informe in informes_resultado %}
+                                        <tr>
+                                            <td>{{ informe.fecha|default:'Sin fecha' }}</td>
+                                            <td>{{ informe.descripcion|default:'Sin descripción'|truncatechars:55 }}</td>
+                                            <td>{{ informe.tincion|default:'Sin resultado' }}</td>
+                                            <td class="text-end" style="white-space:nowrap;">
+                                                <a href="{% url 'citologias' %}?citologia={{ selected.pk }}&tab=informe&informe={{ informe.pk }}"
+                                                    class="btn btn-sm btn-link p-0 me-2" title="Cargar informe">
+                                                    <i class="fa-solid fa-file-import blue__color--negrita"></i>
+                                                </a>
+                                                <form method="post" action="{% url 'citologia_informe_delete' selected.pk informe.pk %}" class="d-inline"
+                                                    onsubmit="return confirm('¿Eliminar este informe?')">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-link p-0" title="Eliminar informe">
+                                                        <i class="fa-solid fa-trash-can text-danger"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Descripción</label>
@@ -515,6 +563,13 @@
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Formulario (imagen)</label>
                             {{ informe_form.informe_imagen }}
+                            {% if informe_imagen_base64 %}
+                            <div class="mt-2 p-2 rounded" style="border:1px solid var(--border-color); background: var(--bg-light);">
+                                <small class="text-muted d-block mb-1">Vista previa del informe cargado</small>
+                                <img src="data:image/*;base64,{{ informe_imagen_base64 }}" alt="Imagen informe"
+                                    style="max-width:100%; max-height:220px; border-radius:8px; object-fit:contain;">
+                            </div>
+                            {% endif %}
                             <small class="text-muted d-block mt-1">Si no subes una imagen nueva, se conserva la anterior.</small>
                         </div>
                         <div class="text-end mt-4">
@@ -825,22 +880,108 @@
             });
         });
 
-        // ── Toggle Muestras / Informe ─────────────────────────────────────────
-        document.getElementById('btnToggleInforme')?.addEventListener('click', () => {
-            document.getElementById('sectionMuestras').classList.add('d-none');
-            document.getElementById('sectionInforme').classList.remove('d-none');
-        });
-        document.getElementById('btnToggleMuestras')?.addEventListener('click', () => {
-            document.getElementById('sectionInforme').classList.add('d-none');
-            document.getElementById('sectionMuestras').classList.remove('d-none');
+        // ── Informe en modal centrado ─────────────────────────────────────────
+        const sectionMuestras = document.getElementById('sectionMuestras');
+        const sectionInforme = document.getElementById('sectionInforme');
+        const btnToggleInforme = document.getElementById('btnToggleInforme');
+        const btnToggleMuestras = document.getElementById('btnToggleMuestras');
+
+        function abrirMenuInformes() {
+            if (!sectionMuestras || !sectionInforme) return;
+
+            sectionMuestras.classList.add('d-none');
+            sectionInforme.classList.remove('d-none');
+
+            const panelInforme = sectionInforme.querySelector('.container__muestra');
+            if (panelInforme) {
+                panelInforme.style.position = 'relative';
+                panelInforme.style.width = 'min(980px, 94vw)';
+                panelInforme.style.maxHeight = 'none';
+                panelInforme.style.overflowY = 'visible';
+                panelInforme.style.margin = '0 auto';
+                panelInforme.style.padding = '1.25rem';
+                panelInforme.style.borderRadius = '14px';
+                panelInforme.style.background = 'var(--bg-light)';
+                panelInforme.style.boxShadow = '0 18px 45px rgba(0,0,0,.25)';
+            }
+
+            sectionInforme.style.position = 'fixed';
+            sectionInforme.style.inset = '0';
+            sectionInforme.style.zIndex = '1600';
+            sectionInforme.style.display = 'flex';
+            sectionInforme.style.alignItems = 'center';
+            sectionInforme.style.justifyContent = 'center';
+            sectionInforme.style.padding = '1rem';
+            sectionInforme.style.margin = '0';
+            sectionInforme.style.background = 'rgba(8, 25, 58, 0.45)';
+            sectionInforme.style.backdropFilter = 'blur(2px)';
+            sectionInforme.style.overflowY = 'auto';
+
+            const scrollInternosInforme = sectionInforme.querySelectorAll('.informe__scroll, .table__scroll, .table__scroll--m');
+            scrollInternosInforme.forEach((el) => {
+                el.style.height = 'auto';
+                el.style.maxHeight = 'none';
+                el.style.overflow = 'visible';
+                el.style.overflowY = 'visible';
+            });
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarMenuInformes() {
+            if (!sectionMuestras || !sectionInforme) return;
+
+            sectionInforme.classList.add('d-none');
+            sectionMuestras.classList.remove('d-none');
+
+            const panelInforme = sectionInforme.querySelector('.container__muestra');
+            if (panelInforme) {
+                panelInforme.style.position = '';
+                panelInforme.style.width = '';
+                panelInforme.style.maxHeight = '';
+                panelInforme.style.overflowY = '';
+                panelInforme.style.margin = '';
+                panelInforme.style.padding = '';
+                panelInforme.style.borderRadius = '';
+                panelInforme.style.background = '';
+                panelInforme.style.boxShadow = '';
+            }
+
+            sectionInforme.style.position = '';
+            sectionInforme.style.inset = '';
+            sectionInforme.style.zIndex = '';
+            sectionInforme.style.display = '';
+            sectionInforme.style.alignItems = '';
+            sectionInforme.style.justifyContent = '';
+            sectionInforme.style.padding = '';
+            sectionInforme.style.margin = '';
+            sectionInforme.style.background = '';
+            sectionInforme.style.backdropFilter = '';
+            sectionInforme.style.overflowY = '';
+
+            const scrollInternosInforme = sectionInforme.querySelectorAll('.informe__scroll, .table__scroll, .table__scroll--m');
+            scrollInternosInforme.forEach((el) => {
+                el.style.height = '';
+                el.style.maxHeight = '';
+                el.style.overflow = '';
+                el.style.overflowY = '';
+            });
+
+            document.body.style.overflow = '';
+        }
+
+        btnToggleInforme?.addEventListener('click', abrirMenuInformes);
+        btnToggleMuestras?.addEventListener('click', cerrarMenuInformes);
+
+        sectionInforme?.addEventListener('click', (e) => {
+            if (e.target === sectionInforme) cerrarMenuInformes();
         });
 
-        // Si venimos de guardar el informe, mantener esa pestaña abierta
+        // Si venimos de guardar el informe, mantenerlo abierto en modo modal
         (function () {
             const params = new URLSearchParams(window.location.search);
             if (params.get('tab') === 'informe') {
-                document.getElementById('sectionMuestras')?.classList.add('d-none');
-                document.getElementById('sectionInforme')?.classList.remove('d-none');
+                abrirMenuInformes();
             }
         })();
 

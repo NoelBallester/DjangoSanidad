@@ -258,6 +258,8 @@ class InformeResultado(models.Model):
     tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id', null=True, blank=True)
     hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id', null=True, blank=True)
     microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id', null=True, blank=True)
+    cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE, db_column='cassette_id', null=True, blank=True)
+    citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologia_id', null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:

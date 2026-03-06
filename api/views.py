@@ -901,3 +901,13 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
     def por_microbiologia(self, request, id=None):
         informes = InformeResultado.objects.filter(microbiologia_id=id).order_by('-fecha', '-id_informe')
         return Response(InformeResultadoSerializer(informes, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='cassette/(?P<id>[^/.]+)')
+    def por_cassette(self, request, id=None):
+        informes = InformeResultado.objects.filter(cassette_id=id).order_by('-fecha', '-id_informe')
+        return Response(InformeResultadoSerializer(informes, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='citologia/(?P<id>[^/.]+)')
+    def por_citologia(self, request, id=None):
+        informes = InformeResultado.objects.filter(citologia_id=id).order_by('-fecha', '-id_informe')
+        return Response(InformeResultadoSerializer(informes, many=True).data)

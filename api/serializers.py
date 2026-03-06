@@ -212,7 +212,7 @@ class InformeResultadoSerializer(serializers.ModelSerializer):
         model = InformeResultado
         fields = [
             'id_informe', 'descripcion', 'fecha', 'tincion', 'observaciones', 'imagen', 'imagen_base64',
-            'tubo', 'hematologia', 'microbiologia', 'creado_en'
+            'tubo', 'hematologia', 'microbiologia', 'cassette', 'citologia', 'creado_en'
         ]
         read_only_fields = ['id_informe', 'imagen_base64', 'creado_en']
 
