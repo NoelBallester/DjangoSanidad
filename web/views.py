@@ -516,9 +516,12 @@ def imagen_hematologia_upload(request, muestra_pk):
     muestra = get_object_or_404(MuestraHematologia, pk=muestra_pk)
     form = ImagenHematologiaForm(request.POST, request.FILES)
     if form.is_valid():
-        img = form.save(commit=False)
-        img.muestra = muestra
-        img.save()
+        img_file = form.cleaned_data.get('imagen')
+        if img_file:
+            ImagenHematologia.objects.create(
+                muestra=muestra,
+                imagen=img_file.read()
+            )
     return redirect(reverse('hematologias') + f'?hematologia={muestra.hematologia_id}')
 
 
@@ -527,7 +530,6 @@ def imagen_hematologia_upload(request, muestra_pk):
 def imagen_hematologia_delete(request, pk):
     imagen = get_object_or_404(ImagenHematologia, pk=pk)
     hid = imagen.muestra.hematologia_id
-    imagen.imagen.delete(save=False)
     imagen.delete()
     return redirect(reverse('hematologias') + f'?hematologia={hid}')
 

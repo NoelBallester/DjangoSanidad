@@ -282,10 +282,10 @@ class MuestraHematologiaForm(forms.ModelForm):
         return obj
 
 
-class ImagenHematologiaForm(forms.ModelForm):
-    class Meta:
-        model = ImagenHematologia
-        fields = ['imagen']
+class ImagenHematologiaForm(forms.Form):
+    imagen = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control blue__color', 'accept': '.jpg,.jpeg,.png,.gif'}))
+
+
 
 
 _W = {'class': 'form-control blue__color'}
