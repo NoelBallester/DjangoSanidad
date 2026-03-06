@@ -1,0 +1,16 @@
+Crear el entorno virtual (una sola vez desde la raíz del proyecto):
+
+# desde /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidadpython3 -m venv venv
+Si te da error “ensurepip is not available” instala primero el paquete del sistema
+(sudo apt install python3-venv).
+
+Activarlo cada vez que trabajes:
+
+source venv/bin/activate    # en Bash/Zsh# o, si usas fish: source venv/bin/activate.fish# o, en Windows PowerShell: .\venv\Scripts\Activate.ps1
+Instalar las dependencias del proyecto dentro del virtualenv:
+
+pip install -r requirements.txt   # si existe el fichero# o al menos Django/otras libs necesarias:pip install django djangorestframework django-cors-headers pymysql
+Ahora ya puedes ejecutar python manage.py runserver (y cualquier otro
+comando manage.py) sin errores de “ModuleNotFound”.
+
+python manage.py runserver
