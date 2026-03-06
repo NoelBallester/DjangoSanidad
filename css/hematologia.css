@@ -305,6 +305,13 @@ td {
     border-radius: 0.25rem;
 }
 
+.Muestras__num,
+.tubo__num {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-left: 0.5rem;
+}
+
 .muestra__num {
     margin: 2px 0 0 -65px;
     text-align: left !important;

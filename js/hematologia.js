@@ -54,6 +54,7 @@ const muestrasDescripcion = document.getElementById("Muestras__descripcion");
 const muestrasTipo = document.getElementById("Muestras__tipo");
 const muestrasOrgano = document.getElementById("Muestras__organo");
 const muestrasFecha = document.getElementById("Muestras__fecha");
+const muestrasTecnicoId = document.getElementById("Muestras__tecnico_id");
 const muestrasCaracteristicas = document.getElementById("Muestras__caracteristicas");
 const muestrasObservaciones = document.getElementById("Muestras__observaciones");
 
@@ -633,6 +634,7 @@ const imprimirDetalleHematologia = (h) => {
   if (muestrasTipo) muestrasTipo.textContent = h.organo || "";
   if (muestrasOrgano) muestrasOrgano.textContent = h.organo || "";
   if (muestrasFecha) muestrasFecha.textContent = formatFecha(h.fecha);
+  if (muestrasTecnicoId) muestrasTecnicoId.textContent = h.tecnico || "—";
   if (muestrasCaracteristicas) muestrasCaracteristicas.textContent = h.caracteristicas || "";
   if (muestrasObservaciones) muestrasObservaciones.textContent = h.observaciones || "";
 
@@ -666,6 +668,7 @@ const limpiarDetalleHematologia = () => {
   if (muestrasTipo) muestrasTipo.textContent = "";
   if (muestrasOrgano) muestrasOrgano.textContent = "";
   if (muestrasFecha) muestrasFecha.textContent = "";
+  if (muestrasTecnicoId) muestrasTecnicoId.textContent = "";
   if (muestrasCaracteristicas) muestrasCaracteristicas.textContent = "";
   if (muestrasObservaciones) muestrasObservaciones.textContent = "";
   if (listaTubos) listaTubos.innerHTML = "";
