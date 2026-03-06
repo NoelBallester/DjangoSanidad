@@ -261,7 +261,7 @@
                         <h2 class="cassette__title">Citologías</h2>
                     </div>
                     <div class="col-2 d-flex justify-content-end align-items-center gap-2">
-                        <button type="button" class="btn m-0 p-0 icono__efect" id="btnformnuevacitologia">
+                        <button type="button" class="btn m-0 p-0 icono__efect" id="btnformnuevacitologia" data-open-modal="modalnuevaCitologia">
                             <i title="Nueva Citología"
                                 class="m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
@@ -320,7 +320,7 @@
                                 <i title="Borrar Citología"
                                     class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
-                            <div id="btnformmodificarcitologia" style="cursor:pointer">
+                            <div id="btnformmodificarcitologia" data-open-modal="modalupdateCitologia" style="cursor:pointer">
                                 <i title="Modificar Citología"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
@@ -681,7 +681,7 @@
                 <div class="form__header">
                     <h2 class="cassette__title m-0">Nueva Citología</h2>
                     <i class="fa-solid fa-xmark cassette__icon cassette__icon--infocassette fs-2"
-                        id="btnformcerrarnuevaCitologia"></i>
+                        id="btnformcerrarnuevaCitologia" data-close-modal="modalnuevaCitologia"></i>
                 </div>
                 <hr class="m-0">
                 {% include 'web/_citologia_fields.html' %}
@@ -698,7 +698,7 @@
                 <div class="form__header">
                     <h2 class="cassette__title">Modificar Citología</h2>
                     <i class="fa-solid fa-xmark cassette__icon cassette__icon--infocassette fs-2"
-                        id="btnformcerrarmodificarCitologia"></i>
+                        id="btnformcerrarmodificarCitologia" data-close-modal="modalupdateCitologia"></i>
                 </div>
                 <hr>
                 {% with c=selected %}
@@ -764,7 +764,7 @@
                 <div class="form__header">
                     <h2 class="cassette__title m-0">Nueva Citología</h2>
                     <i class="fa-solid fa-xmark cassette__icon cassette__icon--infocassette fs-2"
-                        id="btnformcerrarnuevaCitologia"></i>
+                        id="btnformcerrarnuevaCitologia" data-close-modal="modalnuevaCitologia"></i>
                 </div>
                 <hr class="m-0">
                 {% include 'web/_citologia_fields.html' %}
@@ -819,6 +819,53 @@
     <script src="{% static 'js/darkmode.js' %}" defer></script>
 
     <script>
+        // Fallback robusto: apertura/cierre de modales por data-attributes.
+        (function () {
+            function showModalById(id) {
+                if (!id) return;
+                var modal = document.getElementById(id);
+                if (!modal) return;
+                modal.classList.add('open');
+                modal.classList.remove('hidemodal');
+                modal.classList.add('showmodal');
+                modal.style.display = 'flex';
+            }
+
+            function hideModalById(id) {
+                if (!id) return;
+                var modal = document.getElementById(id);
+                if (!modal) return;
+                modal.classList.remove('open');
+                modal.classList.remove('showmodal');
+                modal.classList.add('hidemodal');
+            }
+
+            document.addEventListener('click', function (e) {
+                var openTrigger = e.target.closest('[data-open-modal]');
+                if (openTrigger) {
+                    e.preventDefault();
+                    showModalById(openTrigger.getAttribute('data-open-modal'));
+                    return;
+                }
+
+                var closeTrigger = e.target.closest('[data-close-modal]');
+                if (closeTrigger) {
+                    e.preventDefault();
+                    hideModalById(closeTrigger.getAttribute('data-close-modal'));
+                }
+            });
+
+            document.querySelectorAll('.mimodal').forEach(function (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('open');
+                        modal.classList.remove('showmodal');
+                        modal.classList.add('hidemodal');
+                    }
+                });
+            });
+        })();
+
         // ── Filtro por órgano ─────────────────────────────────────────────────
         function filtrarPorOrgano() {
             const organoSelect = document.getElementById('organos');
