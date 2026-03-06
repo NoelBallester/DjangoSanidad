@@ -93,7 +93,7 @@
     {% if messages %}
     <div class="container-fluid px-5 pt-2">
         {% for msg in messages %}
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <div class="alert {% if 'success' in msg.tags %}alert-success{% elif 'error' in msg.tags %}alert-danger{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
             {{ msg }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -480,9 +480,16 @@
                             <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
                         </button>
                     </div>
-                    <form method="post" action="{% url 'cassette_informe' selected.pk %}" enctype="multipart/form-data"
+                    <form id="formInformeCassette" method="post" action="{% url 'cassette_informe' selected.pk %}" enctype="multipart/form-data"
                         class="informe__scroll p-3">
                         {% csrf_token %}
+                        <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
+                            <span class="blue__color--negrita">Cassette seleccionado:</span>
+                            <span class="blue__color">{{ selected.cassette }}</span>
+                            <span class="mx-2">·</span>
+                            <span class="blue__color--negrita">Paciente:</span>
+                            <span class="blue__color">{{ selected.descripcion|truncatechars:45 }}</span>
+                        </div>
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Descripción</label>
                             {{ informe_form.informe_descripcion }}
@@ -502,9 +509,10 @@
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Formulario (imagen)</label>
                             {{ informe_form.informe_imagen }}
+                            <small class="text-muted d-block mt-1">Si no subes una imagen nueva, se conserva la anterior.</small>
                         </div>
                         <div class="text-end mt-4">
-                            <button type="submit" class="btn fondo w-100 py-2">
+                            <button id="btnGuardarInforme" type="submit" class="btn fondo w-100 py-2">
                                 <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
                             </button>
                         </div>
@@ -812,6 +820,23 @@
         document.getElementById('btnToggleMuestras')?.addEventListener('click', () => {
             document.getElementById('sectionInforme').classList.add('d-none');
             document.getElementById('sectionMuestras').classList.remove('d-none');
+        });
+
+        // Si venimos de guardar el informe, mantener esa pestaña abierta
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('tab') === 'informe') {
+                document.getElementById('sectionMuestras')?.classList.add('d-none');
+                document.getElementById('sectionInforme')?.classList.remove('d-none');
+            }
+        })();
+
+        // UX práctica: bloquear doble submit y feedback visual al guardar informe
+        document.getElementById('formInformeCassette')?.addEventListener('submit', function () {
+            const btn = document.getElementById('btnGuardarInforme');
+            if (!btn) return;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
         });
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────

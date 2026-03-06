@@ -160,7 +160,10 @@ def cassette_informe(request, pk):
         if img:
             cassette.informe_imagen = img.read()
         cassette.save()
-    return redirect(reverse('cassettes') + f'?cassette={pk}')
+        messages.success(request, 'Informe de resultados guardado correctamente.')
+    else:
+        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe')
 
 
 # ── Muestras ──────────────────────────────────────────────────────────────────
