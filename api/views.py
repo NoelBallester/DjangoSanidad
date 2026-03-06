@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from django.db.models import Q
 from datetime import datetime
 import base64
@@ -443,6 +444,7 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
     queryset = MuestraTubo.objects.all()
     serializer_class = MuestraTuboSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -483,6 +485,7 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
     queryset = ImagenTubo.objects.all()
     serializer_class = ImagenTuboSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         """Crea una imagen guardando el archivo como binario en la BD"""
@@ -520,7 +523,8 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
 class HematologiaViewSet(viewsets.ModelViewSet):
     queryset = Hematologia.objects.all().order_by('-fecha')
     serializer_class = HematologiaSerializer
-    authentication_classes = []  # No requiere autenticación
+    authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -609,6 +613,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraHematologia.objects.all()
     serializer_class = MuestraHematologiaSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -626,7 +631,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         # Si hay imagen, crear el registro en ImagenHematologia
         if imagen_file:
             ImagenHematologia.objects.create(
-                imagen=imagen_file,
+                imagen=imagen_file.read(),
                 muestra=muestra
             )
         
@@ -649,6 +654,7 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenHematologia.objects.all()
     serializer_class = ImagenHematologiaSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         """Crea una imagen para una sub-muestra de hematología"""
@@ -685,7 +691,8 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
 class MicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = Microbiologia.objects.all().order_by('-fecha')
     serializer_class = MicrobiologiaSerializer
-    authentication_classes = []  # No requiere autenticación
+    authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -781,6 +788,7 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraMicrobiologia.objects.all()
     serializer_class = MuestraMicrobiologiaSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -795,7 +803,7 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
         
         if imagen_file:
             ImagenMicrobiologia.objects.create(
-                imagen=imagen_file,
+                imagen=imagen_file.read(),
                 muestra=muestra
             )
         
@@ -815,6 +823,7 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenMicrobiologia.objects.all()
     serializer_class = ImagenMicrobiologiaSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
     
     def create(self, request):
         imagen_file = request.FILES.get('imagen', None)
@@ -852,6 +861,7 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
     queryset = InformeResultado.objects.all().order_by('-fecha', '-id_informe')
     serializer_class = InformeResultadoSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
 
     def create(self, request):
         if request.FILES.get('imagen'):
