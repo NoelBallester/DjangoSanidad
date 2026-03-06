@@ -254,6 +254,23 @@ def citologia_list(request):
         except Citologia.DoesNotExist:
             pass
 
+    informe_initial = None
+    if selected:
+        informe_initial = {
+            'informe_descripcion': getattr(selected, 'informe_descripcion', '') or '',
+            'informe_fecha': getattr(selected, 'informe_fecha', '') or '',
+            'informe_tincion': getattr(selected, 'informe_tincion', '') or '',
+            'informe_observaciones': getattr(selected, 'informe_observaciones', '') or '',
+        }
+        informe_session = request.session.get('citologia_informes', {}).get(str(selected.pk), {})
+        if informe_session:
+            informe_initial.update({
+                'informe_descripcion': informe_session.get('informe_descripcion', informe_initial['informe_descripcion']),
+                'informe_fecha': informe_session.get('informe_fecha', informe_initial['informe_fecha']),
+                'informe_tincion': informe_session.get('informe_tincion', informe_initial['informe_tincion']),
+                'informe_observaciones': informe_session.get('informe_observaciones', informe_initial['informe_observaciones']),
+            })
+
     return render(request, 'web/citologias.html', {
         'citologias':            qs,
         'selected':              selected,
@@ -261,7 +278,7 @@ def citologia_list(request):
         'citologia_form':        CitologiaForm(instance=selected) if selected else CitologiaForm(),
         'nueva_citologia_form':  CitologiaForm(),
         'muestra_form':          MuestraCitologiaForm(),
-        'informe_form': None,
+        'informe_form': InformeForm(initial=informe_initial) if selected else None,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 
@@ -313,15 +330,39 @@ def citologia_informe(request, pk):
     citologia = get_object_or_404(Citologia, pk=pk)
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
-        citologia.informe_descripcion   = form.cleaned_data['informe_descripcion']
-        citologia.informe_fecha         = form.cleaned_data['informe_fecha']
-        citologia.informe_tincion       = form.cleaned_data['informe_tincion']
-        citologia.informe_observaciones = form.cleaned_data['informe_observaciones']
-        img = form.cleaned_data.get('informe_imagen')
-        if img:
-            citologia.informe_imagen = img.read()
-        citologia.save()
-    return redirect(reverse('citologias') + f'?citologia={pk}')
+        tiene_campos_informe = all(
+            hasattr(citologia, campo)
+            for campo in ['informe_descripcion', 'informe_fecha', 'informe_tincion', 'informe_observaciones', 'informe_imagen']
+        )
+
+        if tiene_campos_informe:
+            citologia.informe_descripcion = form.cleaned_data['informe_descripcion']
+            citologia.informe_fecha = form.cleaned_data['informe_fecha']
+            citologia.informe_tincion = form.cleaned_data['informe_tincion']
+            citologia.informe_observaciones = form.cleaned_data['informe_observaciones']
+            img = form.cleaned_data.get('informe_imagen')
+            if img:
+                citologia.informe_imagen = img.read()
+            citologia.save()
+            messages.success(request, 'Informe de resultados guardado correctamente.')
+        else:
+            informes = request.session.get('citologia_informes', {})
+            informes[str(pk)] = {
+                'informe_descripcion': form.cleaned_data.get('informe_descripcion') or '',
+                'informe_fecha': form.cleaned_data.get('informe_fecha').isoformat() if form.cleaned_data.get('informe_fecha') else '',
+                'informe_tincion': form.cleaned_data.get('informe_tincion') or '',
+                'informe_observaciones': form.cleaned_data.get('informe_observaciones') or '',
+            }
+            request.session['citologia_informes'] = informes
+            request.session.modified = True
+
+            if form.cleaned_data.get('informe_imagen'):
+                messages.warning(request, 'El texto del informe se guardó correctamente, pero la imagen requiere campos de informe en el modelo de citologías.')
+            else:
+                messages.success(request, 'Informe de resultados guardado correctamente.')
+    else:
+        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe')
 
 
 # ── Muestras Citología ────────────────────────────────────────────────────────
