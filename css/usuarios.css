@@ -185,3 +185,15 @@
     color: #e2e8f0 !important;
     border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
+:root.dark-theme .btn__modal.blue__color,
+:root.dark-theme .btn__modal.blue__color:hover,
+html.dark-theme .btn__modal.blue__color,
+html.dark-theme .btn__modal.blue__color:hover {
+    color: #ffffff !important;
+}
+
+:root.dark-theme .btn__modal.blue__color i,
+html.dark-theme .btn__modal.blue__color i {
+    color: #ffffff !important;
+}

@@ -169,6 +169,13 @@ body {
   color: white;
 }
 
+:root.dark-theme .visor__btn--primary,
+:root.dark-theme .visor__btn--primary:hover,
+html.dark-theme .visor__btn--primary,
+html.dark-theme .visor__btn--primary:hover {
+  color: #ffffff !important;
+}
+
 .visor__btn--outline {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(12px);
