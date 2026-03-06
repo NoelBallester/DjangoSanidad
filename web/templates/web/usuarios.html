@@ -29,7 +29,72 @@
             }
         })();
     </script>
-    <style>body { display: block !important; }</style>
+    <style>
+        body { display: block !important; }
+
+        html.dark-theme body#body {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark-theme .barra_org.container-fluid {
+            background: #1e293b !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        }
+
+        html.dark-theme main.container-fluid {
+            background: transparent !important;
+        }
+
+        html.dark-theme .table-responsive {
+            background: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px !important;
+            padding: 0.5rem 1rem 0 !important;
+        }
+
+        html.dark-theme table.table {
+            background: transparent !important;
+            border: none !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark-theme table.table thead th {
+            background: #1e293b !important;
+            color: #60a5fa !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+
+        html.dark-theme table.table tbody tr,
+        html.dark-theme table.table tbody tr td {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        html.dark-theme table.table tbody tr:nth-child(odd),
+        html.dark-theme table.table tbody tr:nth-child(odd) td {
+            background: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        html.dark-theme table.table tbody tr:hover,
+        html.dark-theme table.table tbody tr:hover td {
+            background: rgba(59, 130, 246, 0.12) !important;
+        }
+
+        html.dark-theme .text-muted,
+        html.dark-theme td.text-muted,
+        html.dark-theme span.text-muted {
+            color: #cbd5e1 !important;
+            opacity: 1 !important;
+        }
+
+        html.dark-theme .blue__color {
+            color: #60a5fa !important;
+        }
+    </style>
     <title>Usuarios</title>
 </head>
 

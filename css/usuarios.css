@@ -15,8 +15,24 @@
     overflow-x: auto;
 }
 
+.barra_org {
+    background: var(--card-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.table-responsive {
+    background: var(--card-bg);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    padding: 0.5rem 1rem 0;
+}
+
 .table {
-    color: var(--text-color);
+    color: var(--text-main);
+    background: transparent !important;
+    border: none !important;
     vertical-align: middle;
 }
 
@@ -28,6 +44,14 @@
 
 .table td {
     padding: 1rem 0.5rem;
+    color: var(--text-main) !important;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+.table td.text-muted,
+.text-muted {
+    color: var(--text-muted) !important;
+    opacity: 1 !important;
 }
 
 .badge {
@@ -68,6 +92,16 @@
     box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
 }
 
+:root.dark-theme .barra_org {
+    background: rgba(30, 41, 59, 0.92) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark-theme .table-responsive {
+    background: rgba(30, 41, 59, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
 :root.dark-theme .table {
     background-color: rgba(30, 41, 59, 0.5) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
@@ -88,6 +122,16 @@
 
 :root.dark-theme .table tbody tr:hover {
     background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+:root.dark-theme .table td {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark-theme .table td.text-muted,
+:root.dark-theme .text-muted {
+    color: #cbd5e1 !important;
+    opacity: 1 !important;
 }
 
 :root.dark-theme .modal-content {
