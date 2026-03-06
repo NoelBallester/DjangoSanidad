@@ -91,17 +91,21 @@
 
 .nav__list {
   display: flex;
+  align-items: center;
   margin: 0;
   padding: 0;
   gap: 2rem;
 }
 
 .nav__item {
+  display: flex;
+  align-items: center;
   list-style-type: none;
 }
 
 .nav__link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 1rem;
   font-weight: 500;
   text-transform: capitalize;
@@ -139,7 +143,7 @@
 
 /* Logout button inside navbar forms: keep same geometry as links */
 .nav__item form {
-  display: inline-flex !important;
+  display: flex !important;
   align-items: center;
   margin: 0;
   padding: 0;
