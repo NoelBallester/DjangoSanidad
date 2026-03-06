@@ -152,10 +152,10 @@ const modificarMuestra = document.getElementById("modificarAnalysisForm");
 const modalmodificarMuestra = document.getElementById("modalmodificarAnalysis");
 const modaldetalleMuestra = document.getElementById("modaldetalleTubo");
 const btnformmodificarMuestra = document.getElementById(
-  "btnformmodificartubo" // This one seems to not be duplicated in my grep? Let's check.
+  "btnformmodificarMuestra"
 );
 const btnformcerrarmodificarMuestra = document.getElementById(
-  "btnformcerrarmodificarTubo"
+  "btnformcerrarmodificarMuestra"
 );
 
 // Datos para modificar un análisis
@@ -461,7 +461,7 @@ const limpiarModalMuestra = () => {
 };
 
 const cargarMuestraUpdateModal = async (event) => {
-  if (!tuboId) {
+  if (!tuboId || !muestraId) {
     if (event) event.preventDefault();
     alerttubo.classList.remove("ocultar");
   } else {
@@ -1175,13 +1175,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Modificar Tubo
   btnmodificartubo.addEventListener("click", () => {
-    btnformmodificartuboMain.click();
+    if (!modalupdateTubo.classList.contains("showmodal")) {
+      cargarTuboUpdateModal();
+      modalupdateTubo.classList.add("showmodal");
+      modalupdateTubo.classList.remove("hidemodal");
+      modalupdateTubo.style.display = "flex";
+    }
   });
 
   btnformcerrarmodificarTubo.addEventListener("click", () => {
-    if (!modalupdateTuboMain.classList.contains("hidemodal")) {
-      modalupdateTuboMain.classList.add("hidemodal");
-      modalupdateTuboMain.classList.remove("showmodal");
+    if (!modalupdateTubo.classList.contains("hidemodal")) {
+      modalupdateTubo.classList.add("hidemodal");
+      modalupdateTubo.classList.remove("showmodal");
+      setTimeout(() => {
+        modalupdateTubo.style.display = "none";
+      }, 300);
     }
   });
 
@@ -1261,13 +1269,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Modificar Análisis
   if (btnformmodificarMuestra) {
     btnformmodificarMuestra.addEventListener("click", () => {
-      if (!tuboId) {
+      if (!tuboId || !muestraId) {
         alerttubo.classList.remove("ocultar");
       } else {
         cargarMuestraUpdateModal();
         if (!modalmodificarMuestra.classList.contains("showmodal")) {
           modalmodificarMuestra.classList.add("showmodal");
           modalmodificarMuestra.classList.remove("hidemodal");
+          modalmodificarMuestra.style.display = "flex";
         }
       }
     });
@@ -1278,6 +1287,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!modalmodificarMuestra.classList.contains("hidemodal")) {
         modalmodificarMuestra.classList.add("hidemodal");
         modalmodificarMuestra.classList.remove("showmodal");
+        setTimeout(() => {
+          modalmodificarMuestra.style.display = "none";
+        }, 300);
       }
     });
   }

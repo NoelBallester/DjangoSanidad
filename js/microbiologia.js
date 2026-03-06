@@ -152,10 +152,10 @@ const modificarMuestra = document.getElementById("modificarAnalysisForm");
 const modalmodificarMuestra = document.getElementById("modalmodificarAnalysis");
 const modaldetalleMuestra = document.getElementById("modaldetalleMicrobiologia");
 const btnformmodificarMuestra = document.getElementById(
-  "btnformmodificarmicrobiologia" // This one seems to not be duplicated in my grep? Let's check.
+  "btnformmodificarMuestra"
 );
 const btnformcerrarmodificarMuestra = document.getElementById(
-  "btnformcerrarmodificarMicrobiologia"
+  "btnformcerrarmodificarMuestra"
 );
 
 // Datos para modificar un análisis
@@ -461,7 +461,7 @@ const limpiarModalMuestra = () => {
 };
 
 const cargarMuestraUpdateModal = async (event) => {
-  if (!microbiologiaId) {
+  if (!microbiologiaId || !muestraId) {
     if (event) event.preventDefault();
     alertmicrobiologia.classList.remove("ocultar");
   } else {
@@ -1289,7 +1289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Modificar Análisis
   if (btnformmodificarMuestra) {
     btnformmodificarMuestra.addEventListener("click", () => {
-      if (!microbiologiaId) {
+      if (!microbiologiaId || !muestraId) {
         alertmicrobiologia.classList.remove("ocultar");
       } else {
         cargarMuestraUpdateModal();
