@@ -585,9 +585,21 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
             data['qr_muestra'] = generar_qr('--mh--')
+        
+        # Separar la imagen de los datos si existe
+        imagen_file = request.FILES.get('imagen', None)
+        
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        muestra = serializer.save()
+        
+        # Si hay imagen, crear el registro en ImagenHematologia
+        if imagen_file:
+            ImagenHematologia.objects.create(
+                imagen=imagen_file,
+                muestra=muestra
+            )
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_path='hematologia/(?P<id>[^/.]+)')
@@ -602,10 +614,28 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         muestras = MuestraHematologia.objects.filter(qr_muestra=qr)
         return Response(MuestraHematologiaSerializer(muestras, many=True).data)
 
+
 class ImagenHematologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenHematologia.objects.all()
     serializer_class = ImagenHematologiaSerializer
     authentication_classes = []
+    
+    def create(self, request):
+        """Crea una imagen para una sub-muestra de hematología"""
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+        
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        imagen_hematologia = ImagenHematologia.objects.create(
+            imagen=imagen_file,
+            muestra_id=muestra_id
+        )
+        
+        return Response(ImagenHematologiaSerializer(imagen_hematologia).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
@@ -615,8 +645,11 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
         for img in imagenes:
             img_data = ImagenHematologiaSerializer(img).data
             if img.imagen:
-                with open(img.imagen.path, 'rb') as f:
-                    img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                try:
+                    with open(img.imagen.path, 'rb') as f:
+                        img_data['imagen_base64'] = base64.b64encode(f.read()).decode('utf-8')
+                except Exception:
+                    img_data['imagen_base64'] = None
             resultado.append(img_data)
         return Response(resultado)
 

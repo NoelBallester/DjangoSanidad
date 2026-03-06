@@ -191,12 +191,13 @@ class MuestraHematologia(models.Model):
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id')
 
+
     class Meta:
         db_table = 'muestrashematologia'
 
 class ImagenHematologia(models.Model):
     id_imagen = models.AutoField(primary_key=True, db_column='id')
-    imagen = models.ImageField(upload_to='imagenes_hematologia/', null=True, blank=True)
+    imagen = models.BinaryField(null=True, blank=True)
     muestra = models.ForeignKey(MuestraHematologia, on_delete=models.CASCADE, db_column='muestra_id')
 
     class Meta:

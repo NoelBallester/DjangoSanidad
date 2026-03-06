@@ -115,34 +115,40 @@ class HematologiaSerializer(serializers.ModelSerializer):
 
 class MuestraHematologiaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
+    id_muestra = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = MuestraHematologia
-        fields = '__all__'
+        fields = [
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'qr_muestra', 'qr_imagen', 'hematologia', 'imagen_base64'
+        ]
+        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_base64']
 
     def get_imagen_base64(self, obj):
-        if hasattr(obj, 'imagen') and obj.imagen:
-            try:
-                with open(obj.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
-            except:
-                return None
+        try:
+            imagen = obj.imagenhematologia_set.first()
+            if imagen and imagen.imagen:
+                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
+        except:
+            pass
         return None
+
 
 class ImagenHematologiaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenHematologia
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_base64']
+        read_only_fields = ['id_imagen', 'imagen_base64']
 
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                with open(obj.imagen.path, 'rb') as f:
-                    return base64.b64encode(f.read()).decode('utf-8')
-            except:
-                return None
+                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+            except Exception as e:
+                print(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
 
 class MicrobiologiaSerializer(serializers.ModelSerializer):
