@@ -66,6 +66,8 @@ let muestrasInformeFecha = null;
 let muestrasInformeTincion = null;
 let muestrasInformeObservaciones = null;
 let muestrasInformeImagen = null;
+let muestrasInformePreviewWrap = null;
+let muestrasInformePreview = null;
 let btnGuardarInforme = null;
 const informeStatus = document.getElementById("informeStatus");
 const informeContextNum = document.getElementById("informeContextNum");
@@ -231,6 +233,7 @@ const cargarInformeEnFormularioHematologia = (informe) => {
   if (muestrasInformeFecha) muestrasInformeFecha.value = informe.fecha || "";
   if (muestrasInformeTincion) muestrasInformeTincion.value = informe.tincion || "";
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = informe.observaciones || "";
+  actualizarPreviewInformeHematologia(informe.imagen_base64 || "");
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -300,6 +303,18 @@ const limpiarFormularioInformeHematologia = () => {
   if (muestrasInformeTincion) muestrasInformeTincion.value = "";
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = "";
   if (muestrasInformeImagen) muestrasInformeImagen.value = "";
+  actualizarPreviewInformeHematologia("");
+};
+
+const actualizarPreviewInformeHematologia = (imagen) => {
+  if (!muestrasInformePreviewWrap || !muestrasInformePreview) return;
+  if (!imagen) {
+    muestrasInformePreview.src = "";
+    muestrasInformePreviewWrap.classList.add("d-none");
+    return;
+  }
+  muestrasInformePreview.src = imagen.startsWith("data:image") ? imagen : `data:image/jpeg;base64,${imagen}`;
+  muestrasInformePreviewWrap.classList.remove("d-none");
 };
 
 const mostrarPanelNuevoInformeHematologia = (limpiar = true) => {
@@ -307,14 +322,12 @@ const mostrarPanelNuevoInformeHematologia = (limpiar = true) => {
   if (limpiar) limpiarFormularioInformeHematologia();
   modalNuevoInforme.classList.remove("d-none");
   modalNuevoInforme.classList.add("d-flex");
-  document.body.classList.add("overflow-hidden");
 };
 
 const ocultarPanelNuevoInformeHematologia = () => {
   if (!modalNuevoInforme) return;
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
-  document.body.classList.remove("overflow-hidden");
 };
 
 // ============================================================
@@ -1152,6 +1165,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   muestrasInformeTincion = document.getElementById("Muestras__informe_tincion");
   muestrasInformeObservaciones = document.getElementById("Muestras__informe_observaciones");
   muestrasInformeImagen = document.getElementById("Muestras__informe_imagen");
+  muestrasInformePreviewWrap = document.getElementById("Muestras__informe_preview_wrap");
+  muestrasInformePreview = document.getElementById("Muestras__informe_preview");
   btnGuardarInforme = document.getElementById("btnGuardarInforme");
 
   // Mostrar body
@@ -1173,31 +1188,117 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sectionInformeDiv = document.getElementById("sectionInforme");
   const btnToggleInforme = document.getElementById("btnToggleInforme");
   const btnToggleMuestras = document.getElementById("btnToggleMuestras");
+  const panelInforme = sectionInformeDiv ? sectionInformeDiv.firstElementChild : null;
+  const scrollInternosInforme = sectionInformeDiv
+    ? sectionInformeDiv.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m")
+    : [];
+
+  const abrirMenuInformes = () => {
+    if (!sectionMuestrasDiv || !sectionInformeDiv) return;
+    sectionMuestrasDiv.classList.add("d-none");
+    sectionInformeDiv.classList.remove("d-none");
+    sectionInformeDiv.classList.add(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInformeDiv.style.zIndex = "2147483600";
+    sectionInformeDiv.style.background = "rgba(2, 8, 23, 0.92)";
+    sectionInformeDiv.style.padding = "1rem";
+    sectionInformeDiv.style.overflowY = "auto";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "1100px";
+      panelInforme.style.width = "100%";
+      panelInforme.style.maxHeight = "none";
+      panelInforme.style.overflowY = "visible";
+      panelInforme.style.margin = "0";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "auto";
+      el.style.maxHeight = "none";
+      el.style.overflow = "visible";
+      el.style.overflowY = "visible";
+    });
+
+    localStorage.setItem(INFORME_TAB_KEY, "informe");
+  };
+
+  const cerrarMenuInformes = () => {
+    if (!sectionMuestrasDiv || !sectionInformeDiv) return;
+    sectionInformeDiv.classList.add("d-none");
+    sectionInformeDiv.classList.remove(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInformeDiv.style.zIndex = "";
+    sectionInformeDiv.style.background = "";
+    sectionInformeDiv.style.padding = "";
+    sectionInformeDiv.style.overflowY = "";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "";
+      panelInforme.style.width = "";
+      panelInforme.style.maxHeight = "";
+      panelInforme.style.overflowY = "";
+      panelInforme.style.margin = "";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "";
+      el.style.maxHeight = "";
+      el.style.overflow = "";
+      el.style.overflowY = "";
+    });
+
+    sectionMuestrasDiv.classList.remove("d-none");
+    localStorage.setItem(INFORME_TAB_KEY, "muestras");
+  };
 
   if (btnToggleInforme && sectionMuestrasDiv && sectionInformeDiv) {
     btnToggleInforme.addEventListener("click", () => {
-      sectionMuestrasDiv.classList.add("d-none");
-      sectionInformeDiv.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "informe");
+      abrirMenuInformes();
     });
   }
   if (btnToggleMuestras && sectionMuestrasDiv && sectionInformeDiv) {
     btnToggleMuestras.addEventListener("click", () => {
-      sectionInformeDiv.classList.add("d-none");
-      sectionMuestrasDiv.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "muestras");
+      cerrarMenuInformes();
     });
   }
 
   const tabActiva = localStorage.getItem(INFORME_TAB_KEY);
   if (tabActiva === "informe" && sectionMuestrasDiv && sectionInformeDiv) {
-    sectionMuestrasDiv.classList.add("d-none");
-    sectionInformeDiv.classList.remove("d-none");
+    abrirMenuInformes();
   }
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
       mostrarPanelNuevoInformeHematologia(true);
+    });
+  }
+
+  if (muestrasInformeImagen) {
+    muestrasInformeImagen.addEventListener("change", () => {
+      const file = muestrasInformeImagen.files && muestrasInformeImagen.files[0];
+      if (!file) {
+        actualizarPreviewInformeHematologia("");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => actualizarPreviewInformeHematologia(reader.result || "");
+      reader.readAsDataURL(file);
     });
   }
 

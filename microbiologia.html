@@ -357,6 +357,12 @@
                             <span id="informeContextDescripcion" class="blue__color">Selecciona una cita para ver los detalles</span>
                         </div>
                         <div id="informeStatus" class="alert d-none py-2 px-3 mb-3" role="alert"></div>
+                        <div class="d-flex justify-content-end mb-3">
+                            <button id="btnNuevoInforme" class="btn fondo fw-bold px-4 py-2" type="button"
+                                style="border-radius: 22px;">
+                                <i class="fa-solid fa-circle-plus me-2"></i> Añadir informe
+                            </button>
+                        </div>
                         <h3 class="microbiologia__title m-0 mb-2">Historial de Informes</h3>
                         <div class="table__scroll table__scroll--m">
                             <table class="table table__microbiologia sortable-theme-finder" data-sortable>
@@ -373,18 +379,11 @@
                             </table>
                         </div>
 
-                        <div class="text-end mt-3">
-                            <button id="btnNuevoInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
-                                style="border-radius: 20px;">
-                                <i class="fa-solid fa-circle-plus me-1"></i> Añadir informe
-                            </button>
-                        </div>
-
                         <div id="modalNuevoInforme"
-                            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center bg-dark bg-opacity-50"
-                            style="z-index: 2000;">
+                            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center"
+                            style="z-index: 2147483647; background: rgba(2, 8, 23, 0.92); padding: 1rem; overflow-y: auto;">
                             <div id="nuevoInformePanel" class="w-100 mx-3 p-3 rounded"
-                                style="max-width: 720px; background: var(--bg-light); border: 1px solid var(--border-color);">
+                                style="max-width: 720px; max-height: calc(100vh - 2rem); overflow-y: auto; background: var(--bg-light); border: 1px solid var(--border-color); position: relative; z-index: 1;">
                                 <h3 class="microbiologia__title mb-3">Nuevo informe de resultados</h3>
                                 <div class="mb-3">
                                     <label for="microbiologia__informe_descripcion"
@@ -422,7 +421,7 @@
                                     <input type="file" id="microbiologia__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
                                         class="form-control blue__color bg-light">
                                 </div>
-                                <div class="d-flex gap-2 mt-4">
+                                <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
                                     <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="button">
                                         <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
                                     </button>
@@ -430,6 +429,11 @@
                                         type="button">
                                         Cancelar
                                     </button>
+                                </div>
+                                <div id="microbiologia__informe_preview_wrap" class="d-none mb-3">
+                                    <label class="blue__color--negrita d-block">Vista previa</label>
+                                    <img id="microbiologia__informe_preview" alt="Vista previa del informe"
+                                        class="img-fluid rounded border" style="max-height: 160px; object-fit: contain;">
                                 </div>
                             </div>
                         </div>

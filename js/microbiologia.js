@@ -57,6 +57,8 @@ let microbiologiaInformeFecha = null;
 let microbiologiaInformeTincion = null;
 let microbiologiaInformeObservaciones = null;
 let microbiologiaInformeImagen = null;
+let microbiologiaInformePreviewWrap = null;
+let microbiologiaInformePreview = null;
 let btnGuardarInforme = null;
 const informeStatus = document.getElementById("informeStatus");
 const informeContextNum = document.getElementById("informeContextNum");
@@ -634,6 +636,7 @@ const cargarInformeEnFormularioMicrobiologia = (informe) => {
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = informe.fecha || "";
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = informe.tincion || "";
   if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = informe.observaciones || "";
+  actualizarPreviewInformeMicrobiologia(informe.imagen_base64 || "");
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -703,6 +706,18 @@ const limpiarFormularioInformeMicrobiologia = () => {
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
   if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = "";
   if (microbiologiaInformeImagen) microbiologiaInformeImagen.value = "";
+  actualizarPreviewInformeMicrobiologia("");
+};
+
+const actualizarPreviewInformeMicrobiologia = (imagen) => {
+  if (!microbiologiaInformePreviewWrap || !microbiologiaInformePreview) return;
+  if (!imagen) {
+    microbiologiaInformePreview.src = "";
+    microbiologiaInformePreviewWrap.classList.add("d-none");
+    return;
+  }
+  microbiologiaInformePreview.src = imagen.startsWith("data:image") ? imagen : `data:image/jpeg;base64,${imagen}`;
+  microbiologiaInformePreviewWrap.classList.remove("d-none");
 };
 
 const mostrarPanelNuevoInformeMicrobiologia = (limpiar = true) => {
@@ -710,14 +725,12 @@ const mostrarPanelNuevoInformeMicrobiologia = (limpiar = true) => {
   if (limpiar) limpiarFormularioInformeMicrobiologia();
   modalNuevoInforme.classList.remove("d-none");
   modalNuevoInforme.classList.add("d-flex");
-  document.body.classList.add("overflow-hidden");
 };
 
 const ocultarPanelNuevoInformeMicrobiologia = () => {
   if (!modalNuevoInforme) return;
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
-  document.body.classList.remove("overflow-hidden");
 };
 
 const actualizarContextoInforme = () => {
@@ -1262,6 +1275,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   microbiologiaInformeTincion = document.getElementById("microbiologia__informe_tincion");
   microbiologiaInformeObservaciones = document.getElementById("microbiologia__informe_observaciones");
   microbiologiaInformeImagen = document.getElementById("microbiologia__informe_imagen");
+  microbiologiaInformePreviewWrap = document.getElementById("microbiologia__informe_preview_wrap");
+  microbiologiaInformePreview = document.getElementById("microbiologia__informe_preview");
 
   console.log("btnGuardarInforme encontrado:", btnGuardarInforme ? "SÍ" : "NO");
   console.log("Elementos de informe encontrados:", {
@@ -1287,34 +1302,119 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sectionInforme = document.getElementById("sectionInforme");
   const btnToggleInforme = document.getElementById("btnToggleInforme");
   const btnToggleMicrobiologias = document.getElementById("btnToggleMicrobiologias");
+  const panelInforme = sectionInforme ? sectionInforme.firstElementChild : null;
+  const scrollInternosInforme = sectionInforme
+    ? sectionInforme.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m")
+    : [];
+
+  const abrirMenuInformes = () => {
+    if (!sectionMicrobiologiasTable || !sectionInforme) return;
+    sectionMicrobiologiasTable.classList.add("d-none");
+    sectionInforme.classList.remove("d-none");
+    sectionInforme.classList.add(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInforme.style.zIndex = "2147483600";
+    sectionInforme.style.background = "rgba(2, 8, 23, 0.92)";
+    sectionInforme.style.padding = "1rem";
+    sectionInforme.style.overflowY = "auto";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "1100px";
+      panelInforme.style.width = "100%";
+      panelInforme.style.maxHeight = "none";
+      panelInforme.style.overflowY = "visible";
+      panelInforme.style.margin = "0";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "auto";
+      el.style.maxHeight = "none";
+      el.style.overflow = "visible";
+      el.style.overflowY = "visible";
+    });
+
+    localStorage.setItem(INFORME_TAB_KEY, "informe");
+    actualizarContextoInforme();
+  };
+
+  const cerrarMenuInformes = () => {
+    if (!sectionMicrobiologiasTable || !sectionInforme) return;
+    sectionInforme.classList.add("d-none");
+    sectionInforme.classList.remove(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInforme.style.zIndex = "";
+    sectionInforme.style.background = "";
+    sectionInforme.style.padding = "";
+    sectionInforme.style.overflowY = "";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "";
+      panelInforme.style.width = "";
+      panelInforme.style.maxHeight = "";
+      panelInforme.style.overflowY = "";
+      panelInforme.style.margin = "";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "";
+      el.style.maxHeight = "";
+      el.style.overflow = "";
+      el.style.overflowY = "";
+    });
+
+    sectionMicrobiologiasTable.classList.remove("d-none");
+    localStorage.setItem(INFORME_TAB_KEY, "muestras");
+  };
 
   if (btnToggleInforme && sectionMicrobiologiasTable && sectionInforme) {
     btnToggleInforme.addEventListener("click", () => {
-      sectionMicrobiologiasTable.classList.add("d-none");
-      sectionInforme.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "informe");
-      actualizarContextoInforme();
+      abrirMenuInformes();
     });
   }
 
   if (btnToggleMicrobiologias && sectionMicrobiologiasTable && sectionInforme) {
     btnToggleMicrobiologias.addEventListener("click", () => {
-      sectionInforme.classList.add("d-none");
-      sectionMicrobiologiasTable.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "muestras");
+      cerrarMenuInformes();
     });
   }
 
   const tabActiva = localStorage.getItem(INFORME_TAB_KEY);
   if (tabActiva === "informe" && sectionMicrobiologiasTable && sectionInforme) {
-    sectionMicrobiologiasTable.classList.add("d-none");
-    sectionInforme.classList.remove("d-none");
-    actualizarContextoInforme();
+    abrirMenuInformes();
   }
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
       mostrarPanelNuevoInformeMicrobiologia(true);
+    });
+  }
+
+  if (microbiologiaInformeImagen) {
+    microbiologiaInformeImagen.addEventListener("change", () => {
+      const file = microbiologiaInformeImagen.files && microbiologiaInformeImagen.files[0];
+      if (!file) {
+        actualizarPreviewInformeMicrobiologia("");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => actualizarPreviewInformeMicrobiologia(reader.result || "");
+      reader.readAsDataURL(file);
     });
   }
 

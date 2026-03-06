@@ -57,6 +57,8 @@ let tuboInformeFecha = null;
 let tuboInformeTincion = null;
 let tuboInformeObservaciones = null;
 let tuboInformeImagen = null;
+let tuboInformePreviewWrap = null;
+let tuboInformePreview = null;
 let btnGuardarInforme = null;
 const informeStatus = document.getElementById("informeStatus");
 const informeContextNum = document.getElementById("informeContextNum");
@@ -634,6 +636,7 @@ const cargarInformeEnFormularioTubo = (informe) => {
   if (tuboInformeFecha) tuboInformeFecha.value = informe.fecha || "";
   if (tuboInformeTincion) tuboInformeTincion.value = informe.tincion || "";
   if (tuboInformeObservaciones) tuboInformeObservaciones.value = informe.observaciones || "";
+  actualizarPreviewInformeTubo(informe.imagen_base64 || "");
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -703,6 +706,18 @@ const limpiarFormularioInformeTubo = () => {
   if (tuboInformeTincion) tuboInformeTincion.value = "";
   if (tuboInformeObservaciones) tuboInformeObservaciones.value = "";
   if (tuboInformeImagen) tuboInformeImagen.value = "";
+  actualizarPreviewInformeTubo("");
+};
+
+const actualizarPreviewInformeTubo = (imagen) => {
+  if (!tuboInformePreviewWrap || !tuboInformePreview) return;
+  if (!imagen) {
+    tuboInformePreview.src = "";
+    tuboInformePreviewWrap.classList.add("d-none");
+    return;
+  }
+  tuboInformePreview.src = imagen.startsWith("data:image") ? imagen : `data:image/jpeg;base64,${imagen}`;
+  tuboInformePreviewWrap.classList.remove("d-none");
 };
 
 const mostrarPanelNuevoInformeTubo = (limpiar = true) => {
@@ -710,14 +725,12 @@ const mostrarPanelNuevoInformeTubo = (limpiar = true) => {
   if (limpiar) limpiarFormularioInformeTubo();
   modalNuevoInforme.classList.remove("d-none");
   modalNuevoInforme.classList.add("d-flex");
-  document.body.classList.add("overflow-hidden");
 };
 
 const ocultarPanelNuevoInformeTubo = () => {
   if (!modalNuevoInforme) return;
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
-  document.body.classList.remove("overflow-hidden");
 };
 
 const actualizarContextoInforme = () => {
@@ -1262,6 +1275,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   tuboInformeTincion = document.getElementById("tubo__informe_tincion");
   tuboInformeObservaciones = document.getElementById("tubo__informe_observaciones");
   tuboInformeImagen = document.getElementById("tubo__informe_imagen");
+  tuboInformePreviewWrap = document.getElementById("tubo__informe_preview_wrap");
+  tuboInformePreview = document.getElementById("tubo__informe_preview");
   
   console.log("btnGuardarInforme encontrado:", btnGuardarInforme ? "SÍ" : "NO");
   console.log("Elementos de informe encontrados:", {
@@ -1287,34 +1302,118 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sectionInforme = document.getElementById("sectionInforme");
   const btnToggleInforme = document.getElementById("btnToggleInforme");
   const btnToggleTubos = document.getElementById("btnToggleTubos");
+  const panelInforme = sectionInforme ? sectionInforme.firstElementChild : null;
+  const scrollInternosInforme = sectionInforme
+    ? sectionInforme.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m")
+    : [];
+
+  const abrirMenuInformes = () => {
+    if (!sectionTubosTable || !sectionInforme) return;
+    sectionTubosTable.classList.add("d-none");
+    sectionInforme.classList.remove("d-none");
+    sectionInforme.classList.add(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInforme.style.zIndex = "2147483600";
+    sectionInforme.style.background = "rgba(2, 8, 23, 0.92)";
+    sectionInforme.style.padding = "1rem";
+    sectionInforme.style.overflowY = "auto";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "1100px";
+      panelInforme.style.width = "100%";
+      panelInforme.style.maxHeight = "none";
+      panelInforme.style.overflowY = "visible";
+      panelInforme.style.margin = "0";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "auto";
+      el.style.maxHeight = "none";
+      el.style.overflow = "visible";
+      el.style.overflowY = "visible";
+    });
+    localStorage.setItem(INFORME_TAB_KEY, "informe");
+    actualizarContextoInforme();
+  };
+
+  const cerrarMenuInformes = () => {
+    if (!sectionTubosTable || !sectionInforme) return;
+    sectionInforme.classList.add("d-none");
+    sectionInforme.classList.remove(
+      "d-flex",
+      "align-items-center",
+      "justify-content-center",
+      "position-fixed",
+      "top-0",
+      "start-0",
+      "w-100",
+      "h-100"
+    );
+    sectionInforme.style.zIndex = "";
+    sectionInforme.style.background = "";
+    sectionInforme.style.padding = "";
+    sectionInforme.style.overflowY = "";
+
+    if (panelInforme) {
+      panelInforme.style.maxWidth = "";
+      panelInforme.style.width = "";
+      panelInforme.style.maxHeight = "";
+      panelInforme.style.overflowY = "";
+      panelInforme.style.margin = "";
+    }
+
+    scrollInternosInforme.forEach((el) => {
+      el.style.height = "";
+      el.style.maxHeight = "";
+      el.style.overflow = "";
+      el.style.overflowY = "";
+    });
+
+    sectionTubosTable.classList.remove("d-none");
+    localStorage.setItem(INFORME_TAB_KEY, "muestras");
+  };
 
   if (btnToggleInforme && sectionTubosTable && sectionInforme) {
     btnToggleInforme.addEventListener("click", () => {
-      sectionTubosTable.classList.add("d-none");
-      sectionInforme.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "informe");
-      actualizarContextoInforme();
+      abrirMenuInformes();
     });
   }
 
   if (btnToggleTubos && sectionTubosTable && sectionInforme) {
     btnToggleTubos.addEventListener("click", () => {
-      sectionInforme.classList.add("d-none");
-      sectionTubosTable.classList.remove("d-none");
-      localStorage.setItem(INFORME_TAB_KEY, "muestras");
+      cerrarMenuInformes();
     });
   }
 
   const tabActiva = localStorage.getItem(INFORME_TAB_KEY);
   if (tabActiva === "informe" && sectionTubosTable && sectionInforme) {
-    sectionTubosTable.classList.add("d-none");
-    sectionInforme.classList.remove("d-none");
-    actualizarContextoInforme();
+    abrirMenuInformes();
   }
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
       mostrarPanelNuevoInformeTubo(true);
+    });
+  }
+
+  if (tuboInformeImagen) {
+    tuboInformeImagen.addEventListener("change", () => {
+      const file = tuboInformeImagen.files && tuboInformeImagen.files[0];
+      if (!file) {
+        actualizarPreviewInformeTubo("");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => actualizarPreviewInformeTubo(reader.result || "");
+      reader.readAsDataURL(file);
     });
   }
 
