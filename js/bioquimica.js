@@ -328,13 +328,13 @@ const cargarTodosTubos = async () => {
 };
 
 const cargarPorTipo = async () => {
-  return await fetch(`/api/tubos/por_organo/?organo=${tipo_tubos.value}`)
+  return await fetch(`/api/tubos/organo/${tipo_tubos.value}/`)
     .then((data) => data.json())
     .catch((error) => console.log("Error en cargarPorTipo: " + error));
 };
 
 const cargarPorNumero = async () => {
-  return await fetch(`/api/tubos/por_numero/?numero=${numTubo.value}`)
+  return await fetch(`/api/tubos/numero/${numTubo.value}/`)
     .then((data) => data.json())
     .catch((error) => console.log("Error en cargarPorNumero: " + error));
 };
@@ -561,7 +561,7 @@ const consultaFechaFin = async () => {
 const imprimirTubos = (respuesta, rebuildDropdown = true) => {
   tubos.innerHTML = "";
   if (rebuildDropdown) {
-    numTubo.innerHTML = "<option disabled selected>Nº Tubo</option>";
+    numTubo.innerHTML = "<option selected value=''>Nº Muestra</option>";
   }
 
   let fragmento = document.createDocumentFragment();
@@ -570,6 +570,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
     respuesta.map((tubo) => {
       // Para cargar los números de tubo
       let option = document.createElement("OPTION");
+      option.value = tubo.muestra;
       option.textContent = tubo.muestra;
       fragmentselect.appendChild(option);
 
@@ -1114,12 +1115,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Tipo de Muestra
   tipo_tubos.addEventListener("change", async () => {
-    const respuesta = await cargarPorTipo();
-    imprimirTubos(respuesta, false);
+    if (!tipo_tubos.value || tipo_tubos.value === "" || tipo_tubos.value === "*") {
+      if (numTubo) numTubo.value = "";
+      if (fechainicio) fechainicio.value = "";
+      if (fechafin) fechafin.value = "";
+      const respuesta = await cargarTodosTubos();
+      imprimirTubos(respuesta, true);
+    } else {
+      if (numTubo) numTubo.value = "";
+      const respuesta = await cargarPorTipo();
+      imprimirTubos(respuesta, true);
+    }
   });
 
   // Consulta por Número de Tubo
   numTubo.addEventListener("change", async () => {
+    if (!numTubo.value || numTubo.value === "") {
+      const respuesta = await cargarTodosTubos();
+      imprimirTubos(respuesta, true);
+      tipo_tubos.value = "";
+      return;
+    }
+
+    tipo_tubos.value = "";
     const respuesta = await cargarPorNumero();
     imprimirTubos(respuesta, false);
   });
