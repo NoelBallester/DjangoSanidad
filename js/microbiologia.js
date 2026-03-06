@@ -328,13 +328,13 @@ const cargarTodosMicrobiologias = async () => {
 };
 
 const cargarPorTipo = async () => {
-  return await fetch(`/api/microbiologias/por_organo/?organo=${tipo_microbiologias.value}`)
+  return await fetch(`/api/microbiologias/organo/${tipo_microbiologias.value}/`)
     .then((data) => data.json())
     .catch((error) => console.log("Error en cargarPorTipo: " + error));
 };
 
 const cargarPorNumero = async () => {
-  return await fetch(`/api/microbiologias/por_numero/?numero=${numMicrobiologia.value}`)
+  return await fetch(`/api/microbiologias/numero/${numMicrobiologia.value}/`)
     .then((data) => data.json())
     .catch((error) => console.log("Error en cargarPorNumero: " + error));
 };
@@ -561,7 +561,7 @@ const consultaFechaFin = async () => {
 const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
   microbiologias.innerHTML = "";
   if (rebuildDropdown) {
-    numMicrobiologia.innerHTML = "<option disabled selected>Nº Microbiologia</option>";
+    numMicrobiologia.innerHTML = "<option selected value=''>Nº Muestra</option>";
   }
 
   let fragmento = document.createDocumentFragment();
@@ -570,6 +570,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
     respuesta.map((microbiologia) => {
       // Para cargar los números de microbiologia
       let option = document.createElement("OPTION");
+      option.value = microbiologia.muestra;
       option.textContent = microbiologia.muestra;
       fragmentselect.appendChild(option);
 
@@ -1114,21 +1115,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Consulta por Tipo de Muestra
   tipo_microbiologias.addEventListener("change", async () => {
-    // Limpiar otros filtros si selecciona "Todos"
-    if (tipo_microbiologias.value === "*") {
-      if (numMicrobiologia) numMicrobiologia.value = "Nº Muestra";
+    // Si está vacío o es "Todos", cargar todo
+    if (!tipo_microbiologias.value || tipo_microbiologias.value === "" || tipo_microbiologias.value === "*") {
+      if (numMicrobiologia) numMicrobiologia.value = "";
       if (fechainicio) fechainicio.value = "";
       if (fechafin) fechafin.value = "";
+      // Cargar todos y reconstruir dropdown
+      const respuesta = await cargarTodosMicrobiologias();
+      imprimirMicrobiologias(respuesta, true);
     } else {
       // Solo limpiar número si selecciona un tipo específico
-      if (numMicrobiologia) numMicrobiologia.value = "Nº Muestra";
+      if (numMicrobiologia) numMicrobiologia.value = "";
+      const respuesta = await cargarPorTipo();
+      imprimirMicrobiologias(respuesta, true); // Reconstruir dropdown con los resultados filtrados
     }
-    const respuesta = await cargarPorTipo();
-    imprimirMicrobiologias(respuesta, false);
   });
 
   // Consulta por Número de Microbiologia
   numMicrobiologia.addEventListener("change", async () => {
+    // Permitir volver a la primera opción (vacía)
+    if (!numMicrobiologia.value || numMicrobiologia.value === "") {
+      // Si selecciona la opción inicial, cargar todos
+      const respuesta = await cargarTodosMicrobiologias();
+      imprimirMicrobiologias(respuesta, true);
+      tipo_microbiologias.value = "";
+      return;
+    }
+    
+    // Si selecciona un número específico, limpiar el filtro de tipo
+    tipo_microbiologias.value = "";
     const respuesta = await cargarPorNumero();
     imprimirMicrobiologias(respuesta, false);
   });
