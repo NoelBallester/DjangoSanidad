@@ -20,3 +20,5 @@ python3 -m venv venv
 source venv/bin/activate
 pip install django djangorestframework django-cors-headers pymysql
 python manage.py runserver
+
+python manage.py test web
