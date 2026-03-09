@@ -25,6 +25,27 @@ def _imagen_bytes_a_base64(imagen_bytes):
         return ''
 
 
+def _mime_tipo_desde_bytes(imagen_bytes):
+    if not imagen_bytes:
+        return 'image/jpeg'
+    try:
+        raw = bytes(imagen_bytes)
+    except Exception:
+        return 'image/jpeg'
+
+    if raw.startswith(b'\xff\xd8\xff'):
+        return 'image/jpeg'
+    if raw.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'image/png'
+    if raw.startswith((b'GIF87a', b'GIF89a')):
+        return 'image/gif'
+    if raw.startswith(b'BM'):
+        return 'image/bmp'
+    if raw.startswith(b'RIFF') and raw[8:12] == b'WEBP':
+        return 'image/webp'
+    return 'image/jpeg'
+
+
 def _build_qr_link(request, code):
     if not code:
         return ''
@@ -78,6 +99,7 @@ def cassette_list(request):
     inicio = request.GET.get('inicio', '').strip()
     fin    = request.GET.get('fin', '').strip()
     sel_pk = request.GET.get('cassette', '').strip()
+    muestra_pk = request.GET.get('muestra', '').strip()
     informe_pk = request.GET.get('informe', '').strip()
 
     if organo and organo != '*':
@@ -92,6 +114,7 @@ def cassette_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    selected_muestra_item = None
     informes_resultado = []
     informe_activo = None
     informe_imagen_base64 = ''
@@ -102,14 +125,28 @@ def cassette_list(request):
         try:
             selected = Cassette.objects.get(pk=sel_pk)
             try:
-                muestras_con_imagenes = [
-                    {
+                muestras_con_imagenes = []
+                for m in Muestra.objects.filter(cassette=selected):
+                    imagenes = []
+                    for im in Imagen.objects.filter(muestra=m):
+                        imagenes.append({
+                            'pk': im.pk,
+                            'mime_type': _mime_tipo_desde_bytes(im.imagen),
+                            'imagen_base64': _imagen_bytes_a_base64(im.imagen),
+                        })
+                    muestras_con_imagenes.append({
                         'muestra': m,
-                        'imagenes': Imagen.objects.filter(muestra=m),
+                        'imagenes': imagenes,
                         'qr_url': _build_qr_link(request, m.qr_muestra),
-                    }
-                    for m in Muestra.objects.filter(cassette=selected)
-                ]
+                    })
+
+                if muestra_pk:
+                    selected_muestra_item = next(
+                        (item for item in muestras_con_imagenes if str(item['muestra'].pk) == muestra_pk),
+                        None,
+                    )
+                if selected_muestra_item is None and muestras_con_imagenes:
+                    selected_muestra_item = muestras_con_imagenes[0]
             except Exception:
                 muestras_con_imagenes = []
 
@@ -150,6 +187,7 @@ def cassette_list(request):
         'cassettes':             qs,
         'selected':              selected,
         'muestras_con_imagenes': muestras_con_imagenes,
+        'selected_muestra_item': selected_muestra_item,
         'cassette_form':         CassetteForm(instance=selected) if selected else CassetteForm(),
         'nuevo_cassette_form':   CassetteForm(),
         'muestra_form':          MuestraForm(),
@@ -253,7 +291,11 @@ def muestra_create(request, cassette_pk):
     cassette = get_object_or_404(Cassette, pk=cassette_pk)
     form = MuestraForm(request.POST)
     if form.is_valid():
-        form.save(cassette=cassette)
+        muestra = form.save(cassette=cassette)
+        archivo_imagen = request.FILES.get('imagen')
+        if archivo_imagen:
+            Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+        return redirect(reverse('cassettes') + f'?cassette={cassette_pk}&muestra={muestra.pk}')
     return redirect(reverse('cassettes') + f'?cassette={cassette_pk}')
 
 
@@ -264,7 +306,7 @@ def muestra_update(request, pk):
     form = MuestraForm(request.POST, instance=muestra)
     if form.is_valid():
         form.save()
-    return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}')
+    return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}&muestra={pk}')
 
 
 @login_required
@@ -282,12 +324,10 @@ def muestra_delete(request, pk):
 @require_POST
 def imagen_upload(request, muestra_pk):
     muestra = get_object_or_404(Muestra, pk=muestra_pk)
-    form = ImagenForm(request.POST, request.FILES)
-    if form.is_valid():
-        img = form.save(commit=False)
-        img.muestra = muestra
-        img.save()
-    return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}')
+    archivo_imagen = request.FILES.get('imagen')
+    if archivo_imagen:
+        Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+    return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}&muestra={muestra.pk}')
 
 
 @login_required
@@ -295,9 +335,10 @@ def imagen_upload(request, muestra_pk):
 def imagen_delete(request, pk):
     imagen = get_object_or_404(Imagen, pk=pk)
     cid = imagen.muestra.cassette_id
+    muestra_id = imagen.muestra_id
     imagen.imagen.delete(save=False)
     imagen.delete()
-    return redirect(reverse('cassettes') + f'?cassette={cid}')
+    return redirect(reverse('cassettes') + f'?cassette={cid}&muestra={muestra_id}')
 
 
 # ── Citologías (lista + detalle) ──────────────────────────────────────────────
@@ -312,6 +353,7 @@ def citologia_list(request):
     inicio = request.GET.get('inicio', '').strip()
     fin    = request.GET.get('fin', '').strip()
     sel_pk = request.GET.get('citologia', '').strip()
+    muestra_pk = request.GET.get('muestra', '').strip()
     informe_pk = request.GET.get('informe', '').strip()
 
     if organo and organo != '*':
@@ -326,6 +368,7 @@ def citologia_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    selected_muestra_item = None
     informes_resultado = []
     informe_activo = None
     informe_imagen_base64 = ''
@@ -335,14 +378,28 @@ def citologia_list(request):
     if sel_pk:
         try:
             selected = Citologia.objects.select_related('tecnico').get(pk=sel_pk)
-            muestras_con_imagenes = [
-                {
+            muestras_con_imagenes = []
+            for m in MuestraCitologia.objects.filter(citologia=selected):
+                imagenes = []
+                for im in ImagenCitologia.objects.filter(muestra=m):
+                    imagenes.append({
+                        'pk': im.pk,
+                        'mime_type': _mime_tipo_desde_bytes(im.imagen),
+                        'imagen_base64': _imagen_bytes_a_base64(im.imagen),
+                    })
+                muestras_con_imagenes.append({
                     'muestra': m,
-                    'imagenes': ImagenCitologia.objects.filter(muestra=m),
+                    'imagenes': imagenes,
                     'qr_url': _build_qr_link(request, m.qr_muestra),
-                }
-                for m in MuestraCitologia.objects.filter(citologia=selected)
-            ]
+                })
+
+            if muestra_pk:
+                selected_muestra_item = next(
+                    (item for item in muestras_con_imagenes if str(item['muestra'].pk) == muestra_pk),
+                    None,
+                )
+            if selected_muestra_item is None and muestras_con_imagenes:
+                selected_muestra_item = muestras_con_imagenes[0]
 
             selected_qr_url = _build_qr_link(request, selected.qr_citologia)
 
@@ -379,6 +436,7 @@ def citologia_list(request):
         'citologias':            qs,
         'selected':              selected,
         'muestras_con_imagenes': muestras_con_imagenes,
+        'selected_muestra_item': selected_muestra_item,
         'citologia_form':        CitologiaForm(instance=selected) if selected else CitologiaForm(),
         'nueva_citologia_form':  CitologiaForm(),
         'muestra_form':          MuestraCitologiaForm(),
@@ -544,7 +602,11 @@ def muestra_citologia_create(request, citologia_pk):
     citologia = get_object_or_404(Citologia, pk=citologia_pk)
     form = MuestraCitologiaForm(request.POST)
     if form.is_valid():
-        form.save(citologia=citologia)
+        muestra = form.save(citologia=citologia)
+        archivo_imagen = request.FILES.get('imagen')
+        if archivo_imagen:
+            ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+        return redirect(reverse('citologias') + f'?citologia={citologia_pk}&muestra={muestra.pk}')
     return redirect(reverse('citologias') + f'?citologia={citologia_pk}')
 
 
@@ -555,7 +617,7 @@ def muestra_citologia_update(request, pk):
     form = MuestraCitologiaForm(request.POST, instance=muestra)
     if form.is_valid():
         form.save()
-    return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}')
+    return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}&muestra={pk}')
 
 
 @login_required
@@ -573,12 +635,10 @@ def muestra_citologia_delete(request, pk):
 @require_POST
 def imagen_citologia_upload(request, muestra_pk):
     muestra = get_object_or_404(MuestraCitologia, pk=muestra_pk)
-    form = ImagenCitologiaForm(request.POST, request.FILES)
-    if form.is_valid():
-        img = form.save(commit=False)
-        img.muestra = muestra
-        img.save()
-    return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}')
+    archivo_imagen = request.FILES.get('imagen')
+    if archivo_imagen:
+        ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+    return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}&muestra={muestra.pk}')
 
 
 @login_required
@@ -586,9 +646,10 @@ def imagen_citologia_upload(request, muestra_pk):
 def imagen_citologia_delete(request, pk):
     imagen = get_object_or_404(ImagenCitologia, pk=pk)
     cid = imagen.muestra.citologia_id
+    muestra_id = imagen.muestra_id
     imagen.imagen.delete(save=False)
     imagen.delete()
-    return redirect(reverse('citologias') + f'?citologia={cid}')
+    return redirect(reverse('citologias') + f'?citologia={cid}&muestra={muestra_id}')
 
 
 # ── Hematologías (lista + detalle) ──────────────────────────────────────────────

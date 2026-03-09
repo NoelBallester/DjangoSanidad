@@ -421,7 +421,7 @@
                                 <th>Descripción</th>
                                 <th>Tinción</th>
                                 <th>Observaciones</th>
-                                <th></th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
@@ -432,57 +432,27 @@
                                 <td>{{ item.muestra.descripcion }}</td>
                                 <td>{{ item.muestra.tincion }}</td>
                                 <td>{{ item.muestra.observaciones|truncatechars:40 }}</td>
-                                <td class="text-end" style="white-space:nowrap">
-                                    <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                        onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}')"
-                                        title="QR de muestra">
-                                        <i class="fa-solid fa-qrcode blue__color--negrita"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                        onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
-                                        title="Modificar">
-                                        <i class="fa-solid fa-file-pen blue__color--negrita"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-link p-0" data-bs-toggle="modal"
-                                        data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ item.muestra.pk }}"
-                                        title="Eliminar">
-                                        <i class="fa-solid fa-trash-can text-danger"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Imágenes de esta muestra -->
-                            <tr>
-                                <td colspan="5" class="py-1 px-3">
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
-                                        {% for img in item.imagenes %}
-                                        <div class="position-relative" style="display:inline-block">
-                                            <img src="{{ img.imagen.url }}"
-                                                style="height:70px;border-radius:6px;object-fit:cover;" alt="">
-                                            <form method="post" action="{% url 'imagen_citologia_delete' img.pk %}"
-                                                style="display:inline" onsubmit="return confirm('¿Eliminar imagen?')">
-                                                {% csrf_token %}
-                                                <button type="submit"
-                                                    class="btn btn-sm position-absolute top-0 end-0 p-0"
-                                                    style="background:rgba(255,255,255,.85);border-radius:50%;line-height:1;width:20px;height:20px;"
-                                                    title="Eliminar imagen">
-                                                    <i class="fa-solid fa-circle-xmark text-danger"
-                                                        style="font-size:.7rem;"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                        {% endfor %}
-                                        <!-- Subir imagen -->
-                                        <form method="post" action="{% url 'imagen_citologia_upload' item.muestra.pk %}"
-                                            enctype="multipart/form-data" class="d-flex align-items-center">
-                                            {% csrf_token %}
-                                            <label for="img_{{ item.muestra.pk }}" class="blue__color fs-3 m-0"
-                                                style="cursor:pointer" title="Añadir imagen">
-                                                <i class="fa-solid fa-circle-plus"></i>
-                                            </label>
-                                            <input id="img_{{ item.muestra.pk }}" type="file" name="imagen"
-                                                accept=".jpg,.jpeg,.png,.gif" class="d-none"
-                                                onchange="this.form.submit()">
-                                        </form>
+                                <td class="text-end" style="white-space:nowrap; min-width: 190px;">
+                                    <div class="d-flex justify-content-end align-items-center gap-1">
+                                        <a class="btn btn-sm btn-link p-0" title="Ver detalle de muestra"
+                                            href="{% url 'citologias' %}?citologia={{ selected.pk }}&muestra={{ item.muestra.pk }}{% if filtros.organo %}&organo={{ filtros.organo }}{% endif %}{% if filtros.numero %}&numero={{ filtros.numero }}{% endif %}{% if filtros.inicio %}&inicio={{ filtros.inicio }}&fin={{ filtros.fin }}{% endif %}">
+                                            <i class="fa-solid fa-eye blue__color--negrita fs-6"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-link p-0"
+                                            onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}')"
+                                            title="QR de muestra">
+                                            <i class="fa-solid fa-qrcode blue__color--negrita fs-6"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-link p-0"
+                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
+                                            title="Modificar">
+                                            <i class="fa-solid fa-file-pen blue__color--negrita fs-6"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-link p-0" data-bs-toggle="modal"
+                                            data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ item.muestra.pk }}"
+                                            title="Eliminar">
+                                            <i class="fa-solid fa-trash-can text-danger fs-6"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -494,6 +464,7 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
 
             <!-- Informe de Resultados -->
@@ -604,7 +575,7 @@
 
         <!-- ── Modal Nueva Muestra ──────────────────────────────────────────── -->
         <section class="mimodal" id="modalnuevaMuestra">
-            <form class="row g-3 miform" method="post" action="{% url 'muestra_citologia_create' selected.pk %}">
+            <form class="row g-3 miform" method="post" action="{% url 'muestra_citologia_create' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title">Nueva Muestra</h2>
@@ -641,10 +612,90 @@
                     <label class="form-label blue__color">Observaciones</label>
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Imagen (opcional)</label>
+                    <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
+                </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
                 </div>
             </form>
+        </section>
+
+        <!-- ── Modal Detalle Muestra ──────────────────────────────────────── -->
+        <section class="mimodal" id="modalDetalleMuestra">
+            <section class="detallemuestra">
+                <div class="form__header">
+                    <h2 class="cassette__title m-0">Detalle Muestra</h2>
+                    {% if selected_muestra_item %}
+                    <span class="badge text-bg-primary">ID {{ selected_muestra_item.muestra.id_muestra }}</span>
+                    {% endif %}
+                    <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2" data-close-modal="modalDetalleMuestra"></i>
+                </div>
+                <hr>
+                <div class="p-3">
+                    {% if selected_muestra_item %}
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <small class="blue__color--negrita d-block">Descripción</small>
+                            <span class="blue__color">{{ selected_muestra_item.muestra.descripcion }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="blue__color--negrita d-block">Fecha</small>
+                            <span class="blue__color">{{ selected_muestra_item.muestra.fecha }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="blue__color--negrita d-block">Tinción</small>
+                            <span class="blue__color">{{ selected_muestra_item.muestra.tincion }}</span>
+                        </div>
+                        <div class="col-12">
+                            <small class="blue__color--negrita d-block">Observaciones</small>
+                            <span class="blue__color">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {% for img in selected_muestra_item.imagenes %}
+                        <div class="position-relative" style="width:120px;height:120px;">
+                            <img src="data:{{ img.mime_type }};base64,{{ img.imagen_base64 }}" alt="Imagen muestra"
+                                style="width:120px;height:120px;border-radius:8px;object-fit:cover;border:1px solid var(--border-color);">
+                            <form method="post" action="{% url 'imagen_citologia_delete' img.pk %}" style="display:inline"
+                                onsubmit="return confirm('¿Eliminar imagen?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm position-absolute top-0 end-0 p-0"
+                                    style="transform:translate(30%,-30%);background:#fff;border-radius:50%;line-height:1;width:18px;height:18px;"
+                                    title="Eliminar imagen">
+                                    <i class="fa-solid fa-circle-xmark text-danger" style="font-size:.6rem;"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% empty %}
+                        <span class="text-muted">Sin imágenes en esta muestra.</span>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <form method="post" action="{% url 'imagen_citologia_upload' selected_muestra_item.muestra.pk %}"
+                            enctype="multipart/form-data" class="d-inline-flex align-items-center gap-2">
+                            {% csrf_token %}
+                            <label for="img_selected_{{ selected_muestra_item.muestra.pk }}" class="btn btn-success btn-sm mb-0">
+                                <i class="fa-solid fa-plus me-1"></i> Anadir Imagen
+                            </label>
+                            <input id="img_selected_{{ selected_muestra_item.muestra.pk }}" type="file" name="imagen"
+                                accept="image/*" class="d-none" onchange="this.form.requestSubmit()">
+                        </form>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ selected_muestra_item.muestra.pk }}">
+                            <i class="fa-solid fa-trash-can me-1"></i> Eliminar
+                        </button>
+                    </div>
+                    {% else %}
+                    <p class="text-muted m-0">Selecciona una muestra con el icono de ojo para ver su detalle e imágenes.</p>
+                    {% endif %}
+                </div>
+            </section>
         </section>
 
         <!-- ── Modal Modificar Muestra ─────────────────────────────────────── -->
@@ -1237,6 +1288,7 @@
             if (!row) return;
             row.classList.add('table-active');
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            openModal('modalDetalleMuestra');
         })();
         {% endif %}
 
