@@ -14,3 +14,9 @@ Ahora ya puedes ejecutar python manage.py runserver (y cualquier otro
 comando manage.py) sin errores de “ModuleNotFound”.
 
 python manage.py runserver
+
+
+python3 -m venv venv
+source venv/bin/activate
+pip install django djangorestframework django-cors-headers pymysql
+python manage.py runserver
