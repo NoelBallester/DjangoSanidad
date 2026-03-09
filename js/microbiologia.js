@@ -361,7 +361,7 @@ const crearMicrobiologia = async (event) => {
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al crear la muestra: " + error.message);
+      alert("Error al crear el análisis: " + error.message);
     });
 };
 
@@ -408,12 +408,12 @@ const borrarMicrobiologia = () => {
           location.href = "microbiologia.html";
         }, 500);
       } else {
-        alert("Error al eliminar la muestra");
+        alert("Error al eliminar el análisis");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al eliminar la muestra: " + error.message);
+      alert("Error al eliminar el análisis: " + error.message);
     });
 };
 
@@ -474,12 +474,12 @@ const modificarMicrobiologiaUpdate = async (event) => {
         // En vez de recargar la página, actualizamos los datos
         actualizarVistaYLista(microbiologiaId);
       } else {
-        alert("Error al actualizar la muestra");
+        alert("Error al actualizar el análisis");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al actualizar la muestra: " + error.message);
+      alert("Error al actualizar el análisis: " + error.message);
     });
 };
 
@@ -822,7 +822,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
       btndetalle.className =
         "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect";
       btndetalle.dataset.id = microbiologia.id_muestra;
-      btndetalle.title = "Detalle Muestra";
+      btndetalle.title = "Detalle Análisis";
 
       let btnCont = document.createElement("td");
       btnCont.appendChild(btndetalle);
@@ -1292,7 +1292,7 @@ const consultarMuestraQR = async (qr) => {
     consultarMicrobiologiaQR(microbiologia.qr_microbiologia || microbiologia.qr_muestra);
     detailMuestra(muestra[0].id_muestra);
   } else {
-    alert("No se encontró ninguna muestra");
+    alert("No se encontró ningún análisis");
   }
 };
 
