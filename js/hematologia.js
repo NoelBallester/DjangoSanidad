@@ -85,6 +85,8 @@ const inputmuestra__qr = document.getElementById("inputmuestra__qr");
 // Modal QR principal
 const imgMuestras__qr = document.getElementById("imgMuestras__qr");
 const inputMuestras__qr = document.getElementById("inputMuestras__qr");
+const btn__imprimirqrMuestras = document.getElementById("btn__imprimirqrMuestras");
+const btn__imprimirqrmuestra = document.getElementById("btn__imprimirqrmuestra");
 
 // Modal consulta QR
 const qrConsultaModal = document.getElementById("qrConsultaModal");
@@ -163,6 +165,24 @@ const qrMuestraModal = document.getElementById("qrMuestraModal");
 // QR Consulta
 const btn__consultarqr = document.getElementById("btn__consultarqr");
 const input__consultarqr = document.getElementById("input__consultarqr");
+const manualQrBtn = document.getElementById("manualQrBtn");
+const qrResolverBase = "/qr/resolver/";
+let html5QrInstance = null;
+
+const buildResolverUrl = (code) => {
+  if (!code) return "";
+  return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
+};
+
+const resolverTextoEscaneado = (text) => {
+  const value = (text || "").trim();
+  if (!value) return;
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    window.location.href = value;
+    return;
+  }
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+};
 
 // ============================================================
 // UTILIDADES
@@ -653,7 +673,7 @@ const imprimirDetalleHematologia = (h) => {
   if (window.QRious && imgMuestras__qr) {
     new QRious({
       element: imgMuestras__qr,
-      value: h.qr_hematologia || "sin-qr",
+      value: buildResolverUrl(h.qr_hematologia),
       size: 100,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -907,7 +927,7 @@ const detailSubMuestra = async (muestraid) => {
   if (window.QRious && imgmuestra__qr) {
     new QRious({
       element: imgmuestra__qr,
-      value: m.qr_muestra || "sin-qr",
+      value: buildResolverUrl(m.qr_muestra),
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -1073,6 +1093,41 @@ const consultarSubMuestraQR = async (qr) => {
   } else {
     alert("No se encontró ninguna sub-muestra con ese QR");
   }
+};
+
+const imprimirQR = (elemento) => {
+  let qrimprimir = "";
+
+  if (elemento === "hematologia") {
+    if (imgMuestras__qr?.src) {
+      qrimprimir = imgMuestras__qr.src;
+    } else if (imgMuestras__qr?.toDataURL) {
+      qrimprimir = imgMuestras__qr.toDataURL();
+    }
+  }
+
+  if (elemento === "muestra") {
+    if (imgmuestra__qr?.src) {
+      qrimprimir = imgmuestra__qr.src;
+    } else if (imgmuestra__qr?.toDataURL) {
+      qrimprimir = imgmuestra__qr.toDataURL();
+    }
+  }
+
+  if (!qrimprimir) {
+    alert("No hay QR generado para imprimir todavía.");
+    return;
+  }
+
+  const printWindow = window.open("", "Imprimir imagen");
+  if (!printWindow) return;
+  printWindow.document.write(
+    "<html><head><title>Imprimir imagen</title></head><body><img src='" +
+    qrimprimir +
+    "'></body></html>"
+  );
+  printWindow.print();
+  printWindow.close();
 };
 
 // ============================================================
@@ -1524,24 +1579,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (qrConsultaModal) {
     qrConsultaModal.addEventListener("show.bs.modal", () => {
       if (input__consultarqr) {
-        input__consultarqr.style.display = "none";
+        input__consultarqr.value = "";
         input__consultarqr.focus();
+      }
+
+      if (!window.Html5Qrcode) return;
+      if (!html5QrInstance) html5QrInstance = new Html5Qrcode("qr-reader");
+      Html5Qrcode.getCameras().then((cameras) => {
+        const cameraId = cameras?.[0]?.id;
+        if (!cameraId) return;
+        html5QrInstance.start(
+          cameraId,
+          { fps: 10, qrbox: 220 },
+          (decodedText) => resolverTextoEscaneado(decodedText),
+          () => {}
+        );
+      }).catch(() => {});
+    });
+
+    qrConsultaModal.addEventListener("hidden.bs.modal", () => {
+      if (html5QrInstance?.isScanning) {
+        html5QrInstance.stop().catch(() => {});
       }
     });
 
-    qrConsultaModal.addEventListener("keydown", (event) => {
+    input__consultarqr?.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        const val = input__consultarqr ? input__consultarqr.value : "";
-        if (val.startsWith("--h--")) {
-          consultarHematologiaQR(val);
-        } else {
-          consultarSubMuestraQR(val);
-        }
-        if (input__consultarqr) input__consultarqr.value = "";
-      } else if (event.key.length === 1) {
-        if (input__consultarqr) input__consultarqr.value += event.key;
+        event.preventDefault();
+        resolverTextoEscaneado(input__consultarqr.value);
       }
     });
+
+    manualQrBtn?.addEventListener("click", () => {
+      resolverTextoEscaneado(input__consultarqr?.value || "");
+    });
+
+    btn__imprimirqrMuestras?.addEventListener("click", () => imprimirQR("hematologia"));
+    btn__imprimirqrmuestra?.addEventListener("click", () => imprimirQR("muestra"));
   }
 
   // ---- Informe de resultados ----

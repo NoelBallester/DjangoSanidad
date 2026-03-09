@@ -71,6 +71,7 @@ const eliminarTuboModal = document.getElementById("eliminarTuboModal");
 // Detalle Tubo
 let currentTuboId = null;
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
+const btn__imprimrqrAlt = document.getElementById("btn__imprimirqrtubo");
 
 // Modal qr
 const imgtubo__qr = document.getElementById("imgtubo__qr");
@@ -203,8 +204,11 @@ const btn__imprimirqrmuestra = document.getElementById(
 // Consultar por código qr
 const btn__consultarqr = document.getElementById("btn__consultarqr");
 const input__consultarqr = document.getElementById("input__consultarqr");
+const manualQrBtn = document.getElementById("manualQrBtn");
 const qrConsultaModal = document.getElementById("qrConsultaModal");
 let mimodal = new bootstrap.Modal(document.getElementById("qrConsultaModal"));
+const qrResolverBase = "/qr/resolver/";
+let html5QrInstance = null;
 
 // Fecha inicio fin para consultas
 const fechainicio = document.getElementById("fechainicio");
@@ -228,6 +232,21 @@ let muestraId = null;
 let imageId = null;
 
 const files = document.getElementById("files");
+
+const buildResolverUrl = (code) => {
+  if (!code) return "";
+  return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
+};
+
+const resolverTextoEscaneado = (text) => {
+  const value = (text || "").trim();
+  if (!value) return;
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    window.location.href = value;
+    return;
+  }
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+};
 
 // Utility to get CSRF token from cookies
 function getCookie(name) {
@@ -889,9 +908,10 @@ const imprimirDataTubo = (respuesta) => {
 
   // generamos el codigo QR
   if (window.QRious) {
+    const qrCode = respuesta.qr_tubo || respuesta.qr_muestra;
     new QRious({
       element: document.querySelector("#imgtubo__qr"),
-      value: respuesta.qr_muestra,
+      value: buildResolverUrl(qrCode),
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -1065,7 +1085,7 @@ const detailMuestra = async (muestraid) => {
   if (window.QRious) {
     new QRious({
       element: imgmuestra__qr,
-      value: muestra.qr_muestra,
+      value: buildResolverUrl(muestra.qr_muestra),
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -1125,11 +1145,24 @@ const aniadirImagenMuestra = async () => {
 const imprimirQR = (elemento) => {
   let qrimprimir;
   if (elemento == "tubo") {
-    qrimprimir = imgtubo__qr.src;
+    if (imgtubo__qr?.src) {
+      qrimprimir = imgtubo__qr.src;
+    } else if (imgtubo__qr?.toDataURL) {
+      qrimprimir = imgtubo__qr.toDataURL();
+    }
   } else {
     if (elemento == "muestra") {
-      qrimprimir = imgmuestra__qr.src;
+      if (imgmuestra__qr?.src) {
+        qrimprimir = imgmuestra__qr.src;
+      } else if (imgmuestra__qr?.toDataURL) {
+        qrimprimir = imgmuestra__qr.toDataURL();
+      }
     }
+  }
+
+  if (!qrimprimir) {
+    alert("No hay QR generado para imprimir todavía.");
+    return;
   }
 
   let printWindow = window.open("", "Imprimir imagen");
@@ -1187,7 +1220,7 @@ const borrarMuestra = async () => {
 };
 
 const consultarTuboQR = async (qr) => {
-  const response = await fetch(`/api/tubos/por_qr/?qr=${qr}`);
+  const response = await fetch(`/api/tubos/qr/${encodeURIComponent(qr)}/`);
   let tubo = await response.json();
   if (tubo.length > 0) {
     imprimirTubos(tubo);
@@ -1202,12 +1235,12 @@ const consultarTuboQR = async (qr) => {
 };
 
 const consultarMuestraQR = async (qr) => {
-  let response = await fetch(`/api/muestrastubo/por_qr/?qr=${qr}`);
+  let response = await fetch(`/api/muestrastubo/qr/${encodeURIComponent(qr)}/`);
   let muestra = await response.json();
   if (muestra.length > 0) {
     let tubo_response = await fetch(`/api/tubos/${muestra[0].tubo}/`);
     let tubo = await tubo_response.json();
-    consultarTuboQR(tubo.qr_muestra);
+    consultarTuboQR(tubo.qr_tubo || tubo.qr_muestra);
     detailMuestra(muestra[0].id_muestra);
   } else {
     alert("No se encontró ninguna muestra");
@@ -1647,24 +1680,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   qrConsultaModal.addEventListener("show.bs.modal", () => {
-    input__consultarqr.style.display = "none";
-    input__consultarqr.focus();
+    if (input__consultarqr) {
+      input__consultarqr.value = "";
+      input__consultarqr.focus();
+    }
+
+    if (!window.Html5Qrcode) return;
+    if (!html5QrInstance) html5QrInstance = new Html5Qrcode("qr-reader");
+
+    Html5Qrcode.getCameras().then((cameras) => {
+      const cameraId = cameras?.[0]?.id;
+      if (!cameraId) return;
+      html5QrInstance.start(
+        cameraId,
+        { fps: 10, qrbox: 220 },
+        (decodedText) => resolverTextoEscaneado(decodedText),
+        () => {}
+      );
+    }).catch(() => {});
   });
 
-  // Lectura código QR de Tubo/Muestra
-  qrConsultaModal.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      let tipo = input__consultarqr.value.substring(0, 5);
-      if (tipo === "--m--") {
-        consultarTuboQR(input__consultarqr.value);
-      } else {
-        consultarMuestraQR(input__consultarqr.value);
-      }
-      input__consultarqr.value = "";
-    } else {
-      input__consultarqr.value += event.key;
+  qrConsultaModal.addEventListener("hidden.bs.modal", () => {
+    if (html5QrInstance?.isScanning) {
+      html5QrInstance.stop().catch(() => {});
     }
   });
+
+  input__consultarqr?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      resolverTextoEscaneado(input__consultarqr.value);
+    }
+  });
+
+  manualQrBtn?.addEventListener("click", () => {
+    resolverTextoEscaneado(input__consultarqr?.value || "");
+  });
+
+  // Impresión QR principal y de análisis
+  btn__imprimrqr?.addEventListener("click", () => imprimirQR("tubo"));
+  btn__imprimrqrAlt?.addEventListener("click", () => imprimirQR("tubo"));
+  btn__imprimirqrmuestra?.addEventListener("click", () => imprimirQR("muestra"));
 
   // Guardar Informe de Resultados
   const guardarInformeMedico = async () => {

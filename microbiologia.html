@@ -800,11 +800,12 @@
                     </div>
 
                     <div class="modal-body text-center fs-4 blue__color">
-                        <p>Puede escanear el código QR de un Microbiología o de una Microbiología</p>
-
-                        <input type="text" value="qr" id="input__consultarqr">
-                        <!--  <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
-              data-bs-dismiss="modal">Imprimir</button> -->
+                        <p>Escanea o introduce el QR de una muestra o análisis</p>
+                        <div id="qr-reader" style="width:100%; max-width:360px; margin:0 auto;"></div>
+                        <div class="mt-3 d-flex gap-2">
+                            <input type="text" id="input__consultarqr" class="form-control" placeholder="Pega o escribe el código QR">
+                            <button type="button" class="btn btn-outline-primary" id="manualQrBtn">Ir</button>
+                        </div>
                     </div>
 
                 </div>
@@ -949,6 +950,7 @@
 
         <!-- Para ordenar tabla -->
         <script src="./js/sortable.js"></script>
+        <script src="https://unpkg.com/html5-qrcode" defer></script>
         <script src="js/microbiologia.js"></script>
         <script src="js/api-django.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>

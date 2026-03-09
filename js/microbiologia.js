@@ -71,6 +71,7 @@ const eliminarMicrobiologiaModal = document.getElementById("eliminarMicrobiologi
 // Detalle Microbiologia
 let currentMicrobiologiaId = null;
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
+const btn__imprimrqrAlt = document.getElementById("btn__imprimirqrmicrobiologia");
 
 // Modal qr
 const imgmicrobiologia__qr = document.getElementById("imgmicrobiologia__qr");
@@ -203,8 +204,11 @@ const btn__imprimirqrmuestra = document.getElementById(
 // Consultar por código qr
 const btn__consultarqr = document.getElementById("btn__consultarqr");
 const input__consultarqr = document.getElementById("input__consultarqr");
+const manualQrBtn = document.getElementById("manualQrBtn");
 const qrConsultaModal = document.getElementById("qrConsultaModal");
 let mimodal = new bootstrap.Modal(document.getElementById("qrConsultaModal"));
+const qrResolverBase = "/qr/resolver/";
+let html5QrInstance = null;
 
 // Fecha inicio fin para consultas
 const fechainicio = document.getElementById("fechainicio");
@@ -228,6 +232,21 @@ let muestraId = null;
 let imageId = null;
 
 const files = document.getElementById("files");
+
+const buildResolverUrl = (code) => {
+  if (!code) return "";
+  return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
+};
+
+const resolverTextoEscaneado = (text) => {
+  const value = (text || "").trim();
+  if (!value) return;
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    window.location.href = value;
+    return;
+  }
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+};
 
 // Utility to get CSRF token from cookies
 function getCookie(name) {
@@ -889,9 +908,10 @@ const imprimirDataMicrobiologia = (respuesta) => {
 
   // generamos el codigo QR
   if (window.QRious) {
+    const qrCode = respuesta.qr_microbiologia || respuesta.qr_muestra;
     new QRious({
       element: document.querySelector("#imgmicrobiologia__qr"),
-      value: respuesta.qr_muestra,
+      value: buildResolverUrl(qrCode),
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -1065,7 +1085,7 @@ const detailMuestra = async (muestraid) => {
   if (window.QRious) {
     new QRious({
       element: imgmuestra__qr,
-      value: muestra.qr_muestra,
+      value: buildResolverUrl(muestra.qr_muestra),
       size: 70,
       backgroundAlpha: 0,
       foreground: "#4ca0cc",
@@ -1125,11 +1145,24 @@ const aniadirImagenMuestra = async () => {
 const imprimirQR = (elemento) => {
   let qrimprimir;
   if (elemento == "microbiologia") {
-    qrimprimir = imgmicrobiologia__qr.src;
+    if (imgmicrobiologia__qr?.src) {
+      qrimprimir = imgmicrobiologia__qr.src;
+    } else if (imgmicrobiologia__qr?.toDataURL) {
+      qrimprimir = imgmicrobiologia__qr.toDataURL();
+    }
   } else {
     if (elemento == "muestra") {
-      qrimprimir = imgmuestra__qr.src;
+      if (imgmuestra__qr?.src) {
+        qrimprimir = imgmuestra__qr.src;
+      } else if (imgmuestra__qr?.toDataURL) {
+        qrimprimir = imgmuestra__qr.toDataURL();
+      }
     }
+  }
+
+  if (!qrimprimir) {
+    alert("No hay QR generado para imprimir todavía.");
+    return;
   }
 
   let printWindow = window.open("", "Imprimir imagen");
@@ -1187,7 +1220,7 @@ const borrarMuestra = async () => {
 };
 
 const consultarMicrobiologiaQR = async (qr) => {
-  const response = await fetch(`/api/microbiologias/por_qr/?qr=${qr}`);
+  const response = await fetch(`/api/microbiologias/qr/${encodeURIComponent(qr)}/`);
   let microbiologia = await response.json();
   if (microbiologia.length > 0) {
     imprimirMicrobiologias(microbiologia);
@@ -1202,12 +1235,12 @@ const consultarMicrobiologiaQR = async (qr) => {
 };
 
 const consultarMuestraQR = async (qr) => {
-  let response = await fetch(`/api/muestrasmicrobiologia/por_qr/?qr=${qr}`);
+  let response = await fetch(`/api/muestrasmicrobiologia/qr/${encodeURIComponent(qr)}/`);
   let muestra = await response.json();
   if (muestra.length > 0) {
     let microbiologia_response = await fetch(`/api/microbiologias/${muestra[0].microbiologia}/`);
     let microbiologia = await microbiologia_response.json();
-    consultarMicrobiologiaQR(microbiologia.qr_muestra);
+    consultarMicrobiologiaQR(microbiologia.qr_microbiologia || microbiologia.qr_muestra);
     detailMuestra(muestra[0].id_muestra);
   } else {
     alert("No se encontró ninguna muestra");
@@ -1670,24 +1703,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   qrConsultaModal.addEventListener("show.bs.modal", () => {
-    input__consultarqr.style.display = "none";
-    input__consultarqr.focus();
+    if (input__consultarqr) {
+      input__consultarqr.value = "";
+      input__consultarqr.focus();
+    }
+
+    if (!window.Html5Qrcode) return;
+    if (!html5QrInstance) html5QrInstance = new Html5Qrcode("qr-reader");
+
+    Html5Qrcode.getCameras().then((cameras) => {
+      const cameraId = cameras?.[0]?.id;
+      if (!cameraId) return;
+      html5QrInstance.start(
+        cameraId,
+        { fps: 10, qrbox: 220 },
+        (decodedText) => resolverTextoEscaneado(decodedText),
+        () => {}
+      );
+    }).catch(() => {});
   });
 
-  // Lectura código QR de Microbiologia/Muestra
-  qrConsultaModal.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      let tipo = input__consultarqr.value.substring(0, 5);
-      if (tipo === "--m--") {
-        consultarMicrobiologiaQR(input__consultarqr.value);
-      } else {
-        consultarMuestraQR(input__consultarqr.value);
-      }
-      input__consultarqr.value = "";
-    } else {
-      input__consultarqr.value += event.key;
+  qrConsultaModal.addEventListener("hidden.bs.modal", () => {
+    if (html5QrInstance?.isScanning) {
+      html5QrInstance.stop().catch(() => {});
     }
   });
+
+  input__consultarqr?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      resolverTextoEscaneado(input__consultarqr.value);
+    }
+  });
+
+  manualQrBtn?.addEventListener("click", () => {
+    resolverTextoEscaneado(input__consultarqr?.value || "");
+  });
+
+  // Impresión QR principal y de análisis
+  btn__imprimrqr?.addEventListener("click", () => imprimirQR("microbiologia"));
+  btn__imprimrqrAlt?.addEventListener("click", () => imprimirQR("microbiologia"));
+  btn__imprimirqrmuestra?.addEventListener("click", () => imprimirQR("muestra"));
 
   // Guardar Informe de Resultados
   const guardarInformeMedico = async () => {

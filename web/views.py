@@ -8,7 +8,7 @@ from django.contrib import messages
 from urllib.parse import urlparse, parse_qs
 import base64
 
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
 from django.contrib.auth.hashers import make_password
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
@@ -433,6 +433,22 @@ def qr_resolver(request):
     if muestra_hematologia:
         return redirect(reverse('hematologias') + f'?hematologia={muestra_hematologia.hematologia_id}&muestra={muestra_hematologia.pk}')
 
+    tubo = Tubo.objects.filter(qr_tubo=payload).first()
+    if tubo:
+        return redirect(f'/bioquimica.html?tubo={tubo.pk}')
+
+    muestra_tubo = MuestraTubo.objects.filter(qr_muestra=payload).select_related('tubo').first()
+    if muestra_tubo:
+        return redirect(f'/bioquimica.html?tubo={muestra_tubo.tubo_id}&muestra={muestra_tubo.pk}')
+
+    microbiologia = Microbiologia.objects.filter(qr_microbiologia=payload).first()
+    if microbiologia:
+        return redirect(f'/microbiologia.html?microbiologia={microbiologia.pk}')
+
+    muestra_microbiologia = MuestraMicrobiologia.objects.filter(qr_muestra=payload).select_related('microbiologia').first()
+    if muestra_microbiologia:
+        return redirect(f'/microbiologia.html?microbiologia={muestra_microbiologia.microbiologia_id}&muestra={muestra_microbiologia.pk}')
+
     messages.error(request, 'No se encontró ninguna muestra, citología o cassette para ese QR.')
     return redirect('cassettes')
 
@@ -600,14 +616,20 @@ def hematologia_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    selected_qr_url = ''
 
     if sel_pk:
         try:
             selected = Hematologia.objects.select_related('tecnico').get(pk=sel_pk)
             muestras_con_imagenes = [
-                {'muestra': m, 'imagenes': ImagenHematologia.objects.filter(muestra=m)}
+                {
+                    'muestra': m,
+                    'imagenes': ImagenHematologia.objects.filter(muestra=m),
+                    'qr_url': _build_qr_link(request, m.qr_muestra),
+                }
                 for m in MuestraHematologia.objects.filter(hematologia=selected)
             ]
+            selected_qr_url = _build_qr_link(request, selected.qr_hematologia)
         except Hematologia.DoesNotExist:
             pass
 
@@ -619,6 +641,7 @@ def hematologia_list(request):
         'nueva_hematologia_form': HematologiaForm(),
         'muestra_form':          MuestraHematologiaForm(),
         'informe_form': None,
+        'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 
