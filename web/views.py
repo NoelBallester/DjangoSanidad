@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.contrib import messages
+from urllib.parse import urlparse, parse_qs
 import base64
 
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado
@@ -22,6 +23,12 @@ def _imagen_bytes_a_base64(imagen_bytes):
         return base64.b64encode(bytes(imagen_bytes)).decode('utf-8')
     except Exception:
         return ''
+
+
+def _build_qr_link(request, code):
+    if not code:
+        return ''
+    return request.build_absolute_uri(reverse('qr_resolver') + f'?code={code}')
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -89,16 +96,24 @@ def cassette_list(request):
     informe_activo = None
     informe_imagen_base64 = ''
 
+    selected_qr_url = ''
+
     if sel_pk:
         try:
             selected = Cassette.objects.get(pk=sel_pk)
             try:
                 muestras_con_imagenes = [
-                    {'muestra': m, 'imagenes': Imagen.objects.filter(muestra=m)}
+                    {
+                        'muestra': m,
+                        'imagenes': Imagen.objects.filter(muestra=m),
+                        'qr_url': _build_qr_link(request, m.qr_muestra),
+                    }
                     for m in Muestra.objects.filter(cassette=selected)
                 ]
             except Exception:
                 muestras_con_imagenes = []
+
+            selected_qr_url = _build_qr_link(request, selected.qr_casette)
 
             informes_resultado = list(
                 InformeResultado.objects.filter(cassette=selected).order_by('-fecha', '-creado_en', '-id_informe')
@@ -142,6 +157,7 @@ def cassette_list(request):
         'informes_resultado': informes_resultado,
         'informe_activo': informe_activo,
         'informe_imagen_base64': informe_imagen_base64,
+        'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
 
@@ -314,13 +330,21 @@ def citologia_list(request):
     informe_activo = None
     informe_imagen_base64 = ''
 
+    selected_qr_url = ''
+
     if sel_pk:
         try:
             selected = Citologia.objects.select_related('tecnico').get(pk=sel_pk)
             muestras_con_imagenes = [
-                {'muestra': m, 'imagenes': ImagenCitologia.objects.filter(muestra=m)}
+                {
+                    'muestra': m,
+                    'imagenes': ImagenCitologia.objects.filter(muestra=m),
+                    'qr_url': _build_qr_link(request, m.qr_muestra),
+                }
                 for m in MuestraCitologia.objects.filter(citologia=selected)
             ]
+
+            selected_qr_url = _build_qr_link(request, selected.qr_citologia)
 
             informes_resultado = list(
                 InformeResultado.objects.filter(citologia=selected).order_by('-fecha', '-creado_en', '-id_informe')
@@ -362,8 +386,55 @@ def citologia_list(request):
         'informes_resultado': informes_resultado,
         'informe_activo': informe_activo,
         'informe_imagen_base64': informe_imagen_base64,
+        'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
+
+
+@never_cache
+@login_required
+def qr_resolver(request):
+    payload = (request.GET.get('code') or '').strip()
+    if not payload:
+        messages.error(request, 'No se recibió ningún código QR.')
+        return redirect('cassettes')
+
+    # Si escanean una URL completa del sistema, extraemos el parámetro code cuando exista.
+    if payload.startswith('http://') or payload.startswith('https://'):
+        try:
+            parsed = urlparse(payload)
+            code_candidates = parse_qs(parsed.query).get('code', [])
+            if code_candidates and code_candidates[0].strip():
+                payload = code_candidates[0].strip()
+        except Exception:
+            pass
+
+    cassette = Cassette.objects.filter(qr_casette=payload).first()
+    if cassette:
+        return redirect(reverse('cassettes') + f'?cassette={cassette.pk}')
+
+    citologia = Citologia.objects.filter(qr_citologia=payload).first()
+    if citologia:
+        return redirect(reverse('citologias') + f'?citologia={citologia.pk}')
+
+    muestra_cassette = Muestra.objects.filter(qr_muestra=payload).select_related('cassette').first()
+    if muestra_cassette:
+        return redirect(reverse('cassettes') + f'?cassette={muestra_cassette.cassette_id}&muestra={muestra_cassette.pk}')
+
+    muestra_citologia = MuestraCitologia.objects.filter(qr_muestra=payload).select_related('citologia').first()
+    if muestra_citologia:
+        return redirect(reverse('citologias') + f'?citologia={muestra_citologia.citologia_id}&muestra={muestra_citologia.pk}')
+
+    hematologia = Hematologia.objects.filter(qr_hematologia=payload).first()
+    if hematologia:
+        return redirect(reverse('hematologias') + f'?hematologia={hematologia.pk}')
+
+    muestra_hematologia = MuestraHematologia.objects.filter(qr_muestra=payload).select_related('hematologia').first()
+    if muestra_hematologia:
+        return redirect(reverse('hematologias') + f'?hematologia={muestra_hematologia.hematologia_id}&muestra={muestra_hematologia.pk}')
+
+    messages.error(request, 'No se encontró ninguna muestra, citología o cassette para ese QR.')
+    return redirect('cassettes')
 
 
 # ── Citología CRUD ────────────────────────────────────────────────────────────

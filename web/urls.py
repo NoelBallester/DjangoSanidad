@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('login/',   views.login_view,  name='login'),
     path('logout/',  views.logout_view, name='logout'),
+    path('qr/resolver/', views.qr_resolver, name='qr_resolver'),
 
     # Cassettes
     path('cassettes/',                                        views.cassette_list,    name='cassettes'),
