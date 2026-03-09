@@ -70,6 +70,7 @@ const citologiaOrgano = document.getElementById("citologia__organo");
 const citologiaCitologia = document.getElementById("citologia__citologia");
 const citologiaTipo = document.getElementById("citologia__tipo");
 const citologiaFecha = document.getElementById("citologia__fecha");
+const citologiaTecnicoId = document.getElementById("citologia__tecnico_id");
 const citologiaCaracteristicas = document.getElementById(
   "citologia__caracteristicas"
 );
@@ -548,6 +549,7 @@ const imprimirDetalleCitologia = (respuesta) => {
   citologiaOrgano.textContent = respuesta.organo;
   citologiaCitologia.textContent = respuesta.citologia;
   citologiaTipo.textContent = respuesta.tipo_citologia;
+  citologiaTecnicoId.textContent = respuesta.tecnico || "";
 
   // Formato Fecha
   nuevafecha = respuesta.fecha;

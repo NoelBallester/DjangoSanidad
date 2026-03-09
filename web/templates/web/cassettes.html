@@ -340,6 +340,9 @@
                             <li class="blue__color--negrita">Detalle / Nombre Paciente:
                                 <span class="blue__color cassette__text">{{ selected.descripcion }}</span>
                             </li>
+                            <li class="blue__color--negrita">Técnico ID:
+                                <span class="blue__color cassette__text">{{ selected.tecnico.id_tecnico|default:"" }}</span>
+                            </li>
                         </div>
                         <hr class="m-1">
                         <div class="d-flex px-3 justify-content-between">

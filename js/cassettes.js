@@ -70,6 +70,7 @@ const cassetteDescripcion = document.getElementById("cassette__descripcion");
 const cassetteOrgano = document.getElementById("cassette__organo");
 const cassetteCassette = document.getElementById("cassette__cassette");
 const cassetteFecha = document.getElementById("cassette__fecha");
+const cassetteTecnicoId = document.getElementById("cassette__tecnico_id");
 const cassetteCaracteristicas = document.getElementById(
   "cassette__caracteristicas"
 );
@@ -513,6 +514,7 @@ const imprimirDataCassette = (respuesta) => {
   cassetteDescripcion.textContent = respuesta.descripcion.substring(0, 50);
   cassetteOrgano.textContent = respuesta.organo;
   cassetteCassette.textContent = respuesta.cassette;
+  cassetteTecnicoId.textContent = respuesta.tecnico || "";
 
   // Formato Fecha
   nuevafecha = respuesta.fecha;

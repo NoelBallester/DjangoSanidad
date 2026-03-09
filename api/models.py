@@ -48,6 +48,7 @@ class Cassette(models.Model):
     patologo_responsable = models.CharField(max_length=255, null=True, blank=True)
     qr_casette = models.CharField(max_length=255, unique=True)
     organo = models.CharField(max_length=255)
+    tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
     informe_descripcion = models.CharField(max_length=255, null=True, blank=True)
     informe_fecha = models.DateField(null=True, blank=True)
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
