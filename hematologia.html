@@ -146,19 +146,6 @@
             <input type="hidden" id="fechafin">
           </div>
 
-          <div>
-            <a href="./bioquimica.html"
-              class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
-              <i class="fa-solid fa-vial me-2"></i> Ir a Bioquímica
-            </a>
-          </div>
-
-          <div>
-            <a href="./microbiologia.html"
-              class="btn btn-switch-module rounded-pill px-4 unified-filter-height fw-bold shadow-sm">
-              <i class="fa-solid fa-vial me-2"></i> Ir a Microbiología
-            </a>
-          </div>
         </div>
 
         <!-- Area Derecha (Botón Volver alineado a la derecha) -->
@@ -253,7 +240,7 @@
 
           <section class="list-group list-group-flush mt-3">
             <div class="d-flex px-3 justify-content-between">
-              <li class="blue__color--negrita"> Detalle / Nombre Paciente: <span id="Muestras__descripcion"
+              <li class="blue__color--negrita"> Detalle muestra: <span id="Muestras__descripcion"
                   class="blue__color Muestras__text">
                 </span>
               </li>
@@ -300,7 +287,7 @@
           <div class="d-flex align-items-center gap-2">
             <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
               style="border-radius: 20px;">
-              <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
+              <i class="fa-solid fa-notes-medical me-1"></i> Informe
             </button>
             <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Muestra"
                 class="fa-solid fa-file-circle-plus blue__color--negrita fs-5 "></i>
@@ -328,7 +315,7 @@
       <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
         <div class="container__muestra h-100 p-2">
           <div class="title d-flex align-items-center justify-content-between">
-            <h2 class="Muestras__title m-0">Informe de Resultados</h2>
+            <h2 class="Muestras__title m-0">Informe</h2>
             <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
               style="border-radius: 20px;">
               <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
@@ -380,7 +367,7 @@
                   <input type="date" id="Muestras__informe_fecha" class="form-control blue__color bg-light">
                 </div>
                 <div class="mb-3">
-                  <label for="Muestras__informe_tincion" class="blue__color--negrita d-block">Resultados</label>
+                  <label for="Muestras__informe_tincion" class="blue__color--negrita d-block">Análisis</label>
                   <select id="Muestras__informe_tincion" class="form-select blue__color bg-light">
                     <option selected disabled value="">Seleccionar tipo de Muestra</option>
                     <option>Perfil Hepático</option>
@@ -401,14 +388,14 @@
                     rows="3"></textarea>
                 </div>
                 <div class="mb-3">
-                  <label for="Muestras__informe_imagen" class="blue__color--negrita d-block">Formulario</label>
+                  <label for="Muestras__informe_imagen" class="blue__color--negrita d-block">Informe</label>
                   <input type="file" id="Muestras__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
                     class="form-control blue__color bg-light">
                 </div>
                 <div class="d-flex gap-2 mt-4"
                   style="position: sticky; bottom: 0; background: #fff; padding-top: .75rem;">
                   <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="button">
-                    <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+                    <i class="fa-solid fa-save me-2"></i> Guardar Informe
                   </button>
                   <button id="btnCancelarInforme" class="btn btn-outline-secondary w-100 py-2" type="button">
                     Cancelar
@@ -637,7 +624,7 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputClinica" class="form-label blue__color">Información Clínica / Antecedentes</label>
+          <label for="inputClinica" class="form-label blue__color">Volante de petición</label>
           <input class="form-control blue__color" id="inputClinica" required>
         </div>
 
@@ -677,17 +664,18 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputMicroscopia" class="form-label blue__color">Descripción Microscópica</label>
-          <textarea class="form-control blue__color textarea__text" id="inputMicroscopia"></textarea>
+          <label for="inputMicroscopia" class="form-label blue__color">Volante de petición (archivo)</label>
+          <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" class="form-control blue__color"
+              id="inputMicroscopia">
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDiagnostico" class="form-label blue__color">Diagnóstico Final</label>
+          <label for="inputDiagnostico" class="form-label blue__color">Diagnóstico probable</label>
           <textarea class="form-control blue__color textarea__text" id="inputDiagnostico"></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputPatologo" class="form-label blue__color">Patólogo Responsable</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputPatologo" class="form-label blue__color">Campo interno</label>
           <input type="text" class="form-control blue__color" id="inputPatologo">
         </div>
 
@@ -723,10 +711,21 @@
             <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo Muestra</label>
             <select class="form-select blue__color" id="inputTipoUpdate" required>
               <option selected disabled value="">Tipo Muestra</option>
-              <option>PAAF</option>
-              <option>Citología Líquida</option>
-              <option>Cervico Vaginal</option>
-              <option>Derrames</option>
+              <option>Improntas</option>
+              <option>Punción-aspiración</option>
+              <option>Esputo</option>
+              <option>Líquido pleural</option>
+              <option>Líquido ascítico</option>
+              <option>Líquido pericárdico</option>
+              <option>Saliva</option>
+              <option>Contenido quístico</option>
+              <option>Raspados</option>
+              <option>Orina</option>
+              <option>Cepillado</option>
+              <option>Citología respiratoria (BAS y BAL)</option>
+              <option>Secreción mamaria</option>
+              <option>Muestra vulvar</option>
+              <option>Muestra endometrial</option>
             </select>
           </div>
         </div>
@@ -768,17 +767,18 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputMicroscopiaUpdate" class="form-label blue__color">Descripción Microscópica</label>
-          <textarea class="form-control blue__color textarea__text" id="inputMicroscopiaUpdate"></textarea>
+          <label for="inputMicroscopiaUpdate" class="form-label blue__color">Volante de petición (archivo)</label>
+          <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" class="form-control blue__color"
+              id="inputMicroscopiaUpdate">
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico Final</label>
+          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico probable</label>
           <textarea class="form-control blue__color textarea__text" id="inputDiagnosticoUpdate"></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputPatologoUpdate" class="form-label blue__color">Patólogo Responsable</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputPatologoUpdate" class="form-label blue__color">Campo interno</label>
           <input type="text" class="form-control blue__color" id="inputPatologoUpdate">
         </div>
 

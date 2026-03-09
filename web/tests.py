@@ -269,7 +269,7 @@ class CassetteCRUDTests(TestCase):
 class CitologiaCRUDTests(TestCase):
 
     DATOS_VALIDOS = {
-        'citologia': 'CIT001', 'tipo_citologia': 'PAAF',
+        'citologia': 'CIT001', 'tipo_citologia': 'Improntas',
         'fecha': '2024-06-01', 'descripcion': 'Desc',
         'caracteristicas': 'Caract', 'organo': 'Pulmón',
     }
@@ -326,7 +326,7 @@ class CitologiaCRUDTests(TestCase):
     def test_editar_citologia(self):
         c = make_citologia(self.tecnico, 1)
         self.client.post(reverse('citologia_update', args=[c.pk]), {
-            'citologia': c.citologia, 'tipo_citologia': 'PAAF',
+            'citologia': c.citologia, 'tipo_citologia': 'Improntas',
             'fecha': c.fecha, 'descripcion': 'Desc actualizada',
             'caracteristicas': c.caracteristicas, 'organo': c.organo,
         })
@@ -362,7 +362,7 @@ class CitologiaCRUDTests(TestCase):
     def test_filtro_por_organo(self):
         make_citologia(self.tecnico, 1)  # organo='Pulmón'
         Citologia.objects.create(
-            citologia='CIT999', tipo_citologia='PAAF', fecha='2024-01-01',
+            citologia='CIT999', tipo_citologia='Improntas', fecha='2024-01-01',
             descripcion='D', caracteristicas='C', qr_citologia='QRCFILTRO',
             organo='Riñón',
         )
@@ -376,7 +376,7 @@ class CitologiaCRUDTests(TestCase):
         self.assertEqual(r.context['selected'].pk, c.pk)
 
     def test_todos_los_tipos_validos_crean_citologia(self):
-        tipos = ['PAAF', 'Citología Líquida', 'Cervico Vaginal', 'Derrames']
+        tipos = ['Improntas', 'Punción-aspiración', 'Esputo', 'Muestra endometrial']
         for i, tipo in enumerate(tipos):
             datos = {**self.DATOS_VALIDOS, 'citologia': f'T{i}', 'tipo_citologia': tipo}
             self.client.post(reverse('citologia_create'), datos)

@@ -6,7 +6,7 @@
         value="{% if edit %}{{ h.hematologia }}{% endif %}" required>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Detalle Hematología / Nombre Paciente</label>
+    <label class="form-label blue__color">Detalle muestra</label>
     <textarea name="descripcion" class="form-control blue__color textarea__text"
         required>{% if edit %}{{ h.descripcion }}{% endif %}</textarea>
 </div>
@@ -35,6 +35,7 @@
                 <option {% if edit and h.organo == 'Corazón' %}selected{% endif %}>Corazón</option>
                 <option {% if edit and h.organo == 'Venas' %}selected{% endif %}>Venas</option>
                 <option {% if edit and h.organo == 'Arteria' %}selected{% endif %}>Arteria</option>
+                <option {% if edit and h.organo == 'Líquido Pericárdico' %}selected{% endif %}>Líquido Pericárdico</option>
             </optgroup>
             <optgroup label="Linfático">
                 <option {% if edit and h.organo == 'Ganglio Linfático' %}selected{% endif %}>Ganglio Linfático</option>
@@ -55,6 +56,7 @@
                 <option {% if edit and h.organo == 'Tráquea' %}selected{% endif %}>Tráquea</option>
                 <option {% if edit and h.organo == 'Bronquio' %}selected{% endif %}>Bronquio</option>
                 <option {% if edit and h.organo == 'Pulmón' %}selected{% endif %}>Pulmón</option>
+                <option {% if edit and h.organo == 'Líquido Pleural' %}selected{% endif %}>Líquido Pleural</option>
             </optgroup>
             <optgroup label="Digestivo">
                 <option {% if edit and h.organo == 'Boca' %}selected{% endif %}>Boca</option>
@@ -70,6 +72,7 @@
                 <option {% if edit and h.organo == 'Apéndice' %}selected{% endif %}>Apéndice</option>
                 <option {% if edit and h.organo == 'Recto' %}selected{% endif %}>Recto</option>
                 <option {% if edit and h.organo == 'Ano' %}selected{% endif %}>Ano</option>
+                <option {% if edit and h.organo == 'Líquido Peritoneal' %}selected{% endif %}>Líquido Peritoneal</option>
             </optgroup>
             <optgroup label="Excretor Urinario">
                 <option {% if edit and h.organo == 'Riñón' %}selected{% endif %}>Riñón</option>
@@ -87,10 +90,14 @@
                 <option {% if edit and h.organo == 'Útero' %}selected{% endif %}>Útero</option>
                 <option {% if edit and h.organo == 'Vagina' %}selected{% endif %}>Vagina</option>
                 <option {% if edit and h.organo == 'Vulva' %}selected{% endif %}>Vulva</option>
+                <option {% if edit and h.organo == 'Cuerpo de Útero' %}selected{% endif %}>Cuerpo de Útero</option>
+                <option {% if edit and h.organo == 'Cuello de Útero' %}selected{% endif %}>Cuello de Útero</option>
+                <option {% if edit and h.organo == 'Cavidad Pélvica' %}selected{% endif %}>Cavidad Pélvica</option>
             </optgroup>
             <optgroup label="Locomotor">
                 <option {% if edit and h.organo == 'Hueso' %}selected{% endif %}>Hueso</option>
                 <option {% if edit and h.organo == 'Músculo Esquelético' %}selected{% endif %}>Músculo Esquelético</option>
+                <option {% if edit and h.organo == 'Líquido Sinovial' %}selected{% endif %}>Líquido Sinovial</option>
             </optgroup>
             <option {% if edit and h.organo == 'Otros' %}selected{% endif %}>Otros</option>
         </select>
@@ -107,18 +114,16 @@
         >{% if edit %}{{ h.observaciones }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Descripción Microscópica</label>
-    <textarea name="descripcion_microscopica" class="form-control blue__color textarea__text"
-        >{% if edit %}{{ h.descripcion_microscopica }}{% endif %}</textarea>
+    <label class="form-label blue__color">Volante de petición (archivo)</label>
+    <input type="file" name="volante_peticion" class="form-control blue__color" 
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+    {% if edit and h.descripcion_microscopica %}
+        <small class="form-text text-muted">Archivo actual: {{ h.descripcion_microscopica }}</small>
+    {% endif %}
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Diagnóstico Final</label>
+    <label class="form-label blue__color">Diagnóstico probable</label>
     <textarea name="diagnostico_final" class="form-control blue__color textarea__text"
         >{% if edit %}{{ h.diagnostico_final }}{% endif %}</textarea>
-</div>
-<div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Patólogo Responsable</label>
-    <input type="text" name="patologo_responsable" class="form-control blue__color"
-        value="{% if edit %}{{ h.patologo_responsable|default:'' }}{% endif %}">
 </div>
 {% endwith %}

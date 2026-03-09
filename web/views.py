@@ -5,8 +5,11 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.contrib import messages
+from django.conf import settings
+from django.core.files.storage import default_storage
 from urllib.parse import urlparse, parse_qs
 import base64
+import os
 
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
 from django.contrib.auth.hashers import make_password
@@ -44,6 +47,26 @@ def _mime_tipo_desde_bytes(imagen_bytes):
     if raw.startswith(b'RIFF') and raw[8:12] == b'WEBP':
         return 'image/webp'
     return 'image/jpeg'
+
+
+def _guardar_volante_peticion(archivo, prefijo='volante'):
+    """Guarda un archivo de volante de petición y retorna la ruta relativa"""
+    if not archivo:
+        return None
+    
+    # Crear directorio si no existe
+    directorio = 'volantes_peticion'
+    ruta_completa = os.path.join(settings.MEDIA_ROOT, directorio)
+    os.makedirs(ruta_completa, exist_ok=True)
+    
+    # Generar nombre único
+    extension = os.path.splitext(archivo.name)[1]
+    nombre_archivo = f"{prefijo}_{archivo.name}"
+    ruta_relativa = os.path.join(directorio, nombre_archivo)
+    
+    # Guardar archivo
+    ruta_guardado = default_storage.save(ruta_relativa, archivo)
+    return ruta_guardado
 
 
 def _build_qr_link(request, code):
@@ -205,11 +228,17 @@ def cassette_list(request):
 @login_required
 @require_POST
 def cassette_create(request):
-    form = CassetteForm(request.POST)
+    form = CassetteForm(request.POST, request.FILES)
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
         try:
-            c = form.save(tecnico=tecnico)
+            c = form.save(commit=False, tecnico=tecnico)
+            # Manejar archivo de volante de petición
+            volante_file = request.FILES.get('volante_peticion')
+            if volante_file:
+                ruta = _guardar_volante_peticion(volante_file, f'cassette_{c.cassette}')
+                c.informacion_clinica = ruta
+            c.save()
             return redirect(reverse('cassettes') + f'?cassette={c.pk}')
         except Exception as e:
             messages.error(request, f'Error al guardar el cassette: {e}')
@@ -226,9 +255,15 @@ def cassette_create(request):
 @require_POST
 def cassette_update(request, pk):
     cassette = get_object_or_404(Cassette, pk=pk)
-    form = CassetteForm(request.POST, instance=cassette)
+    form = CassetteForm(request.POST, request.FILES, instance=cassette)
     if form.is_valid():
-        form.save()
+        c = form.save(commit=False)
+        # Manejar archivo de volante de petición
+        volante_file = request.FILES.get('volante_peticion')
+        if volante_file:
+            ruta = _guardar_volante_peticion(volante_file, f'cassette_{c.cassette}')
+            c.informacion_clinica = ruta
+        c.save()
         return redirect(reverse('cassettes') + f'?cassette={pk}')
     messages.error(request, 'Error al modificar el cassette.')
     return redirect(reverse('cassettes') + f'?cassette={pk}')
@@ -516,11 +551,17 @@ def qr_resolver(request):
 @login_required
 @require_POST
 def citologia_create(request):
-    form = CitologiaForm(request.POST)
+    form = CitologiaForm(request.POST, request.FILES)
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
         try:
-            c = form.save(tecnico=tecnico)
+            c = form.save(commit=False, tecnico=tecnico)
+            # Manejar archivo de volante de petición
+            volante_file = request.FILES.get('volante_peticion')
+            if volante_file:
+                ruta = _guardar_volante_peticion(volante_file, f'citologia_{c.citologia}')
+                c.descripcion_microscopica = ruta
+            c.save()
             return redirect(reverse('citologias') + f'?citologia={c.pk}')
         except Exception as e:
             messages.error(request, f'Error al guardar la citología: {e}')
@@ -537,9 +578,15 @@ def citologia_create(request):
 @require_POST
 def citologia_update(request, pk):
     citologia = get_object_or_404(Citologia, pk=pk)
-    form = CitologiaForm(request.POST, instance=citologia)
+    form = CitologiaForm(request.POST, request.FILES, instance=citologia)
     if form.is_valid():
-        form.save()
+        c = form.save(commit=False)
+        # Manejar archivo de volante de petición
+        volante_file = request.FILES.get('volante_peticion')
+        if volante_file:
+            ruta = _guardar_volante_peticion(volante_file, f'citologia_{c.citologia}')
+            c.descripcion_microscopica = ruta
+        c.save()
         return redirect(reverse('citologias') + f'?citologia={pk}')
     messages.error(request, 'Error al modificar la citología.')
     return redirect(reverse('citologias') + f'?citologia={pk}')
@@ -712,10 +759,16 @@ def hematologia_list(request):
 @login_required
 @require_POST
 def hematologia_create(request):
-    form = HematologiaForm(request.POST)
+    form = HematologiaForm(request.POST, request.FILES)
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
-        h = form.save(tecnico=tecnico)
+        h = form.save(commit=False, tecnico=tecnico)
+        # Manejar archivo de volante de petición
+        volante_file = request.FILES.get('volante_peticion')
+        if volante_file:
+            ruta = _guardar_volante_peticion(volante_file, f'hematologia_{h.hematologia}')
+            h.descripcion_microscopica = ruta
+        h.save()
         return redirect(reverse('hematologias') + f'?hematologia={h.pk}')
     messages.error(request, 'Error al crear la hematología. Revisa los campos.')
     return redirect('hematologias')
@@ -725,9 +778,15 @@ def hematologia_create(request):
 @require_POST
 def hematologia_update(request, pk):
     hematologia = get_object_or_404(Hematologia, pk=pk)
-    form = HematologiaForm(request.POST, instance=hematologia)
+    form = HematologiaForm(request.POST, request.FILES, instance=hematologia)
     if form.is_valid():
-        form.save()
+        h = form.save(commit=False)
+        # Manejar archivo de volante de petición
+        volante_file = request.FILES.get('volante_peticion')
+        if volante_file:
+            ruta = _guardar_volante_peticion(volante_file, f'hematologia_{h.hematologia}')
+            h.descripcion_microscopica = ruta
+        h.save()
         return redirect(reverse('hematologias') + f'?hematologia={pk}')
     messages.error(request, 'Error al modificar la hematología.')
     return redirect(reverse('hematologias') + f'?hematologia={pk}')

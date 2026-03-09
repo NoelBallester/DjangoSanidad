@@ -338,7 +338,7 @@
 
                     <section class="list-group list-group-flush mt-3">
                         <div class="d-flex px-3 justify-content-between">
-                            <li class="blue__color--negrita">Detalle / Nombre Paciente:
+                            <li class="blue__color--negrita">Detalle muestra:
                                 <span class="blue__color cassette__text">{{ selected.descripcion }}</span>
                             </li>
                         </div>
@@ -358,18 +358,17 @@
                             <p class="blue__color cassette__text">{{ selected.observaciones }}</p>
                         </li>
                         {% if selected.descripcion_microscopica %}
-                        <li class="list-group-item blue__color--negrita">Descripción Microscópica:
-                            <p class="blue__color cassette__text">{{ selected.descripcion_microscopica }}</p>
+                        <li class="list-group-item blue__color--negrita">Volante de petición:
+                            {% if selected.descripcion_microscopica|slice:":8" == "volantes" or ".pdf" in selected.descripcion_microscopica or ".doc" in selected.descripcion_microscopica %}
+                                <a href="{{ MEDIA_URL }}{{ selected.descripcion_microscopica }}" target="_blank" class="blue__color">Ver archivo</a>
+                            {% else %}
+                                <p class="blue__color cassette__text">{{ selected.descripcion_microscopica }}</p>
+                            {% endif %}
                         </li>
                         {% endif %}
                         {% if selected.diagnostico_final %}
-                        <li class="list-group-item blue__color--negrita">Diagnóstico Final:
+                        <li class="list-group-item blue__color--negrita">Diagnóstico probable:
                             <p class="blue__color cassette__text">{{ selected.diagnostico_final }}</p>
-                        </li>
-                        {% endif %}
-                        {% if selected.patologo_responsable %}
-                        <li class="list-group-item blue__color--negrita">Patólogo Responsable:
-                            <span class="blue__color cassette__text">{{ selected.patologo_responsable }}</span>
                         </li>
                         {% endif %}
                     </section>
@@ -394,7 +393,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius:20px;">
-                            <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
+                            <i class="fa-solid fa-notes-medical me-1"></i> Informe
                         </button>
                         <button id="btnformnuevaMuestra" type="button" class="btn icono__efect">
                             <i title="Nueva Muestra" class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
@@ -407,9 +406,9 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Descripción</th>
+                                <th>Validación de la calidad de la muestra</th>
                                 <th>Tinción</th>
-                                <th>Observaciones</th>
+                                <th>Aproximación diagnóstica / Valoración citológica</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -485,11 +484,11 @@
                 </div>
             </div>
 
-            <!-- Informe de Resultados -->
+            <!-- Informe -->
             <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
                 <div class="container__muestra h-100 p-2">
                     <div class="title d-flex align-items-center justify-content-between">
-                        <h2 class="cassette__title m-0">Informe de Resultados</h2>
+                        <h2 class="cassette__title m-0">Informe</h2>
                         <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius:20px;">
                             <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
@@ -507,7 +506,7 @@
                             {{ informe_form.informe_fecha }}
                         </div>
                         <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Resultados (Tinción)</label>
+                            <label class="blue__color--negrita d-block">Análisis</label>
                             {{ informe_form.informe_tincion }}
                         </div>
                         <div class="mb-3">
@@ -515,12 +514,12 @@
                             {{ informe_form.informe_observaciones }}
                         </div>
                         <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Formulario (imagen)</label>
+                            <label class="blue__color--negrita d-block">Informe (archivo)</label>
                             {{ informe_form.informe_imagen }}
                         </div>
                         <div class="text-end mt-4">
                             <button type="submit" class="btn fondo w-100 py-2">
-                                <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+                                <i class="fa-solid fa-save me-2"></i> Guardar Informe
                             </button>
                         </div>
                     </form>
@@ -539,7 +538,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <input type="text" name="descripcion" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12">
@@ -547,7 +546,7 @@
                     <input type="date" name="fecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tinción</label>
+                    <label class="form-label blue__color">Tipo de muestra</label>
                     <select name="tincion" class="form-select blue__color" required>
                         <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
@@ -557,14 +556,14 @@
                         <option>Papanicolau</option>
                         <option>Wright</option>
                         <option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option>
+                        <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
                         <option>Otros</option>
                     </select>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Observaciones</label>
+                    <label class="form-label blue__color">Aproximación diagnóstica / Valoración citológica</label>
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-12">
@@ -584,7 +583,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color"
                         required>
                 </div>
@@ -593,7 +592,7 @@
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tinción</label>
+                    <label class="form-label blue__color">Tipo de muestra</label>
                     <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
                         <option value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
@@ -603,14 +602,14 @@
                         <option>Papanicolau</option>
                         <option>Wright</option>
                         <option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option>
+                        <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
                         <option>Otros</option>
                     </select>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Observaciones</label>
+                    <label class="form-label blue__color">Aproximación diagnóstica / Valoración citológica</label>
                     <textarea name="observaciones" id="editMuestraObservaciones"
                         class="form-control blue__color"></textarea>
                 </div>

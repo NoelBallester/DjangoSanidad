@@ -140,6 +140,7 @@
                                     <option {% if filtros.organo == 'Corazón' %}selected{% endif %}>Corazón</option>
                                     <option {% if filtros.organo == 'Venas' %}selected{% endif %}>Venas</option>
                                     <option {% if filtros.organo == 'Arteria' %}selected{% endif %}>Arteria</option>
+                                    <option {% if filtros.organo == 'Líquido Pericárdico' %}selected{% endif %}>Líquido Pericárdico</option>
                                 </optgroup>
                                 <optgroup label="Linfático">
                                     <option {% if filtros.organo == 'Ganglio Linfático' %}selected{% endif %}>Ganglio
@@ -165,6 +166,7 @@
                                     <option {% if filtros.organo == 'Tráquea' %}selected{% endif %}>Tráquea</option>
                                     <option {% if filtros.organo == 'Bronquio' %}selected{% endif %}>Bronquio</option>
                                     <option {% if filtros.organo == 'Pulmón' %}selected{% endif %}>Pulmón</option>
+                                    <option {% if filtros.organo == 'Líquido Pleural' %}selected{% endif %}>Líquido Pleural</option>
                                 </optgroup>
                                 <optgroup label="Digestivo">
                                     <option {% if filtros.organo == 'Boca' %}selected{% endif %}>Boca</option>
@@ -184,6 +186,7 @@
                                     <option {% if filtros.organo == 'Apéndice' %}selected{% endif %}>Apéndice</option>
                                     <option {% if filtros.organo == 'Recto' %}selected{% endif %}>Recto</option>
                                     <option {% if filtros.organo == 'Ano' %}selected{% endif %}>Ano</option>
+                                    <option {% if filtros.organo == 'Líquido Peritoneal' %}selected{% endif %}>Líquido Peritoneal</option>
                                 </optgroup>
                                 <optgroup label="Excretor Urinario">
                                     <option {% if filtros.organo == 'Riñón' %}selected{% endif %}>Riñón</option>
@@ -204,11 +207,15 @@
                                     <option {% if filtros.organo == 'Útero' %}selected{% endif %}>Útero</option>
                                     <option {% if filtros.organo == 'Vagina' %}selected{% endif %}>Vagina</option>
                                     <option {% if filtros.organo == 'Vulva' %}selected{% endif %}>Vulva</option>
+                                    <option {% if filtros.organo == 'Cuerpo de Útero' %}selected{% endif %}>Cuerpo de Útero</option>
+                                    <option {% if filtros.organo == 'Cuello de Útero' %}selected{% endif %}>Cuello de Útero</option>
+                                    <option {% if filtros.organo == 'Cavidad Pélvica' %}selected{% endif %}>Cavidad Pélvica</option>
                                 </optgroup>
                                 <optgroup label="Locomotor">
                                     <option {% if filtros.organo == 'Hueso' %}selected{% endif %}>Hueso</option>
                                     <option {% if filtros.organo == 'Musculo Esquelético' %}selected{% endif %}>Musculo
                                         Esquelético</option>
+                                    <option {% if filtros.organo == 'Líquido Sinovial' %}selected{% endif %}>Líquido Sinovial</option>
                                 </optgroup>
                                 <option {% if filtros.organo == 'Otros' %}selected{% endif %}>Otros</option>
                             </select>
@@ -337,7 +344,7 @@
 
                     <section class="list-group list-group-flush mt-3">
                         <div class="d-flex px-3 justify-content-between">
-                            <li class="blue__color--negrita">Detalle / Nombre Paciente:
+                            <li class="blue__color--negrita">Detalle Biopsia / Número de bloques asociados:
                                 <span class="blue__color cassette__text">{{ selected.descripcion }}</span>
                             </li>
                             <li class="blue__color--negrita">Técnico ID:
@@ -360,18 +367,22 @@
                             <p class="blue__color cassette__text">{{ selected.observaciones }}</p>
                         </li>
                         {% if selected.descripcion_microscopica %}
-                        <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                        <li class="list-group-item blue__color--negrita">Técnicas especiales:
                             <p class="blue__color cassette__text">{{ selected.descripcion_microscopica }}</p>
                         </li>
                         {% endif %}
                         {% if selected.diagnostico_final %}
-                        <li class="list-group-item blue__color--negrita">Diagnóstico Final:
+                        <li class="list-group-item blue__color--negrita">Diagnóstico probable:
                             <p class="blue__color cassette__text">{{ selected.diagnostico_final }}</p>
                         </li>
                         {% endif %}
-                        {% if selected.patologo_responsable %}
-                        <li class="list-group-item blue__color--negrita">Patólogo Responsable:
-                            <span class="blue__color cassette__text">{{ selected.patologo_responsable }}</span>
+                        {% if selected.informacion_clinica %}
+                        <li class="list-group-item blue__color--negrita">Volante de petición:
+                            {% if selected.informacion_clinica|slice:":8" == "volantes" or ".pdf" in selected.informacion_clinica or ".doc" in selected.informacion_clinica %}
+                                <a href="{{ MEDIA_URL }}{{ selected.informacion_clinica }}" target="_blank" class="blue__color">Ver archivo</a>
+                            {% else %}
+                                <p class="blue__color cassette__text">{{ selected.informacion_clinica }}</p>
+                            {% endif %}
                         </li>
                         {% endif %}
                     </section>
@@ -396,7 +407,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius:20px;">
-                            <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
+                            <i class="fa-solid fa-notes-medical me-1"></i> Informe
                         </button>
                         <button id="btnformnuevaMuestra" type="button" class="btn icono__efect">
                             <i title="Nueva Muestra" class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
@@ -410,7 +421,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Descripción</th>
-                                <th>Tinción</th>
+                                <th>Validación de la calidad de la muestra</th>
                                 <th>Observaciones</th>
                                 <th>Acciones</th>
                             </tr>
@@ -456,11 +467,11 @@
 
             </div>
 
-            <!-- Informe de Resultados -->
+            <!-- Informe -->
             <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
                 <div class="container__muestra h-100 p-2">
                     <div class="title d-flex align-items-center justify-content-between">
-                        <h2 class="cassette__title m-0">Informe de Resultados</h2>
+                        <h2 class="cassette__title m-0">Informe</h2>
                         <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius:20px;">
                             <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
@@ -470,60 +481,6 @@
                         class="informe__scroll p-3">
                         {% csrf_token %}
                         <input type="hidden" name="informe_id" value="{% if informe_activo %}{{ informe_activo.pk }}{% endif %}">
-                        <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
-                            <span class="blue__color--negrita">Cassette seleccionado:</span>
-                            <span class="blue__color">{{ selected.cassette }}</span>
-                            <span class="mx-2">·</span>
-                            <span class="blue__color--negrita">Paciente:</span>
-                            <span class="blue__color">{{ selected.descripcion|truncatechars:45 }}</span>
-                        </div>
-                        <div class="mb-3 p-3 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="blue__color--negrita">Historial de informes</span>
-                                <a href="{% url 'cassettes' %}?cassette={{ selected.pk }}&tab=informe&informe=nuevo"
-                                    class="btn btn-outline-primary btn-sm">
-                                    <i class="fa-solid fa-plus me-1"></i> Añadir informe
-                                </a>
-                            </div>
-                            <div class="table__scroll" style="max-height: 12rem;">
-                                <table class="table table-sm align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Descripción</th>
-                                            <th>Tinción</th>
-                                            <th class="text-end">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for informe in informes_resultado %}
-                                        <tr>
-                                            <td>{{ informe.fecha|default:'Sin fecha' }}</td>
-                                            <td>{{ informe.descripcion|default:'Sin descripción'|truncatechars:55 }}</td>
-                                            <td>{{ informe.tincion|default:'Sin resultado' }}</td>
-                                            <td class="text-end" style="white-space:nowrap;">
-                                                <a href="{% url 'cassettes' %}?cassette={{ selected.pk }}&tab=informe&informe={{ informe.pk }}"
-                                                    class="btn btn-sm btn-link p-0 me-2" title="Cargar informe">
-                                                    <i class="fa-solid fa-file-import blue__color--negrita"></i>
-                                                </a>
-                                                <form method="post" action="{% url 'cassette_informe_delete' selected.pk informe.pk %}" class="d-inline"
-                                                    onsubmit="return confirm('¿Eliminar este informe?')">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-link p-0" title="Eliminar informe">
-                                                        <i class="fa-solid fa-trash-can text-danger"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
                         <div class="mb-3">
                             <label class="blue__color--negrita d-block">Descripción</label>
                             {{ informe_form.informe_descripcion }}
@@ -533,7 +490,7 @@
                             {{ informe_form.informe_fecha }}
                         </div>
                         <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Resultados (Tinción)</label>
+                            <label class="blue__color--negrita d-block">Análisis</label>
                             {{ informe_form.informe_tincion }}
                         </div>
                         <div class="mb-3">
@@ -541,20 +498,12 @@
                             {{ informe_form.informe_observaciones }}
                         </div>
                         <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Formulario (imagen)</label>
+                            <label class="blue__color--negrita d-block">Informe (archivo)</label>
                             {{ informe_form.informe_imagen }}
-                            {% if informe_imagen_base64 %}
-                            <div class="mt-2 p-2 rounded" style="border:1px solid var(--border-color); background: var(--bg-light);">
-                                <small class="text-muted d-block mb-1">Vista previa del informe cargado</small>
-                                <img src="data:image/*;base64,{{ informe_imagen_base64 }}" alt="Imagen informe"
-                                    style="max-width:100%; max-height:220px; border-radius:8px; object-fit:contain;">
-                            </div>
-                            {% endif %}
-                            <small class="text-muted d-block mt-1">Si no subes una imagen nueva, se conserva la anterior.</small>
                         </div>
                         <div class="text-end mt-4">
                             <button id="btnGuardarInforme" type="submit" class="btn fondo w-100 py-2">
-                                <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+                                <i class="fa-solid fa-save me-2"></i> Guardar Informe
                             </button>
                         </div>
                     </form>
@@ -573,7 +522,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <input type="text" name="descripcion" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12">
@@ -581,9 +530,9 @@
                     <input type="date" name="fecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tinción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <select name="tincion" class="form-select blue__color" required>
-                        <option selected disabled value="">Seleccionar Tinción</option>
+                        <option selected disabled value="">Seleccionar Validación</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -591,7 +540,7 @@
                         <option>Papanicolau</option>
                         <option>Wright</option>
                         <option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option>
+                        <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
                         <option>Otros</option>
@@ -602,7 +551,7 @@
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Imagen (opcional)</label>
+                    <label class="form-label blue__color">Volante de petición (archivo)</label>
                     <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
@@ -644,7 +593,7 @@
                             <li class="list-group-item blue__color--negrita">Fecha:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.fecha }}</p>
                             </li>
-                            <li class="list-group-item blue__color--negrita">Tipo de muestra:
+                            <li class="list-group-item blue__color--negrita">Validación de la calidad de la muestra:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.tincion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
@@ -706,7 +655,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color"
                         required>
                 </div>
@@ -715,9 +664,9 @@
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tinción</label>
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
                     <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
-                        <option value="">Seleccionar Tinción</option>
+                        <option value="">Seleccionar Validación</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -725,7 +674,7 @@
                         <option>Papanicolau</option>
                         <option>Wright</option>
                         <option>Ziehl-Neelsen</option>
-                        <option>Tricrómica</option>
+                        <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
                         <option>Otros</option>
@@ -997,7 +946,7 @@
         document.getElementById('btncerrardetalleMuestra')
             ?.addEventListener('click', () => closeModal('modalDetalleMuestra'));
 
-        // ── Informe en modal centrado ─────────────────────────────────────────
+        // ── Toggle Muestras / Informe ─────────────────────────────────────────
         const sectionMuestras = document.getElementById('sectionMuestras');
         const sectionInforme = document.getElementById('sectionInforme');
         const btnToggleInforme = document.getElementById('btnToggleInforme');
@@ -1005,94 +954,18 @@
 
         function abrirMenuInformes() {
             if (!sectionMuestras || !sectionInforme) return;
-
             sectionMuestras.classList.add('d-none');
             sectionInforme.classList.remove('d-none');
-
-            const panelInforme = sectionInforme.querySelector('.container__muestra');
-            if (panelInforme) {
-                panelInforme.style.position = 'relative';
-                panelInforme.style.width = 'min(980px, 94vw)';
-                panelInforme.style.maxHeight = 'none';
-                panelInforme.style.overflowY = 'visible';
-                panelInforme.style.margin = '0 auto';
-                panelInforme.style.padding = '1.25rem';
-                panelInforme.style.borderRadius = '14px';
-                panelInforme.style.background = '#ffffff';
-                panelInforme.style.boxShadow = '0 18px 45px rgba(0,0,0,.25)';
-            }
-
-            sectionInforme.style.position = 'fixed';
-            sectionInforme.style.inset = '0';
-            sectionInforme.style.zIndex = '900';
-            sectionInforme.style.display = 'flex';
-            sectionInforme.style.alignItems = 'center';
-            sectionInforme.style.justifyContent = 'center';
-            sectionInforme.style.padding = '1rem';
-            sectionInforme.style.margin = '0';
-            sectionInforme.style.background = 'rgba(255, 255, 255, 0.92)';
-            sectionInforme.style.backdropFilter = 'blur(2px)';
-            sectionInforme.style.overflowY = 'auto';
-
-            const scrollInternosInforme = sectionInforme.querySelectorAll('.informe__scroll, .table__scroll, .table__scroll--m');
-            scrollInternosInforme.forEach((el) => {
-                el.style.height = 'auto';
-                el.style.maxHeight = 'none';
-                el.style.overflow = 'visible';
-                el.style.overflowY = 'visible';
-            });
-
-            document.body.style.overflow = 'hidden';
         }
 
         function cerrarMenuInformes() {
             if (!sectionMuestras || !sectionInforme) return;
-
             sectionInforme.classList.add('d-none');
             sectionMuestras.classList.remove('d-none');
-
-            const panelInforme = sectionInforme.querySelector('.container__muestra');
-            if (panelInforme) {
-                panelInforme.style.position = '';
-                panelInforme.style.width = '';
-                panelInforme.style.maxHeight = '';
-                panelInforme.style.overflowY = '';
-                panelInforme.style.margin = '';
-                panelInforme.style.padding = '';
-                panelInforme.style.borderRadius = '';
-                panelInforme.style.background = '';
-                panelInforme.style.boxShadow = '';
-            }
-
-            sectionInforme.style.position = '';
-            sectionInforme.style.inset = '';
-            sectionInforme.style.zIndex = '';
-            sectionInforme.style.display = '';
-            sectionInforme.style.alignItems = '';
-            sectionInforme.style.justifyContent = '';
-            sectionInforme.style.padding = '';
-            sectionInforme.style.margin = '';
-            sectionInforme.style.background = '';
-            sectionInforme.style.backdropFilter = '';
-            sectionInforme.style.overflowY = '';
-
-            const scrollInternosInforme = sectionInforme.querySelectorAll('.informe__scroll, .table__scroll, .table__scroll--m');
-            scrollInternosInforme.forEach((el) => {
-                el.style.height = '';
-                el.style.maxHeight = '';
-                el.style.overflow = '';
-                el.style.overflowY = '';
-            });
-
-            document.body.style.overflow = '';
         }
 
         btnToggleInforme?.addEventListener('click', abrirMenuInformes);
         btnToggleMuestras?.addEventListener('click', cerrarMenuInformes);
-
-        sectionInforme?.addEventListener('click', (e) => {
-            if (e.target === sectionInforme) cerrarMenuInformes();
-        });
 
         // Si venimos de guardar el informe, mantenerlo abierto en modo modal
         (function () {
@@ -1101,14 +974,6 @@
                 abrirMenuInformes();
             }
         })();
-
-        // UX práctica: bloquear doble submit y feedback visual al guardar informe
-        document.getElementById('formInformeCassette')?.addEventListener('submit', function () {
-            const btn = document.getElementById('btnGuardarInforme');
-            if (!btn) return;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
-        });
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
         function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {

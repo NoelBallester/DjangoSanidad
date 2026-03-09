@@ -312,7 +312,7 @@
 
           <section class="list-group list-group-flush mt-3">
             <div class="d-flex px-3  justify-content-between">
-              <li class="blue__color--negrita"> Detalle / Nombre Paciente: <span id="citologia__descripcion"
+              <li class="blue__color--negrita"> Detalle muestra: <span id="citologia__descripcion"
                   class="blue__color cassette__text">
                 </span>
               </li>
@@ -363,7 +363,7 @@
           <div class="d-flex align-items-center gap-2">
             <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
               style="border-radius: 20px;">
-              <i class="fa-solid fa-notes-medical me-1"></i> Informe de Resultados
+              <i class="fa-solid fa-notes-medical me-1"></i> Informe
             </button>
             <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Muestra"
                 class="fa-solid fa-file-circle-plus blue__color--negrita fs-5 "></i>
@@ -377,7 +377,7 @@
               <tr>
                 <th scope="row">Fecha</th>
                 <th scope="row">Descripción</th>
-                <th scope="row">Tinción</th>
+                <th scope="row">Validación de la calidad de la muestra</th>
                 <th> </th>
               </tr>
             </thead>
@@ -391,7 +391,7 @@
       <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
         <div class="container__muestra h-100 p-2">
           <div class="title d-flex align-items-center justify-content-between">
-            <h2 class="cassette__title m-0">Informe de Resultados</h2>
+            <h2 class="cassette__title m-0">Informe</h2>
             <button id="btnToggleMuestras" class="btn btn-outline-primary fw-bold px-3" type="button"
               style="border-radius: 20px;">
               <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
@@ -407,18 +407,18 @@
               <input type="date" id="citologia__informe_fecha" class="form-control blue__color bg-light">
             </div>
             <div class="mb-3">
-              <label for="citologia__informe_tincion" class="blue__color--negrita d-block">Resultados</label>
+              <label for="citologia__informe_tincion" class="blue__color--negrita d-block">Análisis</label>
               <select id="citologia__informe_tincion" class="form-select blue__color bg-light">
-                <option selected disabled value="">Seleccionar Tinción</option>
-                <option>Hematoxilina Eosina (HE)</option>
-                <option>Giemsa</option>
-                <option>Gram</option>
-                <option>Azul de Metileno</option>
-                <option>Papanicolau</option>
-                <option>Zienhl-Neelsen</option>
-                <option>Tricorómico</option>
-                <option>Orceína</option>
-                <option>P.A.S</option>
+                <option selected disabled value="">Seleccionar Análisis</option>
+                <option>Análisis general</option>
+                <option>Análisis hematológico</option>
+                <option>Análisis bioquímico</option>
+                <option>Análisis microbiológico</option>
+                <option>Análisis inmunológico</option>
+                <option>Análisis citológico</option>
+                <option>Análisis histológico</option>
+                <option>Análisis molecular</option>
+                <option>Análisis toxicológico</option>
                 <option>Otros</option>
               </select>
             </div>
@@ -428,13 +428,13 @@
                 rows="3"></textarea>
             </div>
             <div class="mb-3">
-              <label for="citologia__informe_imagen" class="blue__color--negrita d-block">Formulario</label>
+              <label for="citologia__informe_imagen" class="blue__color--negrita d-block">Informe</label>
               <input type="file" id="citologia__informe_imagen" accept=".jpg,.jpeg,.png,.gif"
                 class="form-control blue__color bg-light">
             </div>
             <div class="text-end mt-4">
               <button id="btnGuardarInforme" class="btn fondo w-100 py-2">
-                <i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados
+                <i class="fa-solid fa-save me-2"></i> Guardar Informe
               </button>
             </div>
           </div>
@@ -467,16 +467,16 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="selectTincionMuestra" class="form-label blue__color">Tipo de tinción</label>
+          <label for="selectTincionMuestra" class="form-label blue__color">Validación de la calidad de la muestra</label>
           <select class="form-select blue__color" id="selectTincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tinción</option>
+            <option selected disabled value="">Seleccionar Validación</option>
             <option>Hematoxilina Eosina (HE)</option>
             <option>Giemsa</option>
             <option>Gram</option>
             <option>Azul de Metileno</option>
             <option>Papanicolau</option>
             <option>Zienhl-Neelsen</option>
-            <option>Tricorómico</option>
+            <option>Tricrómico</option>
             <option>Orceína</option>
             <option>P.A.S</option>
             <option>Otros</option>
@@ -490,7 +490,7 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputImagenesMuestra" class="form-label blue__color">Tinción</label>
+          <label for="inputImagenesMuestra" class="form-label blue__color">Volante de petición</label>
           <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" id="inputImagenesMuestra">
         </div>
 
@@ -526,14 +526,19 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tinción</label>
+          <label for="selectmodificartincionMuestra" class="form-label blue__color">Validación de la calidad de la muestra</label>
           <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tinción</option>
+            <option selected disabled value="">Seleccionar Validación</option>
             <option>Hematoxilina Eosina (HE)</option>
             <option>Giemsa</option>
             <option>Gram</option>
             <option>Azul de Metileno</option>
             <option>Papanicolau</option>
+            <option>Zienhl-Neelsen</option>
+            <option>Tricrómico</option>
+            <option>Orceína</option>
+            <option>P.A.S</option>
+            <option>Otros</option>
           </select>
         </div>
 
@@ -589,7 +594,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="blue__color--negrita">Tinción:</label>
+            <label class="blue__color--negrita">Validación de la calidad de la muestra:</label>
             <p id="muestra__tincion" class="blue__color"></p>
           </div>
 
@@ -640,19 +645,34 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDescripcion" class="form-label blue__color">Detalle Citología / Nombre Paciente</label>
-          <input class="form-control blue__color" id="inputDescripcion" required>
+          <label for="inputDescripcion" class="form-label blue__color">Tipo de citología</label>
+          <select class="form-select blue__color" id="inputDescripcion" required>
+            <option selected disabled value="">Seleccionar tipo</option>
+            <option>Citología convencional</option>
+            <option>Citología de base líquida</option>
+          </select>
         </div>
 
         <div class="row col-md-12 mt-3">
           <div class="col-md-12">
-            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo Citología</label>
+            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de muestra</label>
             <select class="form-select blue__color" id="inputTipoCitologia" required>
-              <option selected disabled value="">Tipo Citología</option>
-              <option>PAAF</option>
-              <option>Citología Líquida</option>
-              <option>Cervico Vaginal</option>
-              <option>Derrames</option>
+              <option selected disabled value="">Tipo de muestra</option>
+              <option>Improntas</option>
+              <option>Punción-aspiración</option>
+              <option>Esputo</option>
+              <option>Líquido pleural</option>
+              <option>Líquido ascítico</option>
+              <option>Líquido pericárdico</option>
+              <option>Saliva</option>
+              <option>Contenido quístico</option>
+              <option>Raspados</option>
+              <option>Orina</option>
+              <option>Cepillado</option>
+              <option>Citología respiratoria (BAS y BAL)</option>
+              <option>Secreción mamaria</option>
+              <option>Muestra vulvar</option>
+              <option>Muestra endometrial</option>
             </select>
           </div>
         </div>
@@ -667,66 +687,30 @@
             <label for="inputSelect" class="form-label blue__color">Órgano</label>
             <select class="form-select blue__color" id="inputSelect" required>
               <option selected disabled value="">Seleccionar Órgano</option>
-              <optgroup label="Sistema Nervioso">
-                <option>Encéfalo</option>
-                <option>Médula Espinal</option>
-                <option>Nervio</option>
-                <option>Ganglio Nervios</option>
-              </optgroup>
-
-              <optgroup label="Tegumento">
-                <option>Piel</option>
-                <option>Uña</option>
-                <option>Pelo</option>
-              </optgroup>
-
-              <optgroup label="Cardiovascular">
-                <option>Corazón</option>
-                <option>Venas</option>
-                <option>Arteria</option>
-              </optgroup>
-
-              <optgroup label="Linfático">
-                <option>Ganglio Linfático</option>
-                <option>Timo</option>
-                <option>Bazo</option>
-              </optgroup>
-
-              <optgroup label="Sistema Digestivo">
-                <option>Lengua</option>
-                <option>Esófago</option>
-                <option>Estómago</option>
-                <option>Intestino Delgado</option>
-                <option>Intestino Grueso</option>
-                <option>Diente</option>
-                <option>Glándula Salivar</option>
-                <option>Páncrea</option>
-                <option>Hígado</option>
-              </optgroup>
-
-              <optgroup label="Aparato Excretor">
-                <option>Riñón</option>
-                <option>Vejiga</option>
-              </optgroup>
-
-              <optgroup label="Respiratorio">
-                <option>Tránquea</option>
-                <option>Bronquios</option>
-                <option>Tejido Respiratorio</option>
-              </optgroup>
-
-              <optgroup label="Endocrino">
-                <option>Tiroides</option>
-                <option>Parótidas</option>
-                <option>Suprarrenales</option>
-                <option>Ovario</option>
-                <option>Testículo</option>
-              </optgroup>
-
-              <optgroup label="Locomotor">
-                <option>Hueso</option>
-                <option>Musculo Esquelético</option>
-              </optgroup>
+              <option>Tiroides</option>
+              <option>Mama</option>
+              <option>Pulmón</option>
+              <option>Ganglio cervical</option>
+              <option>Ganglio axilar</option>
+              <option>Ganglio inguinal</option>
+              <option>Hígado</option>
+              <option>Páncreas</option>
+              <option>Riñón</option>
+              <option>Vejiga</option>
+              <option>Próstata</option>
+              <option>Endometrio</option>
+              <option>Ovario</option>
+              <option>Cuerpo de Útero</option>
+              <option>Cuello de Útero</option>
+              <option>Cavidad Pélvica</option>
+              <option>Cavidad oral</option>
+              <option>Líquido Peritoneal</option>
+              <option>Líquido Pleural</option>
+              <option>Líquido Sinovial</option>
+              <option>Líquido Pericárdico</option>
+              <option>Líquidos corporales</option>
+              <option>Médula ósea</option>
+              <option>Sangre periférica</option>
               <option>Otros</option>
             </select>
           </div>
@@ -743,18 +727,18 @@
           <textarea class="form-control blue__color textarea__text" id="inputObservaciones" required></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputMicroscopia" class="form-label blue__color">Descripción Microscópica</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputMicroscopia" class="form-label blue__color">Volante de petición</label>
           <textarea class="form-control blue__color textarea__text" id="inputMicroscopia"></textarea>
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDiagnostico" class="form-label blue__color">Diagnóstico Final</label>
+          <label for="inputDiagnostico" class="form-label blue__color">Diagnóstico probable</label>
           <textarea class="form-control blue__color textarea__text" id="inputDiagnostico"></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputPatologo" class="form-label blue__color">Patólogo Responsable</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputPatologo" class="form-label blue__color">Campo interno</label>
           <input type="text" class="form-control blue__color" id="inputPatologo">
         </div>
 
@@ -782,19 +766,34 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDescripcionUpdate" class="form-label blue__color">Detalle Citología / Nombre Paciente</label>
-          <input class="form-control blue__color" id="inputDescripcionUpdate" required>
+          <label for="inputDescripcionUpdate" class="form-label blue__color">Tipo de citología</label>
+          <select class="form-select blue__color" id="inputDescripcionUpdate" required>
+            <option selected disabled value="">Seleccionar tipo</option>
+            <option>Citología convencional</option>
+            <option>Citología de base líquida</option>
+          </select>
         </div>
 
         <div class="row col-md-12">
           <div class="col-md-12 mt-3">
-            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo Citología</label>
+            <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de muestra</label>
             <select class="form-select blue__color" id="inputTipoUpdate" required>
-              <option selected disabled value="">Tipo Citología</option>
-              <option>PAAF</option>
-              <option>Citología Líquida</option>
-              <option>Cervico Vaginal</option>
-              <option>Derrames</option>
+              <option selected disabled value="">Tipo de muestra</option>
+              <option>Improntas</option>
+              <option>Punción-aspiración</option>
+              <option>Esputo</option>
+              <option>Líquido pleural</option>
+              <option>Líquido ascítico</option>
+              <option>Líquido pericárdico</option>
+              <option>Saliva</option>
+              <option>Contenido quístico</option>
+              <option>Raspados</option>
+              <option>Orina</option>
+              <option>Cepillado</option>
+              <option>Citología respiratoria (BAS y BAL)</option>
+              <option>Secreción mamaria</option>
+              <option>Muestra vulvar</option>
+              <option>Muestra endometrial</option>
             </select>
           </div>
         </div>
@@ -810,66 +809,30 @@
             <label for="inputSelectUpdate" class="form-label blue__color">Órgano</label>
             <select class="form-select blue__color" id="inputSelectUpdate" required>
               <option selected disabled value="">Seleccionar Órgano</option>
-              <optgroup label="Sistema Nervioso">
-                <option>Encéfalo</option>
-                <option>Médula Espinal</option>
-                <option>Nervio</option>
-                <option>Ganglio Nervios</option>
-              </optgroup>
-
-              <optgroup label="Tegumento">
-                <option>Piel</option>
-                <option>Uña</option>
-                <option>Pelo</option>
-              </optgroup>
-
-              <optgroup label="Cardiovascular">
-                <option>Corazón</option>
-                <option>Venas</option>
-                <option>Arteria</option>
-              </optgroup>
-
-              <optgroup label="Linfático">
-                <option>Ganglio Linfático</option>
-                <option>Timo</option>
-                <option>Bazo</option>
-              </optgroup>
-
-              <optgroup label="Sistema Digestivo">
-                <option>Lengua</option>
-                <option>Esófago</option>
-                <option>Estómago</option>
-                <option>Intestino Delgado</option>
-                <option>Intestino Grueso</option>
-                <option>Diente</option>
-                <option>Glándula Salivar</option>
-                <option>Páncrea</option>
-                <option>Hígado</option>
-              </optgroup>
-
-              <optgroup label="Aparato Excretor">
-                <option>Riñón</option>
-                <option>Vejiga</option>
-              </optgroup>
-
-              <optgroup label="Respiratorio">
-                <option>Tránquea</option>
-                <option>Bronquios</option>
-                <option>Tejido Respiratorio</option>
-              </optgroup>
-
-              <optgroup label="Endocrino">
-                <option>Tiroides</option>
-                <option>Parótidas</option>
-                <option>Suprarrenales</option>
-                <option>Ovario</option>
-                <option>Testículo</option>
-              </optgroup>
-
-              <optgroup label="Locomotor">
-                <option>Hueso</option>
-                <option>Musculo Esquelético</option>
-              </optgroup>
+              <option>Tiroides</option>
+              <option>Mama</option>
+              <option>Pulmón</option>
+              <option>Ganglio cervical</option>
+              <option>Ganglio axilar</option>
+              <option>Ganglio inguinal</option>
+              <option>Hígado</option>
+              <option>Páncreas</option>
+              <option>Riñón</option>
+              <option>Vejiga</option>
+              <option>Próstata</option>
+              <option>Endometrio</option>
+              <option>Ovario</option>
+              <option>Cuerpo de Útero</option>
+              <option>Cuello de Útero</option>
+              <option>Cavidad Pélvica</option>
+              <option>Cavidad oral</option>
+              <option>Líquido Peritoneal</option>
+              <option>Líquido Pleural</option>
+              <option>Líquido Sinovial</option>
+              <option>Líquido Pericárdico</option>
+              <option>Líquidos corporales</option>
+              <option>Médula ósea</option>
+              <option>Sangre periférica</option>
               <option>Otros</option>
             </select>
           </div>
@@ -886,18 +849,18 @@
           <textarea class="form-control blue__color textarea__text" id="inputObservacionesUpdate" required></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputMicroscopiaUpdate" class="form-label blue__color">Descripción Microscópica</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputMicroscopiaUpdate" class="form-label blue__color">Volante de petición</label>
           <textarea class="form-control blue__color textarea__text" id="inputMicroscopiaUpdate"></textarea>
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico Final</label>
+          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico probable</label>
           <textarea class="form-control blue__color textarea__text" id="inputDiagnosticoUpdate"></textarea>
         </div>
 
-        <div class="col-md-12 mt-3">
-          <label for="inputPatologoUpdate" class="form-label blue__color">Patólogo Responsable</label>
+        <div class="col-md-12 mt-3 d-none">
+          <label for="inputPatologoUpdate" class="form-label blue__color">Campo interno</label>
           <input type="text" class="form-control blue__color" id="inputPatologoUpdate">
         </div>
 

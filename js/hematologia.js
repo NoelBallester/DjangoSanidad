@@ -234,7 +234,7 @@ function cambiarEstadoBotonGuardar(guardando) {
     btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe de Resultados';
+    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
   }
 }
 

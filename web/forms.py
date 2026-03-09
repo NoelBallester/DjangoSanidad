@@ -15,9 +15,13 @@ ORGANOS = [
     ]),
     ('Cardiovascular', [
         ('Corazón', 'Corazón'), ('Venas', 'Venas'), ('Arteria', 'Arteria'),
+        ('Líquido Pericárdico', 'Líquido Pericárdico'),
     ]),
     ('Linfático', [
         ('Ganglio Linfático', 'Ganglio Linfático'), ('Timo', 'Timo'), ('Bazo', 'Bazo'),
+        ('Ganglio cervical', 'Ganglio cervical'), ('Ganglio axilar', 'Ganglio axilar'),
+        ('Ganglio inguinal', 'Ganglio inguinal'), ('Médula ósea', 'Médula ósea'),
+        ('Sangre periférica', 'Sangre periférica'),
     ]),
     ('Endocrino', [
         ('Hipófisis', 'Hipófisis'), ('Glándula Tiroides', 'Glándula Tiroides'),
@@ -27,13 +31,15 @@ ORGANOS = [
     ('Respiratorio', [
         ('Fosa Nasal', 'Fosa Nasal'), ('Faringe', 'Faringe'), ('Laringe', 'Laringe'),
         ('Tráquea', 'Tráquea'), ('Bronquio', 'Bronquio'), ('Pulmón', 'Pulmón'),
+        ('Líquido Pleural', 'Líquido Pleural'),
     ]),
     ('Digestivo', [
-        ('Boca', 'Boca'), ('Lengua', 'Lengua'), ('Glándula Salival', 'Glándula Salival'),
+        ('Boca', 'Boca'), ('Cavidad oral', 'Cavidad oral'), ('Lengua', 'Lengua'), ('Glándula Salival', 'Glándula Salival'),
         ('Esófago', 'Esófago'), ('Estómago', 'Estómago'), ('Hígado', 'Hígado'),
         ('Vesícula Biliar', 'Vesícula Biliar'), ('Páncreas', 'Páncreas'),
         ('Int. Delgado', 'Int. Delgado'), ('Int. Grueso', 'Int. Grueso'),
         ('Ciego', 'Ciego'), ('Apéndice', 'Apéndice'), ('Recto', 'Recto'), ('Ano', 'Ano'),
+        ('Líquido Peritoneal', 'Líquido Peritoneal'),
     ]),
     ('Excretor Urinario', [
         ('Riñón', 'Riñón'), ('Pelvis Renal', 'Pelvis Renal'), ('Uréter', 'Uréter'),
@@ -43,29 +49,61 @@ ORGANOS = [
         ('Testículo', 'Testículo'),
     ]),
     ('Reproductor Femenino', [
+        ('Mama', 'Mama'),
         ('Ovario', 'Ovario'), ('Trompa de Falopio', 'Trompa de Falopio'),
         ('Útero', 'Útero'), ('Vagina', 'Vagina'), ('Vulva', 'Vulva'),
+        ('Cuerpo de Útero', 'Cuerpo de Útero'),
+        ('Cuello de Útero', 'Cuello de Útero'),
+        ('Cavidad Pélvica', 'Cavidad Pélvica'),
     ]),
     ('Locomotor', [
         ('Hueso', 'Hueso'), ('Músculo Esquelético', 'Músculo Esquelético'),
+        ('Líquido Sinovial', 'Líquido Sinovial'),
     ]),
     ('Otros', 'Otros'),
 ]
 
 TINCIONES = [
-    ('', 'Seleccionar Tinción'),
+    ('', 'Seleccionar Validación'),
     ('Hematoxilina Eosina (HE)', 'Hematoxilina Eosina (HE)'),
     ('Giemsa', 'Giemsa'), ('Gram', 'Gram'), ('Azul de Metileno', 'Azul de Metileno'),
     ('Papanicolau', 'Papanicolau'), ('Wright', 'Wright'), ('Ziehl-Neelsen', 'Ziehl-Neelsen'),
-    ('Tricrómica', 'Tricrómica'), ('Orceína', 'Orceína'), ('P.A.S', 'P.A.S'), ('Otros', 'Otros'),
+    ('Tricrómico', 'Tricrómico'), ('Orceína', 'Orceína'), ('P.A.S', 'P.A.S'), ('Otros', 'Otros'),
 ]
 
 TIPOS_CITOLOGIA = [
-    ('', 'Tipo Citología'),
-    ('PAAF', 'PAAF'),
-    ('Citología Líquida', 'Citología Líquida'),
-    ('Cervico Vaginal', 'Cervico Vaginal'),
-    ('Derrames', 'Derrames'),
+    ('', 'Tipo de muestra'),
+    ('Improntas', 'Improntas'),
+    ('Punción-aspiración', 'Punción-aspiración'),
+    ('Esputo', 'Esputo'),
+    ('Líquido pleural', 'Líquido pleural'),
+    ('Líquido ascítico', 'Líquido ascítico'),
+    ('Líquido pericárdico', 'Líquido pericárdico'),
+    ('Saliva', 'Saliva'),
+    ('Contenido quístico', 'Contenido quístico'),
+    ('Raspados', 'Raspados'),
+    ('Orina', 'Orina'),
+    ('Cepillado', 'Cepillado'),
+    ('Citología respiratoria (BAS y BAL)', 'Citología respiratoria (BAS y BAL)'),
+    ('Secreción mamaria', 'Secreción mamaria'),
+    ('Muestra vulvar', 'Muestra vulvar'),
+    ('Muestra endometrial', 'Muestra endometrial'),
+]
+
+ANALISIS_INFORME = [
+    ('', 'Seleccionar análisis'),
+    ('Perfil hepático', 'Perfil hepático'),
+    ('Perfil renal', 'Perfil renal'),
+    ('Perfil lipídico', 'Perfil lipídico'),
+    ('Glucosa', 'Glucosa'),
+    ('Análisis de heces', 'Análisis de heces'),
+    ('Análisis inmunológico', 'Análisis inmunológico'),
+    ('Análisis citológico', 'Análisis citológico'),
+    ('Análisis biopsias', 'Análisis biopsias'),
+    ('Ionograma', 'Ionograma'),
+    ('Gasometría', 'Gasometría'),
+    ('Análisis de sangre', 'Análisis de sangre'),
+    ('Otros', 'Otros'),
 ]
 
 
@@ -75,17 +113,19 @@ def _qr(prefix):
 
 class CassetteForm(forms.ModelForm):
     organo = forms.ChoiceField(choices=ORGANOS)
+    volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
+        attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
     class Meta:
         model = Cassette
         fields = ['cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
-                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo']
+                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo',
+                  'informacion_clinica']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
-            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
@@ -93,7 +133,7 @@ class CassetteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
             if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
-                            'descripcion_microscopica', 'diagnostico_final', 'organo'):
+                            'descripcion_microscopica', 'diagnostico_final', 'organo', 'informacion_clinica'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
     def save(self, commit=True, tecnico=None):
@@ -110,6 +150,8 @@ class CassetteForm(forms.ModelForm):
 class CitologiaForm(forms.ModelForm):
     organo = forms.ChoiceField(choices=ORGANOS)
     tipo_citologia = forms.ChoiceField(choices=TIPOS_CITOLOGIA)
+    volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
+        attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
     class Meta:
         model = Citologia
@@ -199,13 +241,13 @@ class InformeForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
     informe_fecha = forms.DateField(required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color bg-light'}))
-    informe_tincion = forms.ChoiceField(choices=TINCIONES, required=False,
+    informe_tincion = forms.ChoiceField(choices=ANALISIS_INFORME, required=False,
         widget=forms.Select(attrs={'class': 'form-select blue__color bg-light'}))
     informe_observaciones = forms.CharField(required=False,
         widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color bg-light'}))
-    informe_imagen = forms.ImageField(required=False,
+    informe_imagen = forms.FileField(required=False,
         widget=forms.FileInput(attrs={'class': 'form-control blue__color bg-light',
-                                      'accept': '.jpg,.jpeg,.png,.gif'}))
+                                      'accept': '.pdf,.doc,.docx,.odt,.jpg,.jpeg,.png,.gif'}))
 
 
 class ImagenForm(forms.ModelForm):
@@ -222,6 +264,8 @@ class ImagenCitologiaForm(forms.ModelForm):
 
 class HematologiaForm(forms.ModelForm):
     organo = forms.ChoiceField(choices=ORGANOS)
+    volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
+        attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
     class Meta:
         model = Hematologia
@@ -232,7 +276,6 @@ class HematologiaForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
-            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
