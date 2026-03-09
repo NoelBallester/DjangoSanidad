@@ -49,4 +49,11 @@ urlpatterns = [
     path('usuarios/crear/',                    views.usuario_create, name='usuario_create'),
     path('usuarios/<int:pk>/editar/',          views.usuario_update, name='usuario_update'),
     path('usuarios/<int:pk>/eliminar/',        views.usuario_delete, name='usuario_delete'),
+
+    # Descargar volantes de petición
+    path('cassettes/<int:pk>/volante/',         views.descargar_volante_cassette,       name='descargar_volante_cassette'),
+    path('citologias/<int:pk>/volante/',        views.descargar_volante_citologia,      name='descargar_volante_citologia'),
+    path('hematologias/<int:pk>/volante/',      views.descargar_volante_hematologia,    name='descargar_volante_hematologia'),
+    path('tubos/<int:pk>/volante/',             views.descargar_volante_tubo,           name='descargar_volante_tubo'),
+    path('microbiologias/<int:pk>/volante/',    views.descargar_volante_microbiologia,  name='descargar_volante_microbiologia'),
 ]

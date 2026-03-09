@@ -376,13 +376,11 @@
                             <p class="blue__color cassette__text">{{ selected.diagnostico_final }}</p>
                         </li>
                         {% endif %}
-                        {% if selected.informacion_clinica %}
+                        {% if selected.volante_peticion %}
                         <li class="list-group-item blue__color--negrita">Volante de petición:
-                            {% if selected.informacion_clinica|slice:":8" == "volantes" or ".pdf" in selected.informacion_clinica or ".doc" in selected.informacion_clinica %}
-                                <a href="{{ MEDIA_URL }}{{ selected.informacion_clinica }}" target="_blank" class="blue__color">Ver archivo</a>
-                            {% else %}
-                                <p class="blue__color cassette__text">{{ selected.informacion_clinica }}</p>
-                            {% endif %}
+                            <a href="{% url 'descargar_volante_cassette' selected.pk %}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="fa-solid fa-file-arrow-down"></i> Ver archivo
+                            </a>
                         </li>
                         {% endif %}
                     </section>
@@ -710,7 +708,7 @@
 
         <!-- ── Modal Modificar Cassette ───────────────────────────────────── -->
         <section class="mimodal" id="modalupdateCassette">
-            <form class="row g-3 miform" method="post" action="{% url 'cassette_update' selected.pk %}">
+            <form class="row g-3 miform" method="post" action="{% url 'cassette_update' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title">Modificar Cassette</h2>

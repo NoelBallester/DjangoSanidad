@@ -127,8 +127,8 @@
     <label class="form-label blue__color">Volante de petición (archivo)</label>
     <input type="file" name="volante_peticion" class="form-control blue__color" 
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-    {% if edit and c.informacion_clinica %}
-        <small class="form-text text-muted">Archivo actual: {{ c.informacion_clinica }}</small>
+    {% if edit and c.volante_peticion_nombre %}
+        <small class="form-text text-muted">Archivo actual: {{ c.volante_peticion_nombre }}</small>
     {% endif %}
 </div>
 {% endwith %}

@@ -54,6 +54,9 @@ class Cassette(models.Model):
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
     informe_imagen = models.BinaryField(null=True, blank=True)
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'cassettes'
@@ -70,6 +73,9 @@ class Citologia(models.Model):
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     organo = models.CharField(max_length=255)
     tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'citologias'
@@ -134,6 +140,9 @@ class Tubo(models.Model):
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
     informe_imagen = models.BinaryField(null=True, blank=True)
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'tubos'
@@ -178,6 +187,9 @@ class Hematologia(models.Model):
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
     informe_imagen = models.BinaryField(null=True, blank=True)
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'hematologias'
@@ -223,6 +235,9 @@ class Microbiologia(models.Model):
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
     informe_imagen = models.BinaryField(null=True, blank=True)
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'microbiologias'

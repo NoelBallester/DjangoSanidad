@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -49,24 +50,18 @@ def _mime_tipo_desde_bytes(imagen_bytes):
     return 'image/jpeg'
 
 
-def _guardar_volante_peticion(archivo, prefijo='volante'):
-    """Guarda un archivo de volante de petición y retorna la ruta relativa"""
+def _guardar_volante_peticion(archivo, instancia):
+    """Guarda un archivo de volante de petición en la base de datos"""
     if not archivo:
-        return None
+        return
     
-    # Crear directorio si no existe
-    directorio = 'volantes_peticion'
-    ruta_completa = os.path.join(settings.MEDIA_ROOT, directorio)
-    os.makedirs(ruta_completa, exist_ok=True)
+    # Leer contenido del archivo
+    contenido = archivo.read()
     
-    # Generar nombre único
-    extension = os.path.splitext(archivo.name)[1]
-    nombre_archivo = f"{prefijo}_{archivo.name}"
-    ruta_relativa = os.path.join(directorio, nombre_archivo)
-    
-    # Guardar archivo
-    ruta_guardado = default_storage.save(ruta_relativa, archivo)
-    return ruta_guardado
+    # Guardar en la instancia del modelo
+    instancia.volante_peticion = contenido
+    instancia.volante_peticion_nombre = archivo.name
+    instancia.volante_peticion_tipo = archivo.content_type
 
 
 def _build_qr_link(request, code):
@@ -236,8 +231,7 @@ def cassette_create(request):
             # Manejar archivo de volante de petición
             volante_file = request.FILES.get('volante_peticion')
             if volante_file:
-                ruta = _guardar_volante_peticion(volante_file, f'cassette_{c.cassette}')
-                c.informacion_clinica = ruta
+                _guardar_volante_peticion(volante_file, c)
             c.save()
             return redirect(reverse('cassettes') + f'?cassette={c.pk}')
         except Exception as e:
@@ -261,8 +255,7 @@ def cassette_update(request, pk):
         # Manejar archivo de volante de petición
         volante_file = request.FILES.get('volante_peticion')
         if volante_file:
-            ruta = _guardar_volante_peticion(volante_file, f'cassette_{c.cassette}')
-            c.informacion_clinica = ruta
+            _guardar_volante_peticion(volante_file, c)
         c.save()
         return redirect(reverse('cassettes') + f'?cassette={pk}')
     messages.error(request, 'Error al modificar el cassette.')
@@ -550,17 +543,29 @@ def qr_resolver(request):
 @login_required
 @require_POST
 def citologia_create(request):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"[DEBUG] CitologiaCreate - request.FILES: {list(request.FILES.keys())}")
+    logger.error(f"[DEBUG] CitologiaCreate - request.POST keys: {list(request.POST.keys())}")
+    
     form = CitologiaForm(request.POST, request.FILES)
+    logger.error(f"[DEBUG] CitologiaCreate - form.is_valid(): {form.is_valid()}")
+    if not form.is_valid():
+        logger.error(f"[DEBUG] CitologiaCreate - form.errors: {form.errors}")
+    
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
         try:
             c = form.save(commit=False, tecnico=tecnico)
             # Manejar archivo de volante de petición
             volante_file = request.FILES.get('volante_peticion')
+            logger.error(f"[DEBUG] CitologiaCreate - volante_file: {volante_file}")
             if volante_file:
-                ruta = _guardar_volante_peticion(volante_file, f'citologia_{c.citologia}')
-                c.descripcion_microscopica = ruta
+                logger.error(f"[DEBUG] CitologiaCreate - Guardando archivo: {volante_file.name}")
+                _guardar_volante_peticion(volante_file, c)
+                logger.error(f"[DEBUG] CitologiaCreate - Después de guardar: nombre={c.volante_peticion_nombre}")
             c.save()
+            logger.error(f"[DEBUG] CitologiaCreate - Citología guardada con ID {c.pk}")
             return redirect(reverse('citologias') + f'?citologia={c.pk}')
         except Exception as e:
             messages.error(request, f'Error al guardar la citología: {e}')
@@ -583,8 +588,7 @@ def citologia_update(request, pk):
         # Manejar archivo de volante de petición
         volante_file = request.FILES.get('volante_peticion')
         if volante_file:
-            ruta = _guardar_volante_peticion(volante_file, f'citologia_{c.citologia}')
-            c.descripcion_microscopica = ruta
+            _guardar_volante_peticion(volante_file, c)
         c.save()
         return redirect(reverse('citologias') + f'?citologia={pk}')
     messages.error(request, 'Error al modificar la citología.')
@@ -764,8 +768,7 @@ def hematologia_create(request):
         # Manejar archivo de volante de petición
         volante_file = request.FILES.get('volante_peticion')
         if volante_file:
-            ruta = _guardar_volante_peticion(volante_file, f'hematologia_{h.hematologia}')
-            h.descripcion_microscopica = ruta
+            _guardar_volante_peticion(volante_file, h)
         h.save()
         return redirect(reverse('hematologias') + f'?hematologia={h.pk}')
     messages.error(request, 'Error al crear la hematología. Revisa los campos.')
@@ -782,8 +785,7 @@ def hematologia_update(request, pk):
         # Manejar archivo de volante de petición
         volante_file = request.FILES.get('volante_peticion')
         if volante_file:
-            ruta = _guardar_volante_peticion(volante_file, f'hematologia_{h.hematologia}')
-            h.descripcion_microscopica = ruta
+            _guardar_volante_peticion(volante_file, h)
         h.save()
         return redirect(reverse('hematologias') + f'?hematologia={pk}')
     messages.error(request, 'Error al modificar la hematología.')
@@ -932,3 +934,60 @@ def usuario_delete(request, pk):
     tecnico.delete()
     messages.success(request, f'Técnico "{nombre}" eliminado.')
     return redirect('usuarios')
+
+
+# ── Descargar archivos desde BD ───────────────────────────────────────────────
+
+@login_required
+def descargar_volante_cassette(request, pk):
+    cassette = get_object_or_404(Cassette, pk=pk)
+    if not cassette.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    response = HttpResponse(cassette.volante_peticion, content_type=cassette.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{cassette.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
+@login_required
+def descargar_volante_citologia(request, pk):
+    citologia = get_object_or_404(Citologia, pk=pk)
+    if not citologia.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    response = HttpResponse(citologia.volante_peticion, content_type=citologia.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{citologia.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
+@login_required
+def descargar_volante_hematologia(request, pk):
+    hematologia = get_object_or_404(Hematologia, pk=pk)
+    if not hematologia.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    response = HttpResponse(hematologia.volante_peticion, content_type=hematologia.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{hematologia.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
+@login_required
+def descargar_volante_tubo(request, pk):
+    tubo = get_object_or_404(Tubo, pk=pk)
+    if not tubo.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    response = HttpResponse(tubo.volante_peticion, content_type=tubo.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{tubo.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
+@login_required
+def descargar_volante_microbiologia(request, pk):
+    microbiologia = get_object_or_404(Microbiologia, pk=pk)
+    if not microbiologia.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    response = HttpResponse(microbiologia.volante_peticion, content_type=microbiologia.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{microbiologia.volante_peticion_nombre or "volante.pdf"}"'
+    return response

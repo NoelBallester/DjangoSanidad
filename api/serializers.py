@@ -40,6 +40,7 @@ class ImagenCitologiaSerializer(serializers.ModelSerializer):
 
 class TuboSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
+    volante_peticion_base64 = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend de PHPSanidad
     id_muestra = serializers.IntegerField(source='id_tubo', read_only=True)
     muestra = serializers.CharField(source='tubo', required=False)
@@ -52,12 +53,18 @@ class TuboSerializer(serializers.ModelSerializer):
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_tubo', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
-            'informe_tincion', 'informe_observaciones', 'imagen_base64'
+            'informe_tincion', 'informe_observaciones', 'imagen_base64',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_base64'
         ]
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:
             return base64.b64encode(obj.informe_imagen).decode('utf-8')
+        return None
+
+    def get_volante_peticion_base64(self, obj):
+        if obj.volante_peticion:
+            return base64.b64encode(obj.volante_peticion).decode('utf-8')
         return None
 
 class MuestraTuboSerializer(serializers.ModelSerializer):
@@ -152,6 +159,7 @@ class ImagenHematologiaSerializer(serializers.ModelSerializer):
 
 class MicrobiologiaSerializer(serializers.ModelSerializer):
     imagen_base64 = serializers.SerializerMethodField()
+    volante_peticion_base64 = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend
     id_muestra = serializers.IntegerField(source='id_microbiologia', read_only=True)
     muestra = serializers.CharField(source='microbiologia', required=False)
@@ -164,12 +172,18 @@ class MicrobiologiaSerializer(serializers.ModelSerializer):
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_microbiologia', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
-            'informe_tincion', 'informe_observaciones', 'imagen_base64'
+            'informe_tincion', 'informe_observaciones', 'imagen_base64',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_base64'
         ]
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:
             return base64.b64encode(obj.informe_imagen).decode('utf-8')
+        return None
+
+    def get_volante_peticion_base64(self, obj):
+        if obj.volante_peticion:
+            return base64.b64encode(obj.volante_peticion).decode('utf-8')
         return None
 
 class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
