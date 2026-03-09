@@ -1422,7 +1422,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       el.style.overflow = "visible";
       el.style.overflowY = "visible";
     });
-    localStorage.setItem(INFORME_TAB_KEY, "informe");
+    sessionStorage.setItem(INFORME_TAB_KEY, "informe");
     actualizarContextoInforme();
   };
 
@@ -1460,7 +1460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     sectionTubosTable.classList.remove("d-none");
-    localStorage.setItem(INFORME_TAB_KEY, "muestras");
+    sessionStorage.setItem(INFORME_TAB_KEY, "muestras");
   };
 
   if (btnToggleInforme && sectionTubosTable && sectionInforme) {
@@ -1475,10 +1475,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  const tabActiva = localStorage.getItem(INFORME_TAB_KEY);
-  if (tabActiva === "informe" && sectionTubosTable && sectionInforme) {
-    abrirMenuInformes();
-  }
+  // Detectar cambio de módulo y limpiar estado si es necesario
+  const CURRENT_MODULE_KEY = "current_module";
+  const currentModule = "bioquimica";
+  const lastModule = sessionStorage.getItem(CURRENT_MODULE_KEY);
+  
+  // Siempre limpiar el estado de informe al cargar la página
+  // El estado se guardará si el usuario navega dentro del módulo
+  sessionStorage.removeItem(INFORME_TAB_KEY);
+  
+  // Guardar módulo actual
+  sessionStorage.setItem(CURRENT_MODULE_KEY, currentModule);
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
