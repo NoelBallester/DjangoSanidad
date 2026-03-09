@@ -538,46 +538,48 @@
                 </div>
                 <hr>
 
-                <div class="p-3">
-                    <div class="mb-3">
-                        <label class="blue__color--negrita">Descripción:</label>
-                        <p id="muestra__descripcion" class="blue__color tubo__text"></p>
+                <div class="p-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-start">
+                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal" style="cursor: pointer;">
+                                <i title="Imprimir QR Muestra" class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
+                            </div>
+                            <div id="btnborrarmuestra" style="cursor: pointer;">
+                                <i title="Borrar Muestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                            </div>
+                            <div id="btnformmodificarMuestra" style="cursor: pointer;">
+                                <i title="Modificar Muestra" class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="blue__color--negrita">Fecha:</label>
-                        <p id="muestra__fecha" class="blue__color tubo__text"></p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="blue__color--negrita">Tipo:</label>
-                        <p id="muestra__tincion" class="blue__color tubo__text"></p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="blue__color--negrita">Observaciones:</label>
-                        <p id="muestra__observaciones" class="blue__color tubo__text"></p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="blue__color--negrita">Imágenes:</label>
-                        <div id="muestra__img" class="d-flex flex-wrap gap-2"></div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="button" class="btn btn-success" id="btnaniadirimagenmuestra">
-                            <i class="fa-solid fa-plus me-2"></i> Añadir Imagen
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" id="btnformmodificarMuestra">
-                            <i class="fa-solid fa-pen-to-square me-2"></i> Editar
-                        </button>
-                        <button type="button" class="btn btn__modal" id="btnborrarmuestra">
-                            <i class="fa-solid fa-trash-can me-2"></i> Eliminar
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" id="btncerrarmuestradetalle">
-                            Cerrar
-                        </button>
-                    </div>
+                    <section class="row mt-3">
+                        <div class="col-4 border-end text-center">
+                            <li class="list-group-item blue__color--negrita">Descripción:
+                                <p id="muestra__descripcion" class="blue__color muestradescripcion__text"></p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Fecha:
+                                <p id="muestra__fecha" class="blue__color tubo__text"></p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Tipo de muestra:
+                                <p id="muestra__tincion" class="blue__color tubo__text"></p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Observaciones:
+                                <p id="muestra__observaciones" class="blue__color tubo__text"></p>
+                            </li>
+                            <div id="qrMuestraContainer" class="mt-3">
+                                <canvas id="imgmuestra__qr"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <img id="visor__img" class="visor__img w-100" style="max-height: 400px; object-fit: contain;" src="" alt="">
+                        </div>
+                        <hr class="mt-4">
+                        <div id="muestra__img" class="d-flex flex-wrap"></div>
+                    </section>
                 </div>
             </section>
 
