@@ -1358,7 +1358,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "h-100"
     );
     sectionInforme.style.zIndex = "2147483600";
-    sectionInforme.style.background = "rgba(2, 8, 23, 0.92)";
+    sectionInforme.style.background = "rgba(255, 255, 255, 0.92)";
     sectionInforme.style.padding = "1rem";
     sectionInforme.style.overflowY = "auto";
 
