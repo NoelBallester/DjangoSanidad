@@ -209,6 +209,7 @@ const qrConsultaModal = document.getElementById("qrConsultaModal");
 let mimodal = new bootstrap.Modal(document.getElementById("qrConsultaModal"));
 const qrResolverBase = "/qr/resolver/";
 let html5QrInstance = null;
+const QR_RENDER_SIZE = 220;
 
 // Fecha inicio fin para consultas
 const fechainicio = document.getElementById("fechainicio");
@@ -912,9 +913,10 @@ const imprimirDataMicrobiologia = (respuesta) => {
     new QRious({
       element: document.querySelector("#imgmicrobiologia__qr"),
       value: buildResolverUrl(qrCode),
-      size: 70,
-      backgroundAlpha: 0,
-      foreground: "#4ca0cc",
+      size: QR_RENDER_SIZE,
+      background: "#ffffff",
+      backgroundAlpha: 1,
+      foreground: "#000000",
       level: "H",
     });
   }
@@ -1086,9 +1088,10 @@ const detailMuestra = async (muestraid) => {
     new QRious({
       element: imgmuestra__qr,
       value: buildResolverUrl(muestra.qr_muestra),
-      size: 70,
-      backgroundAlpha: 0,
-      foreground: "#4ca0cc",
+      size: QR_RENDER_SIZE,
+      background: "#ffffff",
+      backgroundAlpha: 1,
+      foreground: "#000000",
       level: "H",
     });
   }

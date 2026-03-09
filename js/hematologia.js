@@ -168,6 +168,7 @@ const input__consultarqr = document.getElementById("input__consultarqr");
 const manualQrBtn = document.getElementById("manualQrBtn");
 const qrResolverBase = "/qr/resolver/";
 let html5QrInstance = null;
+const QR_RENDER_SIZE = 220;
 
 const buildResolverUrl = (code) => {
   if (!code) return "";
@@ -674,9 +675,10 @@ const imprimirDetalleHematologia = (h) => {
     new QRious({
       element: imgMuestras__qr,
       value: buildResolverUrl(h.qr_hematologia),
-      size: 100,
-      backgroundAlpha: 0,
-      foreground: "#4ca0cc",
+      size: QR_RENDER_SIZE,
+      background: "#ffffff",
+      backgroundAlpha: 1,
+      foreground: "#000000",
       level: "H",
     });
   }
@@ -928,9 +930,10 @@ const detailSubMuestra = async (muestraid) => {
     new QRious({
       element: imgmuestra__qr,
       value: buildResolverUrl(m.qr_muestra),
-      size: 70,
-      backgroundAlpha: 0,
-      foreground: "#4ca0cc",
+      size: QR_RENDER_SIZE,
+      background: "#ffffff",
+      backgroundAlpha: 1,
+      foreground: "#000000",
       level: "H",
     });
   }
