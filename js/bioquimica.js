@@ -907,7 +907,7 @@ const imprimirDataTubo = (respuesta) => {
   refrescarInformesTubo(currentTuboId);
   console.log("imprimirDataTubo - currentTuboId asignado como:", currentTuboId, "respuesta completa:", respuesta);
 
-  // generamos el codigo QR
+  // generamos el codigo QR (sistema antiguo con QRious para compatibilidad)
   if (window.QRious) {
     const qrCode = respuesta.qr_tubo || respuesta.qr_muestra;
     new QRious({
@@ -919,6 +919,30 @@ const imprimirDataTubo = (respuesta) => {
       foreground: "#000000",
       level: "H",
     });
+  }
+
+  // Sistema nuevo: generar QR con QRCode.js para el modal moderno
+  if (typeof QRCode !== 'undefined') {
+    const qrCode = respuesta.qr_tubo || respuesta.qr_muestra;
+    const qrUrl = buildResolverUrl(qrCode);
+    if (typeof tuboQrActual !== 'undefined') {
+      tuboQrActual = qrUrl;
+    }
+    const qrUrlEl = document.getElementById('qrcode-tubo-url');
+    if (qrUrlEl) qrUrlEl.textContent = qrUrl;
+    
+    // Generar QR en el modal cuando se abre
+    const modalEl = document.getElementById('qrTuboModal');
+    if (modalEl) {
+      modalEl.addEventListener('shown.bs.modal', function generarQr() {
+        const qrWrap = document.getElementById('qrcode-tubo');
+        if (qrWrap && qrUrl) {
+          qrWrap.innerHTML = '';
+          new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
+        }
+        modalEl.removeEventListener('shown.bs.modal', generarQr);
+      }, { once: true });
+    }
   }
 };
 
@@ -1083,7 +1107,7 @@ const detailMuestra = async (muestraid) => {
   muestraId = muestra.id_muestra;
   rellenarDatosMuestra(muestra);
 
-  // Generamos el código QR
+  // Generamos el código QR (sistema antiguo con QRious para compatibilidad)
   if (window.QRious) {
     new QRious({
       element: imgmuestra__qr,
@@ -1094,6 +1118,28 @@ const detailMuestra = async (muestraid) => {
       foreground: "#000000",
       level: "H",
     });
+  }
+
+  // Sistema nuevo: preparar QR para modal moderno
+  if (typeof QRCode !== 'undefined' && typeof muestraQrActual !== 'undefined') {
+    const qrUrl = buildResolverUrl(muestra.qr_muestra);
+    muestraQrActual = qrUrl;
+    const qrUrlEl = document.getElementById('qrcode-muestra-url');
+    if (qrUrlEl) qrUrlEl.textContent = qrUrl;
+    
+    // Configurar generación de QR cuando se abre el modal
+    const modalEl = document.getElementById('qrMuestraModal');
+    if (modalEl) {
+      const generarQr = function() {
+        const qrWrap = document.getElementById('qrcode-muestra');
+        if (qrWrap && qrUrl) {
+          qrWrap.innerHTML = '';
+          new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
+        }
+      };
+      modalEl.removeEventListener('shown.bs.modal', generarQr);
+      modalEl.addEventListener('shown.bs.modal', generarQr, { once: true });
+    }
   }
 
   // Mostramos las imágenes del análisis

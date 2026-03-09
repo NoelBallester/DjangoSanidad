@@ -738,8 +738,8 @@
                     <div class="w-100" style="max-width: 280px;">
                         <label class="form-label mb-1">Tamano de impresion</label>
                         <select class="form-select qr-size-select" aria-label="Tamano QR para imprimir">
-                            <option value="grande" selected>Grande (2,6 cm alto x 1,5 cm ancho)</option>
-                            <option value="pequena">Pequena (aprox. 1,9 cm alto x 1,1 cm ancho)</option>
+                            <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
+                            <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
                         </select>
                     </div>
                 </div>
@@ -765,8 +765,8 @@
                     <div class="w-100" style="max-width: 280px;">
                         <label class="form-label mb-1">Tamano de impresion</label>
                         <select class="form-select qr-size-select" aria-label="Tamano QR para imprimir">
-                            <option value="grande" selected>Grande (2,6 cm alto x 1,5 cm ancho)</option>
-                            <option value="pequena">Pequena (aprox. 1,9 cm alto x 1,1 cm ancho)</option>
+                            <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
+                            <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
                         </select>
                     </div>
                 </div>
@@ -923,8 +923,8 @@
         });
 
         const QR_PRINT_SIZES = {
-            grande: { widthCm: 1.5, heightCm: 2.6 },
-            pequena: { widthCm: 1.1, heightCm: 1.9 }
+            grande: { widthCm: 1.1, heightCm: 1.9 },
+            pequena: { widthCm: 0.8, heightCm: 2.4 }
         };
 
         function getQrPrintSize(modalId) {

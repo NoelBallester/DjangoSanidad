@@ -796,44 +796,30 @@
             </div>
         </section>
 
-        <!-- Modal Imprimir QR Tubo-->
-        <section class="modal fade" id="qrTuboModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        <!-- Modal Imprimir QR Tubo -->
+        <section class="modal fade" id="qrTuboModal" tabindex="-1" aria-labelledby="qrTuboModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title" id="qrTuboModalLabel">QR Tubo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <div class="modal-body text-center fs-4 blue__color">
-                        <p>Impresión QR Tubo</p>
-                        <img src="" alt="Imprimir Tubo" id="imgtubo__qr">
-                        <input type="text" value="qr" id="inputtubo__qr">
-                        <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrtubo"
-                            data-bs-dismiss="modal">Imprimir</button>
+                    <div class="modal-body d-flex flex-column align-items-center gap-3">
+                        <div id="qrcode-tubo"></div>
+                        <small class="text-muted text-break" id="qrcode-tubo-url"></small>
+                        <div class="w-100" style="max-width: 280px;">
+                            <label class="form-label mb-1">Tamaño de impresión</label>
+                            <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
+                                <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
+                                <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                            </select>
+                        </div>
                     </div>
-
-                </div>
-            </div>
-        </section>
-
-        <!-- Modal Imprimir QR Tubo-->
-        <section class="modal fade" id="qrTuboModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="btnImprimirQrTubo">Imprimir</button>
                     </div>
-
-                    <div class="modal-body text-center fs-4 blue__color">
-                        <p>Impresión QR Tubo</p>
-                        <img src="" alt="Imprimir Tubo" id="imgtubo__qr">
-                        <input type="text" value="qr" id="inputtubo__qr">
-                        <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
-                            data-bs-dismiss="modal">Imprimir</button>
-                    </div>
-
                 </div>
             </div>
         </section>
@@ -894,21 +880,28 @@
         </section>
 
         <!-- Modal QR Muestra/Análisis -->
-        <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="qrMuestraModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">QR Análisis</h5>
+                        <h5 class="modal-title" id="qrMuestraModalLabel">QR Análisis</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <div class="modal-body text-center fs-4 blue__color">
-                        <p>Impresión QR Análisis</p>
-                        <img src="" alt="Imprimir Muestra" id="imgmuestra__qr" style="width: 220px; height: 220px;">
-                        <input type="text" value="qr" id="inputmuestra__qr" style="display: none;">
-                        <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrmuestra"
-                            data-bs-dismiss="modal">Imprimir</button>
+                    <div class="modal-body d-flex flex-column align-items-center gap-3">
+                        <div id="qrcode-muestra"></div>
+                        <small class="text-muted text-break" id="qrcode-muestra-url"></small>
+                        <div class="w-100" style="max-width: 280px;">
+                            <label class="form-label mb-1">Tamaño de impresión</label>
+                            <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
+                                <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
+                                <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="btnImprimirQrMuestra">Imprimir</button>
                     </div>
                 </div>
             </div>
@@ -935,9 +928,85 @@
         <!-- Para ordenar tabla -->
         <script src="./js/sortable.js?v=20260309"></script>
         <script src="https://unpkg.com/html5-qrcode" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
         <script src="js/bioquimica.js"></script>
         <script src="js/api-django.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+        <script>
+        // Sistema de impresión QR con tamaños configurables
+        const QR_PRINT_SIZES = {
+            grande: { widthCm: 1.1, heightCm: 1.9 },
+            pequena: { widthCm: 0.8, heightCm: 2.4 }
+        };
+
+        function getQrPrintSize(modalId) {
+            const modal = document.getElementById(modalId || '');
+            const value = modal?.querySelector('.qr-size-select')?.value || 'grande';
+            return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.grande;
+        }
+
+        function printQrPayload(url, label, modalId) {
+            if (!url) return;
+            const printSize = getQrPrintSize(modalId);
+            const container = document.createElement('div');
+            new QRCode(container, { text: url, width: 900, height: 900 });
+            const canvas = container.querySelector('canvas');
+            if (!canvas) return;
+            const win = window.open('');
+            if (!win) return;
+            win.document.write(`<!doctype html>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            @page { margin: 0; }
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                min-height: 100vh;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-family: Arial, sans-serif;
+                            }
+                            .qr-label {
+                                position: fixed;
+                                bottom: 0.2cm;
+                                left: 0.2cm;
+                                right: 0.2cm;
+                                text-align: center;
+                                font-size: 8pt;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${canvas.toDataURL()}" style="width:${printSize.widthCm}cm;height:${printSize.heightCm}cm;object-fit:contain;" />
+                        <div class="qr-label">${label || ''}</div>
+                    </body>
+                </html>`);
+            win.document.close();
+            win.print();
+            win.close();
+        }
+
+        // Variable para almacenar la URL del QR actual del tubo
+        let tuboQrActual = '';
+        let muestraQrActual = '';
+
+        // Inicializar eventos de impresión
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btnImprimirQrTubo')?.addEventListener('click', function () {
+                printQrPayload(tuboQrActual, document.getElementById('qrTuboModalLabel')?.textContent || 'Tubo', 'qrTuboModal');
+            });
+
+            document.getElementById('btnImprimirQrMuestra')?.addEventListener('click', function () {
+                printQrPayload(muestraQrActual, document.getElementById('qrMuestraModalLabel')?.textContent || 'Muestra', 'qrMuestraModal');
+            });
+        });
+        </script>
 
 </body>
 
