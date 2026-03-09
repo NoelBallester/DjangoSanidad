@@ -1269,7 +1269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "h-100"
     );
     sectionInformeDiv.style.zIndex = "2147483600";
-    sectionInformeDiv.style.background = "rgba(2, 8, 23, 0.92)";
+    sectionInformeDiv.style.background = "rgba(255, 255, 255, 0.92)";
     sectionInformeDiv.style.padding = "1rem";
     sectionInformeDiv.style.overflowY = "auto";
 
