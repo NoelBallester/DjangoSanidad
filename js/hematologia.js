@@ -760,7 +760,7 @@ const crearSubMuestra = async (event) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error response:", errorData);
-      alert("Error al crear sub-muestra: " + JSON.stringify(errorData));
+      alert("Error al crear análisis: " + JSON.stringify(errorData));
       return;
     }
 
@@ -772,10 +772,10 @@ const crearSubMuestra = async (event) => {
 
     const subMuestras = await cargarSubMuestras(hematologiaId);
     imprimirSubMuestras(subMuestras);
-    alert("Sub-muestra creada correctamente");
+    alert("Análisis creado correctamente");
   } catch (err) {
     console.error("Error en fetch:", err);
-    alert("Error al crear sub-muestra: " + err.message);
+    alert("Error al crear análisis: " + err.message);
   }
 };
 
@@ -855,7 +855,7 @@ const borrarSubMuestra = async () => {
       const subMuestras = await cargarSubMuestras(hematologiaId);
       imprimirSubMuestras(subMuestras);
     } else {
-      alert("Error al eliminar la sub-muestra");
+      alert("Error al eliminar el análisis");
     }
   } catch (err) {
     console.error(err);
@@ -890,7 +890,7 @@ const imprimirSubMuestras = (respuesta) => {
       const btndetalle = document.createElement("I");
       btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras";
       btndetalle.dataset.id = m.id_muestra;
-      btndetalle.title = "Detalle Sub-muestra";
+      btndetalle.title = "Detalle Análisis";
 
       const tdBtn = document.createElement("td");
       tdBtn.appendChild(btndetalle);
@@ -1094,7 +1094,7 @@ const consultarSubMuestraQR = async (qr) => {
     await consultarHematologiaQR(h.qr_hematologia);
     await detailSubMuestra(lista[0].id_muestra);
   } else {
-    alert("No se encontró ninguna sub-muestra con ese QR");
+    alert("No se encontró ningún análisis con ese QR");
   }
 };
 

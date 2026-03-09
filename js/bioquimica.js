@@ -361,7 +361,7 @@ const crearTubo = async (event) => {
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al crear la muestra: " + error.message);
+      alert("Error al crear el análisis: " + error.message);
     });
 };
 
@@ -408,12 +408,12 @@ const borrarTubo = () => {
           location.href = "bioquimica.html";
         }, 500);
       } else {
-        alert("Error al eliminar la muestra");
+        alert("Error al eliminar el análisis");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al eliminar la muestra: " + error.message);
+      alert("Error al eliminar el análisis: " + error.message);
     });
 };
 
@@ -474,12 +474,12 @@ const modificarTuboUpdate = async (event) => {
         // En vez de recargar la página, actualizamos los datos
         actualizarVistaYLista(tuboId);
       } else {
-        alert("Error al actualizar la muestra");
+        alert("Error al actualizar el análisis");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al actualizar la muestra: " + error.message);
+      alert("Error al actualizar el análisis: " + error.message);
     });
 };
 
@@ -822,7 +822,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
       btndetalle.className =
         "d-inline-block tubo__icon fa-solid fa-eye tubo__icon--infotubo";
       btndetalle.dataset.id = tubo.id_muestra;
-      btndetalle.title = "Detalle Muestra";
+      btndetalle.title = "Detalle Análisis";
 
       let btnCont = document.createElement("td");
       btnCont.appendChild(btndetalle);
@@ -1292,7 +1292,7 @@ const consultarMuestraQR = async (qr) => {
     consultarTuboQR(tubo.qr_tubo || tubo.qr_muestra);
     detailMuestra(muestra[0].id_muestra);
   } else {
-    alert("No se encontró ninguna muestra");
+    alert("No se encontró ningún análisis");
   }
 };
 

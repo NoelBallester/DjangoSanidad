@@ -280,16 +280,16 @@
 
     <!-- Muestras & Informe de Resultados -->
     <section class="pt-3">
-      <!-- Muestras -->
+      <!-- Análisis -->
       <div id="sectionMuestras" class="container__muestra m-auto w-100 p-2">
         <div class="title d-flex align-items-center justify-content-between">
-          <h2 class="Muestras__title m-0">Muestras</h2>
+          <h2 class="Muestras__title m-0">Análisis</h2>
           <div class="d-flex align-items-center gap-2">
             <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
               style="border-radius: 20px;">
               <i class="fa-solid fa-notes-medical me-1"></i> Informe
             </button>
-            <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Muestra"
+            <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nuevo Análisis"
                 class="fa-solid fa-file-circle-plus blue__color--negrita fs-5 "></i>
             </button>
           </div>
@@ -413,14 +413,14 @@
       </div>
     </section>
 
-    <!-- Modal Nueva Muestra-->
+    <!-- Modal Nuevo Análisis-->
     <section class="mimodal" id="modalnuevaMuestra">
 
 
       <form class="row g-3 miform" id="nuevaMuestra" enctype="multipart/form-data">
 
         <div class="form__header">
-          <h2 class="Muestras__title">Nueva Muestra</h2>
+          <h2 class="Muestras__title">Nuevo Análisis</h2>
           <i class="fa-solid fa-circle-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
             id="btnformcerrarnuevaMuestra"></i>
         </div>
@@ -467,20 +467,20 @@
         </div>
 
         <div class="col-12">
-          <button class="btn btn__modal blue__color" type="submit"> Crear Muestra</button>
+          <button class="btn btn__modal blue__color" type="submit"> Crear Análisis</button>
         </div>
 
       </form>
     </section>
 
-    <!-- Modal Modificar Muestra-->
+    <!-- Modal Modificar Análisis-->
     <section class="mimodal front" id="modalmodificarMuestra">
 
       <!--  No pongo enctype pq estoy enviando con un formdata -->
       <form class="row g-3 miform" id="modificarMuestra">
 
         <div class="form__header">
-          <h2 class="Muestras__title">Modificar Muestra</h2>
+          <h2 class="Muestras__title">Modificar Análisis</h2>
           <i class="fa-solid fa-circle-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
             id="btnformcerrarmodificarMuestra"></i>
         </div>
@@ -521,19 +521,19 @@
         </div>
 
         <div class="col-12">
-          <button class="btn btn__modal blue__color" type="submit"> Modificar Muestra</button>
+          <button class="btn btn__modal blue__color" type="submit"> Modificar Análisis</button>
         </div>
 
       </form>
     </section>
 
-    <!-- Modal Detalle Muestra-->
+    <!-- Modal Detalle Análisis-->
     <section class="mimodal" id="modaldetalleMuestra">
 
-      <!-- Detalle Muestra-->
+      <!-- Detalle Análisis-->
       <section class="detallemuestra" id="">
         <div class="form__header">
-          <h2 class="Muestras__title">Detalle Muestra</h2>
+          <h2 class="Muestras__title">Detalle Análisis</h2>
           <i class="fa-solid fa-circle-xmark Muestras__icon Muestras__icon--infoMuestras fs-2"
             id="btncerrardetalleMuestra"></i>
         </div>
@@ -543,16 +543,16 @@
           <div class="d-flex justify-content-between">
             <div class="d-flex align-items-start">
               <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal">
-                <i title="Imprimer QR Muestra"
+                <i title="Imprimer QR Análisis"
                   class="fa-sharp fa-solid fa-qrcode  Muestras__icon Muestras__icon--infoMuestras"></i>
               </div>
 
               <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal">
-                <i title="Borrar Muestra" class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras"></i>
+                <i title="Borrar Análisis" class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras"></i>
               </div>
 
               <div id="btnformmodificarmuestra">
-                <i title="Modificar Muestra"
+                <i title="Modificar Análisis"
                   class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras"></i>
               </div>
 
@@ -924,7 +924,7 @@
               </div>
               <div class="modal-body text-center fs-5 blue__color">
                 <p>¿Desea eliminar esta muestra de hematología?</p>
-                <p class="text-muted small">Esta acción borrará todas las sub-muestras e imágenes asociadas.</p>
+                <p class="text-muted small">Esta acción borrará todos los análisis e imágenes asociadas.</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
