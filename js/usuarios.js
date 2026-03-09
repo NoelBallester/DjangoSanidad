@@ -26,8 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordHelp = document.getElementById('passwordHelp');
 
     const inputIdUsuario = document.getElementById('inputIdUsuario');
-    const inputNombre = document.getElementById('inputNombre');
-    const inputApellidos = document.getElementById('inputApellidos');
     const inputCentro = document.getElementById('inputCentro');
     const inputRol = document.getElementById('inputRol');
     const inputPassword = document.getElementById('inputPassword');
@@ -67,12 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tr.innerHTML = `
                 <td>${user.id_tecnico}</td>
-                <td>${user.nombre}</td>
-                <td>${user.apellidos}</td>
                 <td>${user.centro}</td>
                 <td>${rolBadge}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary border__color me-2" onclick="editarUsuario(${user.id_tecnico}, '${user.nombre}', '${user.apellidos}', '${user.centro}', '${user.rol}')" title="Editar Técnico">
+                    <button class="btn btn-sm btn-outline-primary border__color me-2" onclick="editarUsuario(${user.id_tecnico}, '${user.centro}', '${user.rol}')" title="Editar Técnico">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     ${user.id_tecnico !== sessionStorage.getItem('userId') ? `
@@ -87,11 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Global Functions for buttons
-    window.editarUsuario = (id, nombre, apellidos, centro, rol) => {
+    window.editarUsuario = (id, centro, rol) => {
         modalUsuarioLabel.textContent = 'Editar Técnico (ID: ' + id + ')';
         inputIdUsuario.value = id;
-        inputNombre.value = nombre;
-        inputApellidos.value = apellidos;
         inputCentro.value = centro;
         inputRol.value = rol;
         inputPassword.value = '';
@@ -140,8 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use identificador for register to satisfy the backend fallback logically
         const bodyContent = {
             accion: accion,
-            nombre: inputNombre.value,
-            apellidos: inputApellidos.value,
             centro: inputCentro.value,
             rol: inputRol.value,
             password: inputPassword.value
