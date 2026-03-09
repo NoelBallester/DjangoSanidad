@@ -215,13 +215,12 @@
                             </select>
                         </div>
 
-                        <!-- Rango de fechas -->
-                        <div class="d-flex gap-2">
-                            <input type="date" name="inicio" value="{{ filtros.inicio }}"
-                                class="form-control border__color unified-filter-height px-2" id="fechainicio">
-                            <input type="date" name="fin" value="{{ filtros.fin }}"
-                                class="form-control border__color unified-filter-height px-2" id="fechafin"
-                                onchange="document.getElementById('filtroForm').submit()">
+                        <!-- Fecha -->
+                        <div>
+                            <input type="date" name="inicio" value="{{ filtros.inicio|default:filtros.fin }}"
+                                class="form-control border__color unified-filter-height px-2" id="fechainicio"
+                                onchange="document.getElementById('fechafin').value = this.value; document.getElementById('filtroForm').submit()">
+                            <input type="hidden" name="fin" value="{{ filtros.fin|default:filtros.inicio }}" id="fechafin">
                         </div>
 
                         <!-- Buscar -->
