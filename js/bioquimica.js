@@ -820,7 +820,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block tubo__icon fa-solid fa-file-invoice tubo__icon--infotubo";
+        "d-inline-block tubo__icon fa-solid fa-eye tubo__icon--infotubo";
       btndetalle.dataset.id = tubo.id_muestra;
       btndetalle.title = "Detalle Muestra";
 
@@ -856,7 +856,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
 
 // Peticiones al seleccionar un tubo
 const detalleTubo = async (event) => {
-  const icon = event.target.closest("i.fa-file-invoice");
+  const icon = event.target.closest("i.fa-eye");
   if (icon) {
     alerttubo.classList.add("ocultar");
     tuboId = icon.dataset.id;
@@ -1010,7 +1010,7 @@ const imprimirMuestras = (respuesta) => {
       let btn = document.createElement("td");
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block tubo__icon fa-solid fa-file-invoice tubo__icon--infotubo";
+        "d-inline-block tubo__icon fa-solid fa-eye tubo__icon--infotubo";
       btndetalle.dataset.id = muestra.id_muestra;
       btndetalle.title = "Detalle Análisis";
       btn.appendChild(btndetalle);

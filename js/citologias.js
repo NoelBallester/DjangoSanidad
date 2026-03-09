@@ -490,7 +490,7 @@ const imprimirCitologias = (respuesta, rebuildDropdown = true) => {
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block cassette__icon fa-solid fa-file-invoice cassette__icon--infocassette";
+        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette";
       btndetalle.value = citologia.id_citologia;
       btndetalle.title = "Detalle Citología";
 
@@ -527,7 +527,7 @@ const imprimirCitologias = (respuesta, rebuildDropdown = true) => {
 //Peticiones de citología y Muestras al seleccionar un citología y llama a
 // mostrar citologías y mostrar muestras
 const detalleCitologia = async (event) => {
-  if (event.target.classList.contains("fa-file-invoice")) {
+  if (event.target.classList.contains("fa-eye")) {
     alertcitologia.classList.add("ocultar");
     citologiaId = event.target.value;
 
@@ -805,7 +805,7 @@ const imprimirMuestras = (respuesta) => {
       let btn = document.createElement("td");
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block cassette__icon fa-solid fa-file-invoice cassette__icon--infocassette";
+        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette";
       btndetalle.value = muestra.id_muestra;
       btndetalle.title = "Detalle Muestra";
       btn.appendChild(btndetalle);

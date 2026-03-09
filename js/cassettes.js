@@ -456,7 +456,7 @@ const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block cassette__icon fa-solid fa-file-invoice cassette__icon--infocassette";
+        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette";
       btndetalle.value = casete.id_casette;
       btndetalle.title = "Detalle Cassette";
 
@@ -493,7 +493,7 @@ const imprimirCasettes = (respuesta, rebuildDropdown = true) => {
 //Peticiones de Cassette y Muestras al seleccionar un Cassette y llama a
 // mostrar cassettes y mostrar muestras
 const detalleCassette = async (event) => {
-  if (event.target.classList.contains("fa-file-invoice")) {
+  if (event.target.classList.contains("fa-eye")) {
     alertcassette.classList.add("ocultar");
     cassetteId = event.target.value;
 
@@ -766,7 +766,7 @@ const imprimirMuestras = (respuesta) => {
       let btn = document.createElement("td");
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block cassette__icon fa-solid fa-file-invoice cassette__icon--infocassette";
+        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette";
       btndetalle.value = muestra.id_muestra;
       btndetalle.title = "Detalle Muestra";
       btn.appendChild(btndetalle);

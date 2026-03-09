@@ -603,7 +603,7 @@ const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
       tdOrgano.textContent = h.organo || "";
 
       const btndetalle = document.createElement("I");
-      btndetalle.className = "d-inline-block fa-solid fa-file-invoice Muestras__icon Muestras__icon--infoMuestras";
+      btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras";
       btndetalle.dataset.id = h.id_hematologia;
       btndetalle.title = "Detalle Muestra";
 
@@ -636,7 +636,7 @@ const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
 // ============================================================
 
 const detalleHematologia = async (event) => {
-  const icon = event.target.closest("i.fa-file-invoice");
+  const icon = event.target.closest("i.fa-eye");
   if (icon) {
     if (alertMuestras) alertMuestras.classList.add("ocultar");
     hematologiaId = icon.dataset.id;
@@ -888,7 +888,7 @@ const imprimirSubMuestras = (respuesta) => {
       tdTincion.textContent = m.tincion || "";
 
       const btndetalle = document.createElement("I");
-      btndetalle.className = "d-inline-block fa-solid fa-file-invoice Muestras__icon Muestras__icon--infoMuestras";
+      btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras";
       btndetalle.dataset.id = m.id_muestra;
       btndetalle.title = "Detalle Sub-muestra";
 

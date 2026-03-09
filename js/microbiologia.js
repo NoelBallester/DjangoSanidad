@@ -820,7 +820,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block microbiologia__icon fa-solid fa-file-invoice microbiologia__icon--infomicrobiologia icono__efect";
+        "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect";
       btndetalle.dataset.id = microbiologia.id_muestra;
       btndetalle.title = "Detalle Muestra";
 
@@ -856,7 +856,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
 
 // Peticiones al seleccionar un microbiologia
 const detalleMicrobiologia = async (event) => {
-  const icon = event.target.closest("i.fa-file-invoice");
+  const icon = event.target.closest("i.fa-eye");
   if (icon) {
     alertmicrobiologia.classList.add("ocultar");
     microbiologiaId = icon.dataset.id;
@@ -1010,7 +1010,7 @@ const imprimirMuestras = (respuesta) => {
       let btn = document.createElement("td");
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block microbiologia__icon fa-solid fa-file-invoice microbiologia__icon--infomicrobiologia icono__efect";
+        "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect";
       btndetalle.dataset.id = muestra.id_muestra;
       btndetalle.title = "Detalle Análisis";
       btn.appendChild(btndetalle);
