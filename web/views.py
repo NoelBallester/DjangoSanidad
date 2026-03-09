@@ -371,7 +371,6 @@ def imagen_delete(request, pk):
     imagen = get_object_or_404(Imagen, pk=pk)
     cid = imagen.muestra.cassette_id
     muestra_id = imagen.muestra_id
-    imagen.imagen.delete(save=False)
     imagen.delete()
     return redirect(reverse('cassettes') + f'?cassette={cid}&muestra={muestra_id}')
 
@@ -694,7 +693,6 @@ def imagen_citologia_delete(request, pk):
     imagen = get_object_or_404(ImagenCitologia, pk=pk)
     cid = imagen.muestra.citologia_id
     muestra_id = imagen.muestra_id
-    imagen.imagen.delete(save=False)
     imagen.delete()
     return redirect(reverse('citologias') + f'?citologia={cid}&muestra={muestra_id}')
 

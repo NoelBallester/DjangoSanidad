@@ -227,10 +227,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Apellidos</th>
                         <th>Usuario</th>
-                        <th>Email</th>
                         <th>Centro</th>
                         <th>Rol</th>
                         {% if request.user.is_staff %}<th>Acciones</th>{% endif %}
@@ -240,10 +237,7 @@
                     {% for t in tecnicos %}
                     <tr>
                         <td class="blue__color">{{ t.pk }}</td>
-                        <td>{{ t.nombre }}</td>
-                        <td>{{ t.apellidos }}</td>
                         <td class="text-muted">{{ t.username }}</td>
-                        <td class="text-muted">{{ t.email }}</td>
                         <td class="text-muted">{{ t.centro|default:"—" }}</td>
                         <td>
                             {% if t.is_staff %}
@@ -257,9 +251,6 @@
                             <button class="btn btn-sm btn-outline-secondary btn-editar-tecnico"
                                 data-pk="{{ t.pk }}"
                                 data-username="{{ t.username }}"
-                                data-nombre="{{ t.nombre }}"
-                                data-apellidos="{{ t.apellidos }}"
-                                data-email="{{ t.email }}"
                                 data-centro="{{ t.centro|default:'' }}"
                                 data-is-staff="{{ t.is_staff|yesno:'true,false' }}">
                                 <i class="fa-solid fa-file-pen"></i>
@@ -267,7 +258,7 @@
                             <button class="btn btn-sm btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#eliminarTecnicoModal"
                                 data-pk="{{ t.pk }}"
-                                data-nombre="{{ t.nombre }} {{ t.apellidos }}"
+                                data-username="{{ t.username }}"
                                 {% if t.pk == request.user.pk %}disabled title="No puedes eliminarte a ti mismo"{% endif %}>
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
@@ -275,7 +266,7 @@
                         {% endif %}
                     </tr>
                     {% empty %}
-                    <tr><td colspan="8" class="text-center text-muted py-4">No hay técnicos registrados.</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted py-4">No hay técnicos registrados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -294,20 +285,8 @@
                 </div>
                 <hr class="m-0">
                 <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Nombre *</label>
-                    <input type="text" name="nombre" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Apellidos *</label>
-                    <input type="text" name="apellidos" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Usuario *</label>
                     <input type="text" name="username" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Email *</label>
-                    <input type="email" name="email" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Centro</label>
@@ -340,20 +319,8 @@
                 </div>
                 <hr class="m-0">
                 <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Nombre *</label>
-                    <input type="text" name="nombre" id="editNombre" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Apellidos *</label>
-                    <input type="text" name="apellidos" id="editApellidos" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Usuario *</label>
                     <input type="text" name="username" id="editUsername" class="form-control blue__color" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label blue__color--negrita">Email *</label>
-                    <input type="email" name="email" id="editEmail" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Centro</label>
@@ -437,10 +404,7 @@
             btn.addEventListener('click', () => {
                 const d = btn.dataset;
                 document.getElementById('formEditarTecnico').action = `/usuarios/${d.pk}/editar/`;
-                document.getElementById('editNombre').value    = d.nombre;
-                document.getElementById('editApellidos').value = d.apellidos;
                 document.getElementById('editUsername').value  = d.username;
-                document.getElementById('editEmail').value     = d.email;
                 document.getElementById('editCentro').value    = d.centro;
                 document.getElementById('editIsStaff').checked = d.isStaff === 'true';
                 openModal('modalupdateTecnico');
@@ -450,7 +414,7 @@
         // ── Modal eliminar ────────────────────────────────────────────────────
         document.getElementById('eliminarTecnicoModal')?.addEventListener('show.bs.modal', e => {
             const btn = e.relatedTarget;
-            document.getElementById('nombreTecnicoEliminar').textContent = btn.dataset.nombre;
+            document.getElementById('nombreTecnicoEliminar').textContent = btn.dataset.username;
             document.getElementById('formEliminarTecnico').action = `/usuarios/${btn.dataset.pk}/eliminar/`;
         });
     </script>
