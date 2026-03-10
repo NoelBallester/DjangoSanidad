@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(xargs cat:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(find /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad -maxdepth 2 -name \"*requirements*\" -o -name \"setup.py\" -o -name \"pyproject.toml\" -o -name \"Pipfile\" 2>/dev/null | grep -v venv)",
+      "Bash(find /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad -name \"*.py\" -path \"*/management/commands/*\" 2>/dev/null | head -10)",
+      "Bash(ls -la /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/*.txt /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/*.md 2>/dev/null)",
+      "Bash(find /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/web/templates -type f -name \"*.html\" 2>/dev/null | head -20)",
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\" /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/api/*.py /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/web/*.py 2>/dev/null | head -10)"
     ]
   }
 }
