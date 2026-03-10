@@ -1758,32 +1758,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  qrConsultaModal.addEventListener("show.bs.modal", () => {
-    if (input__consultarqr) {
-      input__consultarqr.value = "";
-      input__consultarqr.focus();
-    }
+  // Lectura código QR del análisis (ahora se maneja inline en la plantilla para mayor fiabilidad)
 
-    if (!window.Html5Qrcode) return;
-    if (!html5QrInstance) html5QrInstance = new Html5Qrcode("qr-reader");
-
-    Html5Qrcode.getCameras().then((cameras) => {
-      const cameraId = cameras?.[0]?.id;
-      if (!cameraId) return;
-      html5QrInstance.start(
-        cameraId,
-        { fps: 10, qrbox: 220 },
-        (decodedText) => resolverTextoEscaneado(decodedText),
-        () => {}
-      );
-    }).catch(() => {});
-  });
-
-  qrConsultaModal.addEventListener("hidden.bs.modal", () => {
-    if (html5QrInstance?.isScanning) {
-      html5QrInstance.stop().catch(() => {});
-    }
-  });
 
   input__consultarqr?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {

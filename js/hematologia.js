@@ -1594,7 +1594,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Lectura QR general
   if (qrConsultaModal) {
-    qrConsultaModal.addEventListener("show.bs.modal", () => {
+    qrConsultaModal.addEventListener("shown.bs.modal", () => {
       if (input__consultarqr) {
         input__consultarqr.value = "";
         input__consultarqr.focus();

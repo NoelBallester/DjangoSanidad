@@ -955,10 +955,57 @@
 
         <!-- Para ordenar tabla -->
         <script src="./js/sortable.js?v=20260309"></script>
-        <script src="https://unpkg.com/html5-qrcode" defer></script>
+        <script src="https://unpkg.com/html5-qrcode"></script>
         <script src="./js/qr.js?v=20260309"></script>
         <script src="./js/hematologia.js?v=20260309"></script>
         <script src="./js/muestra.js?v=20260309"></script>
+
+        <script>
+            // Escáner QR (inline para mayor fiabilidad)
+            (function() {
+                let scannerInstance = null;
+                const modalId = 'qrConsultaModal';
+
+                document.getElementById(modalId)?.addEventListener('shown.bs.modal', function () {
+                    const inputElement = document.getElementById('input__consultarqr');
+                    if (inputElement) {
+                        inputElement.value = "";
+                        inputElement.focus();
+                    }
+
+                    if (!window.Html5Qrcode) return;
+                    if (!scannerInstance) scannerInstance = new Html5Qrcode("qr-reader");
+
+                    Html5Qrcode.getCameras().then((cameras) => {
+                        const cameraId = cameras?.[0]?.id;
+                        if (!cameraId) {
+                            console.error("No se encontraron cámaras.");
+                            return;
+                        }
+                        scannerInstance.start(
+                            cameraId,
+                            { fps: 10, qrbox: 220 },
+                            (decodedText) => {
+                                if (typeof resolverTextoEscaneado === 'function') {
+                                    resolverTextoEscaneado(decodedText);
+                                } else {
+                                    const value = (decodedText || "").trim();
+                                    if (value.startsWith("http")) window.location.href = value;
+                                    else window.location.href = `/qr/resolver/?code=${encodeURIComponent(value)}`;
+                                }
+                            },
+                            () => {}
+                        ).catch(err => console.error("Error al iniciar escáner:", err));
+                    }).catch(err => console.error("Error al obtener cámaras:", err));
+                });
+
+                document.getElementById(modalId)?.addEventListener('hidden.bs.modal', function () {
+                    if (scannerInstance?.isScanning) {
+                        scannerInstance.stop().catch(() => {});
+                    }
+                });
+            })();
+        </script>
 
 </body>
 
