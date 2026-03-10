@@ -455,7 +455,7 @@
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Informe forense / informe de autopsia</label>
+                    <label class="form-label blue__color">Informe forense / Informe de autopsia</label>
                     <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
@@ -542,7 +542,7 @@
                                 enctype="multipart/form-data" class="d-flex align-items-center">
                                 {% csrf_token %}
                                 <label for="img_modal_{{ selected_muestra_item.muestra.pk }}" class="blue__color fs-3 m-0"
-                                    style="cursor:pointer" title="Informe forense / informe de autopsia">
+                                    style="cursor:pointer" title="Informe forense / Informe de autopsia">
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </label>
                                 <input id="img_modal_{{ selected_muestra_item.muestra.pk }}" type="file" name="imagen"
