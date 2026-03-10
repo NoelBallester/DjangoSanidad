@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from datetime import datetime
 import base64
@@ -26,24 +27,21 @@ def generar_qr(prefijo):
 class TecnicoViewSet(viewsets.ModelViewSet):
     queryset = Tecnico.objects.all()
     serializer_class = TecnicoSerializer
+
+    def get_permissions(self):
+        if self.action == 'login':
+            return [AllowAny()]
+        return [IsAuthenticated()]
     
     @action(detail=False, methods=['post'])
     def login(self, request):
         tecnico_id = request.data.get('tecnico_id')
         password = request.data.get('password')
         
-        # Primero intentar vía authenticate
+        # El login solo permite contraseñas hasheadas por seguridad.
         user = authenticate(id_tecnico=tecnico_id, password=password)
         if user:
             return Response(TecnicoSerializer(user).data)
-            
-        # Fallback para contraseñas plano
-        try:
-            tecnico = Tecnico.objects.get(pk=tecnico_id)
-            if tecnico.password == password:
-                return Response(TecnicoSerializer(tecnico).data)
-        except (Tecnico.DoesNotExist, ValueError):
-            pass
             
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -310,8 +308,7 @@ class ImagenViewSet(viewsets.ModelViewSet):
     def por_muestra(self, request, id=None):
         """Obtiene todas las imágenes de una muestra en base64"""
         imagenes = Imagen.objects.filter(muestra_id=id)
-        # El serializer ya incluye imagen_base64 con el método get_imagen_base64
-        return Response(ImagenTuboSerializer(imagenes, many=True).data)
+        return Response(ImagenSerializer(imagenes, many=True).data)
 
 class ImagenCitologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
@@ -347,7 +344,6 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
 class TuboViewSet(viewsets.ModelViewSet):
     queryset = Tubo.objects.all().order_by('-fecha')
     serializer_class = TuboSerializer
-    authentication_classes = []
     
     def create(self, request):
         data = request.data.copy()
@@ -443,8 +439,6 @@ class TuboViewSet(viewsets.ModelViewSet):
 class MuestraTuboViewSet(viewsets.ModelViewSet):
     queryset = MuestraTubo.objects.all()
     serializer_class = MuestraTuboSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -484,8 +478,6 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
 class ImagenTuboViewSet(viewsets.ModelViewSet):
     queryset = ImagenTubo.objects.all()
     serializer_class = ImagenTuboSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         """Crea una imagen guardando el archivo como binario en la BD"""
@@ -523,8 +515,6 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
 class HematologiaViewSet(viewsets.ModelViewSet):
     queryset = Hematologia.objects.all().order_by('-fecha')
     serializer_class = HematologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -612,8 +602,6 @@ class HematologiaViewSet(viewsets.ModelViewSet):
 class MuestraHematologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraHematologia.objects.all()
     serializer_class = MuestraHematologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -653,8 +641,6 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
 class ImagenHematologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenHematologia.objects.all()
     serializer_class = ImagenHematologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         """Crea una imagen para una sub-muestra de hematología"""
@@ -691,8 +677,6 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
 class MicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = Microbiologia.objects.all().order_by('-fecha')
     serializer_class = MicrobiologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -787,8 +771,6 @@ class MicrobiologiaViewSet(viewsets.ModelViewSet):
 class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraMicrobiologia.objects.all()
     serializer_class = MuestraMicrobiologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         data = request.data.copy()
@@ -822,8 +804,6 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
 class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenMicrobiologia.objects.all()
     serializer_class = ImagenMicrobiologiaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
     
     def create(self, request):
         imagen_file = request.FILES.get('imagen', None)
@@ -860,8 +840,6 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
 class InformeResultadoViewSet(viewsets.ModelViewSet):
     queryset = InformeResultado.objects.all().order_by('-fecha', '-id_informe')
     serializer_class = InformeResultadoSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
 
     def create(self, request):
         if request.FILES.get('imagen'):

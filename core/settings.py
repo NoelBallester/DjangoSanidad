@@ -15,6 +15,7 @@ pymysql.version_info = (2, 2, 4, "final", 0)
 pymysql.__version__ = "2.2.4"
 pymysql.install_as_MySQLdb()
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,12 +26,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+s=t+a$d&#8okfsq&(l)if%++dnt7!glp(2zo$w=6t$rxxjqi$'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-insecure-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'true').strip().lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 
 # Application definition
@@ -136,9 +140,16 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = os.getenv('DJANGO_CORS_ALLOW_ALL', 'false').strip().lower() == 'true'
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', '').split(',')
+    if origin.strip()
+]
 AUTH_USER_MODEL = 'api.Tecnico'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
