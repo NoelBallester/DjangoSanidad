@@ -929,46 +929,51 @@
             const printSize = getQrPrintSize(modalId);
             const container = document.createElement('div');
             new QRCode(container, { text: url, width: 900, height: 900 });
-            const canvas = container.querySelector('canvas');
-            if (!canvas) return;
-            const win = window.open('');
-            if (!win) return;
-            win.document.write(`<!doctype html>
-                <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <style>
-                            @page { margin: 0; }
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                min-height: 100vh;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-family: Arial, sans-serif;
-                            }
-                            .qr-label {
-                                position: fixed;
-                                bottom: 0.2cm;
-                                left: 0.2cm;
-                                right: 0.2cm;
-                                text-align: center;
-                                font-size: 8pt;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${canvas.toDataURL()}" style="width:${printSize.widthCm}cm;height:${printSize.heightCm}cm;object-fit:contain;" />
-                        <div class="qr-label">${label || ''}</div>
-                    </body>
-                </html>`);
-            win.document.close();
-            win.print();
-            win.close();
+            
+            setTimeout(() => {
+                const canvas = container.querySelector('canvas');
+                if (!canvas) return;
+                const win = window.open('');
+                if (!win) return;
+                win.document.write(`<!doctype html>
+                    <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                @page { margin: 0; }
+                                body {
+                                    margin: 0;
+                                    padding: 0;
+                                    min-height: 100vh;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-family: Arial, sans-serif;
+                                }
+                                .qr-label {
+                                    position: fixed;
+                                    bottom: 0.2cm;
+                                    left: 0.2cm;
+                                    right: 0.2cm;
+                                    text-align: center;
+                                    font-size: 8pt;
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${canvas.toDataURL()}" style="width:${printSize.widthCm}cm;height:${printSize.heightCm}cm;object-fit:contain;" />
+                            <div class="qr-label">${label || ''}</div>
+                        </body>
+                    </html>`);
+                win.document.close();
+                win.document.body.onload = function() {
+                    win.print();
+                    win.close();
+                };
+            }, 100);
         }
 
         function imprimirQR(modalId) {
@@ -1010,6 +1015,7 @@
         // ── Escáner QR (cámara + entrada manual) ────────────────────────────
         const qrResolverBase = "{% url 'qr_resolver' %}";
         let html5QrInstance = null;
+        let html5QrIsStarting = false;
 
         function resolverTextoEscaneado(text) {
             const value = (text || '').trim();
@@ -1028,22 +1034,52 @@
 
         document.getElementById('scanQrModal')?.addEventListener('shown.bs.modal', function () {
             if (!window.Html5Qrcode) return;
-            if (!html5QrInstance) html5QrInstance = new Html5Qrcode('qr-reader');
+            if (html5QrIsStarting) return;
+            
+            // Si ya hay una instancia escaneando o en pausa, no hacer nada
+            if (html5QrInstance && (html5QrInstance.isScanning || html5QrInstance.getState() === 2)) return;
+            
+            html5QrIsStarting = true;
+            if (!html5QrInstance) {
+                html5QrInstance = new Html5Qrcode('qr-reader');
+            } else {
+                // Limpiar instancia anterior si estaba en un estado intermedio
+                html5QrInstance.clear();
+            }
+            
             Html5Qrcode.getCameras().then((cameras) => {
                 const cameraId = cameras?.[0]?.id;
-                if (!cameraId) return;
+                if (!cameraId) {
+                    html5QrIsStarting = false;
+                    return;
+                }
                 html5QrInstance.start(
                     cameraId,
                     { fps: 10, qrbox: 220 },
-                    (decodedText) => resolverTextoEscaneado(decodedText),
+                    (decodedText) => { html5QrIsStarting = false; resolverTextoEscaneado(decodedText); },
                     () => {}
-                );
-            }).catch(() => {});
+                ).then(() => {
+                    html5QrIsStarting = false;
+                }).catch(() => {
+                    html5QrIsStarting = false;
+                });
+            }).catch(() => {
+                html5QrIsStarting = false;
+            });
         });
 
         document.getElementById('scanQrModal')?.addEventListener('hidden.bs.modal', function () {
-            if (html5QrInstance?.isScanning) {
-                html5QrInstance.stop().catch(() => {});
+            html5QrIsStarting = false;
+            if (html5QrInstance) {
+                try {
+                    if (html5QrInstance.isScanning || html5QrInstance.getState() === 2) {
+                        html5QrInstance.stop().then(() => {
+                            html5QrInstance.clear();
+                        }).catch(() => {});
+                    } else {
+                        html5QrInstance.clear();
+                    }
+                } catch(e) {}
             }
         });
     </script>
