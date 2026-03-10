@@ -543,29 +543,16 @@ def qr_resolver(request):
 @login_required
 @require_POST
 def citologia_create(request):
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.error(f"[DEBUG] CitologiaCreate - request.FILES: {list(request.FILES.keys())}")
-    logger.error(f"[DEBUG] CitologiaCreate - request.POST keys: {list(request.POST.keys())}")
-    
     form = CitologiaForm(request.POST, request.FILES)
-    logger.error(f"[DEBUG] CitologiaCreate - form.is_valid(): {form.is_valid()}")
-    if not form.is_valid():
-        logger.error(f"[DEBUG] CitologiaCreate - form.errors: {form.errors}")
-    
     if form.is_valid():
         tecnico = request.user if request.user.is_authenticated else None
         try:
             c = form.save(commit=False, tecnico=tecnico)
             # Manejar archivo de volante de petición
             volante_file = request.FILES.get('volante_peticion')
-            logger.error(f"[DEBUG] CitologiaCreate - volante_file: {volante_file}")
             if volante_file:
-                logger.error(f"[DEBUG] CitologiaCreate - Guardando archivo: {volante_file.name}")
                 _guardar_volante_peticion(volante_file, c)
-                logger.error(f"[DEBUG] CitologiaCreate - Después de guardar: nombre={c.volante_peticion_nombre}")
             c.save()
-            logger.error(f"[DEBUG] CitologiaCreate - Citología guardada con ID {c.pk}")
             return redirect(reverse('citologias') + f'?citologia={c.pk}')
         except Exception as e:
             messages.error(request, f'Error al guardar la citología: {e}')
