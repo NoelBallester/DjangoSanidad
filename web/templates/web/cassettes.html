@@ -326,7 +326,7 @@
                 <div class="p-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center">
                         <h2 class="cassette__title text-center">Detalle Cassette:</h2>
-                        <span class="blue__color cassette__num">{{ selected.cassette }}</span>
+                        <span class="cassette__num">{{ selected.cassette }}</span>
                         <div class="d-flex pt-2 align-items-start">
                             <div data-bs-toggle="modal" data-bs-target="#eliminarCassetteModal" style="cursor:pointer">
                                 <i title="Borrar Cassette"
@@ -345,35 +345,35 @@
                     <section class="list-group list-group-flush mt-3">
                         <div class="d-flex px-3 justify-content-between">
                             <li class="blue__color--negrita">Detalle Biopsia / Número de bloques asociados:
-                                <span class="blue__color cassette__text">{{ selected.descripcion }}</span>
+                                <span class="cassette__text">{{ selected.descripcion }}</span>
                             </li>
                             <li class="blue__color--negrita">Técnico ID:
-                                <span class="blue__color cassette__text">{{ selected.tecnico.id_tecnico|default:"" }}</span>
+                                <span class="cassette__text">{{ selected.tecnico.id_tecnico|default:"" }}</span>
                             </li>
                         </div>
                         <hr class="m-1">
                         <div class="d-flex px-3 justify-content-between">
                             <li class="blue__color--negrita">Órgano:
-                                <span class="blue__color cassette__text">{{ selected.organo }}</span>
+                                <span class="cassette__text">{{ selected.organo }}</span>
                             </li>
                             <li class="blue__color--negrita">Fecha:
-                                <span class="blue__color cassette__text">{{ selected.fecha }}</span>
+                                <span class="cassette__text">{{ selected.fecha }}</span>
                             </li>
                         </div>
                         <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
-                            <p class="blue__color cassette__text">{{ selected.caracteristicas }}</p>
+                            <p class="cassette__text">{{ selected.caracteristicas }}</p>
                         </li>
                         <li class="list-group-item blue__color--negrita">Observaciones:
-                            <p class="blue__color cassette__text">{{ selected.observaciones }}</p>
+                            <p class="cassette__text">{{ selected.observaciones }}</p>
                         </li>
                         {% if selected.descripcion_microscopica %}
                         <li class="list-group-item blue__color--negrita">Técnicas especiales:
-                            <p class="blue__color cassette__text">{{ selected.descripcion_microscopica }}</p>
+                            <p class="cassette__text">{{ selected.descripcion_microscopica }}</p>
                         </li>
                         {% endif %}
                         {% if selected.diagnostico_final %}
                         <li class="list-group-item blue__color--negrita">Diagnóstico probable:
-                            <p class="blue__color cassette__text">{{ selected.diagnostico_final }}</p>
+                            <p class="cassette__text">{{ selected.diagnostico_final }}</p>
                         </li>
                         {% endif %}
                         {% if selected.volante_peticion %}
@@ -521,15 +521,15 @@
                 <hr>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <input type="text" name="descripcion" class="form-control blue__color" required>
+                    <input type="text" name="descripcion" class="form-control" required>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" class="form-control blue__color" required>
+                    <input type="date" name="fecha" class="form-control" required>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <select name="tincion" class="form-select blue__color" required>
+                    <select name="tincion" class="form-select" required>
                         <option selected disabled value="">Seleccionar Validación</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
@@ -546,14 +546,14 @@
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
-                    <textarea name="observaciones" class="form-control blue__color"></textarea>
+                    <textarea name="observaciones" class="form-control"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Volante de petición (archivo)</label>
-                    <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
+                    <input type="file" name="imagen" accept="image/*" class="form-control">
                 </div>
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
+                    <button class="btn btn__modal" type="submit">Crear Muestra</button>
                 </div>
             </form>
         </section>
@@ -586,16 +586,16 @@
                     <section class="row mt-3">
                         <div class="col-4 border-end text-center">
                             <li class="list-group-item blue__color--negrita">Descripción:
-                                <p class="blue__color muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion }}</p>
+                                <p class="muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Fecha:
-                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.fecha }}</p>
+                                <p class="cassette__text">{{ selected_muestra_item.muestra.fecha }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Validación de la calidad de la muestra:
-                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.tincion }}</p>
+                                <p class="cassette__text">{{ selected_muestra_item.muestra.tincion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
-                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</p>
+                                <p class="cassette__text">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</p>
                             </li>
                             <div class="mt-3" id="qrMuestraPreview"></div>
                         </div>
@@ -654,16 +654,16 @@
                 <hr>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color"
+                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control"
                         required>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
+                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control" required>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
+                    <select name="tincion" id="editMuestraTincion" class="form-select" required>
                         <option value="">Seleccionar Validación</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
@@ -681,10 +681,10 @@
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
                     <textarea name="observaciones" id="editMuestraObservaciones"
-                        class="form-control blue__color"></textarea>
+                        class="form-control"></textarea>
                 </div>
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Modificar Muestra</button>
+                    <button class="btn btn__modal" type="submit">Modificar Muestra</button>
                 </div>
             </form>
         </section>
@@ -701,7 +701,7 @@
                 <hr class="m-0">
                 {% include 'web/_cassette_fields.html' %}
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Crear Cassette</button>
+                    <button class="btn btn__modal" type="submit">Crear Cassette</button>
                 </div>
             </form>
         </section>
@@ -720,7 +720,7 @@
                 {% include 'web/_cassette_fields.html' with edit=True %}
                 {% endwith %}
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Modificar Cassette</button>
+                    <button class="btn btn__modal" type="submit">Modificar Cassette</button>
                 </div>
             </form>
         </section>
@@ -784,7 +784,7 @@
                 <hr class="m-0">
                 {% include 'web/_cassette_fields.html' %}
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Crear Cassette</button>
+                    <button class="btn btn__modal" type="submit">Crear Cassette</button>
                 </div>
             </form>
         </section>

@@ -1,21 +1,21 @@
 {% load static %}
 {% with c=selected %}
 <div class="col-md-12 mt-4">
-    <label class="form-label blue__color">Número Citología</label>
-    <input type="text" name="citologia" class="form-control blue__color"
+    <label class="form-label">Número Citología</label>
+    <input type="text" name="citologia" class="form-control"
         value="{% if edit %}{{ c.citologia }}{% endif %}" required>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Tipo de citología</label>
-    <select name="descripcion" class="form-select blue__color" required>
+    <label class="form-label">Tipo de citología</label>
+    <select name="descripcion" class="form-select" required>
         <option value="" disabled {% if not edit %}selected{% endif %}>Seleccionar tipo de citología</option>
         <option value="Convencional" {% if edit and c.descripcion == 'Convencional' %}selected{% endif %}>Convencional</option>
         <option value="Base líquida" {% if edit and c.descripcion == 'Base líquida' %}selected{% endif %}>Base líquida</option>
     </select>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Tipo de muestra</label>
-    <select name="tipo_citologia" class="form-select blue__color" required>
+    <label class="form-label">Tipo de muestra</label>
+    <select name="tipo_citologia" class="form-select" required>
         <option value="" disabled {% if not edit %}selected{% endif %}>Seleccionar tipo de muestra</option>
         <option {% if edit and c.tipo_citologia == 'Improntas' %}selected{% endif %}>Improntas</option>
         <option {% if edit and c.tipo_citologia == 'Punción-aspiración' %}selected{% endif %}>Punción-aspiración</option>
@@ -36,13 +36,13 @@
 </div>
 <div class="row col-md-12 mt-2">
     <div class="col-md-6">
-        <label class="form-label blue__color">Fecha</label>
-        <input type="date" name="fecha" class="form-control blue__color"
+        <label class="form-label">Fecha</label>
+        <input type="date" name="fecha" class="form-control"
             value="{% if edit %}{{ c.fecha|date:'Y-m-d' }}{% endif %}" required>
     </div>
     <div class="col-md-6">
-        <label class="form-label blue__color">Órgano</label>
-        <select name="organo" class="form-select blue__color" required>
+        <label class="form-label">Órgano</label>
+        <select name="organo" class="form-select" required>
             <option selected disabled value="">Seleccionar Órgano</option>
             <optgroup label="Sistema Nervioso">
                 <option {% if edit and c.organo == 'Encéfalo' %}selected{% endif %}>Encéfalo</option>
@@ -128,26 +128,26 @@
     </div>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Descripción Macroscópica</label>
-    <textarea name="caracteristicas" class="form-control blue__color textarea__text"
+    <label class="form-label">Descripción Macroscópica</label>
+    <textarea name="caracteristicas" class="form-control textarea__text"
         required>{% if edit %}{{ c.caracteristicas }}{% endif %}</textarea>
 </div>
 <div class="col-md-12">
-    <label class="form-label blue__color">Observaciones</label>
-    <textarea name="observaciones" class="form-control blue__color textarea__text"
+    <label class="form-label">Observaciones</label>
+    <textarea name="observaciones" class="form-control textarea__text"
         >{% if edit %}{{ c.observaciones }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Volante de petición (archivo)</label>
-    <input type="file" name="volante_peticion" class="form-control blue__color" 
+    <label class="form-label">Volante de petición (archivo)</label>
+    <input type="file" name="volante_peticion" class="form-control" 
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
     {% if edit and c.volante_peticion_nombre %}
         <small class="form-text text-muted">Archivo actual: {{ c.volante_peticion_nombre }}</small>
     {% endif %}
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Diagnóstico probable</label>
-    <textarea name="diagnostico_final" class="form-control blue__color textarea__text"
+    <label class="form-label">Diagnóstico probable</label>
+    <textarea name="diagnostico_final" class="form-control textarea__text"
         >{% if edit %}{{ c.diagnostico_final }}{% endif %}</textarea>
 </div>
 {% endwith %}

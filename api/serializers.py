@@ -11,32 +11,67 @@ class TecnicoSerializer(serializers.ModelSerializer):
 class CassetteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cassette
-        fields = '__all__'
+        fields = [
+            'id_casette', 'cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
+            'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
+            'patologo_responsable', 'qr_casette', 'organo', 'tecnico', 'informe_descripcion',
+            'informe_fecha', 'informe_tincion', 'informe_observaciones',
+            'volante_peticion_nombre', 'volante_peticion_tipo'
+        ]
 
 class MuestraSerializer(serializers.ModelSerializer):
     class Meta:
         model = Muestra
-        fields = '__all__'
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'cassette']
 
 class ImagenSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
     class Meta:
         model = Imagen
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_base64']
+        read_only_fields = ['id_imagen', 'imagen_base64']
+
+    def get_imagen_base64(self, obj):
+        if obj.imagen:
+            try:
+                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+            except Exception:
+                return None
+        return None
 
 class CitologiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Citologia
-        fields = '__all__'
+        fields = [
+            'id_citologia', 'citologia', 'tipo_citologia', 'fecha', 'descripcion', 'caracteristicas',
+            'observaciones', 'qr_citologia', 'qr_imagen', 'organo', 'tecnico',
+            'volante_peticion_nombre', 'volante_peticion_tipo'
+        ]
 
 class MuestraCitologiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = MuestraCitologia
-        fields = '__all__'
+        fields = [
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra',
+            'qr_imagen', 'citologia'
+        ]
 
 class ImagenCitologiaSerializer(serializers.ModelSerializer):
+    imagen_base64 = serializers.SerializerMethodField()
+
     class Meta:
         model = ImagenCitologia
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_base64']
+        read_only_fields = ['id_imagen', 'imagen_base64']
+
+    def get_imagen_base64(self, obj):
+        if obj.imagen:
+            try:
+                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+            except Exception:
+                return None
+        return None
 
 class NecropsiaSerializer(serializers.ModelSerializer):
     class Meta:

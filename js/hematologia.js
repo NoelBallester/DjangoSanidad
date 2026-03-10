@@ -936,6 +936,10 @@ const detailSubMuestra = async (muestraid) => {
       foreground: "#000000",
       level: "H",
     });
+    const modalImg = document.getElementById("imgmuestra__qr_modal");
+    if (modalImg) {
+      modalImg.src = imgmuestra__qr.toDataURL ? imgmuestra__qr.toDataURL() : imgmuestra__qr.src;
+    }
   }
 
   await mostrarImagenesSubMuestra(muestraId);
@@ -1110,7 +1114,10 @@ const imprimirQR = (elemento) => {
   }
 
   if (elemento === "muestra") {
-    if (imgmuestra__qr?.src) {
+    const modalImg = document.getElementById("imgmuestra__qr_modal");
+    if (modalImg?.src) {
+      qrimprimir = modalImg.src;
+    } else if (imgmuestra__qr?.src) {
       qrimprimir = imgmuestra__qr.src;
     } else if (imgmuestra__qr?.toDataURL) {
       qrimprimir = imgmuestra__qr.toDataURL();
@@ -1587,7 +1594,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Lectura QR general
   if (qrConsultaModal) {
-    qrConsultaModal.addEventListener("show.bs.modal", () => {
+    qrConsultaModal.addEventListener("shown.bs.modal", () => {
       if (input__consultarqr) {
         input__consultarqr.value = "";
         input__consultarqr.focus();
