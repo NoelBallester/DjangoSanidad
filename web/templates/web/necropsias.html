@@ -328,8 +328,8 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Validación de la calidad de la muestra</th>
+                                <th>Examen interno del cadaver</th>
+                                <th>Tecnica de apertura</th>
                                 <th>Observaciones</th>
                                 <th>Acciones</th>
                             </tr>
@@ -339,8 +339,8 @@
                             <tr id="muestra-row-{{ item.muestra.pk }}"
                                 class="{% if request.GET.muestra == item.muestra.pk|stringformat:'s' %}table-active{% endif %}">
                                 <td>{{ item.muestra.fecha }}</td>
-                                <td>{{ item.muestra.descripcion }}</td>
-                                <td>{{ item.muestra.tincion }}</td>
+                                <td>{{ item.muestra.examen_interno_cadaver|default:item.muestra.descripcion }}</td>
+                                <td>{{ item.muestra.tecnica_apertura|default:'-' }}</td>
                                 <td>{{ item.muestra.observaciones|truncatechars:40 }}</td>
                                 <td class="text-end" style="white-space:nowrap">
                                     <a class="btn btn-sm btn-link p-0 me-1" title="Ver detalle"
@@ -430,36 +430,32 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label class="form-label blue__color">Examen interno del cadaver</label>
+                    <textarea name="examen_interno_cadaver" class="form-control blue__color" required></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Tecnica de apertura</label>
+                    <input type="text" name="tecnica_apertura" class="form-control blue__color" required>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Datos relevantes segun su region</label>
+                    <textarea name="datos_relevantes_region" class="form-control blue__color" required></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Descripcion macroscopica</label>
                     <input type="text" name="descripcion" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
                     <input type="date" name="fecha" class="form-control blue__color" required>
                 </div>
-                <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <select name="tincion" class="form-select blue__color" required>
-                        <option selected disabled value="">Seleccionar Validación</option>
-                        <option>Hematoxilina Eosina (HE)</option>
-                        <option>Giemsa</option>
-                        <option>Gram</option>
-                        <option>Azul de Metileno</option>
-                        <option>Papanicolau</option>
-                        <option>Wright</option>
-                        <option>Ziehl-Neelsen</option>
-                        <option>Tricrómico</option>
-                        <option>Orceína</option>
-                        <option>P.A.S</option>
-                        <option>Otros</option>
-                    </select>
-                </div>
+                <input type="hidden" name="tincion" value="Otros">
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Volante de petición (archivo)</label>
+                    <label class="form-label blue__color">Informe forense / Informe de autopsia</label>
                     <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
@@ -487,7 +483,7 @@
                                 <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div style="cursor:pointer;"
-                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
+                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha }}', '{{ selected_muestra_item.muestra.examen_interno_cadaver|default:''|escapejs }}', '{{ selected_muestra_item.muestra.tecnica_apertura|default:''|escapejs }}', '{{ selected_muestra_item.muestra.datos_relevantes_region|default:''|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
                                 <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
@@ -498,11 +494,20 @@
                             <li class="list-group-item blue__color--negrita">Descripción:
                                 <p class="blue__color muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion }}</p>
                             </li>
+                            <li class="list-group-item blue__color--negrita">Examen interno del cadaver:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.examen_interno_cadaver|default:'-' }}</p>
+                            </li>
                             <li class="list-group-item blue__color--negrita">Fecha:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.fecha }}</p>
                             </li>
-                            <li class="list-group-item blue__color--negrita">Validación de la calidad de la muestra:
-                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.tincion }}</p>
+                            <li class="list-group-item blue__color--negrita">Tecnica de apertura:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.tecnica_apertura|default:'-' }}</p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Datos relevantes segun su region:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.datos_relevantes_region|default:'-' }}</p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Descripcion macroscopica:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.descripcion|default:'-' }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</p>
@@ -537,7 +542,7 @@
                                 enctype="multipart/form-data" class="d-flex align-items-center">
                                 {% csrf_token %}
                                 <label for="img_modal_{{ selected_muestra_item.muestra.pk }}" class="blue__color fs-3 m-0"
-                                    style="cursor:pointer" title="Añadir imagen">
+                                    style="cursor:pointer" title="Informe forense / Informe de autopsia">
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </label>
                                 <input id="img_modal_{{ selected_muestra_item.muestra.pk }}" type="file" name="imagen"
@@ -563,42 +568,35 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color"
-                        required>
+                    <label class="form-label blue__color">Examen interno del cadaver</label>
+                    <textarea name="examen_interno_cadaver" id="editMuestraExamenInterno" class="form-control blue__color" required></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Tecnica de apertura</label>
+                    <input type="text" name="tecnica_apertura" id="editMuestraTecnica" class="form-control blue__color" required>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Datos relevantes segun su region</label>
+                    <textarea name="datos_relevantes_region" id="editMuestraDatosRegion" class="form-control blue__color" required></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Descripcion macroscopica</label>
+                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
                 </div>
-                <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
-                        <option value="">Seleccionar Validación</option>
-                        <option>Hematoxilina Eosina (HE)</option>
-                        <option>Giemsa</option>
-                        <option>Gram</option>
-                        <option>Azul de Metileno</option>
-                        <option>Papanicolau</option>
-                        <option>Wright</option>
-                        <option>Ziehl-Neelsen</option>
-                        <option>Tricrómico</option>
-                        <option>Orceína</option>
-                        <option>P.A.S</option>
-                        <option>Otros</option>
-                    </select>
-                </div>
+                <input type="hidden" name="tincion" value="Otros">
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
-                    <textarea name="observaciones" id="editMuestraObservaciones"
-                        class="form-control blue__color"></textarea>
+                    <textarea name="observaciones" id="editMuestraObservaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Modificar Muestra</button>
                 </div>
             </form>
         </section>
-
 
         <!-- ── Modal Modificar Autopsia ──────────────────────────────────── -->
         <section class="mimodal" id="modalupdateNecropsia">
@@ -922,14 +920,15 @@
         })();
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
+        function abrirEditarMuestra(pk, descripcion, fecha, examenInterno, tecnicaApertura, datosRegion, observaciones) {
             const form = document.getElementById('formModificarMuestra');
             form.action = `/muestras-necropsia/${pk}/editar/`;
             document.getElementById('editMuestraDescripcion').value = descripcion;
             document.getElementById('editMuestraFecha').value = fecha;
+            document.getElementById('editMuestraExamenInterno').value = examenInterno;
+            document.getElementById('editMuestraTecnica').value = tecnicaApertura;
+            document.getElementById('editMuestraDatosRegion').value = datosRegion;
             document.getElementById('editMuestraObservaciones').value = observaciones;
-            const sel = document.getElementById('editMuestraTincion');
-            for (let o of sel.options) { o.selected = (o.text === tincion); }
             openModal('modalmodificarMuestra');
         }
 

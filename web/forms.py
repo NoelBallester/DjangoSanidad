@@ -366,16 +366,32 @@ class MuestraNecropsiaForm(forms.ModelForm):
 
     class Meta:
         model = MuestraNecropsia
-        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        fields = [
+            'descripcion',
+            'fecha',
+            'examen_interno_cadaver',
+            'tecnica_apertura',
+            'datos_relevantes_region',
+            'tincion',
+            'observaciones',
+        ]
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'examen_interno_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+            'datos_relevantes_region': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            if name not in ('fecha', 'observaciones', 'tincion'):
+            if name not in (
+                'fecha',
+                'examen_interno_cadaver',
+                'datos_relevantes_region',
+                'observaciones',
+                'tincion',
+            ):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
     def save(self, commit=True, necropsia=None):
