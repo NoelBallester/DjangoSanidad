@@ -285,3 +285,30 @@
   background-color: #3B82F6 !important;
   border-color: #3B82F6 !important;
 }
+
+/* --- Informes Modal Override --- */
+/* Overlay backgrounds */
+:root.dark-theme #sectionInforme.position-fixed,
+:root.dark-theme #modalNuevoInforme {
+  background: rgba(15, 23, 42, 0.92) !important;
+}
+
+/* Panel backgrounds */
+:root.dark-theme #sectionInforme.position-fixed > div,
+:root.dark-theme #nuevoInformePanel,
+:root.dark-theme #nuevoInformePanel [style*="background: #fff"],
+:root.dark-theme #nuevoInformePanel [style*="background:#fff"],
+:root.dark-theme #sectionInforme [style*="background:var(--bg-light)"],
+:root.dark-theme #sectionInforme [style*="background: var(--bg-light)"] {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-light) !important;
+}
+
+/* Override fixed inline styles inside Informes modal */
+:root.dark-theme #sectionInforme.position-fixed .blue__color--negrita,
+:root.dark-theme #sectionInforme.position-fixed .blue__color,
+:root.dark-theme #modalNuevoInforme .blue__color--negrita,
+:root.dark-theme #modalNuevoInforme .blue__color {
+  color: var(--text-light) !important;
+}

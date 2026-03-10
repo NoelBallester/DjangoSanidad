@@ -539,10 +539,10 @@
 
         <!-- Modal Nuevo Informe -->
         <div id="modalNuevoInforme"
-            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center"
-            style="z-index: 2147483647; background: rgba(255, 255, 255, 0.92); padding: 1rem; overflow-y: auto;">
-            <div id="nuevoInformePanel" class="w-100 mx-3 p-3 rounded"
-                style="max-width: 720px; max-height: calc(100vh - 2rem); overflow-y: auto; background: #fff; border: 1px solid var(--border-color); position: relative; z-index: 1;">
+            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center informe-modal-overlay"
+            style="z-index: 2147483647; padding: 1rem; overflow-y: auto;">
+            <div id="nuevoInformePanel" class="w-100 mx-3 p-3 rounded informe-modal-panel"
+                style="max-width: 720px; max-height: calc(100vh - 2rem); overflow-y: auto; position: relative; z-index: 1;">
                 <h3 class="cassette__title mb-3">Nuevo informe de resultados</h3>
                 <!-- Form action points to citologia_informe via POST -->
                 <form id="formNuevoInforme" method="post" action="{% url 'citologia_informe' selected.pk %}" enctype="multipart/form-data">
@@ -568,7 +568,7 @@
                         <label for="id_informe_imagen" class="blue__color--negrita d-block">Informe</label>
                         {{ informe_form.informe_imagen }}
                     </div>
-                    <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: #fff; padding-top: .75rem;">
+                    <div class="d-flex gap-2 mt-4 informe-modal-panel-footer" style="position: sticky; bottom: 0; padding-top: .75rem;">
                         <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="submit">
                             <i class="fa-solid fa-save me-2"></i> Guardar Informe
                         </button>
@@ -1089,22 +1089,21 @@
             // Hacer modal de pantalla completa
             sectionInforme.classList.add(
               "d-flex", "align-items-center", "justify-content-center",
-              "position-fixed", "top-0", "start-0", "w-100", "h-100"
+              "position-fixed", "top-0", "start-0", "w-100", "h-100",
+              "informe-modal-overlay"
             );
             sectionInforme.style.zIndex = "2147483600";
-            sectionInforme.style.background = "rgba(255, 255, 255, 0.92)";
             sectionInforme.style.padding = "1rem";
             sectionInforme.style.overflowY = "auto";
             
             const panelInforme = sectionInforme.firstElementChild;
             if (panelInforme) {
+                panelInforme.classList.add("informe-modal-panel");
                 panelInforme.style.maxWidth = "1100px";
                 panelInforme.style.width = "100%";
                 panelInforme.style.maxHeight = "none";
                 panelInforme.style.overflowY = "visible";
                 panelInforme.style.margin = "0";
-                panelInforme.style.background = "#fff";
-                panelInforme.style.border = "1px solid var(--border-color)";
                 panelInforme.style.borderRadius = "0.5rem";
                 panelInforme.style.position = "relative";
             }
@@ -1123,22 +1122,21 @@
             sectionInforme.classList.add('d-none');
             sectionInforme.classList.remove(
               "d-flex", "align-items-center", "justify-content-center",
-              "position-fixed", "top-0", "start-0", "w-100", "h-100"
+              "position-fixed", "top-0", "start-0", "w-100", "h-100",
+              "informe-modal-overlay"
             );
             sectionInforme.style.zIndex = "";
-            sectionInforme.style.background = "";
             sectionInforme.style.padding = "";
             sectionInforme.style.overflowY = "";
             
             const panelInforme = sectionInforme.firstElementChild;
             if (panelInforme) {
+                panelInforme.classList.remove("informe-modal-panel");
                 panelInforme.style.maxWidth = "";
                 panelInforme.style.width = "";
                 panelInforme.style.maxHeight = "";
                 panelInforme.style.overflowY = "";
                 panelInforme.style.margin = "";
-                panelInforme.style.background = "";
-                panelInforme.style.border = "";
                 panelInforme.style.borderRadius = "";
                 panelInforme.style.position = "";
             }
