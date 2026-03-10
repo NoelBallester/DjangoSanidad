@@ -839,14 +839,14 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputCaracteristicasUpdate" class="form-label blue__color">Características</label>
+          <label for="inputCaracteristicasUpdate" class="form-label">Características</label>
 
-          <textarea class="form-control blue__color textarea__text" id="inputCaracteristicasUpdate" required></textarea>
+          <textarea class="form-control textarea__text" id="inputCaracteristicasUpdate" required></textarea>
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputObservacionesUpdate" class="form-label blue__color">Observaciones</label>
-          <textarea class="form-control blue__color textarea__text" id="inputObservacionesUpdate" required></textarea>
+          <label for="inputObservacionesUpdate" class="form-label">Observaciones</label>
+          <textarea class="form-control textarea__text" id="inputObservacionesUpdate" required></textarea>
         </div>
 
         <div class="col-md-12 mt-3 d-none">
@@ -855,8 +855,8 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDiagnosticoUpdate" class="form-label blue__color">Diagnóstico probable</label>
-          <textarea class="form-control blue__color textarea__text" id="inputDiagnosticoUpdate"></textarea>
+          <label for="inputDiagnosticoUpdate" class="form-label">Diagnóstico probable</label>
+          <textarea class="form-control textarea__text" id="inputDiagnosticoUpdate"></textarea>
         </div>
 
         <div class="col-md-12 mt-3 d-none">
@@ -870,7 +870,7 @@
         </div> -->
 
         <div class="col-12">
-          <button class="btn btn__modal blue__color" type="submit"> Modificar Citología</button>
+          <button class="btn btn__modal" type="submit"> Modificar Citología</button>
         </div>
       </form>
     </section>
@@ -881,10 +881,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Consultar QR</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
+          <div class="modal-body text-center fs-4">
             <p>Puede escanear el código QR de un Cassette o de una Muestra</p>
 
             <input type="text" value="qr" id="input__consultarqr">
@@ -902,11 +903,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Impresión QR Muestra</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
-            <p>Impresión QR Muestra</p>
+          <div class="modal-body text-center fs-4">
             <img src="" alt="Imprimir Muestra" id="imgmuestra__qr">
             <input type="text" value="qr" id="inputmuestra__qr">
             <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrmuestra"
@@ -923,11 +924,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Impresión QR Cassette</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
-            <p>Impresión QR Cassette</p>
+          <div class="modal-body text-center fs-4">
             <img src="" alt="Imprimir Cassette" id="imgcassette__qr">
             <input type="text" value="qr" id="inputcassette__qr">
             <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
@@ -944,10 +945,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Imagen Citología</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
+          <div class="modal-body text-center fs-4">
             <img src="" id="cassette__imagen" class="img-fluid">
           </div>
 
@@ -961,10 +963,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Eliminar Citología</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
+          <div class="modal-body text-center fs-4">
             <p>Desea Eliminar la Citología.</p>
             <p>Al eliminar la citología se eliminarán también todas sus muestras.</p>
             <button type="button" class="btn btn__modal mt-3" id="btnborrar" data-bs-dismiss="modal">Eliminar</button>
@@ -979,10 +982,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title">Eliminar Muestra</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
+          <div class="modal-body text-center fs-4">
             <p>Desea Eliminar la Muestra.</p>
             <p>Al eliminar la muestra se borraran todas las imágenes de la muestra.</p>
             <button type="button" class="btn btn__modal mt-3" id="btnborrarmuestra"

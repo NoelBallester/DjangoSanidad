@@ -694,3 +694,31 @@ html.dark-theme .fondo:hover,
     background-color: rgba(96, 165, 250, 0.1) !important;
     border-color: #60A5FA !important;
 }
+:root.dark-theme .form-label.blue__color {
+    color: #60A5FA !important;
+}
+
+:root.dark-theme .form-control,
+:root.dark-theme .form-select,
+:root.dark-theme .textarea__text {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme .btn-close {
+    filter: invert(1) brightness(2);
+}
+
+/* Force high contrast for muted text in dark mode */
+:root.dark-theme {
+    --text-muted: #cbd5e1 !important;
+}
+:root.dark-theme .text-muted {
+    color: #cbd5e1 !important;
+}
+
+/* Higher contrast for bold blue text in dark mode */
+:root.dark-theme .blue__color--negrita {
+    color: #60A5FA !important;
+}

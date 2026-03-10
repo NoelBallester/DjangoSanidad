@@ -235,6 +235,13 @@ let muestraId = null;
 let imageId = null;
 
 const files = document.getElementById("files");
+const qrResolverBase = "/qr/resolver/";
+const QR_RENDER_SIZE = 220;
+
+const buildResolverUrl = (code) => {
+  if (!code) return "";
+  return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
+};
 
 // Carga Citologías al inicio
 const cargarCitologiaIndex = async () => {
@@ -583,10 +590,11 @@ const imprimirDetalleCitologia = (respuesta) => {
   // generamos el codigo QR
   new QRious({
     element: document.querySelector("#imgcassette__qr"),
-    value: respuesta.qr_citologia, // La URL o el texto
-    size: 70,
-    backgroundAlpha: 0, // 0 para fondo transparente
-    foreground: "#4ca0cc", // Color del QR
+    value: buildResolverUrl(respuesta.qr_citologia), // La URL o el texto
+    size: QR_RENDER_SIZE,
+    background: "#ffffff",
+    backgroundAlpha: 1,
+    foreground: "#000000",
     level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
   });
 };
@@ -928,10 +936,11 @@ const detailMuestra = async (muestraid) => {
   // generamos el codigo QR
   new QRious({
     element: imgmuestra__qr,
-    value: muestra.qr_muestra, // La URL o el texto
-    size: 70,
-    backgroundAlpha: 0, // 0 para fondo transparente
-    foreground: "#4ca0cc", // Color del QR
+    value: buildResolverUrl(muestra.qr_muestra), // La URL o el texto
+    size: QR_RENDER_SIZE,
+    background: "#ffffff",
+    backgroundAlpha: 1,
+    foreground: "#000000",
     level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
   });
 
