@@ -70,4 +70,7 @@ urlpatterns = [
     path('hematologias/<int:pk>/volante/',      views.descargar_volante_hematologia,    name='descargar_volante_hematologia'),
     path('tubos/<int:pk>/volante/',             views.descargar_volante_tubo,           name='descargar_volante_tubo'),
     path('microbiologias/<int:pk>/volante/',    views.descargar_volante_microbiologia,  name='descargar_volante_microbiologia'),
+
+    # Descargar informes
+    path('informes/<int:informe_pk>/descargar/', views.descargar_informe_resultado,    name='descargar_informe_resultado'),
 ]

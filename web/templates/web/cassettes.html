@@ -459,7 +459,6 @@
 
             </div>
 
-            <!-- Informe -->
             <div id="sectionInforme" class="container__informe m-auto w-100 p-2 d-none">
                 <div class="container__muestra h-100 p-2">
                     <div class="title d-flex align-items-center justify-content-between">
@@ -469,39 +468,114 @@
                             <i class="fa-solid fa-vials me-1"></i> Volver a Muestras
                         </button>
                     </div>
-                    <form id="formInformeCassette" method="post" action="{% url 'cassette_informe' selected.pk %}" enctype="multipart/form-data"
-                        class="informe__scroll p-3">
-                        {% csrf_token %}
-                        <input type="hidden" name="informe_id" value="{% if informe_activo %}{{ informe_activo.pk }}{% endif %}">
-                        <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Descripción</label>
-                            {{ informe_form.informe_descripcion }}
+                    <div class="informe__scroll p-3">
+                        <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
+                            <span class="blue__color--negrita">Muestra seleccionada:</span>
+                            <span id="informeContextNum" class="blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.pk }}{% else %}—{% endif %}</span>
+                            <span class="mx-2">·</span>
+                            <span class="blue__color--negrita">Detalle:</span>
+                            <span id="informeContextDescripcion" class="blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.descripcion }}{% else %}Selecciona una muestra para ver los detalles{% endif %}</span>
                         </div>
-                        <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Fecha</label>
-                            {{ informe_form.informe_fecha }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Análisis</label>
-                            {{ informe_form.informe_tincion }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Observaciones</label>
-                            {{ informe_form.informe_observaciones }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="blue__color--negrita d-block">Informe (archivo)</label>
-                            {{ informe_form.informe_imagen }}
-                        </div>
-                        <div class="text-end mt-4">
-                            <button id="btnGuardarInforme" type="submit" class="btn fondo w-100 py-2">
-                                <i class="fa-solid fa-save me-2"></i> Guardar Informe
+
+                        <div class="d-flex justify-content-end mb-3">
+                            <button id="btnNuevoInforme" class="btn fondo fw-bold px-4 py-2" type="button"
+                                style="border-radius: 22px;" onclick="abrirNuevoInforme()">
+                                <i class="fa-solid fa-circle-plus me-2"></i> Añadir informe
                             </button>
                         </div>
-                    </form>
+
+                        <h3 class="cassette__title m-0 mb-2" style="font-size: 1.5rem;">Historial de Informes</h3>
+                        <div class="table__scroll table__scroll--m">
+                            <table class="table sortable-theme-finder" data-sortable>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">FECHA</th>
+                                        <th scope="col">DESCRIPCIÓN</th>
+                                        <th scope="col">RESULTADO</th>
+                                        <th scope="col" data-sortable="false"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="informes_lista_tubo" class="table-group-divider">
+                                    {% for inf in informes_resultado %}
+                                    <tr>
+                                        <td>{{ inf.fecha|date:"Y-m-d" }}</td>
+                                        <td>{{ inf.descripcion|truncatechars:30 }}</td>
+                                        <td>{{ inf.tincion }}</td>
+                                        <td class="text-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-link p-0 me-2" title="Editar informe"
+                                                onclick="editarInforme('{{ inf.pk }}', '{{ inf.descripcion|escapejs }}', '{{ inf.fecha|date:'Y-m-d' }}', '{{ inf.tincion|escapejs }}', '{{ inf.observaciones|escapejs }}')">
+                                                <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo"></i>
+                                            </a>
+                                            {% if inf.imagen %}
+                                            <a href="{% url 'descargar_informe_resultado' inf.pk %}" target="_blank" class="btn btn-sm btn-link p-0 me-2" title="Ver informe">
+                                                <i class="fa-solid fa-file-pdf blue__color--negrita"></i>
+                                            </a>
+                                            {% endif %}
+                                            <form method="post" action="{% url 'cassette_informe_delete' selected.pk inf.pk %}" style="display:inline"
+                                                onsubmit="return confirm('¿Eliminar informe?')">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-link p-0" title="Eliminar informe">
+                                                    <i class="fa-solid fa-trash-can text-danger"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">Sin informes registrados.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- Modal Nuevo Informe -->
+        <div id="modalNuevoInforme"
+            class="d-none position-fixed top-0 start-0 w-100 h-100 align-items-center justify-content-center"
+            style="z-index: 2147483647; background: rgba(255, 255, 255, 0.92); padding: 1rem; overflow-y: auto;">
+            <div id="nuevoInformePanel" class="w-100 mx-3 p-3 rounded"
+                style="max-width: 720px; max-height: calc(100vh - 2rem); overflow-y: auto; background: #fff; border: 1px solid var(--border-color); position: relative; z-index: 1;">
+                <h3 class="cassette__title mb-3">Nuevo informe de resultados</h3>
+                <form id="formNuevoInforme" method="post" action="{% url 'cassette_informe' selected.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="informe_id" value="">
+                    <div class="mb-3">
+                        <label for="id_informe_descripcion" class="blue__color--negrita d-block">Descripción</label>
+                        {{ informe_form.informe_descripcion }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_informe_fecha" class="blue__color--negrita d-block">Fecha</label>
+                        {{ informe_form.informe_fecha }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_informe_tincion" class="blue__color--negrita d-block">Análisis</label>
+                        {{ informe_form.informe_tincion }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_informe_observaciones" class="blue__color--negrita d-block">Observaciones</label>
+                        {{ informe_form.informe_observaciones }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_informe_imagen" class="blue__color--negrita d-block">Informe</label>
+                        {{ informe_form.informe_imagen }}
+                    </div>
+                    <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: #fff; padding-top: .75rem;">
+                        <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="submit">
+                            <i class="fa-solid fa-save me-2"></i> Guardar Informe
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2"
+                            onclick="closeModal('modalNuevoInforme')">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
         <!-- ── Modal Nueva Muestra ──────────────────────────────────────────── -->
         <section class="mimodal" id="modalnuevaMuestra">
@@ -907,6 +981,8 @@
             const modal = document.getElementById(id);
             if (modal) {
                 modal.classList.add('open');
+                modal.classList.remove('d-none');
+                modal.classList.add('d-flex');
                 modal.style.display = 'flex';
                 modal.style.justifyContent = 'center';
                 modal.style.alignItems = 'center';
@@ -916,6 +992,9 @@
             const modal = document.getElementById(id);
             if (modal) {
                 modal.classList.remove('open');
+                modal.classList.add('d-none');
+                modal.classList.remove('d-flex');
+                modal.style.display = 'none';
             }
         }
 
@@ -946,14 +1025,63 @@
 
         function abrirMenuInformes() {
             if (!sectionMuestras || !sectionInforme) return;
-            sectionMuestras.classList.add('d-none');
             sectionInforme.classList.remove('d-none');
+            // Hacer modal de pantalla completa
+            sectionInforme.classList.add(
+              "d-flex", "align-items-center", "justify-content-center",
+              "position-fixed", "top-0", "start-0", "w-100", "h-100"
+            );
+            sectionInforme.style.zIndex = "2147483600";
+            sectionInforme.style.background = "rgba(255, 255, 255, 0.92)";
+            sectionInforme.style.padding = "1rem";
+            sectionInforme.style.overflowY = "auto";
+            
+            const panelInforme = sectionInforme.firstElementChild;
+            if (panelInforme) {
+                panelInforme.style.maxWidth = "1100px";
+                panelInforme.style.width = "100%";
+                panelInforme.style.maxHeight = "none";
+                panelInforme.style.overflowY = "visible";
+                panelInforme.style.margin = "0";
+                panelInforme.style.background = "#fff";
+                panelInforme.style.border = "1px solid var(--border-color)";
+                panelInforme.style.borderRadius = "0.5rem";
+                panelInforme.style.position = "relative";
+            }
+            
+            const scrolls = sectionInforme.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m");
+            scrolls.forEach(el => {
+                el.style.height = "auto";
+                el.style.maxHeight = "none";
+                el.style.overflow = "visible";
+                el.style.overflowY = "visible";
+            });
         }
 
         function cerrarMenuInformes() {
             if (!sectionMuestras || !sectionInforme) return;
             sectionInforme.classList.add('d-none');
-            sectionMuestras.classList.remove('d-none');
+            sectionInforme.classList.remove(
+              "d-flex", "align-items-center", "justify-content-center",
+              "position-fixed", "top-0", "start-0", "w-100", "h-100"
+            );
+            sectionInforme.style.zIndex = "";
+            sectionInforme.style.background = "";
+            sectionInforme.style.padding = "";
+            sectionInforme.style.overflowY = "";
+            
+            const panelInforme = sectionInforme.firstElementChild;
+            if (panelInforme) {
+                panelInforme.style.maxWidth = "";
+                panelInforme.style.width = "";
+                panelInforme.style.maxHeight = "";
+                panelInforme.style.overflowY = "";
+                panelInforme.style.margin = "";
+                panelInforme.style.background = "";
+                panelInforme.style.border = "";
+                panelInforme.style.borderRadius = "";
+                panelInforme.style.position = "";
+            }
         }
 
         btnToggleInforme?.addEventListener('click', abrirMenuInformes);
@@ -977,6 +1105,39 @@
             const sel = document.getElementById('editMuestraTincion');
             for (let o of sel.options) { o.selected = (o.text === tincion); }
             openModal('modalmodificarMuestra');
+        }
+
+        function abrirNuevoInforme() {
+            const form = document.getElementById('formNuevoInforme');
+            if (form) form.reset();
+            const idInput = document.querySelector('#formNuevoInforme input[name="informe_id"]');
+            if (idInput) idInput.value = "";
+            const title = document.querySelector('#modalNuevoInforme h3');
+            if (title) title.textContent = "Nuevo informe de resultados";
+            openModal('modalNuevoInforme');
+        }
+
+        function editarInforme(id, descripcion, fecha, tincion, observaciones) {
+            const idInput = document.querySelector('#formNuevoInforme input[name="informe_id"]');
+            if (idInput) idInput.value = id;
+            
+            const descInput = document.querySelector('#formNuevoInforme input[name="informe_descripcion"]');
+            if (descInput) descInput.value = descripcion;
+            
+            const fechaInput = document.querySelector('#formNuevoInforme input[name="informe_fecha"]');
+            if (fechaInput) fechaInput.value = fecha;
+            
+            const tincionSelect = document.querySelector('#formNuevoInforme select[name="informe_tincion"]');
+            if (tincionSelect) {
+                for (let o of tincionSelect.options) { o.selected = (o.value === tincion || o.text === tincion); }
+            }
+            
+            const obsInput = document.querySelector('#formNuevoInforme textarea[name="informe_observaciones"]');
+            if (obsInput) obsInput.value = observaciones;
+            
+            const title = document.querySelector('#modalNuevoInforme h3');
+            if (title) title.textContent = "Editar informe de resultados";
+            openModal('modalNuevoInforme');
         }
 
         // ── Confirmar borrar muestra ──────────────────────────────────────────

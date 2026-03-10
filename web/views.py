@@ -1238,3 +1238,25 @@ def descargar_volante_microbiologia(request, pk):
     response = HttpResponse(microbiologia.volante_peticion, content_type=microbiologia.volante_peticion_tipo or 'application/octet-stream')
     response['Content-Disposition'] = f'inline; filename="{microbiologia.volante_peticion_nombre or "volante.pdf"}"'
     return response
+
+@login_required
+def descargar_informe_resultado(request, informe_pk):
+    from api.models import InformeResultado
+    informe = get_object_or_404(InformeResultado, pk=informe_pk)
+    if not informe.imagen:
+        return HttpResponse('No hay archivo disponible', status=404)
+    
+    content = informe.imagen
+    if isinstance(content, memoryview):
+        content = content.tobytes()
+        
+    if content.startswith(b'%PDF'):
+        content_type = 'application/pdf'
+        ext = 'pdf'
+    else:
+        content_type = 'image/jpeg'
+        ext = 'jpg'
+        
+    response = HttpResponse(content, content_type=content_type)
+    response['Content-Disposition'] = f'inline; filename="informe_{informe.pk}.{ext}"'
+    return response
