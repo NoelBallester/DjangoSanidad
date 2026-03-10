@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TecnicoViewSet, CassetteViewSet, MuestraViewSet, ImagenViewSet,
     CitologiaViewSet, MuestraCitologiaViewSet, ImagenCitologiaViewSet,
+    NecropsiaViewSet, MuestraNecropsiaViewSet, ImagenNecropsiaViewSet,
     TuboViewSet, MuestraTuboViewSet, ImagenTuboViewSet,
     HematologiaViewSet, MuestraHematologiaViewSet, ImagenHematologiaViewSet,
     MicrobiologiaViewSet, MuestraMicrobiologiaViewSet, ImagenMicrobiologiaViewSet,
@@ -17,6 +18,9 @@ router.register(r'imagenes', ImagenViewSet, basename='imagen')
 router.register(r'citologias', CitologiaViewSet, basename='citologia')
 router.register(r'muestrascitologia', MuestraCitologiaViewSet, basename='muestracitologia')
 router.register(r'imagenescitologia', ImagenCitologiaViewSet, basename='imagencitologia')
+router.register(r'necropsias', NecropsiaViewSet, basename='necropsia')
+router.register(r'muestrasnecropsia', MuestraNecropsiaViewSet, basename='muestranecropsia')
+router.register(r'imagenesnecropsia', ImagenNecropsiaViewSet, basename='imagennecropsia')
 router.register(r'tubos', TuboViewSet, basename='tubo')
 router.register(r'muestrastubo', MuestraTuboViewSet, basename='muestratubo')
 router.register(r'imagenestubo', ImagenTuboViewSet, basename='imagentubo')

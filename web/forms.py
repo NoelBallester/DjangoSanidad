@@ -1,7 +1,7 @@
 import random
 import string
 from django import forms
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
 
 
 ORGANOS = [
@@ -88,6 +88,19 @@ TIPOS_CITOLOGIA = [
     ('Secreción mamaria', 'Secreción mamaria'),
     ('Muestra vulvar', 'Muestra vulvar'),
     ('Muestra endometrial', 'Muestra endometrial'),
+]
+
+TIPOS_AUTOPSIA = [
+    ('', 'Seleccionar tipo de autopsia'),
+    ('Clínica', 'Clinica'),
+    ('Médico-legal', 'Medico-legal'),
+    ('Forense', 'Forense'),
+    ('Anatomopatológica', 'Anatomopatologica'),
+    ('Perinatal', 'Perinatal'),
+    ('Psicológica', 'Psicologica'),
+    ('Verbal', 'Verbal'),
+    ('Virtual', 'Virtual'),
+    ('Otros', 'Otros'),
 ]
 
 ANALISIS_INFORME = [
@@ -236,6 +249,67 @@ class MuestraCitologiaForm(forms.ModelForm):
         return obj
 
 
+class NecropsiaForm(forms.ModelForm):
+    organo = forms.ChoiceField(choices=ORGANOS)
+    tipo_necropsia = forms.ChoiceField(choices=TIPOS_AUTOPSIA)
+    volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
+        attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
+
+    class Meta:
+        model = Necropsia
+        fields = ['necropsia', 'tipo_necropsia', 'fecha', 'descripcion', 'caracteristicas',
+                  'observaciones', 'organo']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'caracteristicas', 'observaciones', 'organo', 'tipo_necropsia'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, tecnico=None):
+        obj = super().save(commit=False)
+        if not obj.qr_necropsia:
+            obj.qr_necropsia = _qr('--nec--')
+        if tecnico:
+            obj.tecnico = tecnico
+        if commit:
+            obj.save()
+        return obj
+
+
+class MuestraNecropsiaForm(forms.ModelForm):
+    tincion = forms.ChoiceField(choices=TINCIONES)
+
+    class Meta:
+        model = MuestraNecropsia
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ('fecha', 'observaciones', 'tincion'):
+                field.widget.attrs.setdefault('class', 'form-control blue__color')
+
+    def save(self, commit=True, necropsia=None):
+        obj = super().save(commit=False)
+        if not obj.qr_muestra:
+            obj.qr_muestra = _qr('--mn--')
+        if necropsia:
+            obj.necropsia = necropsia
+        if commit:
+            obj.save()
+        return obj
+
+
 class InformeForm(forms.Form):
     informe_descripcion = forms.CharField(required=False,
         widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
@@ -259,6 +333,12 @@ class ImagenForm(forms.ModelForm):
 class ImagenCitologiaForm(forms.ModelForm):
     class Meta:
         model = ImagenCitologia
+        fields = ['imagen']
+
+
+class ImagenNecropsiaForm(forms.ModelForm):
+    class Meta:
+        model = ImagenNecropsia
         fields = ['imagen']
 
 

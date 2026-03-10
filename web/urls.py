@@ -32,6 +32,19 @@ urlpatterns = [
     path('muestras-citologia/<int:muestra_pk>/imagenes/subir/',     views.imagen_citologia_upload,   name='imagen_citologia_upload'),
     path('imagenes-citologia/<int:pk>/eliminar/',                   views.imagen_citologia_delete,   name='imagen_citologia_delete'),
 
+    # Necropsias
+    path('necropsias/',                                             views.necropsia_list,            name='necropsias'),
+    path('necropsias/crear/',                                       views.necropsia_create,          name='necropsia_create'),
+    path('necropsias/<int:pk>/editar/',                             views.necropsia_update,          name='necropsia_update'),
+    path('necropsias/<int:pk>/eliminar/',                           views.necropsia_delete,          name='necropsia_delete'),
+    path('necropsias/<int:pk>/informe/',                            views.necropsia_informe,         name='necropsia_informe'),
+    path('necropsias/<int:pk>/informes/<int:informe_pk>/eliminar/', views.necropsia_informe_delete,  name='necropsia_informe_delete'),
+    path('necropsias/<int:necropsia_pk>/muestras/crear/',           views.muestra_necropsia_create,  name='muestra_necropsia_create'),
+    path('muestras-necropsia/<int:pk>/editar/',                     views.muestra_necropsia_update,  name='muestra_necropsia_update'),
+    path('muestras-necropsia/<int:pk>/eliminar/',                   views.muestra_necropsia_delete,  name='muestra_necropsia_delete'),
+    path('muestras-necropsia/<int:muestra_pk>/imagenes/subir/',     views.imagen_necropsia_upload,   name='imagen_necropsia_upload'),
+    path('imagenes-necropsia/<int:pk>/eliminar/',                   views.imagen_necropsia_delete,   name='imagen_necropsia_delete'),
+
     # Hematologías
     path('hematologias/',                                             views.hematologia_list,            name='hematologias'),
     path('hematologias/crear/',                                       views.hematologia_create,          name='hematologia_create'),
@@ -53,6 +66,7 @@ urlpatterns = [
     # Descargar volantes de petición
     path('cassettes/<int:pk>/volante/',         views.descargar_volante_cassette,       name='descargar_volante_cassette'),
     path('citologias/<int:pk>/volante/',        views.descargar_volante_citologia,      name='descargar_volante_citologia'),
+    path('necropsias/<int:pk>/volante/',        views.descargar_volante_necropsia,      name='descargar_volante_necropsia'),
     path('hematologias/<int:pk>/volante/',      views.descargar_volante_hematologia,    name='descargar_volante_hematologia'),
     path('tubos/<int:pk>/volante/',             views.descargar_volante_tubo,           name='descargar_volante_tubo'),
     path('microbiologias/<int:pk>/volante/',    views.descargar_volante_microbiologia,  name='descargar_volante_microbiologia'),

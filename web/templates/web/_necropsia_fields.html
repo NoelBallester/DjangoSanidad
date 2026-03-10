@@ -1,0 +1,53 @@
+{% load static %}
+{% with c=selected %}
+<div class="col-md-12 mt-4">
+    <label class="form-label blue__color">Numero de autopsia</label>
+    <input type="text" name="necropsia" class="form-control blue__color"
+        value="{% if edit %}{{ c.necropsia }}{% endif %}" required>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Tipo de autopsia</label>
+    <select name="tipo_necropsia" class="form-select blue__color" required>
+        <option value="" disabled {% if not edit %}selected{% endif %}>Seleccionar tipo de autopsia</option>
+        <option value="Clínica" {% if edit and c.tipo_necropsia == 'Clínica' %}selected{% endif %}>Clinica</option>
+        <option value="Médico-legal" {% if edit and c.tipo_necropsia == 'Médico-legal' %}selected{% endif %}>Medico-legal</option>
+        <option value="Forense" {% if edit and c.tipo_necropsia == 'Forense' %}selected{% endif %}>Forense</option>
+        <option value="Anatomopatológica" {% if edit and c.tipo_necropsia == 'Anatomopatológica' %}selected{% endif %}>Anatomopatologica</option>
+        <option value="Perinatal" {% if edit and c.tipo_necropsia == 'Perinatal' %}selected{% endif %}>Perinatal</option>
+        <option value="Psicológica" {% if edit and c.tipo_necropsia == 'Psicológica' %}selected{% endif %}>Psicologica</option>
+        <option value="Verbal" {% if edit and c.tipo_necropsia == 'Verbal' %}selected{% endif %}>Verbal</option>
+        <option value="Virtual" {% if edit and c.tipo_necropsia == 'Virtual' %}selected{% endif %}>Virtual</option>
+        <option value="Otros" {% if edit and c.tipo_necropsia == 'Otros' %}selected{% endif %}>Otros</option>
+    </select>
+</div>
+<div class="row col-md-12 mt-2">
+    <div class="col-md-6">
+        <label class="form-label blue__color">Fecha</label>
+        <input type="date" name="fecha" class="form-control blue__color"
+            value="{% if edit %}{{ c.fecha|date:'Y-m-d' }}{% endif %}" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label blue__color">Causa de fallecimiento</label>
+        <input type="text" name="descripcion" class="form-control blue__color"
+            value="{% if edit %}{{ c.descripcion }}{% endif %}" required>
+    </div>
+</div>
+<input type="hidden" name="organo" value="Otros">
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Descripcion del caso</label>
+    <textarea name="caracteristicas" class="form-control blue__color textarea__text"
+        required>{% if edit %}{{ c.caracteristicas }}{% endif %}</textarea>
+</div>
+<div class="col-md-12">
+    <label class="form-label blue__color">Observaciones</label>
+    <textarea name="observaciones" class="form-control blue__color textarea__text">{% if edit %}{{ c.observaciones }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Volante de peticion (archivo)</label>
+    <input type="file" name="volante_peticion" class="form-control blue__color"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+    {% if edit and c.volante_peticion_nombre %}
+        <small class="form-text text-muted">Archivo actual: {{ c.volante_peticion_nombre }}</small>
+    {% endif %}
+</div>
+{% endwith %}

@@ -8,10 +8,11 @@ import base64
 import uuid
 import random
 from django.contrib.auth import authenticate
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
     CitologiaSerializer, MuestraCitologiaSerializer, ImagenCitologiaSerializer,
+    NecropsiaSerializer, MuestraNecropsiaSerializer, ImagenNecropsiaSerializer,
     TuboSerializer, MuestraTuboSerializer, ImagenTuboSerializer,
     HematologiaSerializer, MuestraHematologiaSerializer, ImagenHematologiaSerializer,
     MicrobiologiaSerializer, MuestraMicrobiologiaSerializer, ImagenMicrobiologiaSerializer,
@@ -235,6 +236,83 @@ class CitologiaViewSet(viewsets.ModelViewSet):
         citologia.save()
         return Response(CitologiaSerializer(citologia).data)
 
+class NecropsiaViewSet(viewsets.ModelViewSet):
+    queryset = Necropsia.objects.all().order_by('-fecha')
+    serializer_class = NecropsiaSerializer
+
+    def create(self, request):
+        data = request.data.copy()
+        if 'qr_necropsia' not in data or not data['qr_necropsia']:
+            data['qr_necropsia'] = generar_qr('--n--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        necropsias = self.get_queryset()[:10]
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        necropsias = self.get_queryset()
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
+    def por_qr(self, request, qr=None):
+        necropsias = Necropsia.objects.filter(qr_necropsia=qr)
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='organo/(?P<organo>.+)')
+    def por_organo(self, request, organo=None):
+        if organo == '*':
+            necropsias = self.get_queryset()
+        else:
+            necropsias = Necropsia.objects.filter(organo=organo).order_by('-fecha')
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='numero/(?P<numero>.+)')
+    def por_numero(self, request, numero=None):
+        necropsias = Necropsia.objects.filter(necropsia=numero).order_by('-fecha')
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='fecha/(?P<fecha>[^/.]+)')
+    def por_fecha(self, request, fecha=None):
+        necropsias = Necropsia.objects.filter(fecha=fecha).order_by('-fecha')
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        necropsias = Necropsia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
+        return Response(NecropsiaSerializer(necropsias, many=True).data)
+
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        necropsia = self.get_object()
+        data = request.data
+
+        if 'informe_descripcion' in data:
+            necropsia.informe_descripcion = data['informe_descripcion']
+        if 'informe_fecha' in data:
+            necropsia.informe_fecha = data['informe_fecha']
+        if 'informe_tincion' in data:
+            necropsia.informe_tincion = data['informe_tincion']
+        if 'informe_observaciones' in data:
+            necropsia.informe_observaciones = data['informe_observaciones']
+        if 'informe_imagen' in data:
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            necropsia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+
+        necropsia.save()
+        return Response(NecropsiaSerializer(necropsia).data)
+
 class MuestraViewSet(viewsets.ModelViewSet):
     queryset = Muestra.objects.all()
     serializer_class = MuestraSerializer
@@ -286,6 +364,29 @@ class MuestraCitologiaViewSet(viewsets.ModelViewSet):
         """Busca muestra por código QR"""
         muestras = MuestraCitologia.objects.filter(qr_muestra=qr)
         return Response(MuestraCitologiaSerializer(muestras, many=True).data)
+
+class MuestraNecropsiaViewSet(viewsets.ModelViewSet):
+    queryset = MuestraNecropsia.objects.all()
+    serializer_class = MuestraNecropsiaSerializer
+
+    def create(self, request):
+        data = request.data.copy()
+        if 'qr_muestra' not in data or not data['qr_muestra']:
+            data['qr_muestra'] = generar_qr('--m--')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='necropsia/(?P<id>[^/.]+)')
+    def por_necropsia(self, request, id=None):
+        muestras = MuestraNecropsia.objects.filter(necropsia_id=id)
+        return Response(MuestraNecropsiaSerializer(muestras, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='qr/(?P<qr>[^/.]+)')
+    def por_qr(self, request, qr=None):
+        muestras = MuestraNecropsia.objects.filter(qr_muestra=qr)
+        return Response(MuestraNecropsiaSerializer(muestras, many=True).data)
 
 class ImagenViewSet(viewsets.ModelViewSet):
     queryset = Imagen.objects.all()
@@ -339,6 +440,36 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
         resultado = []
         for img in imagenes:
             img_data = ImagenCitologiaSerializer(img).data
+            if img.imagen:
+                img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
+            resultado.append(img_data)
+        return Response(resultado)
+
+class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
+    queryset = ImagenNecropsia.objects.all()
+    serializer_class = ImagenNecropsiaSerializer
+
+    def create(self, request):
+        imagen_file = request.FILES.get('imagen', None)
+        muestra_id = request.data.get('muestra')
+
+        if not imagen_file:
+            return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
+        if not muestra_id:
+            return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        imagen_obj = ImagenNecropsia.objects.create(
+            imagen=imagen_file.read(),
+            muestra_id=muestra_id
+        )
+        return Response(ImagenNecropsiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
+    def por_muestra(self, request, id=None):
+        imagenes = ImagenNecropsia.objects.filter(muestra_id=id)
+        resultado = []
+        for img in imagenes:
+            img_data = ImagenNecropsiaSerializer(img).data
             if img.imagen:
                 img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
             resultado.append(img_data)

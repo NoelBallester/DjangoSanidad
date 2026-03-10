@@ -12,10 +12,11 @@ from urllib.parse import urlparse, parse_qs
 import base64
 import os
 
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
 from django.contrib.auth.hashers import make_password
 from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
+                    NecropsiaForm, MuestraNecropsiaForm, ImagenNecropsiaForm,
                     HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
                     TecnicoForm)
 
@@ -502,6 +503,10 @@ def qr_resolver(request):
     if citologia:
         return redirect(reverse('citologias') + f'?citologia={citologia.pk}')
 
+    necropsia = Necropsia.objects.filter(qr_necropsia=payload).first()
+    if necropsia:
+        return redirect(reverse('necropsias') + f'?necropsia={necropsia.pk}')
+
     muestra_cassette = Muestra.objects.filter(qr_muestra=payload).select_related('cassette').first()
     if muestra_cassette:
         return redirect(reverse('cassettes') + f'?cassette={muestra_cassette.cassette_id}&muestra={muestra_cassette.pk}')
@@ -509,6 +514,10 @@ def qr_resolver(request):
     muestra_citologia = MuestraCitologia.objects.filter(qr_muestra=payload).select_related('citologia').first()
     if muestra_citologia:
         return redirect(reverse('citologias') + f'?citologia={muestra_citologia.citologia_id}&muestra={muestra_citologia.pk}')
+
+    muestra_necropsia = MuestraNecropsia.objects.filter(qr_muestra=payload).select_related('necropsia').first()
+    if muestra_necropsia:
+        return redirect(reverse('necropsias') + f'?necropsia={muestra_necropsia.necropsia_id}&muestra={muestra_necropsia.pk}')
 
     hematologia = Hematologia.objects.filter(qr_hematologia=payload).first()
     if hematologia:
@@ -534,7 +543,7 @@ def qr_resolver(request):
     if muestra_microbiologia:
         return redirect(f'/microbiologia.html?microbiologia={muestra_microbiologia.microbiologia_id}&muestra={muestra_microbiologia.pk}')
 
-    messages.error(request, 'No se encontró ninguna muestra, citología o cassette para ese QR.')
+    messages.error(request, 'No se encontró ninguna muestra, citología, necropsia o cassette para ese QR.')
     return redirect('cassettes')
 
 
@@ -686,6 +695,256 @@ def imagen_citologia_delete(request, pk):
     muestra_id = imagen.muestra_id
     imagen.delete()
     return redirect(reverse('citologias') + f'?citologia={cid}&muestra={muestra_id}')
+
+
+# ── Necropsias (lista + detalle) ────────────────────────────────────────────
+
+@never_cache
+@login_required
+def necropsia_list(request):
+    qs = Necropsia.objects.select_related('tecnico').order_by('-fecha')
+
+    tipo_autopsia = request.GET.get('tipo_autopsia', '').strip()
+    numero = request.GET.get('numero', '').strip()
+    inicio = request.GET.get('inicio', '').strip()
+    fin    = request.GET.get('fin', '').strip()
+    sel_pk = request.GET.get('necropsia', '').strip()
+    muestra_pk = request.GET.get('muestra', '').strip()
+    informe_pk = request.GET.get('informe', '').strip()
+
+    if tipo_autopsia and tipo_autopsia != '*':
+        qs = qs.filter(tipo_necropsia=tipo_autopsia)
+    if numero:
+        qs = qs.filter(necropsia__icontains=numero)
+    if inicio and fin:
+        qs = qs.filter(fecha__gte=inicio, fecha__lte=fin)
+
+    if not any([tipo_autopsia, numero, inicio, fin]):
+        qs = qs[:10]
+
+    selected = None
+    muestras_con_imagenes = []
+    selected_muestra_item = None
+    informes_resultado = []
+    informe_activo = None
+    informe_imagen_base64 = ''
+    selected_qr_url = ''
+
+    if sel_pk:
+        try:
+            selected = Necropsia.objects.select_related('tecnico').get(pk=sel_pk)
+            muestras_con_imagenes = []
+            for m in MuestraNecropsia.objects.filter(necropsia=selected):
+                imagenes = []
+                for im in ImagenNecropsia.objects.filter(muestra=m):
+                    imagenes.append({
+                        'pk': im.pk,
+                        'mime_type': _mime_tipo_desde_bytes(im.imagen),
+                        'imagen_base64': _imagen_bytes_a_base64(im.imagen),
+                    })
+                muestras_con_imagenes.append({
+                    'muestra': m,
+                    'imagenes': imagenes,
+                    'qr_url': _build_qr_link(request, m.qr_muestra),
+                })
+
+            if muestra_pk:
+                selected_muestra_item = next(
+                    (item for item in muestras_con_imagenes if str(item['muestra'].pk) == muestra_pk),
+                    None,
+                )
+            if selected_muestra_item is None and muestras_con_imagenes:
+                selected_muestra_item = muestras_con_imagenes[0]
+
+            selected_qr_url = _build_qr_link(request, selected.qr_necropsia)
+
+            informes_resultado = list(
+                InformeResultado.objects.filter(necropsia=selected).order_by('-fecha', '-creado_en', '-id_informe')
+            )
+
+            if informe_pk and informe_pk != 'nuevo':
+                informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
+
+            if informe_activo and informe_activo.imagen:
+                informe_imagen_base64 = _imagen_bytes_a_base64(informe_activo.imagen)
+        except Necropsia.DoesNotExist:
+            pass
+
+    informe_initial = None
+    if selected:
+        if informe_activo:
+            informe_initial = {
+                'informe_descripcion': informe_activo.descripcion or '',
+                'informe_fecha': informe_activo.fecha,
+                'informe_tincion': informe_activo.tincion or '',
+                'informe_observaciones': informe_activo.observaciones or '',
+            }
+        else:
+            informe_initial = {
+                'informe_descripcion': '',
+                'informe_fecha': '',
+                'informe_tincion': '',
+                'informe_observaciones': '',
+            }
+
+    return render(request, 'web/necropsias.html', {
+        'necropsias':            qs,
+        'selected':              selected,
+        'muestras_con_imagenes': muestras_con_imagenes,
+        'selected_muestra_item': selected_muestra_item,
+        'necropsia_form':        NecropsiaForm(instance=selected) if selected else NecropsiaForm(),
+        'nueva_necropsia_form':  NecropsiaForm(),
+        'muestra_form':          MuestraNecropsiaForm(),
+        'informe_form': InformeForm(initial=informe_initial) if selected else None,
+        'informes_resultado': informes_resultado,
+        'informe_activo': informe_activo,
+        'informe_imagen_base64': informe_imagen_base64,
+        'selected_qr_url': selected_qr_url,
+        'filtros': {'tipo_autopsia': tipo_autopsia, 'numero': numero, 'inicio': inicio, 'fin': fin},
+        'tipos_autopsia': [choice for choice in NecropsiaForm.base_fields['tipo_necropsia'].choices if choice[0]],
+    })
+
+
+@login_required
+@require_POST
+def necropsia_create(request):
+    form = NecropsiaForm(request.POST, request.FILES)
+    if form.is_valid():
+        tecnico = request.user if request.user.is_authenticated else None
+        try:
+            n = form.save(commit=False, tecnico=tecnico)
+            volante_file = request.FILES.get('volante_peticion')
+            if volante_file:
+                _guardar_volante_peticion(volante_file, n)
+            n.save()
+            return redirect(reverse('necropsias') + f'?necropsia={n.pk}')
+        except Exception as e:
+            messages.error(request, f'Error al guardar la autopsia: {e}')
+            return redirect('necropsias')
+    error_detail = '; '.join(
+        f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
+        for k, v in form.errors.items()
+    )
+    messages.error(request, f'Error al crear la autopsia — {error_detail}')
+    return redirect('necropsias')
+
+
+@login_required
+@require_POST
+def necropsia_update(request, pk):
+    necropsia = get_object_or_404(Necropsia, pk=pk)
+    form = NecropsiaForm(request.POST, request.FILES, instance=necropsia)
+    if form.is_valid():
+        n = form.save(commit=False)
+        volante_file = request.FILES.get('volante_peticion')
+        if volante_file:
+            _guardar_volante_peticion(volante_file, n)
+        n.save()
+        return redirect(reverse('necropsias') + f'?necropsia={pk}')
+    messages.error(request, 'Error al modificar la autopsia.')
+    return redirect(reverse('necropsias') + f'?necropsia={pk}')
+
+
+@login_required
+@require_POST
+def necropsia_delete(request, pk):
+    get_object_or_404(Necropsia, pk=pk).delete()
+    return redirect('necropsias')
+
+
+@login_required
+@require_POST
+def necropsia_informe(request, pk):
+    necropsia = get_object_or_404(Necropsia, pk=pk)
+    form = InformeForm(request.POST, request.FILES)
+    if form.is_valid():
+        informe_id = request.POST.get('informe_id', '').strip()
+        informe = None
+
+        if informe_id:
+            informe = InformeResultado.objects.filter(pk=informe_id, necropsia=necropsia).first()
+
+        if informe is None:
+            informe = InformeResultado(necropsia=necropsia)
+
+        informe.descripcion = form.cleaned_data['informe_descripcion']
+        informe.fecha = form.cleaned_data['informe_fecha']
+        informe.tincion = form.cleaned_data['informe_tincion']
+        informe.observaciones = form.cleaned_data['informe_observaciones']
+
+        img = form.cleaned_data.get('informe_imagen')
+        if img:
+            informe.imagen = img.read()
+
+        informe.save()
+        messages.success(request, 'Informe de resultados guardado correctamente.')
+        return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe&informe={informe.pk}')
+    else:
+        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe')
+
+
+@login_required
+@require_POST
+def necropsia_informe_delete(request, pk, informe_pk):
+    necropsia = get_object_or_404(Necropsia, pk=pk)
+    informe = get_object_or_404(InformeResultado, pk=informe_pk, necropsia=necropsia)
+    informe.delete()
+    messages.success(request, 'Informe eliminado correctamente.')
+    return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe')
+
+
+@login_required
+@require_POST
+def muestra_necropsia_create(request, necropsia_pk):
+    necropsia = get_object_or_404(Necropsia, pk=necropsia_pk)
+    form = MuestraNecropsiaForm(request.POST)
+    if form.is_valid():
+        muestra = form.save(necropsia=necropsia)
+        archivo_imagen = request.FILES.get('imagen')
+        if archivo_imagen:
+            ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+        return redirect(reverse('necropsias') + f'?necropsia={necropsia_pk}&muestra={muestra.pk}')
+    return redirect(reverse('necropsias') + f'?necropsia={necropsia_pk}')
+
+
+@login_required
+@require_POST
+def muestra_necropsia_update(request, pk):
+    muestra = get_object_or_404(MuestraNecropsia, pk=pk)
+    form = MuestraNecropsiaForm(request.POST, instance=muestra)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse('necropsias') + f'?necropsia={muestra.necropsia_id}&muestra={pk}')
+
+
+@login_required
+@require_POST
+def muestra_necropsia_delete(request, pk):
+    muestra = get_object_or_404(MuestraNecropsia, pk=pk)
+    nid = muestra.necropsia_id
+    muestra.delete()
+    return redirect(reverse('necropsias') + f'?necropsia={nid}')
+
+
+@login_required
+@require_POST
+def imagen_necropsia_upload(request, muestra_pk):
+    muestra = get_object_or_404(MuestraNecropsia, pk=muestra_pk)
+    archivo_imagen = request.FILES.get('imagen')
+    if archivo_imagen:
+        ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
+    return redirect(reverse('necropsias') + f'?necropsia={muestra.necropsia_id}&muestra={muestra.pk}')
+
+
+@login_required
+@require_POST
+def imagen_necropsia_delete(request, pk):
+    imagen = get_object_or_404(ImagenNecropsia, pk=pk)
+    nid = imagen.muestra.necropsia_id
+    muestra_id = imagen.muestra_id
+    imagen.delete()
+    return redirect(reverse('necropsias') + f'?necropsia={nid}&muestra={muestra_id}')
 
 
 # ── Hematologías (lista + detalle) ──────────────────────────────────────────────
@@ -944,6 +1203,17 @@ def descargar_volante_citologia(request, pk):
     
     response = HttpResponse(citologia.volante_peticion, content_type=citologia.volante_peticion_tipo or 'application/octet-stream')
     response['Content-Disposition'] = f'inline; filename="{citologia.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
+@login_required
+def descargar_volante_necropsia(request, pk):
+    necropsia = get_object_or_404(Necropsia, pk=pk)
+    if not necropsia.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+
+    response = HttpResponse(necropsia.volante_peticion, content_type=necropsia.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{necropsia.volante_peticion_nombre or "volante.pdf"}"'
     return response
 
 

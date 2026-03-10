@@ -1,7 +1,7 @@
 import base64
 import os
 from rest_framework import serializers
-from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
+from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 
 class TecnicoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,6 +36,21 @@ class MuestraCitologiaSerializer(serializers.ModelSerializer):
 class ImagenCitologiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagenCitologia
+        fields = '__all__'
+
+class NecropsiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Necropsia
+        fields = '__all__'
+
+class MuestraNecropsiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MuestraNecropsia
+        fields = '__all__'
+
+class ImagenNecropsiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenNecropsia
         fields = '__all__'
 
 class TuboSerializer(serializers.ModelSerializer):
@@ -226,7 +241,7 @@ class InformeResultadoSerializer(serializers.ModelSerializer):
         model = InformeResultado
         fields = [
             'id_informe', 'descripcion', 'fecha', 'tincion', 'observaciones', 'imagen', 'imagen_base64',
-            'tubo', 'hematologia', 'microbiologia', 'cassette', 'citologia', 'creado_en'
+            'tubo', 'hematologia', 'microbiologia', 'cassette', 'citologia', 'necropsia', 'creado_en'
         ]
         read_only_fields = ['id_informe', 'imagen_base64', 'creado_en']
 

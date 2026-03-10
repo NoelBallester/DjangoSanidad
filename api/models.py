@@ -80,6 +80,25 @@ class Citologia(models.Model):
     class Meta:
         db_table = 'citologias'
 
+class Necropsia(models.Model):
+    id_necropsia = models.AutoField(primary_key=True, db_column='id')
+    necropsia = models.CharField(max_length=50)
+    tipo_necropsia = models.CharField(max_length=255)
+    fecha = models.DateField()
+    descripcion = models.CharField(max_length=255)
+    caracteristicas = models.TextField()
+    observaciones = models.TextField(null=True, blank=True)
+    qr_necropsia = models.CharField(max_length=255, unique=True)
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    organo = models.CharField(max_length=255)
+    tecnico = models.ForeignKey(Tecnico, on_delete=models.SET_NULL, null=True, blank=True, db_column='tecnico_id')
+    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
+    volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        db_table = 'necropsias'
+
 class Muestra(models.Model):
     id_muestra = models.AutoField(primary_key=True)
     descripcion = models.CharField(max_length=255)
@@ -105,6 +124,19 @@ class MuestraCitologia(models.Model):
     class Meta:
         db_table = 'muestrascitologia'
 
+class MuestraNecropsia(models.Model):
+    id_muestra = models.AutoField(primary_key=True, db_column='id')
+    descripcion = models.CharField(max_length=255)
+    fecha = models.DateField()
+    observaciones = models.TextField(null=True, blank=True)
+    tincion = models.CharField(max_length=255)
+    qr_muestra = models.CharField(max_length=255)
+    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    necropsia = models.ForeignKey(Necropsia, on_delete=models.CASCADE, db_column='necropsia_id')
+
+    class Meta:
+        db_table = 'muestrasnecropsia'
+
 class Imagen(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     imagen = models.BinaryField(null=True, blank=True, editable=True)
@@ -120,6 +152,14 @@ class ImagenCitologia(models.Model):
 
     class Meta:
         db_table = 'imagenescitologia'
+
+class ImagenNecropsia(models.Model):
+    id_imagen = models.AutoField(primary_key=True, db_column='id')
+    imagen = models.BinaryField(null=True, blank=True, editable=True)
+    muestra = models.ForeignKey(MuestraNecropsia, on_delete=models.CASCADE, db_column='muestra_id')
+
+    class Meta:
+        db_table = 'imagenesnecropsia'
 
 class Tubo(models.Model):
     id_tubo = models.AutoField(primary_key=True, db_column='id')
@@ -276,6 +316,7 @@ class InformeResultado(models.Model):
     microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id', null=True, blank=True)
     cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE, db_column='cassette_id', null=True, blank=True)
     citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologia_id', null=True, blank=True)
+    necropsia = models.ForeignKey(Necropsia, on_delete=models.CASCADE, db_column='necropsia_id', null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
