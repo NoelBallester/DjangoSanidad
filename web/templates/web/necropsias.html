@@ -269,6 +269,15 @@
                         <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
                             <p class="cassette__text">{{ selected.caracteristicas }}</p>
                         </li>
+                        <li class="list-group-item blue__color--negrita">Fenomenos cadavericos:
+                            <p class="cassette__text">{{ selected.fenomenos_cadavericos|default:"" }}</p>
+                        </li>
+                        <li class="list-group-item blue__color--negrita">Examen externo del cadaver:
+                            <p class="cassette__text">{{ selected.examen_externo_cadaver|default:"" }}</p>
+                        </li>
+                        <li class="list-group-item blue__color--negrita">Datos de la muerte:
+                            <p class="cassette__text">{{ selected.datos_muerte|default:"" }}</p>
+                        </li>
                         <li class="list-group-item blue__color--negrita">Observaciones:
                             <p class="cassette__text">{{ selected.observaciones }}</p>
                         </li>

@@ -316,17 +316,30 @@ class NecropsiaForm(forms.ModelForm):
     class Meta:
         model = Necropsia
         fields = ['necropsia', 'tipo_necropsia', 'fecha', 'descripcion', 'caracteristicas',
+                  'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
                   'observaciones', 'organo']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'fenomenos_cadavericos': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'examen_externo_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'datos_muerte': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            if name not in ('fecha', 'caracteristicas', 'observaciones', 'organo', 'tipo_necropsia'):
+            if name not in (
+                'fecha',
+                'caracteristicas',
+                'fenomenos_cadavericos',
+                'examen_externo_cadaver',
+                'datos_muerte',
+                'observaciones',
+                'organo',
+                'tipo_necropsia',
+            ):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
     def clean_volante_peticion(self):

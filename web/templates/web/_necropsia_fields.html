@@ -34,6 +34,18 @@
 </div>
 <input type="hidden" name="organo" value="Otros">
 <div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Fenomenos cadavericos</label>
+    <textarea name="fenomenos_cadavericos" class="form-control blue__color textarea__text">{% if edit %}{{ c.fenomenos_cadavericos }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Examen externo del cadaver</label>
+    <textarea name="examen_externo_cadaver" class="form-control blue__color textarea__text">{% if edit %}{{ c.examen_externo_cadaver }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Datos de la muerte</label>
+    <textarea name="datos_muerte" class="form-control blue__color textarea__text">{% if edit %}{{ c.datos_muerte }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
     <label class="form-label blue__color">Descripcion del caso</label>
     <textarea name="caracteristicas" class="form-control blue__color textarea__text"
         required>{% if edit %}{{ c.caracteristicas }}{% endif %}</textarea>
