@@ -79,22 +79,12 @@ def login_view(request):
     if request.method == 'POST':
         tecnico_id = request.POST.get('tecnico_id', '').strip()
         password = request.POST.get('password', '')
-        # Intentar con authenticate primero (para contraseñas hasheadas)
+        # El login solo permite contraseñas hasheadas por seguridad.
         user = authenticate(request, id_tecnico=tecnico_id, password=password)
         
         if user is not None:
             login(request, user)
             return redirect(request.GET.get('next', '/index.html'))
-        else:
-            # Fallback para contraseñas en plano (si existen en la BD antigua)
-            try:
-                tecnico = Tecnico.objects.get(pk=tecnico_id)
-                if tecnico.password == password and tecnico.is_active:
-                    tecnico.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, tecnico)
-                    return redirect(request.GET.get('next', '/index.html'))
-            except (Tecnico.DoesNotExist, ValueError):
-                pass
         error = 'ID o contraseña incorrectos.'
     return render(request, 'web/login.html', {'error': error})
 

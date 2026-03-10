@@ -12,18 +12,15 @@ from api.models import (
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def make_tecnico(id_tecnico=None, password='pass1234', staff=False, plain=False):
-    """Crea un técnico de prueba. plain=True guarda la contraseña sin hashear."""
+def make_tecnico(id_tecnico=None, password='pass1234', staff=False):
+    """Crea un técnico de prueba con contraseña hasheada."""
     kwargs = dict(
         nombre='Test', apellidos='User',
         email=f'test{id_tecnico or ""}@test.com',
         is_staff=staff, is_active=True,
     )
     t = Tecnico(**kwargs)
-    if plain:
-        t.password = password          # contraseña en plano (sistema legado)
-    else:
-        t.password = make_password(password)
+    t.password = make_password(password)
     t.save()
     return t
 
@@ -87,15 +84,6 @@ class LoginTests(TestCase):
         })
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'incorrectos')
-
-    def test_login_password_plana_legado(self):
-        """El sistema soporta contraseñas en plano de la BD antigua."""
-        plain_tecnico = make_tecnico(2, password='clave123', plain=True)
-        r = self.client.post(self.url, {
-            'tecnico_id': plain_tecnico.pk,
-            'password': 'clave123',
-        })
-        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
 
     def test_ya_autenticado_redirige_sin_pedir_credenciales(self):
         self.client.force_login(self.tecnico)
