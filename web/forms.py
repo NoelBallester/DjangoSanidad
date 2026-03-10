@@ -1,7 +1,12 @@
 import random
 import string
 from django import forms
+<<<<<<< HEAD
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
+=======
+from django.core.exceptions import ValidationError
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
+>>>>>>> 543723c102fe962a30063d499f42de5591abff8b
 
 
 ORGANOS = [
@@ -124,6 +129,47 @@ def _qr(prefix):
     return prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=12))
 
 
+MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
+DOC_ALLOWED_EXTENSIONS = {'.pdf', '.doc', '.docx', '.odt', '.jpg', '.jpeg', '.png', '.gif'}
+DOC_ALLOWED_CONTENT_TYPES = {
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.oasis.opendocument.text',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/octet-stream',
+}
+IMAGE_ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+IMAGE_ALLOWED_CONTENT_TYPES = {
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/octet-stream',
+}
+
+
+def _validate_uploaded_file(uploaded_file, allowed_extensions, allowed_content_types, field_label):
+    if not uploaded_file:
+        return uploaded_file
+
+    file_name = (uploaded_file.name or '').lower()
+    extension = '.' + file_name.rsplit('.', 1)[-1] if '.' in file_name else ''
+    if extension not in allowed_extensions:
+        raise ValidationError(f'{field_label}: extensión no permitida ({extension or "sin extensión"}).')
+
+    if uploaded_file.size and uploaded_file.size > MAX_UPLOAD_SIZE_BYTES:
+        raise ValidationError(f'{field_label}: tamaño máximo permitido de 10 MB.')
+
+    content_type = (getattr(uploaded_file, 'content_type', '') or '').lower()
+    if content_type and content_type not in allowed_content_types:
+        raise ValidationError(f'{field_label}: tipo de archivo no permitido ({content_type}).')
+
+    return uploaded_file
+
+
 class CassetteForm(forms.ModelForm):
     organo = forms.ChoiceField(choices=ORGANOS)
     volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
@@ -159,6 +205,14 @@ class CassetteForm(forms.ModelForm):
             obj.save()
         return obj
 
+    def clean_volante_peticion(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('volante_peticion'),
+            DOC_ALLOWED_EXTENSIONS,
+            DOC_ALLOWED_CONTENT_TYPES,
+            'Volante de petición',
+        )
+
 
 class CitologiaForm(forms.ModelForm):
     organo = forms.ChoiceField(choices=ORGANOS)
@@ -191,6 +245,14 @@ class CitologiaForm(forms.ModelForm):
         if commit:
             obj.save()
         return obj
+
+    def clean_volante_peticion(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('volante_peticion'),
+            DOC_ALLOWED_EXTENSIONS,
+            DOC_ALLOWED_CONTENT_TYPES,
+            'Volante de petición',
+        )
 
 
 class MuestraForm(forms.ModelForm):
@@ -323,6 +385,14 @@ class InformeForm(forms.Form):
         widget=forms.FileInput(attrs={'class': 'form-control blue__color bg-light',
                                       'accept': '.pdf,.doc,.docx,.odt,.jpg,.jpeg,.png,.gif'}))
 
+    def clean_informe_imagen(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('informe_imagen'),
+            DOC_ALLOWED_EXTENSIONS,
+            DOC_ALLOWED_CONTENT_TYPES,
+            'Informe',
+        )
+
 
 class ImagenForm(forms.ModelForm):
     class Meta:
@@ -376,6 +446,14 @@ class HematologiaForm(forms.ModelForm):
             obj.save()
         return obj
 
+    def clean_volante_peticion(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('volante_peticion'),
+            DOC_ALLOWED_EXTENSIONS,
+            DOC_ALLOWED_CONTENT_TYPES,
+            'Volante de petición',
+        )
+
 
 class MuestraHematologiaForm(forms.ModelForm):
     tincion = forms.ChoiceField(choices=TINCIONES)
@@ -407,6 +485,14 @@ class MuestraHematologiaForm(forms.ModelForm):
 
 class ImagenHematologiaForm(forms.Form):
     imagen = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control blue__color', 'accept': '.jpg,.jpeg,.png,.gif'}))
+
+    def clean_imagen(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('imagen'),
+            IMAGE_ALLOWED_EXTENSIONS,
+            IMAGE_ALLOWED_CONTENT_TYPES,
+            'Imagen',
+        )
 
 
 
