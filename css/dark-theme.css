@@ -19,6 +19,10 @@
   color: var(--text-main) !important;
 }
 
+:root.dark-theme .text-muted {
+  color: var(--text-muted) !important;
+}
+
 /* --- Footer Dark Mode --- */
 :root.dark-theme footer,
 :root.dark-theme .footer {
