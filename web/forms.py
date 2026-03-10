@@ -241,7 +241,7 @@ class InformeForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
     informe_fecha = forms.DateField(required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color bg-light'}))
-    informe_tincion = forms.ChoiceField(choices=ANALISIS_INFORME, required=False,
+    informe_tincion = forms.ChoiceField(choices=TINCIONES, required=False,
         widget=forms.Select(attrs={'class': 'form-select blue__color bg-light'}))
     informe_observaciones = forms.CharField(required=False,
         widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color bg-light'}))
