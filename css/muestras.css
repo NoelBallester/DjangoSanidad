@@ -378,23 +378,6 @@ td {
     max-width: 900px;
 }
 
-.mimodal {
-    background-color: rgba(1, 0, 4, 0.197);
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    position: absolute;
-    top: -1200px;
-    left: 50%;
-    opacity: 0;
-    /* display: flex; */
-    /*flex-direction: column;
-  font-family: Raleway, Helvetica, sans-serif;
-  color: #646464;
-  font-size: 0.75rem;
-  padding-top: 2rem; */
-}
-
 .showmodal {
     animation-name: showmodalanimation;
     animation-duration: 1s;
