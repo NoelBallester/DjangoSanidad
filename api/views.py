@@ -3,10 +3,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
+from django.http import FileResponse, Http404, HttpResponse
 from datetime import datetime
 import base64
+import mimetypes
+import os
 import uuid
 from django.contrib.auth import authenticate
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
@@ -19,6 +23,102 @@ from .serializers import (
     MicrobiologiaSerializer, MuestraMicrobiologiaSerializer, ImagenMicrobiologiaSerializer,
     InformeResultadoSerializer
 )
+
+
+FILE_PROXY_MODELS = {
+    'imagen': (Imagen, {'imagen'}),
+    'imagencitologia': (ImagenCitologia, {'imagen'}),
+    'imagennecropsia': (ImagenNecropsia, {'imagen'}),
+    'imagentubo': (ImagenTubo, {'imagen'}),
+    'imagenhematologia': (ImagenHematologia, {'imagen'}),
+    'imagenmicrobiologia': (ImagenMicrobiologia, {'imagen'}),
+    'tubo': (Tubo, {'informe_imagen', 'volante_peticion'}),
+    'hematologia': (Hematologia, {'informe_imagen'}),
+    'microbiologia': (Microbiologia, {'informe_imagen', 'volante_peticion'}),
+    'informeresultado': (InformeResultado, {'imagen'}),
+}
+
+
+def _read_file_bytes(file_value):
+    if not file_value:
+        return b''
+    if isinstance(file_value, memoryview):
+        return file_value.tobytes()
+    if isinstance(file_value, (bytes, bytearray)):
+        return bytes(file_value)
+    try:
+        if hasattr(file_value, 'open'):
+            file_value.open('rb')
+        if hasattr(file_value, 'read'):
+            content = file_value.read()
+            if hasattr(file_value, 'seek'):
+                file_value.seek(0)
+            if content:
+                return bytes(content)
+    except Exception:
+        pass
+    return b''
+
+
+def _detect_content_type(file_value):
+    raw = _read_file_bytes(file_value)[:16]
+    if raw.startswith(b'\xff\xd8\xff'):
+        return 'image/jpeg'
+    if raw.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'image/png'
+    if raw.startswith((b'GIF87a', b'GIF89a')):
+        return 'image/gif'
+    if raw.startswith(b'BM'):
+        return 'image/bmp'
+    if raw.startswith(b'RIFF') and raw[8:12] == b'WEBP':
+        return 'image/webp'
+    if raw.startswith(b'%PDF'):
+        return 'application/pdf'
+
+    guessed, _ = mimetypes.guess_type(getattr(file_value, 'name', ''))
+    return guessed or 'application/octet-stream'
+
+
+@login_required
+def proxy_file(request, model_name, pk, field_name):
+    config = FILE_PROXY_MODELS.get(model_name)
+    if not config:
+        raise Http404('Modelo no soportado.')
+
+    model, allowed_fields = config
+    if field_name not in allowed_fields:
+        raise Http404('Campo no soportado.')
+
+    try:
+        instance = model.objects.get(pk=pk)
+    except model.DoesNotExist as exc:
+        raise Http404('Archivo no encontrado.') from exc
+
+    file_value = getattr(instance, field_name, None)
+    if not file_value:
+        raise Http404('Archivo no encontrado.')
+
+    content_type = _detect_content_type(file_value)
+    filename = os.path.basename(getattr(file_value, 'name', '') or f'{model_name}-{pk}')
+
+    if isinstance(file_value, (bytes, bytearray, memoryview)):
+        response = HttpResponse(_read_file_bytes(file_value), content_type=content_type)
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+
+    try:
+        if hasattr(file_value, 'open'):
+            file_value.open('rb')
+        response = FileResponse(file_value, content_type=content_type)
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+    except Exception:
+        raw = _read_file_bytes(file_value)
+        if not raw:
+            raise Http404('Archivo no encontrado.')
+        response = HttpResponse(raw, content_type=content_type)
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
 
 def generar_qr(prefijo):
     """Genera un código base QR con formato: prefijo + 12 caracteres."""
@@ -411,13 +511,13 @@ class ImagenViewSet(viewsets.ModelViewSet):
             imagen=imagen_file,
             muestra_id=muestra_id
         )
-        return Response(ImagenSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
+        return Response(self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
-        """Obtiene todas las imágenes de una muestra en base64"""
+        """Obtiene todas las imágenes de una muestra mediante URL directa."""
         imagenes = Imagen.objects.filter(muestra_id=id)
-        return Response(ImagenSerializer(imagenes, many=True).data)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 class ImagenCitologiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
@@ -436,19 +536,13 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
             imagen=imagen_file,
             muestra_id=muestra_id
         )
-        return Response(ImagenCitologiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
+        return Response(self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
-        """Obtiene todas las imágenes de una muestra en base64"""
+        """Obtiene todas las imágenes de una muestra mediante URL directa."""
         imagenes = ImagenCitologia.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenCitologiaSerializer(img).data
-            if img.imagen:
-                img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
-            resultado.append(img_data)
-        return Response(resultado)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
     queryset = ImagenNecropsia.objects.all()
@@ -467,18 +561,13 @@ class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
             imagen=imagen_file,
             muestra_id=muestra_id
         )
-        return Response(ImagenNecropsiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
+        return Response(self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra mediante URL directa."""
         imagenes = ImagenNecropsia.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenNecropsiaSerializer(img).data
-            if img.imagen:
-                img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
-            resultado.append(img_data)
-        return Response(resultado)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 class TuboViewSet(viewsets.ModelViewSet):
     queryset = Tubo.objects.all().order_by('-fecha')
@@ -637,19 +726,14 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
             imagen=imagen_bytes,
             muestra_id=muestra_id
         )
-        
-        return Response(ImagenTuboSerializer(imagen_tubo).data, status=status.HTTP_201_CREATED)
+
+        return Response(self.get_serializer(imagen_tubo).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
-        """Obtiene todas las imágenes de una muestra de tubo en base64"""
+        """Obtiene todas las imágenes de una muestra de tubo mediante URL directa."""
         imagenes = ImagenTubo.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenTuboSerializer(img).data
-            # El serializer ya incluye imagen_base64
-            resultado.append(img_data)
-        return Response(resultado)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 class HematologiaViewSet(viewsets.ModelViewSet):
     queryset = Hematologia.objects.all().order_by('-fecha')
@@ -795,23 +879,14 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
             imagen=imagen_file,
             muestra_id=muestra_id
         )
-        
-        return Response(ImagenHematologiaSerializer(imagen_hematologia).data, status=status.HTTP_201_CREATED)
+
+        return Response(self.get_serializer(imagen_hematologia).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
-        """Obtiene todas las imágenes de una muestra de hematología en base64"""
+        """Obtiene todas las imágenes de una muestra de hematología mediante URL directa."""
         imagenes = ImagenHematologia.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenHematologiaSerializer(img).data
-            if img.imagen:
-                try:
-                    img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
-                except Exception:
-                    img_data['imagen_base64'] = None
-            resultado.append(img_data)
-        return Response(resultado)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 class MicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = Microbiologia.objects.all().order_by('-fecha')
@@ -958,22 +1033,14 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
             imagen=imagen_file,
             muestra_id=muestra_id
         )
-        
-        return Response(ImagenMicrobiologiaSerializer(imagen_microbiologia).data, status=status.HTTP_201_CREATED)
+
+        return Response(self.get_serializer(imagen_microbiologia).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='muestra/(?P<id>[^/.]+)')
     def por_muestra(self, request, id=None):
+        """Obtiene todas las imágenes de una muestra de microbiología mediante URL directa."""
         imagenes = ImagenMicrobiologia.objects.filter(muestra_id=id)
-        resultado = []
-        for img in imagenes:
-            img_data = ImagenMicrobiologiaSerializer(img).data
-            if img.imagen:
-                try:
-                    img_data['imagen_base64'] = base64.b64encode(bytes(img.imagen)).decode('utf-8')
-                except Exception:
-                    pass
-            resultado.append(img_data)
-        return Response(resultado)
+        return Response(self.get_serializer(imagenes, many=True).data)
 
 
 class InformeResultadoViewSet(viewsets.ModelViewSet):

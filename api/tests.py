@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .models import Tecnico, Cassette, Muestra, Imagen
+from .models import Tecnico, Cassette, Muestra, Imagen, Hematologia, MuestraHematologia, ImagenHematologia
 
 
 def make_tecnico(password='pass1234', email='api@test.com'):
@@ -98,6 +98,7 @@ class ImagenEndpointTests(TestCase):
 		self.client = APIClient()
 		self.tecnico = make_tecnico(email='img@test.com')
 		self.client.force_authenticate(user=self.tecnico)
+		self.client.force_login(self.tecnico)
 
 		cassette = make_cassette(qr='QRCASS02')
 		self.muestra = Muestra.objects.create(
@@ -121,9 +122,41 @@ class ImagenEndpointTests(TestCase):
 		self.assertEqual(len(response.data), 1)
 		self.assertIn('id_imagen', response.data[0])
 		self.assertIn('muestra', response.data[0])
-		self.assertIn('imagen_base64', response.data[0])
+		self.assertIn('imagen_url', response.data[0])
+		self.assertIn('/api/archivo/imagen/', response.data[0]['imagen_url'])
 		self.assertNotIn('imagen', response.data[0])
 
 	def test_create_imagen_requires_file_and_muestra(self):
 		response = self.client.post('/api/imagenes/', {}, format='multipart')
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+	def test_proxy_serves_real_mime_for_bin_image(self):
+		hematologia = Hematologia.objects.create(
+			hematologia='H001',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_hematologia='QRH-API-1',
+			organo='Pulmón',
+		)
+		muestra = MuestraHematologia.objects.create(
+			descripcion='Submuestra',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='Gram',
+			qr_muestra='QRMH001',
+			hematologia=hematologia,
+		)
+		webp_bytes = b'RIFF\x00g\x00\x00WEBPVP8 ' + b'0' * 32
+		imagen = ImagenHematologia.objects.create(
+			muestra=muestra,
+			imagen=SimpleUploadedFile('test.bin', webp_bytes, content_type='application/octet-stream'),
+		)
+
+		list_response = self.client.get(f'/api/imageneshematologia/muestra/{muestra.pk}/')
+		self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+		self.assertIn('imagen_url', list_response.data[0])
+
+		proxy_response = self.client.get(list_response.data[0]['imagen_url'])
+		self.assertEqual(proxy_response.status_code, status.HTTP_200_OK)
+		self.assertEqual(proxy_response['Content-Type'], 'image/webp')

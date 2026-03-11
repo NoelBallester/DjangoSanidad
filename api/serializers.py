@@ -1,8 +1,7 @@
-import base64
 import logging
-import os
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 logger = logging.getLogger(__name__)
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado, CatalogoOpcion
 
@@ -13,6 +12,18 @@ def _validar_catalogo(tipo, valor, campo):
     if not CatalogoOpcion.objects.filter(tipo=tipo, valor=valor, activo=True).exists():
         raise serializers.ValidationError(f'{campo} no es una opcion valida.')
     return valor
+
+
+class FileUrlSerializerMixin:
+    def _file_url(self, instance, field_name):
+        archivo = getattr(instance, field_name, None)
+        if not archivo:
+            return None
+
+        try:
+            return reverse('api-file-proxy', args=[instance._meta.model_name, instance.pk, field_name])
+        except Exception:
+            return None
 
 class TecnicoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,21 +68,16 @@ class MuestraSerializer(serializers.ModelSerializer):
         model = Muestra
         fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'cassette']
 
-class ImagenSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class ImagenSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Imagen
-        fields = ['id_imagen', 'muestra', 'imagen_base64']
-        read_only_fields = ['id_imagen', 'imagen_base64']
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception:
-                return None
-        return None
+    def get_imagen_url(self, obj):
+        return self._file_url(obj, 'imagen')
 
 class CitologiaSerializer(serializers.ModelSerializer):
     def validate_qr_citologia(self, value):
@@ -115,21 +121,16 @@ class MuestraCitologiaSerializer(serializers.ModelSerializer):
             'qr_imagen', 'citologia'
         ]
 
-class ImagenCitologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class ImagenCitologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenCitologia
-        fields = ['id_imagen', 'muestra', 'imagen_base64']
-        read_only_fields = ['id_imagen', 'imagen_base64']
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception:
-                return None
-        return None
+    def get_imagen_url(self, obj):
+        return self._file_url(obj, 'imagen')
 
 class NecropsiaSerializer(serializers.ModelSerializer):
     def validate_qr_necropsia(self, value):
@@ -166,14 +167,20 @@ class MuestraNecropsiaSerializer(serializers.ModelSerializer):
         model = MuestraNecropsia
         fields = '__all__'
 
-class ImagenNecropsiaSerializer(serializers.ModelSerializer):
+class ImagenNecropsiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ImagenNecropsia
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-class TuboSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
-    volante_peticion_base64 = serializers.SerializerMethodField()
+    def get_imagen_url(self, obj):
+        return self._file_url(obj, 'imagen')
+
+class TuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    informe_imagen_url = serializers.SerializerMethodField()
+    volante_peticion_url = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend de PHPSanidad
     id_muestra = serializers.IntegerField(source='id_tubo', read_only=True)
     muestra = serializers.CharField(source='tubo', required=False)
@@ -186,19 +193,15 @@ class TuboSerializer(serializers.ModelSerializer):
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_tubo', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
-            'informe_tincion', 'informe_observaciones', 'imagen_base64',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_base64'
+            'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
-    def get_imagen_base64(self, obj):
-        if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
-        return None
+    def get_informe_imagen_url(self, obj):
+        return self._file_url(obj, 'informe_imagen')
 
-    def get_volante_peticion_base64(self, obj):
-        if obj.volante_peticion:
-            return base64.b64encode(obj.volante_peticion.read()).decode('utf-8')
-        return None
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
 
     def validate_qr_tubo(self, value):
         qs = Tubo.objects.filter(qr_tubo=value)
@@ -211,20 +214,20 @@ class TuboSerializer(serializers.ModelSerializer):
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraTuboSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class MuestraTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MuestraTubo
-        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_base64']
-        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_base64']
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_url']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        # Las imágenes están en la tabla ImagenTubo, relacionada a través de MuestraTubo
+    def get_imagen_url(self, obj):
         try:
-            imagen = obj.imagentubo_set.first()  # Obtener la primera imagen
+            imagen = obj.imagentubo_set.first()
             if imagen and imagen.imagen:
-                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
+                return self._file_url(imagen, 'imagen')
+                
         except Exception:
             pass
         return None
@@ -240,24 +243,23 @@ class MuestraTuboSerializer(serializers.ModelSerializer):
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
 
-class ImagenTuboSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class ImagenTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenTubo
-        fields = ['id_imagen', 'muestra', 'imagen_base64']
-        read_only_fields = ['id_imagen', 'imagen_base64']
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception as e:
-                logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
-        return None
+    def get_imagen_url(self, obj):
+        try:
+            return self._file_url(obj, 'imagen')
+        except Exception as e:
+            logger.error(f"Error al obtener URL de imagen {obj.id_imagen}: {e}")
+            return None
 
-class HematologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class HematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    informe_imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Hematologia
@@ -266,13 +268,11 @@ class HematologiaSerializer(serializers.ModelSerializer):
             'observaciones', 'informacion_clinica', 'descripcion_microscopica', 
             'diagnostico_final', 'patologo_responsable', 'qr_hematologia', 'organo', 
             'tecnico', 'informe_descripcion', 'informe_fecha', 'informe_tincion', 
-            'informe_observaciones', 'imagen_base64'
+            'informe_observaciones', 'informe_imagen_url'
         ]
 
-    def get_imagen_base64(self, obj):
-        if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
-        return None
+    def get_informe_imagen_url(self, obj):
+        return self._file_url(obj, 'informe_imagen')
 
     def validate_qr_hematologia(self, value):
         qs = Hematologia.objects.filter(qr_hematologia=value)
@@ -285,23 +285,24 @@ class HematologiaSerializer(serializers.ModelSerializer):
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraHematologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class MuestraHematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
     id_muestra = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = MuestraHematologia
         fields = [
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
-            'qr_muestra', 'qr_imagen', 'hematologia', 'imagen_base64'
+            'qr_muestra', 'qr_imagen', 'hematologia', 'imagen_url'
         ]
-        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_base64']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
+    def get_imagen_url(self, obj):
         try:
             imagen = obj.imagenhematologia_set.first()
             if imagen and imagen.imagen:
-                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
+                return self._file_url(imagen, 'imagen')
+
         except Exception:
             pass
         return None
@@ -318,25 +319,24 @@ class MuestraHematologiaSerializer(serializers.ModelSerializer):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
 
 
-class ImagenHematologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class ImagenHematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenHematologia
-        fields = ['id_imagen', 'muestra', 'imagen_base64']
-        read_only_fields = ['id_imagen', 'imagen_base64']
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception as e:
-                logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
-        return None
+    def get_imagen_url(self, obj):
+        try:
+            return self._file_url(obj, 'imagen')
+        except Exception as e:
+            logger.error(f"Error al obtener URL de imagen {obj.id_imagen}: {e}")
+            return None
 
-class MicrobiologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
-    volante_peticion_base64 = serializers.SerializerMethodField()
+class MicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    informe_imagen_url = serializers.SerializerMethodField()
+    volante_peticion_url = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend
     id_muestra = serializers.IntegerField(source='id_microbiologia', read_only=True)
     muestra = serializers.CharField(source='microbiologia', required=False)
@@ -349,19 +349,15 @@ class MicrobiologiaSerializer(serializers.ModelSerializer):
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_microbiologia', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
-            'informe_tincion', 'informe_observaciones', 'imagen_base64',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_base64'
+            'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
-    def get_imagen_base64(self, obj):
-        if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
-        return None
+    def get_informe_imagen_url(self, obj):
+        return self._file_url(obj, 'informe_imagen')
 
-    def get_volante_peticion_base64(self, obj):
-        if obj.volante_peticion:
-            return base64.b64encode(obj.volante_peticion.read()).decode('utf-8')
-        return None
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
 
     def validate_qr_microbiologia(self, value):
         qs = Microbiologia.objects.filter(qr_microbiologia=value)
@@ -374,18 +370,23 @@ class MicrobiologiaSerializer(serializers.ModelSerializer):
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class MuestraMicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MuestraMicrobiologia
-        fields = '__all__'
+        fields = [
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'qr_muestra', 'qr_imagen', 'microbiologia', 'imagen_url'
+        ]
+        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
+    def get_imagen_url(self, obj):
         try:
             imagen = obj.imagenmicrobiologia_set.first()
             if imagen and imagen.imagen:
-                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
+                return self._file_url(imagen, 'imagen')
+
         except Exception:
             return None
         return None
@@ -401,25 +402,21 @@ class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
 
-class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
-    imagen_base64 = serializers.SerializerMethodField()
+class ImagenMicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ImagenMicrobiologia
-        fields = '__all__'
+        fields = ['id_imagen', 'muestra', 'imagen_url']
+        read_only_fields = ['id_imagen', 'imagen_url']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception:
-                return None
-        return None
+    def get_imagen_url(self, obj):
+        return self._file_url(obj, 'imagen')
 
 
-class InformeResultadoSerializer(serializers.ModelSerializer):
+class InformeResultadoSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     imagen = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    imagen_base64 = serializers.SerializerMethodField()
+    imagen_url = serializers.SerializerMethodField()
     cassette = serializers.IntegerField(write_only=True, required=False)
     citologia = serializers.IntegerField(write_only=True, required=False)
     necropsia = serializers.IntegerField(write_only=True, required=False)
@@ -432,19 +429,14 @@ class InformeResultadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = InformeResultado
         fields = [
-            'id_informe', 'descripcion', 'fecha', 'tincion', 'observaciones', 'imagen', 'imagen_base64',
+            'id_informe', 'descripcion', 'fecha', 'tincion', 'observaciones', 'imagen', 'imagen_url',
             'tubo', 'hematologia', 'microbiologia', 'cassette', 'citologia', 'necropsia',
             'target_model', 'target_id', 'creado_en'
         ]
-        read_only_fields = ['id_informe', 'imagen_base64', 'target_model', 'target_id', 'creado_en']
+        read_only_fields = ['id_informe', 'imagen_url', 'target_model', 'target_id', 'creado_en']
 
-    def get_imagen_base64(self, obj):
-        if obj.imagen:
-            try:
-                return base64.b64encode(obj.imagen.read()).decode('utf-8')
-            except Exception:
-                return None
-        return None
+    def get_imagen_url(self, obj):
+        return self._file_url(obj, 'imagen')
 
     def get_target_model(self, obj):
         return obj.content_type.model if obj.content_type else None

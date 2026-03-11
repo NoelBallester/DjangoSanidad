@@ -7,7 +7,7 @@ from .views import (
     TuboViewSet, MuestraTuboViewSet, ImagenTuboViewSet,
     HematologiaViewSet, MuestraHematologiaViewSet, ImagenHematologiaViewSet,
     MicrobiologiaViewSet, MuestraMicrobiologiaViewSet, ImagenMicrobiologiaViewSet,
-    InformeResultadoViewSet
+    InformeResultadoViewSet, proxy_file
 )
 
 router = DefaultRouter()
@@ -34,5 +34,6 @@ router.register(r'imagenesmicrobiologia', ImagenMicrobiologiaViewSet, basename='
 router.register(r'informesresultado', InformeResultadoViewSet, basename='informeresultado')
 
 urlpatterns = [
+    path('archivo/<str:model_name>/<int:pk>/<str:field_name>/', proxy_file, name='api-file-proxy'),
     path('', include(router.urls)),
 ]

@@ -255,7 +255,7 @@ const cargarInformeEnFormularioHematologia = (informe) => {
   if (muestrasInformeFecha) muestrasInformeFecha.value = informe.fecha || "";
   if (muestrasInformeTincion) muestrasInformeTincion.value = informe.tincion || "";
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = informe.observaciones || "";
-  actualizarPreviewInformeHematologia(informe.imagen_base64 || "");
+  actualizarPreviewInformeHematologia(informe.informe_imagen_url || informe.imagen_url || informe.imagen_base64 || "");
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -335,7 +335,9 @@ const actualizarPreviewInformeHematologia = (imagen) => {
     muestrasInformePreviewWrap.classList.add("d-none");
     return;
   }
-  muestrasInformePreview.src = imagen.startsWith("data:image") ? imagen : `data:image/jpeg;base64,${imagen}`;
+  muestrasInformePreview.src = imagen.startsWith("data:") || imagen.startsWith("http") || imagen.startsWith("/")
+    ? imagen
+    : `data:image/jpeg;base64,${imagen}`;
   muestrasInformePreviewWrap.classList.remove("d-none");
 };
 
@@ -966,7 +968,7 @@ const mostrarImagenesSubMuestra = async (muestraId_val) => {
     imagenes.forEach((imagen, index) => {
       const newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = `data:image/jpeg;base64,${imagen.imagen_base64}`;
+      newimg.src = imagen.imagen_url || (imagen.imagen_base64 ? `data:image/jpeg;base64,${imagen.imagen_base64}` : "");
       newimg.classList.add("muestra__img");
 
       if (index === 0) {

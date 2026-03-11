@@ -656,7 +656,7 @@ const cargarInformeEnFormularioTubo = (informe) => {
   if (tuboInformeFecha) tuboInformeFecha.value = informe.fecha || "";
   if (tuboInformeTincion) tuboInformeTincion.value = informe.tincion || "";
   if (tuboInformeObservaciones) tuboInformeObservaciones.value = informe.observaciones || "";
-  actualizarPreviewInformeTubo(informe.imagen_base64 || "");
+  actualizarPreviewInformeTubo(informe.informe_imagen_url || informe.imagen_url || informe.imagen_base64 || "");
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -736,7 +736,9 @@ const actualizarPreviewInformeTubo = (imagen) => {
     tuboInformePreviewWrap.classList.add("d-none");
     return;
   }
-  tuboInformePreview.src = imagen.startsWith("data:image") ? imagen : `data:image/jpeg;base64,${imagen}`;
+  tuboInformePreview.src = imagen.startsWith("data:") || imagen.startsWith("http") || imagen.startsWith("/")
+    ? imagen
+    : `data:image/jpeg;base64,${imagen}`;
   tuboInformePreviewWrap.classList.remove("d-none");
 };
 
@@ -1236,7 +1238,7 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = `data:image/jpeg;base64,${imagen.imagen_base64}`;
+      newimg.src = imagen.imagen_url || (imagen.imagen_base64 ? `data:image/jpeg;base64,${imagen.imagen_base64}` : "");
 
       newimg.classList.add("muestra__img");
 
