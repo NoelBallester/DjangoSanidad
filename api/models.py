@@ -39,6 +39,36 @@ class Tecnico(AbstractBaseUser, PermissionsMixin):
         db_table = 'tecnicos'
 
 
+class CatalogoOpcion(models.Model):
+    TIPO_ORGANO = 'organo'
+    TIPO_TINCION = 'tincion'
+    TIPO_CITOLOGIA = 'tipo_citologia'
+    TIPO_AUTOPSIA = 'tipo_autopsia'
+    TIPO_ANALISIS = 'analisis_informe'
+
+    TIPO_CHOICES = [
+        (TIPO_ORGANO, 'Organo'),
+        (TIPO_TINCION, 'Tincion'),
+        (TIPO_CITOLOGIA, 'Tipo citologia'),
+        (TIPO_AUTOPSIA, 'Tipo autopsia'),
+        (TIPO_ANALISIS, 'Analisis informe'),
+    ]
+
+    tipo = models.CharField(max_length=40, choices=TIPO_CHOICES)
+    valor = models.CharField(max_length=255)
+    categoria = models.CharField(max_length=255, null=True, blank=True)
+    orden = models.PositiveIntegerField(default=0)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'catalogo_opciones'
+        ordering = ['tipo', 'orden', 'valor']
+        unique_together = ('tipo', 'valor')
+
+    def __str__(self):
+        return f"{self.tipo}: {self.valor}"
+
+
 # ─── Modelos abstractos base ─────────────────────────────────────────────────
 
 class DetalleBase(models.Model):

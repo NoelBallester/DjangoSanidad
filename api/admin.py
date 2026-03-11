@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (Tecnico, Cassette, Muestra, Imagen,
                      Citologia, MuestraCitologia, ImagenCitologia,
                      Hematologia, MuestraHematologia, ImagenHematologia,
-                     Tubo, MuestraTubo, ImagenTubo)
+                     Tubo, MuestraTubo, ImagenTubo, CatalogoOpcion)
 
 admin.site.register(Tecnico)
 admin.site.register(Cassette)
@@ -17,3 +17,10 @@ admin.site.register(ImagenHematologia)
 admin.site.register(Tubo)
 admin.site.register(MuestraTubo)
 admin.site.register(ImagenTubo)
+
+
+@admin.register(CatalogoOpcion)
+class CatalogoOpcionAdmin(admin.ModelAdmin):
+    list_display = ('tipo', 'valor', 'categoria', 'orden', 'activo')
+    list_filter = ('tipo', 'activo', 'categoria')
+    search_fields = ('valor', 'categoria')

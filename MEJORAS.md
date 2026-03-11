@@ -161,7 +161,7 @@
 - [x] Fix `STATICFILES_DIRS` (#3)
 - [x] Proteger `SECRET_KEY` (#4)
 - [x] Crear `.env.example` (#5)
-- [ ] Crear `requirements.txt` (#9)
+- [x] Crear `requirements.txt` (#9)
 - [x] Eliminar rutas duplicadas (#7)
 
 ### Fase 2 - Rendimiento y estabilidad
@@ -173,7 +173,7 @@
 ### Fase 3 - Calidad del código
 - [x] Modelos abstractos base (#6)
 - [ ] Rediseñar `InformeResultado` (#10)
-- [ ] Mover opciones hardcodeadas a BD (#8)
+- [x] Mover opciones hardcodeadas a BD (#8)
 - [ ] Validación en serializers (#12)
 - [ ] Borrado suave (#15)
 

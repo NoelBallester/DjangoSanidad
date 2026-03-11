@@ -761,7 +761,7 @@ def necropsia_list(request):
         'informe_imagen_base64': informe_imagen_base64,
         'selected_qr_url': selected_qr_url,
         'filtros': {'tipo_autopsia': tipo_autopsia, 'numero': numero, 'inicio': inicio, 'fin': fin},
-        'tipos_autopsia': [choice for choice in NecropsiaForm.base_fields['tipo_necropsia'].choices if choice[0]],
+        'tipos_autopsia': [choice for choice in NecropsiaForm().fields['tipo_necropsia'].choices if choice[0]],
     })
 
 

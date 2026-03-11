@@ -1,124 +1,37 @@
 import random
 import string
+from collections import OrderedDict
 from django import forms
 from django.core.exceptions import ValidationError
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, CatalogoOpcion
 
 
-ORGANOS = [
-    ('', 'Seleccionar Órgano'),
-    ('Sistema Nervioso', [
-        ('Encéfalo', 'Encéfalo'), ('Médula Espinal', 'Médula Espinal'),
-        ('Nervio', 'Nervio'), ('Ganglio Nervios', 'Ganglio Nervios'),
-    ]),
-    ('Tegumento', [
-        ('Piel', 'Piel'), ('Uña', 'Uña'), ('Pelo', 'Pelo'),
-    ]),
-    ('Cardiovascular', [
-        ('Corazón', 'Corazón'), ('Venas', 'Venas'), ('Arteria', 'Arteria'),
-        ('Líquido Pericárdico', 'Líquido Pericárdico'),
-    ]),
-    ('Linfático', [
-        ('Ganglio Linfático', 'Ganglio Linfático'), ('Timo', 'Timo'), ('Bazo', 'Bazo'),
-        ('Ganglio cervical', 'Ganglio cervical'), ('Ganglio axilar', 'Ganglio axilar'),
-        ('Ganglio inguinal', 'Ganglio inguinal'), ('Médula ósea', 'Médula ósea'),
-        ('Sangre periférica', 'Sangre periférica'),
-    ]),
-    ('Endocrino', [
-        ('Hipófisis', 'Hipófisis'), ('Glándula Tiroides', 'Glándula Tiroides'),
-        ('Glándulas Paratiroides', 'Glándulas Paratiroides'),
-        ('Glándulas Suprarrenales', 'Glándulas Suprarrenales'), ('Páncreas', 'Páncreas'),
-    ]),
-    ('Respiratorio', [
-        ('Fosa Nasal', 'Fosa Nasal'), ('Faringe', 'Faringe'), ('Laringe', 'Laringe'),
-        ('Tráquea', 'Tráquea'), ('Bronquio', 'Bronquio'), ('Pulmón', 'Pulmón'),
-        ('Líquido Pleural', 'Líquido Pleural'),
-    ]),
-    ('Digestivo', [
-        ('Boca', 'Boca'), ('Cavidad oral', 'Cavidad oral'), ('Lengua', 'Lengua'), ('Glándula Salival', 'Glándula Salival'),
-        ('Esófago', 'Esófago'), ('Estómago', 'Estómago'), ('Hígado', 'Hígado'),
-        ('Vesícula Biliar', 'Vesícula Biliar'), ('Páncreas', 'Páncreas'),
-        ('Int. Delgado', 'Int. Delgado'), ('Int. Grueso', 'Int. Grueso'),
-        ('Ciego', 'Ciego'), ('Apéndice', 'Apéndice'), ('Recto', 'Recto'), ('Ano', 'Ano'),
-        ('Líquido Peritoneal', 'Líquido Peritoneal'),
-    ]),
-    ('Excretor Urinario', [
-        ('Riñón', 'Riñón'), ('Pelvis Renal', 'Pelvis Renal'), ('Uréter', 'Uréter'),
-        ('Vejiga Urinaria', 'Vejiga Urinaria'), ('Uretra', 'Uretra'),
-    ]),
-    ('Reproductor Masculino', [
-        ('Testículo', 'Testículo'),
-    ]),
-    ('Reproductor Femenino', [
-        ('Mama', 'Mama'),
-        ('Ovario', 'Ovario'), ('Trompa de Falopio', 'Trompa de Falopio'),
-        ('Útero', 'Útero'), ('Vagina', 'Vagina'), ('Vulva', 'Vulva'),
-        ('Cuerpo de Útero', 'Cuerpo de Útero'),
-        ('Cuello de Útero', 'Cuello de Útero'),
-        ('Cavidad Pélvica', 'Cavidad Pélvica'),
-    ]),
-    ('Locomotor', [
-        ('Hueso', 'Hueso'), ('Músculo Esquelético', 'Músculo Esquelético'),
-        ('Líquido Sinovial', 'Líquido Sinovial'),
-    ]),
-    ('Otros', 'Otros'),
-]
+def _catalog_simple_choices(tipo, empty_label):
+    opciones = [('', empty_label)]
+    qs = CatalogoOpcion.objects.filter(tipo=tipo, activo=True).order_by('orden', 'valor')
+    opciones.extend((item.valor, item.valor) for item in qs)
+    return opciones
 
-TINCIONES = [
-    ('', 'Seleccionar Validación'),
-    ('Hematoxilina Eosina (HE)', 'Hematoxilina Eosina (HE)'),
-    ('Giemsa', 'Giemsa'), ('Gram', 'Gram'), ('Azul de Metileno', 'Azul de Metileno'),
-    ('Papanicolau', 'Papanicolau'), ('Wright', 'Wright'), ('Ziehl-Neelsen', 'Ziehl-Neelsen'),
-    ('Tricrómico', 'Tricrómico'), ('Orceína', 'Orceína'), ('P.A.S', 'P.A.S'), ('Otros', 'Otros'),
-]
 
-TIPOS_CITOLOGIA = [
-    ('', 'Tipo de muestra'),
-    ('Improntas', 'Improntas'),
-    ('Punción-aspiración', 'Punción-aspiración'),
-    ('Esputo', 'Esputo'),
-    ('Líquido pleural', 'Líquido pleural'),
-    ('Líquido ascítico', 'Líquido ascítico'),
-    ('Líquido pericárdico', 'Líquido pericárdico'),
-    ('Saliva', 'Saliva'),
-    ('Contenido quístico', 'Contenido quístico'),
-    ('Raspados', 'Raspados'),
-    ('Orina', 'Orina'),
-    ('Cepillado', 'Cepillado'),
-    ('Citología respiratoria (BAS y BAL)', 'Citología respiratoria (BAS y BAL)'),
-    ('Secreción mamaria', 'Secreción mamaria'),
-    ('Muestra vulvar', 'Muestra vulvar'),
-    ('Muestra endometrial', 'Muestra endometrial'),
-]
+def _catalog_organo_choices():
+    qs = CatalogoOpcion.objects.filter(
+        tipo=CatalogoOpcion.TIPO_ORGANO,
+        activo=True,
+    ).order_by('orden', 'valor')
 
-TIPOS_AUTOPSIA = [
-    ('', 'Seleccionar tipo de autopsia'),
-    ('Clínica', 'Clinica'),
-    ('Médico-legal', 'Medico-legal'),
-    ('Forense', 'Forense'),
-    ('Anatomopatológica', 'Anatomopatologica'),
-    ('Perinatal', 'Perinatal'),
-    ('Psicológica', 'Psicologica'),
-    ('Verbal', 'Verbal'),
-    ('Virtual', 'Virtual'),
-    ('Otros', 'Otros'),
-]
+    grouped = OrderedDict()
+    singles = []
+    for item in qs:
+        if item.categoria:
+            grouped.setdefault(item.categoria, []).append((item.valor, item.valor))
+        else:
+            singles.append((item.valor, item.valor))
 
-ANALISIS_INFORME = [
-    ('', 'Seleccionar análisis'),
-    ('Perfil hepático', 'Perfil hepático'),
-    ('Perfil renal', 'Perfil renal'),
-    ('Perfil lipídico', 'Perfil lipídico'),
-    ('Glucosa', 'Glucosa'),
-    ('Análisis de heces', 'Análisis de heces'),
-    ('Análisis inmunológico', 'Análisis inmunológico'),
-    ('Análisis citológico', 'Análisis citológico'),
-    ('Análisis biopsias', 'Análisis biopsias'),
-    ('Ionograma', 'Ionograma'),
-    ('Gasometría', 'Gasometría'),
-    ('Análisis de sangre', 'Análisis de sangre'),
-    ('Otros', 'Otros'),
-]
+    choices = [('', 'Seleccionar Órgano')]
+    for categoria, values in grouped.items():
+        choices.append((categoria, values))
+    choices.extend(singles)
+    return choices
 
 
 def _qr(prefix):
@@ -167,7 +80,7 @@ def _validate_uploaded_file(uploaded_file, allowed_extensions, allowed_content_t
 
 
 class CassetteForm(forms.ModelForm):
-    organo = forms.ChoiceField(choices=ORGANOS)
+    organo = forms.ChoiceField(choices=())
     volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
         attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
@@ -186,6 +99,7 @@ class CassetteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['organo'].choices = _catalog_organo_choices()
         for name, field in self.fields.items():
             if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
                             'descripcion_microscopica', 'diagnostico_final', 'organo', 'informacion_clinica'):
@@ -211,8 +125,8 @@ class CassetteForm(forms.ModelForm):
 
 
 class CitologiaForm(forms.ModelForm):
-    organo = forms.ChoiceField(choices=ORGANOS)
-    tipo_citologia = forms.ChoiceField(choices=TIPOS_CITOLOGIA)
+    organo = forms.ChoiceField(choices=())
+    tipo_citologia = forms.ChoiceField(choices=())
     volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
         attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
@@ -228,6 +142,11 @@ class CitologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['organo'].choices = _catalog_organo_choices()
+        self.fields['tipo_citologia'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_CITOLOGIA,
+            'Tipo de muestra',
+        )
         for name, field in self.fields.items():
             if name not in ('fecha', 'caracteristicas', 'observaciones', 'organo', 'tipo_citologia'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -252,7 +171,7 @@ class CitologiaForm(forms.ModelForm):
 
 
 class MuestraForm(forms.ModelForm):
-    tincion = forms.ChoiceField(choices=TINCIONES)
+    tincion = forms.ChoiceField(choices=())
 
     class Meta:
         model = Muestra
@@ -264,6 +183,10 @@ class MuestraForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['tincion'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_TINCION,
+            'Seleccionar Validación',
+        )
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -280,7 +203,7 @@ class MuestraForm(forms.ModelForm):
 
 
 class MuestraCitologiaForm(forms.ModelForm):
-    tincion = forms.ChoiceField(choices=TINCIONES)
+    tincion = forms.ChoiceField(choices=())
 
     class Meta:
         model = MuestraCitologia
@@ -292,6 +215,10 @@ class MuestraCitologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['tincion'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_TINCION,
+            'Seleccionar Validación',
+        )
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -308,8 +235,8 @@ class MuestraCitologiaForm(forms.ModelForm):
 
 
 class NecropsiaForm(forms.ModelForm):
-    organo = forms.ChoiceField(choices=ORGANOS)
-    tipo_necropsia = forms.ChoiceField(choices=TIPOS_AUTOPSIA)
+    organo = forms.ChoiceField(choices=())
+    tipo_necropsia = forms.ChoiceField(choices=())
     volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
         attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
@@ -329,6 +256,11 @@ class NecropsiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['organo'].choices = _catalog_organo_choices()
+        self.fields['tipo_necropsia'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_AUTOPSIA,
+            'Seleccionar tipo de autopsia',
+        )
         for name, field in self.fields.items():
             if name not in (
                 'fecha',
@@ -362,7 +294,7 @@ class NecropsiaForm(forms.ModelForm):
 
 
 class MuestraNecropsiaForm(forms.ModelForm):
-    tincion = forms.ChoiceField(choices=TINCIONES)
+    tincion = forms.ChoiceField(choices=())
 
     class Meta:
         model = MuestraNecropsia
@@ -384,6 +316,10 @@ class MuestraNecropsiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['tincion'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_TINCION,
+            'Seleccionar Validación',
+        )
         for name, field in self.fields.items():
             if name not in (
                 'fecha',
@@ -410,13 +346,20 @@ class InformeForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
     informe_fecha = forms.DateField(required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color bg-light'}))
-    informe_tincion = forms.ChoiceField(choices=TINCIONES, required=False,
+    informe_tincion = forms.ChoiceField(choices=(), required=False,
         widget=forms.Select(attrs={'class': 'form-select blue__color bg-light'}))
     informe_observaciones = forms.CharField(required=False,
         widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color bg-light'}))
     informe_imagen = forms.FileField(required=False,
         widget=forms.FileInput(attrs={'class': 'form-control blue__color bg-light',
                                       'accept': '.pdf,.doc,.docx,.odt,.jpg,.jpeg,.png,.gif'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['informe_tincion'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_TINCION,
+            'Seleccionar Validación',
+        )
 
     def clean_informe_imagen(self):
         return _validate_uploaded_file(
@@ -446,7 +389,7 @@ class ImagenNecropsiaForm(forms.ModelForm):
 
 
 class HematologiaForm(forms.ModelForm):
-    organo = forms.ChoiceField(choices=ORGANOS)
+    organo = forms.ChoiceField(choices=())
     volante_peticion = forms.FileField(required=False, widget=forms.FileInput(
         attrs={'class': 'form-control blue__color', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif'}))
 
@@ -464,6 +407,7 @@ class HematologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['organo'].choices = _catalog_organo_choices()
         for name, field in self.fields.items():
             if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
                             'descripcion_microscopica', 'diagnostico_final', 'organo'):
@@ -489,7 +433,7 @@ class HematologiaForm(forms.ModelForm):
 
 
 class MuestraHematologiaForm(forms.ModelForm):
-    tincion = forms.ChoiceField(choices=TINCIONES)
+    tincion = forms.ChoiceField(choices=())
 
     class Meta:
         model = MuestraHematologia
@@ -501,6 +445,10 @@ class MuestraHematologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['tincion'].choices = _catalog_simple_choices(
+            CatalogoOpcion.TIPO_TINCION,
+            'Seleccionar Validación',
+        )
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
