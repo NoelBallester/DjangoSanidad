@@ -24,39 +24,44 @@ archivo = InMemoryUploadedFile(
     None
 )
 
-print("1. Creando nueva citología de prueba...")
-c = Citologia.objects.create(
-    citologia='TEST-001',
-    tipo_citologia='Convencional',
-    fecha='2026-03-09',
-    descripcion='Test de volante',
-    caracteristicas='Test',
-    observaciones='Test automatizado',
-    qr_citologia='QR-TEST-001',
-    organo='Test'
-)
-print(f"   ✓ Citología creada con ID: {c.pk}")
+def main():
+    print("1. Creando nueva citología de prueba...")
+    c = Citologia.objects.create(
+        citologia='TEST-001',
+        tipo_citologia='Convencional',
+        fecha='2026-03-09',
+        descripcion='Test de volante',
+        caracteristicas='Test',
+        observaciones='Test automatizado',
+        qr_citologia='QR-TEST-001',
+        organo='Test'
+    )
+    print(f"   ✓ Citología creada con ID: {c.pk}")
 
-print("\n2. Guardando volante de petición...")
-_guardar_volante_peticion(archivo, c)
-print(f"   - volante_peticion: {c.volante_peticion is not None}")
-print(f"   - volante_peticion_nombre: {c.volante_peticion_nombre}")
-print(f"   - volante_peticion_tipo: {c.volante_peticion_tipo}")
+    print("\n2. Guardando volante de petición...")
+    _guardar_volante_peticion(archivo, c)
+    print(f"   - volante_peticion: {c.volante_peticion is not None}")
+    print(f"   - volante_peticion_nombre: {c.volante_peticion_nombre}")
+    print(f"   - volante_peticion_tipo: {c.volante_peticion_tipo}")
 
-print("\n3. Guardando en base de datos...")
-c.save()
-print("   ✓ Guardado")
+    print("\n3. Guardando en base de datos...")
+    c.save()
+    print("   ✓ Guardado")
 
-print("\n4. Recargando desde BD...")
-c.refresh_from_db()
-print(f"   - volante_peticion: {c.volante_peticion is not None}")
-print(f"   - volante_peticion_nombre: {c.volante_peticion_nombre}")
-print(f"   - volante_peticion_tipo: {c.volante_peticion_tipo}")
-if c.volante_peticion:
-    print(f"   - Tamaño: {len(c.volante_peticion)} bytes")
+    print("\n4. Recargando desde BD...")
+    c.refresh_from_db()
+    print(f"   - volante_peticion: {c.volante_peticion is not None}")
+    print(f"   - volante_peticion_nombre: {c.volante_peticion_nombre}")
+    print(f"   - volante_peticion_tipo: {c.volante_peticion_tipo}")
+    if c.volante_peticion:
+        print(f"   - Tamaño: {len(c.volante_peticion)} bytes")
 
-print("\n✓ Test completado!")
-if c.volante_peticion:
-    print(f"✅ TODO OK - Volante guardado correctamente")
-else:
-    print(f"❌ ERROR - Volante NO guardado")
+    print("\n✓ Test completado!")
+    if c.volante_peticion:
+        print("✅ TODO OK - Volante guardado correctamente")
+    else:
+        print("❌ ERROR - Volante NO guardado")
+
+
+if __name__ == '__main__':
+    main()
