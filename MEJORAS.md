@@ -2,8 +2,7 @@
 
 ## 🔴 Críticas (Seguridad & Estabilidad)
 
-### 1. Almacenamiento de imágenes en base de datos ✓ DECISIÓN TOMADA
-- **Decisión:** Las imágenes se guardan como `BinaryField` en SQLite. Es la opción elegida para este proyecto (backups simples, sin servidor de media).
+
 
 ### 2. Paginación en endpoints de lista
 - **Problema:** Endpoints como `/todos/` devuelven todos los registros sin límite. Con volúmenes grandes causará problemas de rendimiento.
