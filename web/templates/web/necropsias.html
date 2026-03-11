@@ -282,14 +282,14 @@
                         <li class="list-group-item blue__color--negrita">Examen externo del cadaver:
                             <p class="cassette__text">{{ selected.examen_externo_cadaver|default:"" }}</p>
                         </li>
-                        <li class="list-group-item blue__color--negrita">Datos de la muerte:
+                        <li class="list-group-item blue__color--negrita">Data de la muerte.
                             <p class="cassette__text">{{ selected.datos_muerte|default:"" }}</p>
                         </li>
                         <li class="list-group-item blue__color--negrita">Observaciones:
                             <p class="cassette__text">{{ selected.observaciones }}</p>
                         </li>
                         {% if selected.volante_peticion %}
-                        <li class="list-group-item blue__color--negrita">Volante de petición:
+                        <li class="list-group-item blue__color--negrita">Informe de autopsia:
                             <a href="{% url 'descargar_volante_necropsia' selected.pk %}" target="_blank" class="btn btn-sm btn-primary">
                                 <i class="fa-solid fa-file-arrow-down"></i> Ver archivo
                             </a>
