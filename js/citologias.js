@@ -1034,7 +1034,7 @@ const consultarMuestraQR = async (qr) => {
 const cargarUserUpdateModal = async (event) => {
   let userId = sessionStorage.getItem("user");
   const response = await fetch(
-    "http://localhost:3000/sanitaria/tecnicos/" + userId,
+    "http://localhost:3000/api/tecnicos/" + userId,
     {
       method: "GET",
       headers: {

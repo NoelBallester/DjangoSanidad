@@ -158,11 +158,11 @@
 ## Resumen por fases de implementación
 
 ### Fase 1 - Seguridad inmediata
-- [ ] Fix `STATICFILES_DIRS` (#3)
-- [ ] Proteger `SECRET_KEY` (#4)
-- [ ] Crear `.env.example` (#5)
+- [x] Fix `STATICFILES_DIRS` (#3)
+- [x] Proteger `SECRET_KEY` (#4)
+- [x] Crear `.env.example` (#5)
 - [ ] Crear `requirements.txt` (#9)
-- [ ] Eliminar rutas duplicadas (#7)
+- [x] Eliminar rutas duplicadas (#7)
 
 ### Fase 2 - Rendimiento y estabilidad
 - [ ] Añadir paginación (#2)
@@ -171,7 +171,7 @@
 - [ ] Activar zona horaria (#19)
 
 ### Fase 3 - Calidad del código
-- [ ] Modelos abstractos base (#6)
+- [x] Modelos abstractos base (#6)
 - [ ] Rediseñar `InformeResultado` (#10)
 - [ ] Mover opciones hardcodeadas a BD (#8)
 - [ ] Validación en serializers (#12)

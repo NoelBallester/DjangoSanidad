@@ -37,8 +37,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('web.urls')),          # Django template views (cassettes, login…)
-    path('sanitaria/', include('api.urls')),
-    path('modelo/', include('api.urls')),
     path('', RedirectView.as_view(url='/index.html')),
     re_path(r'^(?P<page>[\w\-]+)\.html$', render_html),
     re_path(r'^css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),

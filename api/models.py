@@ -41,7 +41,7 @@ class Tecnico(AbstractBaseUser, PermissionsMixin):
 
 # ─── Modelos abstractos base ─────────────────────────────────────────────────
 
-class RegistroBase(models.Model):
+class DetalleBase(models.Model):
     """
     Base abstracta compartida por todos los registros principales
     (Cassette, Citología, Necropsia, Tubo, Hematología, Microbiología).
@@ -62,6 +62,16 @@ class RegistroBase(models.Model):
     volante_peticion = models.BinaryField(null=True, blank=True)
     volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
     volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class RegistroBase(DetalleBase):
+    """
+    Alias de compatibilidad sobre DetalleBase para no romper referencias
+    existentes en el código y en migraciones históricas.
+    """
 
     class Meta:
         abstract = True
