@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+from django.db.utils import OperationalError, ProgrammingError
 from urllib.parse import urlparse, parse_qs
 import base64
 import os
@@ -72,9 +74,30 @@ def _build_qr_link(request, code):
     return request.build_absolute_uri(reverse('qr_resolver') + f'?code={code}')
 
 
+def _tabla_tiene_columnas(tabla, *columnas):
+    try:
+        with connection.cursor() as cursor:
+            descripcion = connection.introspection.get_table_description(cursor, tabla)
+    except Exception:
+        return False
+
+    disponibles = {getattr(columna, 'name', columna[0]) for columna in descripcion}
+    return all(columna in disponibles for columna in columnas)
+
+
+def _informes_genericos_disponibles():
+    return _tabla_tiene_columnas('informesresultado', 'content_type_id', 'object_id')
+
+
 def _informes_por_registro(registro):
+    if not _informes_genericos_disponibles():
+        return InformeResultado.objects.none()
+
     ct = ContentType.objects.get_for_model(registro.__class__)
-    return InformeResultado.objects.filter(content_type=ct, object_id=registro.pk)
+    try:
+        return InformeResultado.objects.filter(content_type=ct, object_id=registro.pk)
+    except (OperationalError, ProgrammingError):
+        return InformeResultado.objects.none()
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -268,15 +291,23 @@ def cassette_delete(request, pk):
 
 def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
     registro = get_object_or_404(modelo, pk=pk)
+    if not _informes_genericos_disponibles():
+        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
         informe_id = request.POST.get('informe_id', '').strip()
         ct = ContentType.objects.get_for_model(modelo)
-        informe = InformeResultado.objects.filter(
-            pk=informe_id,
-            content_type=ct,
-            object_id=registro.pk,
-        ).first() if informe_id else None
+        try:
+            informe = InformeResultado.objects.filter(
+                pk=informe_id,
+                content_type=ct,
+                object_id=registro.pk,
+            ).first() if informe_id else None
+        except (OperationalError, ProgrammingError):
+            messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+            return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
         if informe is None:
             informe = InformeResultado(content_type=ct, object_id=registro.pk)
         informe.descripcion = form.cleaned_data['informe_descripcion']
@@ -295,8 +326,16 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
 
 def _eliminar_informe(request, pk, informe_pk, modelo, fk_campo, redirect_name):
     registro = get_object_or_404(modelo, pk=pk)
+    if not _informes_genericos_disponibles():
+        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
     ct = ContentType.objects.get_for_model(modelo)
-    informe = get_object_or_404(InformeResultado, pk=informe_pk, content_type=ct, object_id=registro.pk)
+    try:
+        informe = get_object_or_404(InformeResultado, pk=informe_pk, content_type=ct, object_id=registro.pk)
+    except (OperationalError, ProgrammingError):
+        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
     informe.delete()
     messages.success(request, 'Informe eliminado correctamente.')
     return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')

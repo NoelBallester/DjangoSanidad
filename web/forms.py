@@ -3,35 +3,112 @@ import string
 from collections import OrderedDict
 from django import forms
 from django.core.exceptions import ValidationError
-from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, CatalogoOpcion
+from django.db.utils import OperationalError, ProgrammingError
+from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, CatalogoOpcion, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia, InformeResultado
+
+
+def _distinct_non_empty_values(model, field_name):
+    try:
+        values = model.objects.order_by(field_name).values_list(field_name, flat=True).distinct()
+        return [value for value in values if value]
+    except (OperationalError, ProgrammingError):
+        return []
+
+
+def _simple_choices_from_values(empty_label, values):
+    seen = set()
+    options = [('', empty_label)]
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        options.append((value, value))
+    return options
+
+
+def _append_choice_if_missing(choices, value):
+    if not value:
+        return choices
+
+    normalized = list(choices)
+    existing_values = set()
+    for choice_value, _choice_label in normalized:
+        if isinstance(choice_label := _choice_label, (list, tuple)):
+            existing_values.update(item_value for item_value, _item_label in choice_label)
+        else:
+            existing_values.add(choice_value)
+
+    if value not in existing_values:
+        normalized.append((value, value))
+
+    return normalized
+
+
+def _fallback_catalog_values(tipo):
+    if tipo == CatalogoOpcion.TIPO_ORGANO:
+        values = []
+        for model in (Cassette, Citologia, Necropsia, Hematologia, Tubo, Microbiologia):
+            values.extend(_distinct_non_empty_values(model, 'organo'))
+        return values
+
+    if tipo == CatalogoOpcion.TIPO_TINCION:
+        values = []
+        for model in (Muestra, MuestraCitologia, MuestraNecropsia, MuestraHematologia, MuestraTubo, MuestraMicrobiologia):
+            values.extend(_distinct_non_empty_values(model, 'tincion'))
+        values.extend(_distinct_non_empty_values(InformeResultado, 'tincion'))
+        return values
+
+    if tipo == CatalogoOpcion.TIPO_CITOLOGIA:
+        return _distinct_non_empty_values(Citologia, 'tipo_citologia')
+
+    if tipo == CatalogoOpcion.TIPO_AUTOPSIA:
+        return _distinct_non_empty_values(Necropsia, 'tipo_necropsia')
+
+    return []
 
 
 def _catalog_simple_choices(tipo, empty_label):
-    opciones = [('', empty_label)]
-    qs = CatalogoOpcion.objects.filter(tipo=tipo, activo=True).order_by('orden', 'valor')
-    opciones.extend((item.valor, item.valor) for item in qs)
-    return opciones
+    try:
+        qs = CatalogoOpcion.objects.filter(tipo=tipo, activo=True).order_by('orden', 'valor')
+        valores = [item.valor for item in qs if item.valor]
+    except (OperationalError, ProgrammingError):
+        valores = []
+
+    if not valores:
+        valores = _fallback_catalog_values(tipo)
+
+    return _simple_choices_from_values(empty_label, valores)
 
 
 def _catalog_organo_choices():
-    qs = CatalogoOpcion.objects.filter(
-        tipo=CatalogoOpcion.TIPO_ORGANO,
-        activo=True,
-    ).order_by('orden', 'valor')
+    try:
+        qs = CatalogoOpcion.objects.filter(
+            tipo=CatalogoOpcion.TIPO_ORGANO,
+            activo=True,
+        ).order_by('orden', 'valor')
 
-    grouped = OrderedDict()
-    singles = []
-    for item in qs:
-        if item.categoria:
-            grouped.setdefault(item.categoria, []).append((item.valor, item.valor))
-        else:
-            singles.append((item.valor, item.valor))
+        grouped = OrderedDict()
+        singles = []
+        for item in qs:
+            if item.categoria:
+                grouped.setdefault(item.categoria, []).append((item.valor, item.valor))
+            elif item.valor:
+                singles.append((item.valor, item.valor))
 
-    choices = [('', 'Seleccionar Órgano')]
-    for categoria, values in grouped.items():
-        choices.append((categoria, values))
-    choices.extend(singles)
-    return choices
+        choices = [('', 'Seleccionar Órgano')]
+        for categoria, values in grouped.items():
+            choices.append((categoria, values))
+        choices.extend(singles)
+
+        if len(choices) > 1:
+            return choices
+    except (OperationalError, ProgrammingError):
+        pass
+
+    return _simple_choices_from_values(
+        'Seleccionar Órgano',
+        _fallback_catalog_values(CatalogoOpcion.TIPO_ORGANO),
+    )
 
 
 def _qr(prefix):
@@ -316,10 +393,16 @@ class MuestraNecropsiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['tincion'].choices = _catalog_simple_choices(
+        tincion_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
+        current_tincion = (
+            self.data.get(self.add_prefix('tincion'))
+            or self.initial.get('tincion')
+            or getattr(self.instance, 'tincion', '')
+        )
+        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, current_tincion)
         for name, field in self.fields.items():
             if name not in (
                 'fecha',

@@ -3,10 +3,13 @@ from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+from django.db.utils import OperationalError
+from unittest.mock import patch
 
 from api.models import (
     Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia,
-    ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia,
+    ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia, Necropsia, MuestraNecropsia,
     InformeResultado,
 )
 
@@ -160,6 +163,65 @@ class AccesoProtegidoTests(TestCase):
         r = self.client.get(reverse('citologias'))
         cc = r.get('Cache-Control', '')
         self.assertIn('no-store', cc)
+
+
+class AnatomiaPatologicaLegacyDbTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(1)
+        self.client.force_login(self.tecnico)
+
+        make_cassette(1)
+        make_citologia(self.tecnico, 1)
+        Necropsia.objects.create(
+            necropsia='N001',
+            tipo_necropsia='Clínica',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_necropsia='QRN1',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+        Hematologia.objects.create(
+            hematologia='H001',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_hematologia='QRH1',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+
+        with connection.cursor() as cursor:
+            cursor.execute('DROP TABLE IF EXISTS catalogo_opciones')
+
+    def test_paginas_anatomia_cargan_sin_catalogo(self):
+        urls = ['cassettes', 'citologias', 'necropsias', 'hematologias']
+        for nombre in urls:
+            with self.subTest(url=nombre):
+                response = self.client.get(reverse(nombre))
+                self.assertEqual(response.status_code, 200)
+
+    def test_seleccion_detalle_sigue_funcionando_sin_informes_genericos(self):
+        cassette = Cassette.objects.first()
+        citologia = Citologia.objects.first()
+        necropsia = Necropsia.objects.first()
+        hematologia = Hematologia.objects.first()
+
+        with patch('web.views.InformeResultado.objects.filter', side_effect=OperationalError('legacy schema')):
+            urls = [
+                reverse('cassettes') + f'?cassette={cassette.pk}',
+                reverse('citologias') + f'?citologia={citologia.pk}',
+                reverse('necropsias') + f'?necropsia={necropsia.pk}',
+                reverse('hematologias') + f'?hematologia={hematologia.pk}',
+            ]
+            for url in urls:
+                with self.subTest(url=url):
+                    response = self.client.get(url)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertIsNotNone(response.context['selected'])
 
 
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────
@@ -355,6 +417,38 @@ class CitologiaCRUDTests(TestCase):
             make_citologia(self.tecnico, i + 1)
         r = self.client.get(reverse('citologias'))
         self.assertEqual(len(r.context['citologias']), 10)
+
+
+class NecropsiaMuestrasTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(1)
+        self.client.force_login(self.tecnico)
+        self.necropsia = Necropsia.objects.create(
+            necropsia='N001',
+            tipo_necropsia='Clínica',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_necropsia='QRN1',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+
+    def test_crear_muestra_necropsia_acepta_tincion_hidden_legacy(self):
+        response = self.client.post(reverse('muestra_necropsia_create', args=[self.necropsia.pk]), {
+            'descripcion': 'Muestra necropsia',
+            'fecha': '2026-03-11',
+            'examen_interno_cadaver': 'dato',
+            'tecnica_apertura': 'tecnica',
+            'datos_relevantes_region': 'region',
+            'tincion': 'Otros',
+            'observaciones': 'obs',
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(MuestraNecropsia.objects.filter(necropsia=self.necropsia, descripcion='Muestra necropsia').exists())
 
     def test_filtro_por_organo(self):
         make_citologia(self.tecnico, 1)  # organo='Pulmón'

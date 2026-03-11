@@ -178,10 +178,15 @@
                         <h2 class="cassette__title">Necropsias</h2>
                     </div>
                     <div class="col-2 d-flex justify-content-end align-items-center gap-2">
-                        <button type="button" class="btn m-0 p-0 icono__efect" id="btnformnuevanecropsia" data-open-modal="modalnuevaNecropsia">
-                            <i title="Nueva Autopsia"
-                                class="m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
-                        </button>
+                        <form method="get" action="{% url 'necropsias' %}" class="m-0 p-0 d-inline" id="btnformnuevanecropsia_form">
+                            <input type="hidden" name="modal" value="nueva_necropsia">
+                            {% if filtros.tipo_autopsia %}<input type="hidden" name="tipo_autopsia" value="{{ filtros.tipo_autopsia }}">{% endif %}
+                            {% if filtros.numero %}<input type="hidden" name="numero" value="{{ filtros.numero }}">{% endif %}
+                            {% if filtros.inicio %}<input type="hidden" name="inicio" value="{{ filtros.inicio }}"><input type="hidden" name="fin" value="{{ filtros.fin }}">{% endif %}
+                            <button type="submit" class="btn m-0 p-0 icono__efect" id="btnformnuevanecropsia" title="Nueva Autopsia">
+                                <i class="m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
+                            </button>
+                        </form>
                         <a href="{% url 'necropsias' %}?tipo_autopsia=*" class="btn m-0 p-0 icono__efect">
                             <i class="bi bi-files blue__color--negrita fs-5 m-0 p-0"
                                 title="Mostrar todas las autopsias"></i>
@@ -235,10 +240,12 @@
                                 <i title="Borrar Autopsia"
                                     class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
-                            <div id="btnformmodificarnecropsia" data-open-modal="modalupdateNecropsia" style="cursor:pointer">
+                            <a id="btnformmodificarnecropsia" style="cursor:pointer"
+                                onclick="window.location.href=this.href; return false;"
+                                href="{% url 'necropsias' %}?necropsia={{ selected.pk }}&modal=editar_necropsia{% if filtros.tipo_autopsia %}&tipo_autopsia={{ filtros.tipo_autopsia }}{% endif %}{% if filtros.numero %}&numero={{ filtros.numero }}{% endif %}{% if filtros.inicio %}&inicio={{ filtros.inicio }}&fin={{ filtros.fin }}{% endif %}">
                                 <i title="Modificar Autopsia"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
-                            </div>
+                            </a>
                             <div id="btnVerQR" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#qrNecropsiaModal">
                                 <i title="Ver QR" class="fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
@@ -317,9 +324,16 @@
                             style="border-radius:20px;">
                             <i class="fa-solid fa-notes-medical me-1"></i> Informe
                         </button>
-                        <button id="btnformnuevaMuestra" type="button" class="btn icono__efect">
-                            <i title="Nueva Muestra" class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
-                        </button>
+                        <form method="get" action="{% url 'necropsias' %}" class="m-0 p-0 d-inline" id="btnformnuevaMuestra_form">
+                            <input type="hidden" name="necropsia" value="{{ selected.pk }}">
+                            <input type="hidden" name="modal" value="nueva_muestra">
+                            {% if filtros.tipo_autopsia %}<input type="hidden" name="tipo_autopsia" value="{{ filtros.tipo_autopsia }}">{% endif %}
+                            {% if filtros.numero %}<input type="hidden" name="numero" value="{{ filtros.numero }}">{% endif %}
+                            {% if filtros.inicio %}<input type="hidden" name="inicio" value="{{ filtros.inicio }}"><input type="hidden" name="fin" value="{{ filtros.fin }}">{% endif %}
+                            <button id="btnformnuevaMuestra" class="btn icono__efect" type="submit" title="Nueva Muestra">
+                                <i class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -343,25 +357,40 @@
                                 <td>{{ item.muestra.tecnica_apertura|default:'-' }}</td>
                                 <td>{{ item.muestra.observaciones|truncatechars:40 }}</td>
                                 <td class="text-end" style="white-space:nowrap">
-                                    <a class="btn btn-sm btn-link p-0 me-1" title="Ver detalle"
-                                        href="{% url 'necropsias' %}?necropsia={{ selected.pk }}&muestra={{ item.muestra.pk }}{% if filtros.tipo_autopsia %}&tipo_autopsia={{ filtros.tipo_autopsia }}{% endif %}{% if filtros.numero %}&numero={{ filtros.numero }}{% endif %}{% if filtros.inicio %}&inicio={{ filtros.inicio }}&fin={{ filtros.fin }}{% endif %}">
-                                        <i class="fa-solid fa-eye blue__color--negrita"></i>
-                                    </a>
+                                    <form method="get" action="{% url 'necropsias' %}" style="display:inline" class="me-1">
+                                        <input type="hidden" name="necropsia" value="{{ selected.pk }}">
+                                        <input type="hidden" name="muestra" value="{{ item.muestra.pk }}">
+                                        <input type="hidden" name="modal" value="detalle_muestra">
+                                        {% if filtros.tipo_autopsia %}<input type="hidden" name="tipo_autopsia" value="{{ filtros.tipo_autopsia }}">{% endif %}
+                                        {% if filtros.numero %}<input type="hidden" name="numero" value="{{ filtros.numero }}">{% endif %}
+                                        {% if filtros.inicio %}<input type="hidden" name="inicio" value="{{ filtros.inicio }}"><input type="hidden" name="fin" value="{{ filtros.fin }}">{% endif %}
+                                        <button type="submit" class="btn btn-sm btn-link p-0" title="Ver detalle">
+                                            <i class="fa-solid fa-eye blue__color--negrita"></i>
+                                        </button>
+                                    </form>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
                                             onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}')"
                                             title="QR de muestra">
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha }}', '{{ item.muestra.examen_interno_cadaver|default:''|escapejs }}', '{{ item.muestra.tecnica_apertura|default:''|escapejs }}', '{{ item.muestra.datos_relevantes_region|default:''|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
-                                            title="Modificar">
-                                        <i class="fa-solid fa-file-pen blue__color--negrita"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-link p-0" data-bs-toggle="modal"
-                                        data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ item.muestra.pk }}"
-                                        title="Eliminar">
-                                        <i class="fa-solid fa-trash-can text-danger"></i>
-                                    </button>
+                                    <form method="get" action="{% url 'necropsias' %}" style="display:inline" class="me-1">
+                                        <input type="hidden" name="necropsia" value="{{ selected.pk }}">
+                                        <input type="hidden" name="muestra" value="{{ item.muestra.pk }}">
+                                        <input type="hidden" name="modal" value="editar_muestra">
+                                        {% if filtros.tipo_autopsia %}<input type="hidden" name="tipo_autopsia" value="{{ filtros.tipo_autopsia }}">{% endif %}
+                                        {% if filtros.numero %}<input type="hidden" name="numero" value="{{ filtros.numero }}">{% endif %}
+                                        {% if filtros.inicio %}<input type="hidden" name="inicio" value="{{ filtros.inicio }}"><input type="hidden" name="fin" value="{{ filtros.fin }}">{% endif %}
+                                        <button type="submit" class="btn btn-sm btn-link p-0" title="Modificar">
+                                            <i class="fa-solid fa-file-pen blue__color--negrita"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'muestra_necropsia_delete' item.muestra.pk %}" style="display:inline"
+                                        onsubmit="return confirm('¿Eliminar la muestra?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-link p-0" title="Eliminar">
+                                            <i class="fa-solid fa-trash-can text-danger"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% empty %}
@@ -493,7 +522,7 @@
         </section>
 
         <!-- ── Modal Nueva Muestra ──────────────────────────────────────────── -->
-        <section class="mimodal" id="modalnuevaMuestra">
+        <section class="mimodal {% if request.GET.modal == 'nueva_muestra' %}open{% endif %}" id="modalnuevaMuestra">
             <form class="row g-3 miform" method="post" action="{% url 'muestra_necropsia_create' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
@@ -537,7 +566,7 @@
             </form>
         </section>
 
-        <section class="mimodal" id="modalDetalleMuestra">
+        <section class="mimodal {% if request.GET.modal == 'detalle_muestra' %}open{% endif %}" id="modalDetalleMuestra">
             <section class="detallemuestra">
                 <div class="form__header">
                     <h2 class="cassette__title">Detalle Muestra</h2>
@@ -552,13 +581,24 @@
                             <div onclick="abrirQrMuestra('{{ selected_muestra_item.qr_url|escapejs }}', 'Muestra {{ selected_muestra_item.muestra.id_muestra }}')" style="cursor:pointer;">
                                 <i title="Imprimir QR Muestra" class="fa-sharp fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
-                            <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ selected_muestra_item.muestra.pk }}" style="cursor:pointer;">
-                                <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
-                            </div>
-                            <div style="cursor:pointer;"
-                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha }}', '{{ selected_muestra_item.muestra.examen_interno_cadaver|default:''|escapejs }}', '{{ selected_muestra_item.muestra.tecnica_apertura|default:''|escapejs }}', '{{ selected_muestra_item.muestra.datos_relevantes_region|default:''|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
-                                <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
-                            </div>
+                            <form method="post" action="{% url 'muestra_necropsia_delete' selected_muestra_item.muestra.pk %}" style="display:inline"
+                                onsubmit="return confirm('¿Eliminar la muestra?')">
+                                {% csrf_token %}
+                                <button type="submit" style="cursor:pointer; border:0; background:transparent; padding:0;">
+                                    <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
+                                </button>
+                            </form>
+                            <form method="get" action="{% url 'necropsias' %}" style="display:inline" class="m-0 p-0">
+                                <input type="hidden" name="necropsia" value="{{ selected.pk }}">
+                                <input type="hidden" name="muestra" value="{{ selected_muestra_item.muestra.pk }}">
+                                <input type="hidden" name="modal" value="editar_muestra">
+                                {% if filtros.tipo_autopsia %}<input type="hidden" name="tipo_autopsia" value="{{ filtros.tipo_autopsia }}">{% endif %}
+                                {% if filtros.numero %}<input type="hidden" name="numero" value="{{ filtros.numero }}">{% endif %}
+                                {% if filtros.inicio %}<input type="hidden" name="inicio" value="{{ filtros.inicio }}"><input type="hidden" name="fin" value="{{ filtros.fin }}">{% endif %}
+                                <button type="submit" style="cursor:pointer; border:0; background:transparent; padding:0;">
+                                    <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
 
@@ -622,7 +662,7 @@
                                     accept=".jpg,.jpeg,.png,.gif" class="d-none" onchange="this.form.submit()">
                             </form>
                         </div>
-                    </section>
+                    </div>
                     {% else %}
                     <p class="text-muted">Selecciona una muestra para ver el detalle.</p>
                     {% endif %}
@@ -631,8 +671,9 @@
         </section>
 
         <!-- ── Modal Modificar Muestra ─────────────────────────────────────── -->
-        <section class="mimodal front" id="modalmodificarMuestra">
-            <form class="row g-3 miform" method="post" id="formModificarMuestra" action="">
+        <section class="mimodal front {% if request.GET.modal == 'editar_muestra' %}open{% endif %}" id="modalmodificarMuestra">
+            <form class="row g-3 miform" method="post" id="formModificarMuestra"
+                action="{% if selected_muestra_item %}{% url 'muestra_necropsia_update' selected_muestra_item.muestra.pk %}{% endif %}">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title">Modificar Muestra</h2>
@@ -642,28 +683,31 @@
                 <hr>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Examen interno del cadaver</label>
-                    <textarea name="examen_interno_cadaver" id="editMuestraExamenInterno" class="form-control blue__color" required></textarea>
+                    <textarea name="examen_interno_cadaver" id="editMuestraExamenInterno" class="form-control blue__color" required>{% if selected_muestra_item %}{{ selected_muestra_item.muestra.examen_interno_cadaver|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Tecnica de apertura</label>
-                    <input type="text" name="tecnica_apertura" id="editMuestraTecnica" class="form-control blue__color" required>
+                    <input type="text" name="tecnica_apertura" id="editMuestraTecnica" class="form-control blue__color" required
+                        value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.tecnica_apertura|default:'' }}{% endif %}">
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Datos relevantes segun su region</label>
-                    <textarea name="datos_relevantes_region" id="editMuestraDatosRegion" class="form-control blue__color" required></textarea>
+                    <textarea name="datos_relevantes_region" id="editMuestraDatosRegion" class="form-control blue__color" required>{% if selected_muestra_item %}{{ selected_muestra_item.muestra.datos_relevantes_region|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Descripcion macroscopica</label>
-                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color" required>
+                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color" required
+                        value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.descripcion|default:'' }}{% endif %}">
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
+                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required
+                        value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.fecha|date:'Y-m-d' }}{% endif %}">
                 </div>
                 <input type="hidden" name="tincion" value="Otros">
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
-                    <textarea name="observaciones" id="editMuestraObservaciones" class="form-control blue__color"></textarea>
+                    <textarea name="observaciones" id="editMuestraObservaciones" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.observaciones|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Modificar Muestra</button>
@@ -672,7 +716,7 @@
         </section>
 
         <!-- ── Modal Modificar Autopsia ──────────────────────────────────── -->
-        <section class="mimodal" id="modalupdateNecropsia">
+        <section class="mimodal {% if request.GET.modal == 'editar_necropsia' %}open{% endif %}" id="modalupdateNecropsia">
             <form class="row g-3 miform" method="post" action="{% url 'necropsia_update' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
@@ -739,7 +783,7 @@
         {% endif %}
         
         <!-- ── Modal Nueva Autopsia ───────────────────────────────────────── -->
-        <section class="mimodal" id="modalnuevaNecropsia">
+        <section class="mimodal {% if request.GET.modal == 'nueva_necropsia' %}open{% endif %}" id="modalnuevaNecropsia">
             <form class="row g-3 miform" method="post" action="{% url 'necropsia_create' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
@@ -937,18 +981,12 @@
             }
         }
 
-        document.getElementById('btnformnuevanecropsia')
-            ?.addEventListener('click', () => openModal('modalnuevaNecropsia'));
         document.getElementById('btnformcerrarnuevaNecropsia')
             ?.addEventListener('click', () => closeModal('modalnuevaNecropsia'));
 
-        document.getElementById('btnformmodificarnecropsia')
-            ?.addEventListener('click', () => openModal('modalupdateNecropsia'));
         document.getElementById('btnformcerrarmodificarNecropsia')
             ?.addEventListener('click', () => closeModal('modalupdateNecropsia'));
 
-        document.getElementById('btnformnuevaMuestra')
-            ?.addEventListener('click', () => openModal('modalnuevaMuestra'));
         document.getElementById('btnformcerrarnuevaMuestra')
             ?.addEventListener('click', () => closeModal('modalnuevaMuestra'));
         document.getElementById('btnformcerrarmodificarMuestra')
@@ -1201,6 +1239,46 @@
             row.classList.add('table-active');
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
             openModal('modalDetalleMuestra');
+        })();
+
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const modal = params.get('modal');
+            if (!modal) return;
+
+            if (modal === 'nueva_necropsia') {
+                openModal('modalnuevaNecropsia');
+                return;
+            }
+
+            if (modal === 'editar_necropsia') {
+                openModal('modalupdateNecropsia');
+                return;
+            }
+
+            if (modal === 'nueva_muestra') {
+                openModal('modalnuevaMuestra');
+                return;
+            }
+
+            if (modal === 'detalle_muestra') {
+                openModal('modalDetalleMuestra');
+                return;
+            }
+
+            if (modal === 'editar_muestra') {
+                {% if selected_muestra_item %}
+                abrirEditarMuestra(
+                    {{ selected_muestra_item.muestra.pk }},
+                    '{{ selected_muestra_item.muestra.descripcion|escapejs }}',
+                    '{{ selected_muestra_item.muestra.fecha }}',
+                    '{{ selected_muestra_item.muestra.examen_interno_cadaver|default:''|escapejs }}',
+                    '{{ selected_muestra_item.muestra.tecnica_apertura|default:''|escapejs }}',
+                    '{{ selected_muestra_item.muestra.datos_relevantes_region|default:''|escapejs }}',
+                    '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}'
+                );
+                {% endif %}
+            }
         })();
 
         (function () {
