@@ -11,13 +11,6 @@
         <option value="" disabled {% if not edit %}selected{% endif %}>Seleccionar tipo de autopsia</option>
         <option value="Clínica" {% if edit and c.tipo_necropsia == 'Clínica' %}selected{% endif %}>Clinica</option>
         <option value="Médico-legal" {% if edit and c.tipo_necropsia == 'Médico-legal' %}selected{% endif %}>Medico-legal</option>
-        <option value="Forense" {% if edit and c.tipo_necropsia == 'Forense' %}selected{% endif %}>Forense</option>
-        <option value="Anatomopatológica" {% if edit and c.tipo_necropsia == 'Anatomopatológica' %}selected{% endif %}>Anatomopatologica</option>
-        <option value="Perinatal" {% if edit and c.tipo_necropsia == 'Perinatal' %}selected{% endif %}>Perinatal</option>
-        <option value="Psicológica" {% if edit and c.tipo_necropsia == 'Psicológica' %}selected{% endif %}>Psicologica</option>
-        <option value="Verbal" {% if edit and c.tipo_necropsia == 'Verbal' %}selected{% endif %}>Verbal</option>
-        <option value="Virtual" {% if edit and c.tipo_necropsia == 'Virtual' %}selected{% endif %}>Virtual</option>
-        <option value="Otros" {% if edit and c.tipo_necropsia == 'Otros' %}selected{% endif %}>Otros</option>
     </select>
 </div>
 <div class="row col-md-12 mt-2">
