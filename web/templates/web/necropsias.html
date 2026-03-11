@@ -948,6 +948,24 @@
     <script>
         // Fallback robusto: apertura/cierre de modales por data-attributes.
         (function () {
+            function clearModalQueryState(modal) {
+                if (modal) {
+                    modal.removeAttribute('data-force-open');
+                    modal.style.display = 'none';
+                }
+
+                var params = new URLSearchParams(window.location.search);
+                if (!params.has('modal')) return;
+
+                params.delete('modal');
+                var nextUrl = window.location.pathname;
+                var nextQuery = params.toString();
+                if (nextQuery) {
+                    nextUrl += '?' + nextQuery;
+                }
+                window.history.replaceState({}, '', nextUrl);
+            }
+
             function showModalById(id) {
                 if (!id) return;
                 var modal = document.getElementById(id);
@@ -965,6 +983,7 @@
                 modal.classList.remove('open');
                 modal.classList.remove('showmodal');
                 modal.classList.add('hidemodal');
+                clearModalQueryState(modal);
             }
 
             document.addEventListener('click', function (e) {
@@ -988,6 +1007,7 @@
                         modal.classList.remove('open');
                         modal.classList.remove('showmodal');
                         modal.classList.add('hidemodal');
+                        clearModalQueryState(modal);
                     }
                 });
             });
@@ -1031,6 +1051,21 @@
             const modal = document.getElementById(id);
             if (modal) {
                 modal.classList.remove('open');
+                modal.classList.remove('showmodal');
+                modal.classList.add('hidemodal');
+                modal.removeAttribute('data-force-open');
+                modal.style.display = 'none';
+
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('modal')) {
+                    params.delete('modal');
+                    const nextQuery = params.toString();
+                    const nextUrl = nextQuery
+                        ? `${window.location.pathname}?${nextQuery}`
+                        : window.location.pathname;
+                    window.history.replaceState({}, '', nextUrl);
+                }
+
                 if (!modal.classList.contains('mimodal')) {
                     modal.classList.remove('d-flex');
                     modal.classList.add('d-none');
