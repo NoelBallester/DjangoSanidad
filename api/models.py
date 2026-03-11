@@ -32,6 +32,9 @@ class Tecnico(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'id_tecnico'
     REQUIRED_FIELDS = ['nombre', 'apellidos']
 
+    def __str__(self):
+        return f"{self.nombre} {self.apellidos}"
+
     class Meta:
         db_table = 'tecnicos'
 
@@ -115,6 +118,9 @@ class Cassette(RegistroConInforme):
     cassette = models.CharField(max_length=50)
     qr_casette = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return f"Cassette {self.cassette}"
+
     class Meta:
         db_table = 'cassettes'
 
@@ -143,6 +149,9 @@ class Citologia(RegistroBase):
     tipo_citologia = models.CharField(max_length=255)
     qr_citologia = models.CharField(max_length=255, unique=True)
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return f"Citología {self.citologia}"
 
     class Meta:
         db_table = 'citologias'
@@ -177,6 +186,9 @@ class Necropsia(RegistroBase):
     qr_necropsia = models.CharField(max_length=255, unique=True)
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
 
+    def __str__(self):
+        return f"Necropsia {self.necropsia}"
+
     class Meta:
         db_table = 'necropsias'
 
@@ -208,6 +220,9 @@ class Tubo(RegistroConInforme):
     tubo = models.CharField(max_length=50)  # Numero de muestra/tubo
     qr_tubo = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return f"Tubo {self.tubo}"
+
     class Meta:
         db_table = 'tubos'
 
@@ -236,6 +251,9 @@ class Hematologia(RegistroConInforme):
     hematologia = models.CharField(max_length=50)  # Numero de muestra
     qr_hematologia = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return f"Hematología {self.hematologia}"
+
     class Meta:
         db_table = 'hematologias'
 
@@ -263,6 +281,9 @@ class Microbiologia(RegistroConInforme):
     id_microbiologia = models.AutoField(primary_key=True, db_column='id')
     microbiologia = models.CharField(max_length=50)  # Numero de muestra
     qr_microbiologia = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return f"Microbiología {self.microbiologia}"
 
     class Meta:
         db_table = 'microbiologias'
