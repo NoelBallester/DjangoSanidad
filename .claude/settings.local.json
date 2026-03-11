@@ -7,7 +7,10 @@
       "Bash(find /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad -name \"*.py\" -path \"*/management/commands/*\" 2>/dev/null | head -10)",
       "Bash(ls -la /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/*.txt /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/*.md 2>/dev/null)",
       "Bash(find /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/web/templates -type f -name \"*.html\" 2>/dev/null | head -20)",
-      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\" /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/api/*.py /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/web/*.py 2>/dev/null | head -10)"
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\" /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/api/*.py /home/jose/Escritorio/SANIDAD-PYTHON/DjangoSanidad/web/*.py 2>/dev/null | head -10)",
+      "Bash(cd C:/Users/Torment/Desktop/PYTHON-SANIDAD/DjangoSanidad && venv/Scripts/python.exe manage.py test api --verbosity=2 2>&1)",
+      "Bash(cd C:/Users/Torment/Desktop/PYTHON-SANIDAD/DjangoSanidad && venv/Scripts/python.exe manage.py test web --verbosity=2 2>&1)",
+      "Bash(cd C:/Users/Torment/Desktop/PYTHON-SANIDAD/DjangoSanidad && venv/Scripts/python.exe manage.py test api web --verbosity=2 2>&1 | tail -20)"
     ]
   }
 }
