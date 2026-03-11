@@ -436,7 +436,7 @@
                                     <div class="d-flex flex-wrap align-items-center gap-2">
                                         {% for img in item.imagenes %}
                                         <div class="position-relative" style="display:inline-block">
-                                            <img src="{{ img.imagen.url }}"
+                                            <img src="data:{{ img.mime_type }};base64,{{ img.imagen_base64 }}"
                                                 style="height:70px;border-radius:6px;object-fit:cover;" alt="">
                                             <form method="post" action="{% url 'imagen_hematologia_delete' img.pk %}"
                                                 style="display:inline" onsubmit="return confirm('¿Eliminar imagen?')">

@@ -25,20 +25,55 @@ from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
 
 
 def _imagen_bytes_a_base64(imagen_bytes):
-    if not imagen_bytes:
+    raw = _leer_imagen_bytes(imagen_bytes)
+    if not raw:
         return ''
     try:
-        return base64.b64encode(bytes(imagen_bytes)).decode('utf-8')
+        return base64.b64encode(raw).decode('utf-8')
     except Exception:
         return ''
+
+
+def _leer_imagen_bytes(imagen_value):
+    if not imagen_value:
+        return b''
+
+    if isinstance(imagen_value, memoryview):
+        return imagen_value.tobytes()
+
+    if isinstance(imagen_value, (bytes, bytearray)):
+        return bytes(imagen_value)
+
+    try:
+        if hasattr(imagen_value, 'open'):
+            imagen_value.open('rb')
+        if hasattr(imagen_value, 'read'):
+            contenido = imagen_value.read()
+            if contenido:
+                return bytes(contenido)
+    except Exception:
+        pass
+    finally:
+        try:
+            if hasattr(imagen_value, 'close'):
+                imagen_value.close()
+        except Exception:
+            pass
+
+    ruta = getattr(imagen_value, 'path', None)
+    if ruta and os.path.exists(ruta):
+        try:
+            with open(ruta, 'rb') as archivo:
+                return archivo.read()
+        except Exception:
+            return b''
+
+    return b''
 
 
 def _mime_tipo_desde_bytes(imagen_bytes):
-    if not imagen_bytes:
-        return 'image/jpeg'
-    try:
-        raw = bytes(imagen_bytes)
-    except Exception:
+    raw = _leer_imagen_bytes(imagen_bytes)
+    if not raw:
         return 'image/jpeg'
 
     if raw.startswith(b'\xff\xd8\xff'):
@@ -961,7 +996,14 @@ def hematologia_list(request):
             muestras_con_imagenes = [
                 {
                     'muestra': m,
-                    'imagenes': ImagenHematologia.objects.filter(muestra=m),
+                    'imagenes': [
+                        {
+                            'pk': im.pk,
+                            'mime_type': _mime_tipo_desde_bytes(im.imagen),
+                            'imagen_base64': _imagen_bytes_a_base64(im.imagen),
+                        }
+                        for im in ImagenHematologia.objects.filter(muestra=m)
+                    ],
                     'qr_url': _build_qr_link(request, m.qr_muestra),
                 }
                 for m in MuestraHematologia.objects.filter(hematologia=selected)

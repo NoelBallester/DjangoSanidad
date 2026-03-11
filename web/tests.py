@@ -12,6 +12,7 @@ from api.models import (
     ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia, Necropsia, MuestraNecropsia,
     InformeResultado,
 )
+from web.views import _imagen_bytes_a_base64, _mime_tipo_desde_bytes
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -56,6 +57,17 @@ def make_citologia(tecnico=None, n=1):
 def informe_qs_for(obj):
     ct = ContentType.objects.get_for_model(obj.__class__)
     return InformeResultado.objects.filter(content_type=ct, object_id=obj.pk)
+
+
+PNG_BYTES = (
+    b'\x89PNG\r\n\x1a\n'
+    b'\x00\x00\x00\rIHDR'
+    b'\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00'
+    b'\x90wS\xde'
+    b'\x00\x00\x00\x0cIDATx\x9cc``\x00\x00\x00\x02\x00\x01'
+    b'\x0b\xe7\x02\x9d'
+    b'\x00\x00\x00\x00IEND\xaeB`\x82'
+)
 
 
 # ── 1. Autenticación ──────────────────────────────────────────────────────────
@@ -222,6 +234,31 @@ class AnatomiaPatologicaLegacyDbTests(TestCase):
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, 200)
                     self.assertIsNotNone(response.context['selected'])
+
+
+class ImageHelperTests(TestCase):
+
+    def test_helpers_leen_filefield_correctamente(self):
+        cassette = make_cassette(99)
+        muestra = Muestra.objects.create(
+            cassette=cassette,
+            descripcion='Muestra test',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-TEST-IMG',
+        )
+        imagen = Imagen.objects.create(
+            muestra=muestra,
+            imagen=SimpleUploadedFile('test.png', PNG_BYTES, content_type='image/png'),
+        )
+
+        self.assertEqual(_mime_tipo_desde_bytes(imagen.imagen), 'image/png')
+        self.assertTrue(_imagen_bytes_a_base64(imagen.imagen))
+
+    def test_helpers_leen_bytes_legacy_correctamente(self):
+        self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), 'image/png')
+        self.assertTrue(_imagen_bytes_a_base64(PNG_BYTES))
 
 
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────
