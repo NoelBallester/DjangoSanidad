@@ -59,7 +59,7 @@ class DetalleBase(models.Model):
         blank=True,
         db_column='tecnico_id',
     )
-    volante_peticion = models.BinaryField(null=True, blank=True)
+    volante_peticion = models.FileField(upload_to='volantes/', null=True, blank=True)
     volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
     volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
@@ -90,7 +90,7 @@ class RegistroConInforme(RegistroBase):
     informe_fecha = models.DateField(null=True, blank=True)
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
-    informe_imagen = models.BinaryField(null=True, blank=True)
+    informe_imagen = models.FileField(upload_to='informes_legacy/', null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -115,7 +115,7 @@ class ImagenBase(models.Model):
     """
     Base abstracta para todos los modelos de imagen de muestra.
     """
-    imagen = models.BinaryField(null=True, blank=True, editable=True)
+    imagen = models.FileField(upload_to='imagenes/', null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -324,7 +324,7 @@ class InformeResultado(models.Model):
     fecha = models.DateField(null=True, blank=True)
     tincion = models.CharField(max_length=255, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    imagen = models.BinaryField(null=True, blank=True)
+    imagen = models.FileField(upload_to='informes/', null=True, blank=True)
     tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id', null=True, blank=True)
     hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id', null=True, blank=True)
     microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id', null=True, blank=True)

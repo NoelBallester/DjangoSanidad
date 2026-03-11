@@ -37,7 +37,7 @@ class ImagenSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception:
                 return None
         return None
@@ -70,7 +70,7 @@ class ImagenCitologiaSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception:
                 return None
         return None
@@ -111,12 +111,12 @@ class TuboSerializer(serializers.ModelSerializer):
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen).decode('utf-8')
+            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
         return None
 
     def get_volante_peticion_base64(self, obj):
         if obj.volante_peticion:
-            return base64.b64encode(obj.volante_peticion).decode('utf-8')
+            return base64.b64encode(obj.volante_peticion.read()).decode('utf-8')
         return None
 
 class MuestraTuboSerializer(serializers.ModelSerializer):
@@ -132,7 +132,7 @@ class MuestraTuboSerializer(serializers.ModelSerializer):
         try:
             imagen = obj.imagentubo_set.first()  # Obtener la primera imagen
             if imagen and imagen.imagen:
-                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
+                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
         except Exception:
             pass
         return None
@@ -148,7 +148,7 @@ class ImagenTuboSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(obj.imagen).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception as e:
                 logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
@@ -168,7 +168,7 @@ class HematologiaSerializer(serializers.ModelSerializer):
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen).decode('utf-8')
+            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
         return None
 
 class MuestraHematologiaSerializer(serializers.ModelSerializer):
@@ -187,7 +187,7 @@ class MuestraHematologiaSerializer(serializers.ModelSerializer):
         try:
             imagen = obj.imagenhematologia_set.first()
             if imagen and imagen.imagen:
-                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
+                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
         except Exception:
             pass
         return None
@@ -204,7 +204,7 @@ class ImagenHematologiaSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception as e:
                 logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
@@ -230,12 +230,12 @@ class MicrobiologiaSerializer(serializers.ModelSerializer):
 
     def get_imagen_base64(self, obj):
         if obj.informe_imagen:
-            return base64.b64encode(obj.informe_imagen).decode('utf-8')
+            return base64.b64encode(obj.informe_imagen.read()).decode('utf-8')
         return None
 
     def get_volante_peticion_base64(self, obj):
         if obj.volante_peticion:
-            return base64.b64encode(obj.volante_peticion).decode('utf-8')
+            return base64.b64encode(obj.volante_peticion.read()).decode('utf-8')
         return None
 
 class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
@@ -249,7 +249,7 @@ class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
         try:
             imagen = obj.imagenmicrobiologia_set.first()
             if imagen and imagen.imagen:
-                return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
+                return base64.b64encode(imagen.imagen.read()).decode('utf-8')
         except Exception:
             return None
         return None
@@ -264,7 +264,7 @@ class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception:
                 return None
         return None
@@ -285,7 +285,7 @@ class InformeResultadoSerializer(serializers.ModelSerializer):
     def get_imagen_base64(self, obj):
         if obj.imagen:
             try:
-                return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
+                return base64.b64encode(obj.imagen.read()).decode('utf-8')
             except Exception:
                 return None
         return None

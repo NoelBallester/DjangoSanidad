@@ -400,7 +400,7 @@ class ImagenViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
 
         imagen_obj = Imagen.objects.create(
-            imagen=imagen_file.read(),
+            imagen=imagen_file,
             muestra_id=muestra_id
         )
         return Response(ImagenSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
@@ -425,7 +425,7 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
 
         imagen_obj = ImagenCitologia.objects.create(
-            imagen=imagen_file.read(),
+            imagen=imagen_file,
             muestra_id=muestra_id
         )
         return Response(ImagenCitologiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
@@ -456,7 +456,7 @@ class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
 
         imagen_obj = ImagenNecropsia.objects.create(
-            imagen=imagen_file.read(),
+            imagen=imagen_file,
             muestra_id=muestra_id
         )
         return Response(ImagenNecropsiaSerializer(imagen_obj).data, status=status.HTTP_201_CREATED)
@@ -586,7 +586,7 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
         
         # Si hay imagen, crear el registro en ImagenTubo con datos binarios
         if imagen_file:
-            imagen_bytes = imagen_file.read()
+            imagen_bytes = imagen_file
             ImagenTubo.objects.create(
                 imagen=imagen_bytes,
                 muestra=muestra
@@ -622,7 +622,7 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Leer el archivo y convertirlo a bytes
-        imagen_bytes = imagen_file.read()
+        imagen_bytes = imagen_file
         
         # Crear el objeto ImagenTubo
         imagen_tubo = ImagenTubo.objects.create(
@@ -750,7 +750,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         # Si hay imagen, crear el registro en ImagenHematologia
         if imagen_file:
             ImagenHematologia.objects.create(
-                imagen=imagen_file.read(),
+                imagen=imagen_file,
                 muestra=muestra
             )
         
@@ -784,7 +784,7 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_hematologia = ImagenHematologia.objects.create(
-            imagen=imagen_file.read(),
+            imagen=imagen_file,
             muestra_id=muestra_id
         )
         
@@ -916,7 +916,7 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
         
         if imagen_file:
             ImagenMicrobiologia.objects.create(
-                imagen=imagen_file.read(),
+                imagen=imagen_file,
                 muestra=muestra
             )
         
@@ -947,7 +947,7 @@ class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_microbiologia = ImagenMicrobiologia.objects.create(
-            imagen=imagen_file.read(),
+            imagen=imagen_file,
             muestra_id=muestra_id
         )
         
