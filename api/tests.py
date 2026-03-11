@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import make_password
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -109,7 +110,10 @@ class ImagenEndpointTests(TestCase):
 		)
 
 	def test_por_muestra_returns_expected_serializer_shape(self):
-		Imagen.objects.create(muestra=self.muestra, imagen=b'test-bytes')
+		Imagen.objects.create(
+			muestra=self.muestra,
+			imagen=SimpleUploadedFile('test.jpg', b'fake-image-bytes', content_type='image/jpeg'),
+		)
 
 		response = self.client.get(f'/api/imagenes/muestra/{self.muestra.pk}/')
 

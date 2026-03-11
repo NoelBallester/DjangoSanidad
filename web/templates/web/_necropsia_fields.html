@@ -35,7 +35,7 @@
     <textarea name="examen_externo_cadaver" class="form-control blue__color textarea__text">{% if edit %}{{ c.examen_externo_cadaver }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Datos de la muerte</label>
+    <label class="form-label blue__color">Data de la muerte.</label>
     <textarea name="datos_muerte" class="form-control blue__color textarea__text">{% if edit %}{{ c.datos_muerte }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
@@ -48,7 +48,7 @@
     <textarea name="observaciones" class="form-control blue__color textarea__text">{% if edit %}{{ c.observaciones }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Volante de peticion (archivo)</label>
+    <label class="form-label blue__color">Informe de autopsia (archivo)</label>
     <input type="file" name="volante_peticion" class="form-control blue__color"
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
     {% if edit and c.volante_peticion_nombre %}

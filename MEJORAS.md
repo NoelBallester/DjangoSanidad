@@ -2,7 +2,7 @@
 
 ## 🔴 Críticas (Seguridad & Estabilidad)
 
-### 1. Almacenamiento de imágenes en base de datos
+### 1. Almacenamiento de imágenes en base de datos HECHO
 - **Problema:** Las imágenes se guardan como `BinaryField` en SQLite, lo que infla la base de datos y ralentiza las consultas. Los backups son más complejos y no es compatible con CDN o servidores de media.
 - **Solución:** Usar `FileField` con almacenamiento en el sistema de archivos (`media/`) o cloud (S3/GCS).
 - **Afecta:** `api/models.py` → modelos `Imagen`, `ImagenTubo`, `ImagenHematologia`, `ImagenMicrobiologia`, `ImagenCitologia`
@@ -12,17 +12,17 @@
 - **Solución:** Añadir `PageNumberPagination` en DRF para todos los ViewSets.
 - **Afecta:** `api/views.py` → todos los ViewSets, `core/settings.py` (configuración global de paginación)
 
-### 3. Configuración de archivos estáticos insegura
+### 3. Configuración de archivos estáticos insegura HECHO
 - **Problema:** `STATICFILES_DIRS = [BASE_DIR]` expone todo el proyecto incluyendo `.git`, `db.sqlite3` y cualquier archivo `.env`.
 - **Solución:** Crear un directorio `static/` dedicado y apuntar solo a él.
 - **Afecta:** `core/settings.py`
 
-### 4. Secret key sin protección obligatoria
+### 4. Secret key sin protección obligatoria HECHO
 - **Problema:** Si no se define `DJANGO_SECRET_KEY`, usa el valor por defecto `'dev-insecure-change-me'`. Si el proyecto se despliega sin configurar la variable, es vulnerable.
 - **Solución:** Hacer obligatoria la variable de entorno (lanzar error si no está definida) o usar `python-decouple` con un `.env` obligatorio.
 - **Afecta:** `core/settings.py`
 
-### 5. Sin archivo `.env` de ejemplo
+### 5. Sin archivo `.env` de ejemplo HECHO
 - **Problema:** No hay `.env.example` ni documentación de las variables de entorno necesarias.
 - **Solución:** Crear `.env.example` con todas las variables requeridas (`DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CORS_ALLOW_ALL`, etc.) y añadir `.env` al `.gitignore`.
 
@@ -30,36 +30,36 @@
 
 ## 🟠 Importantes (Calidad del código)
 
-### 6. Duplicación masiva de modelos
+### 6. Duplicación masiva de modelos HECHO
 - **Problema:** Existen 5 modelos de muestra casi idénticos (Cassette, Tubo, Hematologia, Microbiologia, Citologia), 5 modelos de detalle y 5 modelos de imagen, con más de 80 campos duplicados en total.
 - **Solución:** Crear modelos base abstractos (`MuestraBase`, `DetalleBase`, `ImagenBase`) y heredar de ellos en cada tipo específico.
 - **Afecta:** `api/models.py`
 
-### 7. Rutas API triplicadas
+### 7. Rutas API triplicadas HECHO
 - **Problema:** `/api/`, `/sanitaria/` y `/modelo/` apuntan exactamente a los mismos endpoints. Genera confusión, superficie de ataque innecesaria y dificultad para mantener tests.
 - **Solución:** Eliminar `/sanitaria/` y `/modelo/` y usar únicamente `/api/`.
 - **Afecta:** `core/urls.py`
 
-### 8. Tipos de órganos y tinciones hardcodeados en formularios
+### 8. Tipos de órganos y tinciones hardcodeados en formularios HECHO
 - **Problema:** Más de 80 líneas de listas estáticas en `web/forms.py` (tipos de órganos, tinciones, etc.). Añadir o modificar opciones requiere cambios de código.
 - **Solución:** Mover a modelos de base de datos con administración desde el panel de Django Admin.
 - **Afecta:** `web/forms.py`, requiere nuevos modelos en `api/models.py`
 
-### 9. Sin archivo `requirements.txt`
+### 9. Sin archivo `requirements.txt`  HECHO
 - **Problema:** No existe archivo de dependencias. Cualquier despliegue o instalación nueva requiere saber de memoria qué paquetes instalar.
 - **Solución:** Ejecutar `pip freeze > requirements.txt` y mantenerlo actualizado.
 
-### 10. Diseño de `InformeResultado` con múltiples FK opcionales
+### 10. Diseño de `InformeResultado` con múltiples FK opcionales HECHO
 - **Problema:** El modelo `InformeResultado` tiene ForeignKey a los 5 tipos de muestra con `null=True`, lo que rompe la integridad referencial y hace las queries complejas.
 - **Solución:** Usar `GenericForeignKey` de Django o crear tablas de informes separadas por tipo de muestra.
 - **Afecta:** `api/models.py` → `InformeResultado`
 
-### 11. Generación de QR sin validación de unicidad
+### 11. Generación de QR sin validación de unicidad HECHO
 - **Problema:** Los QR se generan con cadenas aleatorias sin verificar colisiones en base de datos. Aunque improbable, es posible un duplicado.
 - **Solución:** Añadir un bucle de verificación o usar `uuid.uuid4()` directamente con restricción `unique=True`.
 - **Afecta:** `api/views.py` → función `generar_qr()`
 
-### 12. Opciones de formularios sin validación de negocio en serializers
+### 12. Opciones de formularios sin validación de negocio en serializers  HECHO
 - **Problema:** Los serializers tienen validación mínima. No se valida unicidad de QR, formatos de fechas especiales ni reglas de negocio médicas.
 - **Solución:** Añadir métodos `validate_*()` y `validate()` en los serializers.
 - **Afecta:** `api/serializers.py`
@@ -166,7 +166,7 @@
 
 ### Fase 2 - Rendimiento y estabilidad
 - [ ] Añadir paginación (#2)
-- [ ] Migrar imágenes a sistema de ficheros (#1)
+- [x] Migrar imágenes a sistema de ficheros (#1)
 - [ ] Optimizar queries N+1 (#21)
 - [ ] Activar zona horaria (#19)
 
