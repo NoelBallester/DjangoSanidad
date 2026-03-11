@@ -250,7 +250,7 @@ class ImageHelperTests(TestCase):
         )
         imagen = Imagen.objects.create(
             muestra=muestra,
-            imagen=SimpleUploadedFile('test.png', PNG_BYTES, content_type='image/png'),
+            imagen=PNG_BYTES,
         )
 
         self.assertEqual(_mime_tipo_desde_bytes(imagen.imagen), 'image/png')
@@ -762,12 +762,12 @@ class MuestraCassetteExtrasTests(TestCase):
         self.assertEqual(Imagen.objects.filter(muestra=self.muestra).count(), 0)
 
     def test_eliminar_imagen(self):
-        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra.jpg'))
+        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra.jpg').read())
         self.client.post(reverse('imagen_delete', args=[imagen.pk]))
         self.assertFalse(Imagen.objects.filter(pk=imagen.pk).exists())
 
     def test_eliminar_imagen_redirige_a_cassette(self):
-        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra2.jpg'))
+        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra2.jpg').read())
         r = self.client.post(reverse('imagen_delete', args=[imagen.pk]))
         expected = reverse('cassettes') + f'?cassette={self.cassette.pk}&muestra={self.muestra.pk}'
         self.assertRedirects(r, expected, fetch_redirect_response=False)
@@ -841,7 +841,7 @@ class MuestraCitologiaTests(TestCase):
 
     def test_eliminar_imagen_citologia(self):
         m = make_muestra_citologia(self.citologia, 1)
-        imagen = ImagenCitologia.objects.create(muestra=m, imagen=fake_image('citologia.jpg'))
+        imagen = ImagenCitologia.objects.create(muestra=m, imagen=fake_image('citologia.jpg').read())
         self.client.post(reverse('imagen_citologia_delete', args=[imagen.pk]))
         self.assertFalse(ImagenCitologia.objects.filter(pk=imagen.pk).exists())
 
@@ -1028,13 +1028,13 @@ class MuestraHematologiaTests(TestCase):
 
     def test_eliminar_imagen_hematologia(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia.jpg'))
+        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia.jpg').read())
         self.client.post(reverse('imagen_hematologia_delete', args=[imagen.pk]))
         self.assertFalse(ImagenHematologia.objects.filter(pk=imagen.pk).exists())
 
     def test_eliminar_imagen_hematologia_redirige(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia2.jpg'))
+        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia2.jpg').read())
         r = self.client.post(reverse('imagen_hematologia_delete', args=[imagen.pk]))
         expected = reverse('hematologias') + f'?hematologia={self.hematologia.pk}'
         self.assertRedirects(r, expected, fetch_redirect_response=False)

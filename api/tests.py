@@ -113,7 +113,7 @@ class ImagenEndpointTests(TestCase):
 	def test_por_muestra_returns_expected_serializer_shape(self):
 		Imagen.objects.create(
 			muestra=self.muestra,
-			imagen=SimpleUploadedFile('test.jpg', b'fake-image-bytes', content_type='image/jpeg'),
+			imagen=b'fake-image-bytes',
 		)
 
 		response = self.client.get(f'/api/imagenes/muestra/{self.muestra.pk}/')
@@ -150,7 +150,7 @@ class ImagenEndpointTests(TestCase):
 		webp_bytes = b'RIFF\x00g\x00\x00WEBPVP8 ' + b'0' * 32
 		imagen = ImagenHematologia.objects.create(
 			muestra=muestra,
-			imagen=SimpleUploadedFile('test.bin', webp_bytes, content_type='application/octet-stream'),
+			imagen=webp_bytes,
 		)
 
 		list_response = self.client.get(f'/api/imageneshematologia/muestra/{muestra.pk}/')

@@ -94,11 +94,7 @@ def _guardar_volante_peticion(archivo, instancia):
     if not archivo:
         return
     
-    # Leer contenido del archivo
-    contenido = archivo
-    
-    # Guardar en la instancia del modelo
-    instancia.volante_peticion = contenido
+    instancia.volante_peticion = archivo.read()
     instancia.volante_peticion_nombre = archivo.name
     instancia.volante_peticion_tipo = archivo.content_type
 
@@ -351,7 +347,7 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
         informe.observaciones = form.cleaned_data['informe_observaciones']
         img = form.cleaned_data.get('informe_imagen')
         if img:
-            informe.imagen = img
+            informe.imagen = img.read()
         informe.save()
         messages.success(request, 'Informe de resultados guardado correctamente.')
         return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe&informe={informe.pk}')
@@ -399,7 +395,7 @@ def muestra_create(request, cassette_pk):
         muestra = form.save(cassette=cassette)
         archivo_imagen = request.FILES.get('imagen')
         if archivo_imagen:
-            Imagen.objects.create(muestra=muestra, imagen=archivo_imagen)
+            Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
         return redirect(reverse('cassettes') + f'?cassette={cassette_pk}&muestra={muestra.pk}')
     return redirect(reverse('cassettes') + f'?cassette={cassette_pk}')
 
@@ -431,7 +427,7 @@ def imagen_upload(request, muestra_pk):
     muestra = get_object_or_404(Muestra, pk=muestra_pk)
     archivo_imagen = request.FILES.get('imagen')
     if archivo_imagen:
-        Imagen.objects.create(muestra=muestra, imagen=archivo_imagen)
+        Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
     return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}&muestra={muestra.pk}')
 
 
@@ -697,7 +693,7 @@ def muestra_citologia_create(request, citologia_pk):
         muestra = form.save(citologia=citologia)
         archivo_imagen = request.FILES.get('imagen')
         if archivo_imagen:
-            ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen)
+            ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
         return redirect(reverse('citologias') + f'?citologia={citologia_pk}&muestra={muestra.pk}')
     return redirect(reverse('citologias') + f'?citologia={citologia_pk}')
 
@@ -729,7 +725,7 @@ def imagen_citologia_upload(request, muestra_pk):
     muestra = get_object_or_404(MuestraCitologia, pk=muestra_pk)
     archivo_imagen = request.FILES.get('imagen')
     if archivo_imagen:
-        ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen)
+        ImagenCitologia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
     return redirect(reverse('citologias') + f'?citologia={muestra.citologia_id}&muestra={muestra.pk}')
 
 
@@ -919,7 +915,7 @@ def muestra_necropsia_create(request, necropsia_pk):
         muestra = form.save(necropsia=necropsia)
         archivo_imagen = request.FILES.get('imagen')
         if archivo_imagen:
-            ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen)
+            ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
         return redirect(reverse('necropsias') + f'?necropsia={necropsia_pk}&muestra={muestra.pk}')
     return redirect(reverse('necropsias') + f'?necropsia={necropsia_pk}')
 
@@ -949,7 +945,7 @@ def imagen_necropsia_upload(request, muestra_pk):
     muestra = get_object_or_404(MuestraNecropsia, pk=muestra_pk)
     archivo_imagen = request.FILES.get('imagen')
     if archivo_imagen:
-        ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen)
+        ImagenNecropsia.objects.create(muestra=muestra, imagen=archivo_imagen.read())
     return redirect(reverse('necropsias') + f'?necropsia={muestra.necropsia_id}&muestra={muestra.pk}')
 
 
@@ -1080,7 +1076,7 @@ def hematologia_informe(request, pk):
         hematologia.informe_observaciones = form.cleaned_data['informe_observaciones']
         img = form.cleaned_data.get('informe_imagen')
         if img:
-            hematologia.informe_imagen = img
+            hematologia.informe_imagen = img.read()
         hematologia.save()
     return redirect(reverse('hematologias') + f'?hematologia={pk}')
 
@@ -1128,7 +1124,7 @@ def imagen_hematologia_upload(request, muestra_pk):
         if img_file:
             ImagenHematologia.objects.create(
                 muestra=muestra,
-                imagen=img_file
+                imagen=img_file.read()
             )
     return redirect(reverse('hematologias') + f'?hematologia={muestra.hematologia_id}')
 
