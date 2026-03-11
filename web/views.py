@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.contrib.contenttypes.models import ContentType
 from urllib.parse import urlparse, parse_qs
 import base64
 import os
@@ -69,6 +70,11 @@ def _build_qr_link(request, code):
     if not code:
         return ''
     return request.build_absolute_uri(reverse('qr_resolver') + f'?code={code}')
+
+
+def _informes_por_registro(registro):
+    ct = ContentType.objects.get_for_model(registro.__class__)
+    return InformeResultado.objects.filter(content_type=ct, object_id=registro.pk)
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -162,7 +168,7 @@ def cassette_list(request):
             selected_qr_url = _build_qr_link(request, selected.qr_casette)
 
             informes_resultado = list(
-                InformeResultado.objects.filter(cassette=selected).order_by('-fecha', '-creado_en', '-id_informe')
+                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
             )
 
             if informe_pk and informe_pk != 'nuevo':
@@ -265,9 +271,14 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
         informe_id = request.POST.get('informe_id', '').strip()
-        informe = InformeResultado.objects.filter(pk=informe_id, **{fk_campo: registro}).first() if informe_id else None
+        ct = ContentType.objects.get_for_model(modelo)
+        informe = InformeResultado.objects.filter(
+            pk=informe_id,
+            content_type=ct,
+            object_id=registro.pk,
+        ).first() if informe_id else None
         if informe is None:
-            informe = InformeResultado(**{fk_campo: registro})
+            informe = InformeResultado(content_type=ct, object_id=registro.pk)
         informe.descripcion = form.cleaned_data['informe_descripcion']
         informe.fecha = form.cleaned_data['informe_fecha']
         informe.tincion = form.cleaned_data['informe_tincion']
@@ -284,7 +295,8 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
 
 def _eliminar_informe(request, pk, informe_pk, modelo, fk_campo, redirect_name):
     registro = get_object_or_404(modelo, pk=pk)
-    informe = get_object_or_404(InformeResultado, pk=informe_pk, **{fk_campo: registro})
+    ct = ContentType.objects.get_for_model(modelo)
+    informe = get_object_or_404(InformeResultado, pk=informe_pk, content_type=ct, object_id=registro.pk)
     informe.delete()
     messages.success(request, 'Informe eliminado correctamente.')
     return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
@@ -422,7 +434,7 @@ def citologia_list(request):
             selected_qr_url = _build_qr_link(request, selected.qr_citologia)
 
             informes_resultado = list(
-                InformeResultado.objects.filter(citologia=selected).order_by('-fecha', '-creado_en', '-id_informe')
+                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
             )
 
             if informe_pk and informe_pk != 'nuevo':
@@ -719,7 +731,7 @@ def necropsia_list(request):
             selected_qr_url = _build_qr_link(request, selected.qr_necropsia)
 
             informes_resultado = list(
-                InformeResultado.objects.filter(necropsia=selected).order_by('-fecha', '-creado_en', '-id_informe')
+                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
             )
 
             if informe_pk and informe_pk != 'nuevo':

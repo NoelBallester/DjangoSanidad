@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.contenttypes.models import ContentType
 
 from api.models import (
     Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia,
@@ -39,7 +40,7 @@ def make_cassette(n=1):
 def make_citologia(tecnico=None, n=1):
     return Citologia.objects.create(
         citologia=f'CIT{n:03d}',
-        tipo_citologia='Exfoliativa',
+        tipo_citologia='Improntas',
         fecha='2024-01-01',
         descripcion='Desc',
         caracteristicas='Caract',
@@ -47,6 +48,11 @@ def make_citologia(tecnico=None, n=1):
         organo='Pulmón',
         tecnico=tecnico,
     )
+
+
+def informe_qs_for(obj):
+    ct = ContentType.objects.get_for_model(obj.__class__)
+    return InformeResultado.objects.filter(content_type=ct, object_id=obj.pk)
 
 
 # ── 1. Autenticación ──────────────────────────────────────────────────────────
@@ -911,9 +917,7 @@ class InformeCassetteTests(TestCase):
             'informe_tincion': 'Hematoxilina Eosina (HE)',
             'informe_observaciones': 'Sin anomalías',
         })
-        self.assertTrue(
-            InformeResultado.objects.filter(cassette=self.cassette).exists()
-        )
+        self.assertTrue(informe_qs_for(self.cassette).exists())
 
     def test_crear_informe_cassette_guarda_descripcion(self):
         self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
@@ -922,13 +926,14 @@ class InformeCassetteTests(TestCase):
             'informe_tincion': '',
             'informe_observaciones': '',
         })
-        informe = InformeResultado.objects.filter(cassette=self.cassette).first()
+        informe = informe_qs_for(self.cassette).first()
         self.assertIsNotNone(informe)
         self.assertEqual(informe.descripcion, 'Desc informe')
 
     def test_actualizar_informe_existente_no_duplica(self):
         informe = InformeResultado.objects.create(
-            cassette=self.cassette,
+            content_type=ContentType.objects.get_for_model(Cassette),
+            object_id=self.cassette.pk,
             descripcion='Original',
             fecha='2024-01-01',
         )
@@ -939,13 +944,14 @@ class InformeCassetteTests(TestCase):
             'informe_tincion': '',
             'informe_observaciones': '',
         })
-        self.assertEqual(InformeResultado.objects.filter(cassette=self.cassette).count(), 1)
+        self.assertEqual(informe_qs_for(self.cassette).count(), 1)
         informe.refresh_from_db()
         self.assertEqual(informe.descripcion, 'Actualizado')
 
     def test_eliminar_informe_cassette(self):
         informe = InformeResultado.objects.create(
-            cassette=self.cassette,
+            content_type=ContentType.objects.get_for_model(Cassette),
+            object_id=self.cassette.pk,
             descripcion='A eliminar',
             fecha='2024-01-01',
         )
@@ -986,13 +992,12 @@ class InformeCitologiaTests(TestCase):
             'informe_tincion': 'Papanicolau',
             'informe_observaciones': '',
         })
-        self.assertTrue(
-            InformeResultado.objects.filter(citologia=self.citologia).exists()
-        )
+        self.assertTrue(informe_qs_for(self.citologia).exists())
 
     def test_eliminar_informe_citologia(self):
         informe = InformeResultado.objects.create(
-            citologia=self.citologia,
+            content_type=ContentType.objects.get_for_model(Citologia),
+            object_id=self.citologia.pk,
             descripcion='A borrar',
             fecha='2024-01-01',
         )
@@ -1003,7 +1008,8 @@ class InformeCitologiaTests(TestCase):
 
     def test_informe_citologia_actualiza_existente(self):
         informe = InformeResultado.objects.create(
-            citologia=self.citologia,
+            content_type=ContentType.objects.get_for_model(Citologia),
+            object_id=self.citologia.pk,
             descripcion='Original',
             fecha='2024-01-01',
         )
@@ -1014,9 +1020,7 @@ class InformeCitologiaTests(TestCase):
             'informe_tincion': '',
             'informe_observaciones': '',
         })
-        self.assertEqual(
-            InformeResultado.objects.filter(citologia=self.citologia).count(), 1
-        )
+        self.assertEqual(informe_qs_for(self.citologia).count(), 1)
         informe.refresh_from_db()
         self.assertEqual(informe.descripcion, 'Actualizado cit')
 

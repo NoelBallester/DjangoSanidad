@@ -172,9 +172,10 @@
 
 ### Fase 3 - Calidad del código
 - [x] Modelos abstractos base (#6)
-- [ ] Rediseñar `InformeResultado` (#10)
+- [x] Rediseñar `InformeResultado` (#10)
+- [x] Unicidad de QR (#11)
 - [x] Mover opciones hardcodeadas a BD (#8)
-- [ ] Validación en serializers (#12)
+- [x] Validación en serializers (#12)
 - [ ] Borrado suave (#15)
 
 ### Fase 4 - Funcionalidad

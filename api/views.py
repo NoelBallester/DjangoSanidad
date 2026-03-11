@@ -4,10 +4,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 import base64
 import uuid
-import random
 from django.contrib.auth import authenticate
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 from .serializers import (
@@ -21,9 +21,17 @@ from .serializers import (
 )
 
 def generar_qr(prefijo):
-    """Genera un código QR único con formato: prefijo + 12 caracteres"""
-    random_part = str(uuid.uuid4()).replace('-', '') + str(random.randint(0, 999999))
-    return f"{prefijo}{str(random_part)[:12]}"
+    """Genera un código base QR con formato: prefijo + 12 caracteres."""
+    return f"{prefijo}{uuid.uuid4().hex[:12]}"
+
+
+def generar_qr_unico(prefijo, modelo, campo, max_intentos=50):
+    """Genera un QR y verifica colisiones contra base de datos."""
+    for _ in range(max_intentos):
+        candidato = generar_qr(prefijo)
+        if not modelo.objects.filter(**{campo: candidato}).exists():
+            return candidato
+    raise RuntimeError(f'No se pudo generar QR unico para {modelo.__name__}.{campo}')
 
 class TecnicoViewSet(viewsets.ModelViewSet):
     queryset = Tecnico.objects.all()
@@ -68,7 +76,7 @@ class CassetteViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_casette' not in data or not data['qr_casette']:
-            data['qr_casette'] = generar_qr('--c--')
+            data['qr_casette'] = generar_qr_unico('--c--', Cassette, 'qr_casette')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -155,7 +163,7 @@ class CitologiaViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_citologia' not in data or not data['qr_citologia']:
-            data['qr_citologia'] = generar_qr('--c--')
+            data['qr_citologia'] = generar_qr_unico('--cit--', Citologia, 'qr_citologia')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -241,7 +249,7 @@ class NecropsiaViewSet(viewsets.ModelViewSet):
     def create(self, request):
         data = request.data.copy()
         if 'qr_necropsia' not in data or not data['qr_necropsia']:
-            data['qr_necropsia'] = generar_qr('--n--')
+            data['qr_necropsia'] = generar_qr_unico('--nec--', Necropsia, 'qr_necropsia')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -319,7 +327,7 @@ class MuestraViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--m--')
+            data['qr_muestra'] = generar_qr_unico('--m--', Muestra, 'qr_muestra')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -345,7 +353,7 @@ class MuestraCitologiaViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--m--')
+            data['qr_muestra'] = generar_qr_unico('--mc--', MuestraCitologia, 'qr_muestra')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -370,7 +378,7 @@ class MuestraNecropsiaViewSet(viewsets.ModelViewSet):
     def create(self, request):
         data = request.data.copy()
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--m--')
+            data['qr_muestra'] = generar_qr_unico('--mn--', MuestraNecropsia, 'qr_muestra')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -480,7 +488,7 @@ class TuboViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_tubo' not in data or not data['qr_tubo']:
-            data['qr_tubo'] = generar_qr('--t--')
+            data['qr_tubo'] = generar_qr_unico('--t--', Tubo, 'qr_tubo')
         
         # Generar número de tubo si no existe
         if 'tubo' not in data or not data['tubo']:
@@ -575,7 +583,7 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--mt--')
+            data['qr_muestra'] = generar_qr_unico('--mt--', MuestraTubo, 'qr_muestra')
         
         # Separar la imagen de los datos si existe
         imagen_file = request.FILES.get('imagen', None)
@@ -651,7 +659,7 @@ class HematologiaViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_hematologia' not in data or not data['qr_hematologia']:
-            data['qr_hematologia'] = generar_qr('--h--')
+            data['qr_hematologia'] = generar_qr_unico('--h--', Hematologia, 'qr_hematologia')
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -738,7 +746,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--mh--')
+            data['qr_muestra'] = generar_qr_unico('--mh--', MuestraHematologia, 'qr_muestra')
         
         # Separar la imagen de los datos si existe
         imagen_file = request.FILES.get('imagen', None)
@@ -813,7 +821,7 @@ class MicrobiologiaViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         # Generar QR automáticamente si no existe
         if 'qr_microbiologia' not in data or not data['qr_microbiologia']:
-            data['qr_microbiologia'] = generar_qr('--mb--')
+            data['qr_microbiologia'] = generar_qr_unico('--mb--', Microbiologia, 'qr_microbiologia')
         
         # Generar número de tubo si no existe
         if 'microbiologia' not in data or not data['microbiologia']:
@@ -906,7 +914,7 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
     def create(self, request):
         data = request.data.copy()
         if 'qr_muestra' not in data or not data['qr_muestra']:
-            data['qr_muestra'] = generar_qr('--mmb--')
+            data['qr_muestra'] = generar_qr_unico('--mmb--', MuestraMicrobiologia, 'qr_muestra')
         
         imagen_file = request.FILES.get('imagen', None)
         
@@ -972,6 +980,11 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
     queryset = InformeResultado.objects.all().order_by('-fecha', '-id_informe')
     serializer_class = InformeResultadoSerializer
 
+    @staticmethod
+    def _filtrar_por_modelo(modelo, object_id):
+        ct = ContentType.objects.get_for_model(modelo)
+        return InformeResultado.objects.filter(content_type=ct, object_id=object_id).order_by('-fecha', '-id_informe')
+
     def create(self, request):
         if request.FILES.get('imagen'):
             return Response(
@@ -1008,25 +1021,25 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='tubo/(?P<id>[^/.]+)')
     def por_tubo(self, request, id=None):
-        informes = InformeResultado.objects.filter(tubo_id=id).order_by('-fecha', '-id_informe')
+        informes = self._filtrar_por_modelo(Tubo, id)
         return Response(InformeResultadoSerializer(informes, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='hematologia/(?P<id>[^/.]+)')
     def por_hematologia(self, request, id=None):
-        informes = InformeResultado.objects.filter(hematologia_id=id).order_by('-fecha', '-id_informe')
+        informes = self._filtrar_por_modelo(Hematologia, id)
         return Response(InformeResultadoSerializer(informes, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='microbiologia/(?P<id>[^/.]+)')
     def por_microbiologia(self, request, id=None):
-        informes = InformeResultado.objects.filter(microbiologia_id=id).order_by('-fecha', '-id_informe')
+        informes = self._filtrar_por_modelo(Microbiologia, id)
         return Response(InformeResultadoSerializer(informes, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='cassette/(?P<id>[^/.]+)')
     def por_cassette(self, request, id=None):
-        informes = InformeResultado.objects.filter(cassette_id=id).order_by('-fecha', '-id_informe')
+        informes = self._filtrar_por_modelo(Cassette, id)
         return Response(InformeResultadoSerializer(informes, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='citologia/(?P<id>[^/.]+)')
     def por_citologia(self, request, id=None):
-        informes = InformeResultado.objects.filter(citologia_id=id).order_by('-fecha', '-id_informe')
+        informes = self._filtrar_por_modelo(Citologia, id)
         return Response(InformeResultadoSerializer(informes, many=True).data)

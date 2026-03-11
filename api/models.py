@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class TecnicoManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -355,13 +357,13 @@ class InformeResultado(models.Model):
     tincion = models.CharField(max_length=255, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
     imagen = models.FileField(upload_to='informes/', null=True, blank=True)
-    tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id', null=True, blank=True)
-    hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id', null=True, blank=True)
-    microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id', null=True, blank=True)
-    cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE, db_column='cassette_id', null=True, blank=True)
-    citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologia_id', null=True, blank=True)
-    necropsia = models.ForeignKey(Necropsia, on_delete=models.CASCADE, db_column='necropsia_id', null=True, blank=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'informesresultado'
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+        ]
