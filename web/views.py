@@ -260,46 +260,46 @@ def cassette_delete(request, pk):
     return redirect('cassettes')
 
 
-@login_required
-@require_POST
-def cassette_informe(request, pk):
-    cassette = get_object_or_404(Cassette, pk=pk)
+def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
+    registro = get_object_or_404(modelo, pk=pk)
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
         informe_id = request.POST.get('informe_id', '').strip()
-        informe = None
-
-        if informe_id:
-            informe = InformeResultado.objects.filter(pk=informe_id, cassette=cassette).first()
-
+        informe = InformeResultado.objects.filter(pk=informe_id, **{fk_campo: registro}).first() if informe_id else None
         if informe is None:
-            informe = InformeResultado(cassette=cassette)
-
+            informe = InformeResultado(**{fk_campo: registro})
         informe.descripcion = form.cleaned_data['informe_descripcion']
         informe.fecha = form.cleaned_data['informe_fecha']
         informe.tincion = form.cleaned_data['informe_tincion']
         informe.observaciones = form.cleaned_data['informe_observaciones']
-
         img = form.cleaned_data.get('informe_imagen')
         if img:
             informe.imagen = img.read()
-
         informe.save()
         messages.success(request, 'Informe de resultados guardado correctamente.')
-        return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe&informe={informe.pk}')
-    else:
-        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
-    return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe')
+        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe&informe={informe.pk}')
+    messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
+    return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
+
+def _eliminar_informe(request, pk, informe_pk, modelo, fk_campo, redirect_name):
+    registro = get_object_or_404(modelo, pk=pk)
+    informe = get_object_or_404(InformeResultado, pk=informe_pk, **{fk_campo: registro})
+    informe.delete()
+    messages.success(request, 'Informe eliminado correctamente.')
+    return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
+
+@login_required
+@require_POST
+def cassette_informe(request, pk):
+    return _guardar_informe(request, pk, Cassette, 'cassette', 'cassettes')
 
 
 @login_required
 @require_POST
 def cassette_informe_delete(request, pk, informe_pk):
-    cassette = get_object_or_404(Cassette, pk=pk)
-    informe = get_object_or_404(InformeResultado, pk=informe_pk, cassette=cassette)
-    informe.delete()
-    messages.success(request, 'Informe eliminado correctamente.')
-    return redirect(reverse('cassettes') + f'?cassette={pk}&tab=informe')
+    return _eliminar_informe(request, pk, informe_pk, Cassette, 'cassette', 'cassettes')
 
 
 # ── Muestras ──────────────────────────────────────────────────────────────────
@@ -591,43 +591,13 @@ def citologia_delete(request, pk):
 @login_required
 @require_POST
 def citologia_informe(request, pk):
-    citologia = get_object_or_404(Citologia, pk=pk)
-    form = InformeForm(request.POST, request.FILES)
-    if form.is_valid():
-        informe_id = request.POST.get('informe_id', '').strip()
-        informe = None
-
-        if informe_id:
-            informe = InformeResultado.objects.filter(pk=informe_id, citologia=citologia).first()
-
-        if informe is None:
-            informe = InformeResultado(citologia=citologia)
-
-        informe.descripcion = form.cleaned_data['informe_descripcion']
-        informe.fecha = form.cleaned_data['informe_fecha']
-        informe.tincion = form.cleaned_data['informe_tincion']
-        informe.observaciones = form.cleaned_data['informe_observaciones']
-
-        img = form.cleaned_data.get('informe_imagen')
-        if img:
-            informe.imagen = img.read()
-
-        informe.save()
-        messages.success(request, 'Informe de resultados guardado correctamente.')
-        return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe&informe={informe.pk}')
-    else:
-        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
-    return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe')
+    return _guardar_informe(request, pk, Citologia, 'citologia', 'citologias')
 
 
 @login_required
 @require_POST
 def citologia_informe_delete(request, pk, informe_pk):
-    citologia = get_object_or_404(Citologia, pk=pk)
-    informe = get_object_or_404(InformeResultado, pk=informe_pk, citologia=citologia)
-    informe.delete()
-    messages.success(request, 'Informe eliminado correctamente.')
-    return redirect(reverse('citologias') + f'?citologia={pk}&tab=informe')
+    return _eliminar_informe(request, pk, informe_pk, Citologia, 'citologia', 'citologias')
 
 
 # ── Muestras Citología ────────────────────────────────────────────────────────
@@ -845,43 +815,13 @@ def necropsia_delete(request, pk):
 @login_required
 @require_POST
 def necropsia_informe(request, pk):
-    necropsia = get_object_or_404(Necropsia, pk=pk)
-    form = InformeForm(request.POST, request.FILES)
-    if form.is_valid():
-        informe_id = request.POST.get('informe_id', '').strip()
-        informe = None
-
-        if informe_id:
-            informe = InformeResultado.objects.filter(pk=informe_id, necropsia=necropsia).first()
-
-        if informe is None:
-            informe = InformeResultado(necropsia=necropsia)
-
-        informe.descripcion = form.cleaned_data['informe_descripcion']
-        informe.fecha = form.cleaned_data['informe_fecha']
-        informe.tincion = form.cleaned_data['informe_tincion']
-        informe.observaciones = form.cleaned_data['informe_observaciones']
-
-        img = form.cleaned_data.get('informe_imagen')
-        if img:
-            informe.imagen = img.read()
-
-        informe.save()
-        messages.success(request, 'Informe de resultados guardado correctamente.')
-        return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe&informe={informe.pk}')
-    else:
-        messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
-    return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe')
+    return _guardar_informe(request, pk, Necropsia, 'necropsia', 'necropsias')
 
 
 @login_required
 @require_POST
 def necropsia_informe_delete(request, pk, informe_pk):
-    necropsia = get_object_or_404(Necropsia, pk=pk)
-    informe = get_object_or_404(InformeResultado, pk=informe_pk, necropsia=necropsia)
-    informe.delete()
-    messages.success(request, 'Informe eliminado correctamente.')
-    return redirect(reverse('necropsias') + f'?necropsia={pk}&tab=informe')
+    return _eliminar_informe(request, pk, informe_pk, Necropsia, 'necropsia', 'necropsias')
 
 
 @login_required
@@ -1174,70 +1114,43 @@ def usuario_delete(request, pk):
 
 # ── Descargar archivos desde BD ───────────────────────────────────────────────
 
+def _descargar_volante(instancia):
+    if not instancia.volante_peticion:
+        return HttpResponse('No hay archivo disponible', status=404)
+    content = bytes(instancia.volante_peticion)
+    response = HttpResponse(content, content_type=instancia.volante_peticion_tipo or 'application/octet-stream')
+    response['Content-Disposition'] = f'inline; filename="{instancia.volante_peticion_nombre or "volante.pdf"}"'
+    return response
+
+
 @login_required
 def descargar_volante_cassette(request, pk):
-    cassette = get_object_or_404(Cassette, pk=pk)
-    if not cassette.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-    
-    response = HttpResponse(cassette.volante_peticion, content_type=cassette.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{cassette.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Cassette, pk=pk))
 
 
 @login_required
 def descargar_volante_citologia(request, pk):
-    citologia = get_object_or_404(Citologia, pk=pk)
-    if not citologia.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-    
-    response = HttpResponse(citologia.volante_peticion, content_type=citologia.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{citologia.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Citologia, pk=pk))
 
 
 @login_required
 def descargar_volante_necropsia(request, pk):
-    necropsia = get_object_or_404(Necropsia, pk=pk)
-    if not necropsia.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-
-    response = HttpResponse(necropsia.volante_peticion, content_type=necropsia.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{necropsia.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Necropsia, pk=pk))
 
 
 @login_required
 def descargar_volante_hematologia(request, pk):
-    hematologia = get_object_or_404(Hematologia, pk=pk)
-    if not hematologia.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-    
-    response = HttpResponse(hematologia.volante_peticion, content_type=hematologia.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{hematologia.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Hematologia, pk=pk))
 
 
 @login_required
 def descargar_volante_tubo(request, pk):
-    tubo = get_object_or_404(Tubo, pk=pk)
-    if not tubo.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-    
-    response = HttpResponse(tubo.volante_peticion, content_type=tubo.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{tubo.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Tubo, pk=pk))
 
 
 @login_required
 def descargar_volante_microbiologia(request, pk):
-    microbiologia = get_object_or_404(Microbiologia, pk=pk)
-    if not microbiologia.volante_peticion:
-        return HttpResponse('No hay archivo disponible', status=404)
-    
-    response = HttpResponse(microbiologia.volante_peticion, content_type=microbiologia.volante_peticion_tipo or 'application/octet-stream')
-    response['Content-Disposition'] = f'inline; filename="{microbiologia.volante_peticion_nombre or "volante.pdf"}"'
-    return response
+    return _descargar_volante(get_object_or_404(Microbiologia, pk=pk))
 
 @login_required
 def descargar_informe_resultado(request, informe_pk):

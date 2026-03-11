@@ -462,18 +462,6 @@ class HematologiaForm(forms.ModelForm):
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
-    def clean_volante_peticion(self):
-        file = self.cleaned_data.get('volante_peticion')
-        if file:
-            if file.size > 10 * 1024 * 1024:  # 10MB limit
-                raise ValidationError("El archivo es demasiado grande (máx 10MB)")
-            allowed_types = ['application/pdf', 'application/msword',
-                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                             'image/jpeg', 'image/png', 'image/gif']
-            if file.content_type not in allowed_types:
-                raise ValidationError("Tipo de archivo no permitido")
-        return file
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():

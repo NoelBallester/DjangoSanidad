@@ -1,6 +1,8 @@
 import base64
+import logging
 import os
 from rest_framework import serializers
+logger = logging.getLogger(__name__)
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 
 class TecnicoSerializer(serializers.ModelSerializer):
@@ -131,7 +133,7 @@ class MuestraTuboSerializer(serializers.ModelSerializer):
             imagen = obj.imagentubo_set.first()  # Obtener la primera imagen
             if imagen and imagen.imagen:
                 return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
-        except:
+        except Exception:
             pass
         return None
 
@@ -148,7 +150,7 @@ class ImagenTuboSerializer(serializers.ModelSerializer):
             try:
                 return base64.b64encode(obj.imagen).decode('utf-8')
             except Exception as e:
-                print(f"Error al convertir imagen {obj.id_imagen}: {e}")
+                logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
 
 class HematologiaSerializer(serializers.ModelSerializer):
@@ -186,7 +188,7 @@ class MuestraHematologiaSerializer(serializers.ModelSerializer):
             imagen = obj.imagenhematologia_set.first()
             if imagen and imagen.imagen:
                 return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
-        except:
+        except Exception:
             pass
         return None
 
@@ -204,7 +206,7 @@ class ImagenHematologiaSerializer(serializers.ModelSerializer):
             try:
                 return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
             except Exception as e:
-                print(f"Error al convertir imagen {obj.id_imagen}: {e}")
+                logger.error(f"Error al convertir imagen {obj.id_imagen}: {e}")
         return None
 
 class MicrobiologiaSerializer(serializers.ModelSerializer):
@@ -248,7 +250,7 @@ class MuestraMicrobiologiaSerializer(serializers.ModelSerializer):
             imagen = obj.imagenmicrobiologia_set.first()
             if imagen and imagen.imagen:
                 return base64.b64encode(bytes(imagen.imagen)).decode('utf-8')
-        except:
+        except Exception:
             return None
         return None
 
@@ -263,7 +265,7 @@ class ImagenMicrobiologiaSerializer(serializers.ModelSerializer):
         if obj.imagen:
             try:
                 return base64.b64encode(bytes(obj.imagen)).decode('utf-8')
-            except:
+            except Exception:
                 return None
         return None
 
