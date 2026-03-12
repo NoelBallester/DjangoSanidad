@@ -1,9 +1,11 @@
 from django.test import TestCase, Client
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
+from django.conf import settings
 from django.db.utils import OperationalError
 from unittest.mock import patch
 
@@ -12,6 +14,7 @@ from api.models import (
     ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia, Necropsia, MuestraNecropsia,
     InformeResultado,
 )
+from core.error_views import custom_404, custom_500
 from web.views import _imagen_bytes_a_base64, _mime_tipo_desde_bytes
 
 
@@ -259,6 +262,126 @@ class ImageHelperTests(TestCase):
     def test_helpers_leen_bytes_legacy_correctamente(self):
         self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), 'image/png')
         self.assertTrue(_imagen_bytes_a_base64(PNG_BYTES))
+
+
+class ErrorViewTests(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_custom_404_renderiza_plantilla_propia(self):
+        request = self.factory.get('/ruta-inexistente/')
+        response = custom_404(request, Exception('missing'))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(b'404', response.content)
+        self.assertIn(b'La pagina solicitada no existe', response.content)
+
+    def test_custom_500_renderiza_plantilla_propia(self):
+        request = self.factory.get('/error/')
+        response = custom_500(request)
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn(b'500', response.content)
+        self.assertIn(b'Se ha producido un error interno', response.content)
+
+    def test_timezone_usa_madrid_con_tz_activo(self):
+        self.assertEqual(settings.TIME_ZONE, 'Europe/Madrid')
+        self.assertTrue(settings.USE_TZ)
+
+
+class MuestrasSinImagenTemplateTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(101)
+        self.client.force_login(self.tecnico)
+
+    def test_cassettes_muestra_sin_imagen_muestra_placeholder(self):
+        cassette = make_cassette(501)
+        muestra = Muestra.objects.create(
+            cassette=cassette,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-CAS',
+        )
+
+        response = self.client.get(reverse('cassettes') + f'?cassette={cassette.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_citologias_muestra_sin_imagen_muestra_placeholder(self):
+        citologia = make_citologia(self.tecnico, 601)
+        muestra = MuestraCitologia.objects.create(
+            citologia=citologia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-CIT',
+        )
+
+        response = self.client.get(reverse('citologias') + f'?citologia={citologia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_necropsias_muestra_sin_imagen_muestra_placeholder(self):
+        necropsia = Necropsia.objects.create(
+            necropsia='N901',
+            tipo_necropsia='Clínica',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_necropsia='QRN901',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+        muestra = MuestraNecropsia.objects.create(
+            necropsia=necropsia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            qr_muestra='QR-NO-IMG-NEC',
+            examen_interno_cadaver='dato',
+            tecnica_apertura='tecnica',
+            datos_relevantes_region='region',
+        )
+
+        response = self.client.get(reverse('necropsias') + f'?necropsia={necropsia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_hematologias_muestra_sin_imagen_muestra_placeholder(self):
+        hematologia = Hematologia.objects.create(
+            hematologia='H901',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_hematologia='QRH901',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+        muestra = MuestraHematologia.objects.create(
+            hematologia=hematologia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-HEM',
+        )
+
+        response = self.client.get(reverse('hematologias') + f'?hematologia={hematologia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
 
 
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────

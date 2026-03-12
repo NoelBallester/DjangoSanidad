@@ -878,8 +878,33 @@ const rellenarDatosMuestra = async (muestra) => {
 const mostrarImagenesMuestra = async (muestaId) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId);
+  const visorImagen = document.getElementById("visor__img");
+
+  const renderEstadoSinImagen = () => {
+    muestra__img.style.display = "flex";
+    muestra__img.classList.add("muestra__galeria--vacia");
+    imageId = null;
+
+    if (visorImagen) {
+      visorImagen.src = "./assets/images/no_disponible.jpg";
+      visorImagen.classList.add("visor__img--empty");
+      visorImagen.alt = "Sin imagen disponible";
+    }
+
+    const emptyState = document.createElement("div");
+    emptyState.className = "muestra__empty-state";
+    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    muestra__img.appendChild(emptyState);
+  };
+
   // Mostrar imágenes en el contenedor
   if (imagenes.length > 0) {
+    muestra__img.style.display = "flex";
+    muestra__img.classList.remove("muestra__galeria--vacia");
+    if (visorImagen) {
+      visorImagen.classList.remove("visor__img--empty");
+      visorImagen.alt = "Vista previa de la muestra";
+    }
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
@@ -892,12 +917,15 @@ const mostrarImagenesMuestra = async (muestaId) => {
       newimg.style.cursor = "pointer";
 
       if (index == 0) {
+        if (visorImagen) visorImagen.src = newimg.src;
         imageId = newimg.id;
       }
 
       // Añadimos cada una de las imagenes
       muestra__img.appendChild(newimg);
     });
+  } else {
+    renderEstadoSinImagen();
   }
 };
 
@@ -955,7 +983,7 @@ const detailMuestra = async (muestraid) => {
 const aniadirImagenMuestra = () => {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'image/*';
+  input.accept = '*/*';
   input.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;

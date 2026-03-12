@@ -77,6 +77,8 @@ const INFORME_TAB_KEY = "hematologia_active_tab";
 
 // Detalle sub-muestra
 let currentHematologiaId = null;
+let informeEditandoId = null;
+let informeGuardando = false;
 
 // Modales QR
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
@@ -175,15 +177,63 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
-const resolverTextoEscaneado = (text) => {
+const cerrarModalQrConsulta = () => {
+  if (!qrConsultaModal || !window.bootstrap?.Modal) return;
+  const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
+  modal.hide();
+};
+
+const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
+
+  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    window.location.href = value;
+    try {
+      const parsed = new URL(value);
+      const codeParam = parsed.searchParams.get("code");
+      if (codeParam) {
+        code = codeParam;
+      } else {
+        window.location.href = value;
+        return;
+      }
+    } catch (_) {
+      window.location.href = value;
+      return;
+    }
+  }
+
+  if (await consultarHematologiaQR(code, true)) {
+    cerrarModalQrConsulta();
     return;
   }
-  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+  if (await consultarSubMuestraQR(code, true)) {
+    cerrarModalQrConsulta();
+    return;
+  }
+
+  alert("No se encontró ningún registro para ese QR.");
 };
+
+const irConsultaQr = async () => {
+  await resolverTextoEscaneado(input__consultarqr?.value || "");
+};
+
+window.irConsultaQr = irConsultaQr;
+
+if (manualQrBtn) {
+  manualQrBtn.onclick = irConsultaQr;
+}
+
+if (input__consultarqr) {
+  input__consultarqr.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      irConsultaQr();
+    }
+  };
+}
 
 // ============================================================
 // UTILIDADES
@@ -221,6 +271,13 @@ function mostrarEstadoInforme(mensaje, tipo = "success") {
   informeStatus.textContent = mensaje;
 }
 
+function actualizarEtiquetaBotonInforme() {
+  if (!btnGuardarInforme || informeGuardando) return;
+  btnGuardarInforme.innerHTML = informeEditandoId
+    ? '<i class="fa-solid fa-pen-to-square me-2"></i> Actualizar Informe'
+    : '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+}
+
 function limpiarEstadoInforme() {
   if (!informeStatus) return;
   informeStatus.classList.add("d-none");
@@ -234,7 +291,7 @@ function cambiarEstadoBotonGuardar(guardando) {
     btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+    actualizarEtiquetaBotonInforme();
   }
 }
 
@@ -281,6 +338,8 @@ window.editarInformeHematologia = async (informeId) => {
   const informes = await cargarInformesHematologia(targetId);
   const informe = informes.find((item) => String(item.id_informe) === String(informeId));
   if (!informe) return;
+  informeEditandoId = String(informe.id_informe);
+  actualizarEtiquetaBotonInforme();
   cargarInformeEnFormularioHematologia(informe);
   mostrarPanelNuevoInformeHematologia(false);
 };
@@ -306,6 +365,7 @@ window.guardarInformeHematologia = async () => {
     mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
     return;
   }
+  if (informeGuardando) return;
 
   const descripcion = document.getElementById("Muestras__informe_descripcion")?.value || "";
   const fecha = document.getElementById("Muestras__informe_fecha")?.value || "";
@@ -324,10 +384,13 @@ window.guardarInformeHematologia = async () => {
   }
 
   try {
+    informeGuardando = true;
     mostrarEstadoInforme("Guardando informe...", "info");
     cambiarEstadoBotonGuardar(true);
-    const res = await fetch("/api/informesresultado/", {
-      method: "POST",
+    const isEdit = Boolean(informeEditandoId);
+    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const res = await fetch(endpoint, {
+      method: isEdit ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -338,7 +401,9 @@ window.guardarInformeHematologia = async () => {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "No se pudo guardar el informe");
     }
-    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    informeEditandoId = null;
+    actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
     ocultarPanelNuevoInformeHematologia();
     await refrescarInformesHematologia(targetId);
@@ -346,6 +411,7 @@ window.guardarInformeHematologia = async () => {
     console.error(error);
     mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
   } finally {
+    informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
   }
 };
@@ -389,9 +455,6 @@ const imprimirInformesHematologia = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-file-import Muestras__icon Muestras__icon--infoMuestras me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeHematologia('${urlInforme || ''}')"></i>
-      ${tieneArchivo
-        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf Muestras__icon Muestras__icon--infoMuestras" data-action="ver-link"></i></a>`
-        : `<i class="fa-solid fa-file-pdf Muestras__icon Muestras__icon--infoMuestras me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
       <i class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeHematologia('${informe.id_informe}')"></i>
       <i class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeHematologia('${informe.id_informe}')"></i>
     `;
@@ -417,6 +480,8 @@ const refrescarInformesHematologia = async (idHematologia) => {
 };
 
 const limpiarFormularioInformeHematologia = () => {
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = "";
   if (muestrasInformeFecha) muestrasInformeFecha.value = "";
   if (muestrasInformeTincion) muestrasInformeTincion.value = "";
@@ -447,6 +512,8 @@ const mostrarPanelNuevoInformeHematologia = (limpiar = true) => {
 
 const ocultarPanelNuevoInformeHematologia = () => {
   if (!modalNuevoInforme) return;
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
 };
@@ -1056,12 +1123,32 @@ const mostrarImagenesSubMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
 
   const imagenes = await obtenerImagenesSubMuestra(muestraId_val);
+  const renderEstadoSinImagen = () => {
+    muestra__img.style.display = "flex";
+    muestra__img.classList.add("muestra__galeria--vacia");
+    imageId = null;
+
+    if (visor__img) {
+      visor__img.src = "./assets/images/no_disponible.jpg";
+      visor__img.classList.add("visor__img--empty");
+      visor__img.alt = "Sin imagen disponible";
+    }
+
+    const emptyState = document.createElement("div");
+    emptyState.className = "muestra__empty-state";
+    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    muestra__img.appendChild(emptyState);
+  };
 
   if (imagenes.length === 0) {
-    muestra__img.style.display = "none";
-    if (visor__img) visor__img.src = "./assets/images/no_disponible.jpg";
+    renderEstadoSinImagen();
   } else {
     muestra__img.style.display = "flex";
+    muestra__img.classList.remove("muestra__galeria--vacia");
+    if (visor__img) {
+      visor__img.classList.remove("visor__img--empty");
+      visor__img.alt = "Vista previa de la muestra";
+    }
     imagenes.forEach((imagen, index) => {
       const newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
@@ -1085,7 +1172,7 @@ const aniadirImagenSubMuestra = async () => {
   try {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "*/*";
 
     input.onchange = async (e) => {
       const file = e.target.files[0];
@@ -1173,7 +1260,7 @@ const consultaFechaFin = async () => {
 // CONSULTAS QR
 // ============================================================
 
-const consultarHematologiaQR = async (qr) => {
+const consultarHematologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/hematologia/qr/${qr}/`);
   const lista = await response.json();
   if (lista.length > 0) {
@@ -1183,21 +1270,25 @@ const consultarHematologiaQR = async (qr) => {
     hematologiaId = h.id_hematologia;
     const subMuestras = await cargarSubMuestras(hematologiaId);
     imprimirSubMuestras(subMuestras);
+    return true;
   } else {
-    alert("No se encontró ninguna muestra con ese QR");
+    if (!silent) alert("No se encontró ninguna muestra con ese QR");
+    return false;
   }
 };
 
-const consultarSubMuestraQR = async (qr) => {
+const consultarSubMuestraQR = async (qr, silent = false) => {
   const response = await fetch(`/api/muestrashematologia/qr/${qr}/`);
   const lista = await response.json();
   if (lista.length > 0) {
     const hResp = await fetch(`/api/hematologia/${lista[0].hematologia}/`);
     const h = await hResp.json();
-    await consultarHematologiaQR(h.qr_hematologia);
+    await consultarHematologiaQR(h.qr_hematologia, true);
     await detailSubMuestra(lista[0].id_muestra);
+    return true;
   } else {
-    alert("No se encontró ningún análisis con ese QR");
+    if (!silent) alert("No se encontró ningún análisis con ese QR");
+    return false;
   }
 };
 
@@ -1738,7 +1829,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (btnGuardarInforme) {
     btnGuardarInforme.addEventListener("click", (event) => {
       event.preventDefault();
-      guardarInformeMedico();
+      window.guardarInformeHematologia();
     });
   }
 
@@ -1746,6 +1837,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     informesListaHematologia.addEventListener("click", async (event) => {
       const target = event.target.closest("i[data-action]");
       if (!target) return;
+      if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
       if (!currentHematologiaId || !informeId) return;

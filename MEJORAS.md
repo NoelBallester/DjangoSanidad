@@ -80,17 +80,17 @@
 - **Solución:** Eliminar la opción y requerir lista explícita de orígenes.
 - **Afecta:** `core/settings.py`
 
-### 19. Sin manejo de zona horaria
+### 19. Sin manejo de zona horaria HECHO
 - **Problema:** `TIME_ZONE = 'UTC'` puede causar problemas de fechas en España.
 - **Solución:** Activar `USE_TZ = True` con `TIME_ZONE = 'Europe/Madrid'`.
 - **Afecta:** `core/settings.py`
 
-### 20. Sin manejo de errores personalizado
+### 20. Sin manejo de errores personalizado HECHO
 - **Problema:** Los errores devuelven páginas 500 genéricas sin formato consistente.
 - **Solución:** Handler de excepciones personalizado en DRF y páginas 404/500 propias.
 - **Afecta:** `api/views.py`, `core/settings.py`
 
-### 25. Cobertura de tests incompleta
+### 25. Cobertura de tests incompleta HECHO
 - **Problema:** Faltan tests para acciones personalizadas de ViewSets y casos límite.
 - **Solución:** Ampliar `api/tests.py` y `web/tests.py`.
 - **Afecta:** `api/tests.py`, `web/tests.py`
@@ -117,6 +117,6 @@
 - [ ] Paginación (#2)
 - [ ] Borrado suave (#15)
 - [ ] Logging (#16)
-- [ ] Zona horaria (#19)
-- [ ] Manejo de errores (#20)
-- [ ] Ampliar tests (#25)
+- [x] Zona horaria (#19)
+- [x] Manejo de errores (#20)
+- [x] Ampliar tests (#25)

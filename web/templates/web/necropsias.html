@@ -607,7 +607,7 @@
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Informe forense / Informe de autopsia</label>
-                    <input type="file" name="imagen" accept="image/*" class="form-control blue__color">
+                    <input type="file" name="imagen" accept="*/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
@@ -678,12 +678,12 @@
                         </div>
                         <div class="col-8">
                             {% with first_img=selected_muestra_item.imagenes|first %}
-                            <img id="visor__img" class="w-100" style="max-height:400px;object-fit:contain;"
-                                src="{% if first_img %}data:{{ first_img.mime_type }};base64,{{ first_img.imagen_base64 }}{% endif %}" alt="">
+                            <img id="visor__img" class="w-100 {% if not first_img %}visor__img--empty{% endif %}" style="max-height:400px;object-fit:contain;"
+                                src="{% if first_img %}data:{{ first_img.mime_type }};base64,{{ first_img.imagen_base64 }}{% else %}{% static 'assets/images/no_disponible.jpg' %}{% endif %}" alt="{% if first_img %}Vista previa de la muestra{% else %}Sin imagen disponible{% endif %}">
                             {% endwith %}
                         </div>
                         <hr class="mt-4">
-                        <div class="d-flex flex-wrap align-items-center gap-2" id="muestra__img">
+                        <div class="d-flex flex-wrap align-items-center gap-2 {% if not selected_muestra_item.imagenes %}muestra__galeria--vacia{% endif %}" id="muestra__img">
                             {% for img in selected_muestra_item.imagenes %}
                             <div class="position-relative" style="display:inline-block">
                                 <img src="data:{{ img.mime_type }};base64,{{ img.imagen_base64 }}"
@@ -699,6 +699,11 @@
                                     </button>
                                 </form>
                             </div>
+                            {% empty %}
+                            <div class="muestra__empty-state">
+                                <span class="muestra__empty-title">Sin imagen adjunta</span>
+                                <span class="muestra__empty-text">Esta muestra no tiene ninguna vista previa disponible.</span>
+                            </div>
                             {% endfor %}
                             <form method="post" action="{% url 'imagen_necropsia_upload' selected_muestra_item.muestra.pk %}"
                                 enctype="multipart/form-data" class="d-flex align-items-center">
@@ -708,7 +713,7 @@
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </label>
                                 <input id="img_modal_{{ selected_muestra_item.muestra.pk }}" type="file" name="imagen"
-                                    accept=".jpg,.jpeg,.png,.gif" class="d-none" onchange="this.form.submit()">
+                                    accept="*/*" class="d-none" onchange="this.form.submit()">
                             </form>
                         </div>
                     </div>

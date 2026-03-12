@@ -24,6 +24,9 @@ from django.views.decorators.cache import cache_control, never_cache
 from django.views.static import serve as static_serve
 import os
 
+handler404 = 'core.error_views.custom_404'
+handler500 = 'core.error_views.custom_500'
+
 @never_cache
 @login_required
 def render_html(request, page):

@@ -38,7 +38,6 @@ const btnformcerrarmodificarMicrobiologia = document.getElementById(
 const btnmodificar = document.getElementById("btnmodificar");
 const nuevoMicrobiologia = document.getElementById("nuevoMicrobiologia");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
-
 const microbiologiaDescripcion = document.getElementById("microbiologia__descripcionMain");
 const microbiologiaTipoMuestra = document.getElementById("microbiologia__tipo_microbiologiaMain");
 const microbiologiaMicrobiologia = document.getElementById("microbiologia__muestraMain");
@@ -50,8 +49,6 @@ const microbiologiaCaracteristicas = document.getElementById(
 const microbiologiaObservaciones = document.getElementById(
   "microbiologia__observacionesMain"
 );
-
-// Variables que se asignarán en DOMContentLoaded
 let microbiologiaInformeDescripcion = null;
 let microbiologiaInformeFecha = null;
 let microbiologiaInformeTincion = null;
@@ -70,6 +67,8 @@ const eliminarMicrobiologiaModal = document.getElementById("eliminarMicrobiologi
 
 // Detalle Microbiologia
 let currentMicrobiologiaId = null;
+let informeEditandoId = null;
+let informeGuardando = false;
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
 const btn__imprimrqrAlt = document.getElementById("btn__imprimirqrmicrobiologia");
 
@@ -239,15 +238,63 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
-const resolverTextoEscaneado = (text) => {
+const cerrarModalQrConsulta = () => {
+  if (!qrConsultaModal || !window.bootstrap?.Modal) return;
+  const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
+  modal.hide();
+};
+
+const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
+
+  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    window.location.href = value;
+    try {
+      const parsed = new URL(value);
+      const codeParam = parsed.searchParams.get("code");
+      if (codeParam) {
+        code = codeParam;
+      } else {
+        window.location.href = value;
+        return;
+      }
+    } catch (_) {
+      window.location.href = value;
+      return;
+    }
+  }
+
+  if (await consultarMicrobiologiaQR(code, true)) {
+    cerrarModalQrConsulta();
     return;
   }
-  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+  if (await consultarMuestraQR(code, true)) {
+    cerrarModalQrConsulta();
+    return;
+  }
+
+  alert("No se encontró ningún registro para ese QR.");
 };
+
+const irConsultaQr = async () => {
+  await resolverTextoEscaneado(input__consultarqr?.value || "");
+};
+
+window.irConsultaQr = irConsultaQr;
+
+if (manualQrBtn) {
+  manualQrBtn.onclick = irConsultaQr;
+}
+
+if (input__consultarqr) {
+  input__consultarqr.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      irConsultaQr();
+    }
+  };
+}
 
 // Utility to get CSRF token from cookies
 function getCookie(name) {
@@ -682,6 +729,8 @@ window.editarInformeMicrobiologia = async (informeId) => {
   const informes = await cargarInformesMicrobiologia(targetId);
   const informe = informes.find((item) => String(item.id_informe) === String(informeId));
   if (!informe) return;
+  informeEditandoId = String(informe.id_informe);
+  actualizarEtiquetaBotonInforme();
   cargarInformeEnFormularioMicrobiologia(informe);
   mostrarPanelNuevoInformeMicrobiologia(false);
 };
@@ -707,6 +756,7 @@ window.guardarInformeMicrobiologia = async () => {
     mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
     return;
   }
+  if (informeGuardando) return;
 
   const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
   const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
@@ -725,10 +775,13 @@ window.guardarInformeMicrobiologia = async () => {
   }
 
   try {
+    informeGuardando = true;
     mostrarEstadoInforme("Guardando informe...", "info");
     cambiarEstadoBotonGuardar(true);
-    const res = await fetch("/api/informesresultado/", {
-      method: "POST",
+    const isEdit = Boolean(informeEditandoId);
+    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const res = await fetch(endpoint, {
+      method: isEdit ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -739,7 +792,9 @@ window.guardarInformeMicrobiologia = async () => {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "No se pudo guardar el informe");
     }
-    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    informeEditandoId = null;
+    actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
     ocultarPanelNuevoInformeMicrobiologia();
     await refrescarInformesMicrobiologia(targetId);
@@ -747,6 +802,7 @@ window.guardarInformeMicrobiologia = async () => {
     console.error(error);
     mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
   } finally {
+    informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
   }
 };
@@ -790,9 +846,6 @@ const imprimirInformesMicrobiologia = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeMicrobiologia('${urlInforme || ''}')"></i>
-      ${tieneArchivo
-        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia" data-action="ver-link"></i></a>`
-        : `<i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
       <i class="fa-solid fa-file-pen microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeMicrobiologia('${informe.id_informe}')"></i>
       <i class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeMicrobiologia('${informe.id_informe}')"></i>
     `;
@@ -818,6 +871,8 @@ const refrescarInformesMicrobiologia = async (idMicrobiologia) => {
 };
 
 const limpiarFormularioInformeMicrobiologia = () => {
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
@@ -848,6 +903,8 @@ const mostrarPanelNuevoInformeMicrobiologia = (limpiar = true) => {
 
 const ocultarPanelNuevoInformeMicrobiologia = () => {
   if (!modalNuevoInforme) return;
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
 };
@@ -865,6 +922,13 @@ const mostrarEstadoInforme = (mensaje, tipo = "success") => {
   informeStatus.textContent = mensaje;
 };
 
+const actualizarEtiquetaBotonInforme = () => {
+  if (!btnGuardarInforme || informeGuardando) return;
+  btnGuardarInforme.innerHTML = informeEditandoId
+    ? '<i class="fa-solid fa-pen-to-square me-2"></i> Actualizar Informe'
+    : '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+};
+
 const cambiarEstadoBotonGuardar = (guardando) => {
   if (!btnGuardarInforme) return;
   if (guardando) {
@@ -872,7 +936,7 @@ const cambiarEstadoBotonGuardar = (guardando) => {
     btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+    actualizarEtiquetaBotonInforme();
   }
 };
 
@@ -1253,7 +1317,7 @@ const aniadirImagenMuestra = async () => {
     // Crear un input file temporal
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = '*/*';
 
     input.onchange = async (e) => {
       const file = e.target.files[0];
@@ -1326,12 +1390,35 @@ const imprimirQR = (elemento) => {
 const mostrarImagenesMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId_val);
+  const visorImagen = typeof visor__img !== 'undefined' ? visor__img : document.getElementById("visor__img");
+
+  const renderEstadoSinImagen = () => {
+    muestra__img.style.display = "flex";
+    muestra__img.classList.add("muestra__galeria--vacia");
+    imageId = null;
+
+    if (visorImagen) {
+      visorImagen.src = "./assets/images/no_disponible.jpg";
+      visorImagen.classList.add("visor__img--empty");
+      visorImagen.alt = "Sin imagen disponible";
+    }
+
+    const emptyState = document.createElement("div");
+    emptyState.className = "muestra__empty-state";
+    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    muestra__img.appendChild(emptyState);
+  };
+
   // Imagen de sustitución si no hay imágenes
   if (imagenes.length == 0) {
-    muestra__img.style.display = "none";
-    if (typeof visor__img !== 'undefined') visor__img.src = "./assets/images/no_disponible.jpg";
+    renderEstadoSinImagen();
   } else {
     muestra__img.style.display = "flex";
+    muestra__img.classList.remove("muestra__galeria--vacia");
+    if (visorImagen) {
+      visorImagen.classList.remove("visor__img--empty");
+      visorImagen.alt = "Vista previa de la muestra";
+    }
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
@@ -1340,7 +1427,7 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
       newimg.classList.add("muestra__img");
 
       if (index == 0) {
-        if (typeof visor__img !== 'undefined') visor__img.src = newimg.src;
+        if (visorImagen) visorImagen.src = newimg.src;
         imageId = newimg.id;
       }
 
@@ -1367,7 +1454,7 @@ const borrarMuestra = async () => {
     }).catch(err => console.error(err));
 };
 
-const consultarMicrobiologiaQR = async (qr) => {
+const consultarMicrobiologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/microbiologias/qr/${encodeURIComponent(qr)}/`);
   let microbiologia = await response.json();
   if (microbiologia.length > 0) {
@@ -1377,21 +1464,25 @@ const consultarMicrobiologiaQR = async (qr) => {
     microbiologiaId = microbiologia.id_muestra;
     let muestras_resp = await cargarMuestras(microbiologiaId);
     imprimirMuestras(muestras_resp);
+    return true;
   } else {
-    alert("No se encontró ningún microbiologia con ese QR");
+    if (!silent) alert("No se encontró ningún microbiologia con ese QR");
+    return false;
   }
 };
 
-const consultarMuestraQR = async (qr) => {
+const consultarMuestraQR = async (qr, silent = false) => {
   let response = await fetch(`/api/muestrasmicrobiologia/qr/${encodeURIComponent(qr)}/`);
   let muestra = await response.json();
   if (muestra.length > 0) {
     let microbiologia_response = await fetch(`/api/microbiologias/${muestra[0].microbiologia}/`);
     let microbiologia = await microbiologia_response.json();
-    consultarMicrobiologiaQR(microbiologia.qr_microbiologia || microbiologia.qr_muestra);
-    detailMuestra(muestra[0].id_muestra);
+    await consultarMicrobiologiaQR(microbiologia.qr_microbiologia || microbiologia.qr_muestra, true);
+    await detailMuestra(muestra[0].id_muestra);
+    return true;
   } else {
-    alert("No se encontró ningún análisis");
+    if (!silent) alert("No se encontró ningún análisis");
+    return false;
   }
 };
 
@@ -1993,7 +2084,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       event.preventDefault();
       console.log("=== CLICK EN BOTÓN EJECUTADO ===");
       console.log("Event:", event);
-      guardarInformeMedico();
+      window.guardarInformeMicrobiologia();
     });
   } else {
     console.error("=== ERROR: btnGuardarInforme NO ENCONTRADO ===");
@@ -2003,6 +2094,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     informesListaMicrobiologia.addEventListener("click", async (event) => {
       const target = event.target.closest("i[data-action]");
       if (!target) return;
+      if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
       if (!currentMicrobiologiaId || !informeId) return;

@@ -434,7 +434,7 @@
                             <!-- Imágenes de esta muestra -->
                             <tr>
                                 <td colspan="5" class="py-1 px-3">
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="d-flex flex-wrap align-items-center gap-2 {% if not item.imagenes %}muestra__galeria--vacia{% endif %}">
                                         {% for img in item.imagenes %}
                                         <div class="position-relative" style="display:inline-block">
                                             <img src="data:{{ img.mime_type }};base64,{{ img.imagen_base64 }}"
@@ -451,6 +451,11 @@
                                                 </button>
                                             </form>
                                         </div>
+                                        {% empty %}
+                                        <div class="muestra__empty-state">
+                                            <span class="muestra__empty-title">Sin imagen adjunta</span>
+                                            <span class="muestra__empty-text">Esta muestra no tiene ninguna vista previa disponible.</span>
+                                        </div>
                                         {% endfor %}
                                         <!-- Subir imagen -->
                                         <form method="post" action="{% url 'imagen_hematologia_upload' item.muestra.pk %}"
@@ -461,7 +466,7 @@
                                                 <i class="fa-solid fa-circle-plus"></i>
                                             </label>
                                             <input id="img_{{ item.muestra.pk }}" type="file" name="imagen"
-                                                accept=".jpg,.jpeg,.png,.gif" class="d-none"
+                                                accept="*/*" class="d-none"
                                                 onchange="this.form.submit()">
                                         </form>
                                     </div>

@@ -400,7 +400,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="tubo__informe_imagen" class="blue__color--negrita d-block">Informe</label>
-                                    <input type="file" id="tubo__informe_imagen" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png,.gif"
+                                    <input type="file" id="tubo__informe_imagen" accept="*/*"
                                         class="form-control blue__color bg-light">
                                 </div>
                                 <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
@@ -464,8 +464,8 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputImagenesMuestra" class="form-label blue__color">Imagen</label>
-                    <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color"
+                    <label for="inputImagenesMuestra" class="form-label blue__color">Archivo (imagen o documento)</label>
+                    <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputImagenesMuestra">
                 </div>
 
@@ -603,7 +603,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputClinica" class="form-label blue__color">Volante de petición (archivo)</label>
-                    <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" class="form-control blue__color"
+                    <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputClinica">
                 </div>
 
@@ -663,7 +663,7 @@
 
                 <!-- <div class="col-md-12">
           <label for="inputImagenes" class="form-label blue__color">Imagen</label>
-          <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" name="image"
+          <input type="file" accept="*/*" class="form-control blue__color" name="image"
             id="inputImagenes">
         </div> -->
 
@@ -694,7 +694,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputClinicaUpdate" class="form-label blue__color">Volante de petición (archivo)</label>
-                    <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" class="form-control blue__color"
+                    <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputClinicaUpdate">
                 </div>
 
@@ -758,7 +758,7 @@
 
                 <!--  <div class="col-md-12 mt-3">
           <label for="inputImagenesUpdate" class="form-label blue__color">Imagen</label>
-          <input type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control blue__color" id="inputImagenesUpdate">
+          <input type="file" accept="*/*" class="form-control blue__color" id="inputImagenesUpdate">
         </div> -->
 
                 <div class="col-12">
@@ -781,7 +781,7 @@
                         <div id="qr-reader" style="width:100%; max-width:360px; margin:0 auto;"></div>
                         <div class="mt-3 d-flex gap-2">
                             <input type="text" id="input__consultarqr" class="form-control" placeholder="Pega o escribe el código QR">
-                            <button type="button" class="btn btn-outline-primary" id="manualQrBtn">Ir</button>
+                            <button type="button" class="btn btn-outline-primary" id="manualQrBtn" onclick="window.irConsultaQr && window.irConsultaQr()">Ir</button>
                         </div>
                     </div>
 
