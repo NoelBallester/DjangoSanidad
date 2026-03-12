@@ -113,9 +113,13 @@
                     <div class="col-auto d-flex align-items-center justify-content-center gap-2 p-0">
                         <!-- Nº Citología -->
                         <div style="min-width: 140px;">
-                            <input type="text" name="numero" value="{{ filtros.numero }}"
-                                class="form-control border__color unified-filter-height" placeholder="Nº Citología"
-                                style="font-size:0.85rem;">
+                            <select name="numero" class="form-select border__color unified-filter-height"
+                                style="font-size:0.85rem;" onchange="this.form.submit()">
+                                <option value="" {% if not filtros.numero %}selected{% endif %}>Nº Citología</option>
+                                {% for num in todos_numeros %}
+                                <option value="{{ num }}" {% if filtros.numero == num %}selected{% endif %}>{{ num }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
 
                         <!-- Órgano -->

@@ -302,6 +302,7 @@ def cassette_list(request):
         'informe_imagen_base64': informe_imagen_base64,
         'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
+        'todos_numeros': list(Cassette.objects.values_list('cassette', flat=True).order_by('cassette').distinct()),
     })
 
 
@@ -658,6 +659,7 @@ def citologia_list(request):
         'informe_imagen_base64': informe_imagen_base64,
         'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
+        'todos_numeros': list(Citologia.objects.values_list('citologia', flat=True).order_by('citologia').distinct()),
     })
 
 
@@ -954,6 +956,7 @@ def necropsia_list(request):
         'selected_qr_url': selected_qr_url,
         'filtros': {'tipo_autopsia': tipo_autopsia, 'numero': numero, 'inicio': inicio, 'fin': fin},
         'tipos_autopsia': [choice for choice in NecropsiaForm().fields['tipo_necropsia'].choices if choice[0]],
+        'todos_numeros': list(Necropsia.objects.values_list('necropsia', flat=True).order_by('necropsia').distinct()),
     })
 
 
