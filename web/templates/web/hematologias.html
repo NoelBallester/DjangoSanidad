@@ -434,7 +434,7 @@
                             <!-- Imágenes de esta muestra -->
                             <tr>
                                 <td colspan="5" class="py-1 px-3">
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="d-flex flex-wrap align-items-center gap-2 {% if not item.imagenes %}muestra__galeria--vacia{% endif %}">
                                         {% for img in item.imagenes %}
                                         <div class="position-relative" style="display:inline-block">
                                             <img src="data:{{ img.mime_type }};base64,{{ img.imagen_base64 }}"
@@ -450,6 +450,11 @@
                                                         style="font-size:.7rem;"></i>
                                                 </button>
                                             </form>
+                                        </div>
+                                        {% empty %}
+                                        <div class="muestra__empty-state">
+                                            <span class="muestra__empty-title">Sin imagen adjunta</span>
+                                            <span class="muestra__empty-text">Esta muestra no tiene ninguna vista previa disponible.</span>
                                         </div>
                                         {% endfor %}
                                         <!-- Subir imagen -->

@@ -290,6 +290,100 @@ class ErrorViewTests(TestCase):
         self.assertTrue(settings.USE_TZ)
 
 
+class MuestrasSinImagenTemplateTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(101)
+        self.client.force_login(self.tecnico)
+
+    def test_cassettes_muestra_sin_imagen_muestra_placeholder(self):
+        cassette = make_cassette(501)
+        muestra = Muestra.objects.create(
+            cassette=cassette,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-CAS',
+        )
+
+        response = self.client.get(reverse('cassettes') + f'?cassette={cassette.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_citologias_muestra_sin_imagen_muestra_placeholder(self):
+        citologia = make_citologia(self.tecnico, 601)
+        muestra = MuestraCitologia.objects.create(
+            citologia=citologia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-CIT',
+        )
+
+        response = self.client.get(reverse('citologias') + f'?citologia={citologia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_necropsias_muestra_sin_imagen_muestra_placeholder(self):
+        necropsia = Necropsia.objects.create(
+            necropsia='N901',
+            tipo_necropsia='Clínica',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_necropsia='QRN901',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+        muestra = MuestraNecropsia.objects.create(
+            necropsia=necropsia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            qr_muestra='QR-NO-IMG-NEC',
+            examen_interno_cadaver='dato',
+            tecnica_apertura='tecnica',
+            datos_relevantes_region='region',
+        )
+
+        response = self.client.get(reverse('necropsias') + f'?necropsia={necropsia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, 'no_disponible.jpg')
+
+    def test_hematologias_muestra_sin_imagen_muestra_placeholder(self):
+        hematologia = Hematologia.objects.create(
+            hematologia='H901',
+            fecha='2024-01-01',
+            descripcion='Desc',
+            caracteristicas='Caract',
+            qr_hematologia='QRH901',
+            organo='Pulmón',
+            tecnico=self.tecnico,
+        )
+        muestra = MuestraHematologia.objects.create(
+            hematologia=hematologia,
+            descripcion='Sin imagen',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-NO-IMG-HEM',
+        )
+
+        response = self.client.get(reverse('hematologias') + f'?hematologia={hematologia.pk}&muestra={muestra.pk}')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sin imagen adjunta')
+
+
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────
 
 class PermisosStaffTests(TestCase):
