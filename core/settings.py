@@ -144,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -174,11 +174,19 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50,
 }
 
-CORS_ALLOW_ALL_ORIGINS = os.getenv('DJANGO_CORS_ALLOW_ALL', 'false').strip().lower() == 'true'
+# Security: do not allow wildcard CORS via environment toggles.
+CORS_ALLOW_ALL_ORIGINS = False
+_cors_allowed_origins_raw = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS')
+if _cors_allowed_origins_raw is None:
+    raise ImproperlyConfigured('DJANGO_CORS_ALLOWED_ORIGINS environment variable is required.')
+
 CORS_ALLOWED_ORIGINS = [
-    origin.strip() for origin in os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', '').split(',')
+    origin.strip() for origin in _cors_allowed_origins_raw.split(',')
     if origin.strip()
 ]
+
+if not CORS_ALLOWED_ORIGINS:
+    raise ImproperlyConfigured('DJANGO_CORS_ALLOWED_ORIGINS must contain at least one allowed origin.')
 AUTH_USER_MODEL = 'api.Tecnico'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
