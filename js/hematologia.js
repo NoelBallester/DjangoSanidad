@@ -77,6 +77,8 @@ const INFORME_TAB_KEY = "hematologia_active_tab";
 
 // Detalle sub-muestra
 let currentHematologiaId = null;
+let informeEditandoId = null;
+let informeGuardando = false;
 
 // Modales QR
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
@@ -221,6 +223,13 @@ function mostrarEstadoInforme(mensaje, tipo = "success") {
   informeStatus.textContent = mensaje;
 }
 
+function actualizarEtiquetaBotonInforme() {
+  if (!btnGuardarInforme || informeGuardando) return;
+  btnGuardarInforme.innerHTML = informeEditandoId
+    ? '<i class="fa-solid fa-pen-to-square me-2"></i> Actualizar Informe'
+    : '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+}
+
 function limpiarEstadoInforme() {
   if (!informeStatus) return;
   informeStatus.classList.add("d-none");
@@ -234,7 +243,7 @@ function cambiarEstadoBotonGuardar(guardando) {
     btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+    actualizarEtiquetaBotonInforme();
   }
 }
 
@@ -281,6 +290,8 @@ window.editarInformeHematologia = async (informeId) => {
   const informes = await cargarInformesHematologia(targetId);
   const informe = informes.find((item) => String(item.id_informe) === String(informeId));
   if (!informe) return;
+  informeEditandoId = String(informe.id_informe);
+  actualizarEtiquetaBotonInforme();
   cargarInformeEnFormularioHematologia(informe);
   mostrarPanelNuevoInformeHematologia(false);
 };
@@ -306,6 +317,7 @@ window.guardarInformeHematologia = async () => {
     mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
     return;
   }
+  if (informeGuardando) return;
 
   const descripcion = document.getElementById("Muestras__informe_descripcion")?.value || "";
   const fecha = document.getElementById("Muestras__informe_fecha")?.value || "";
@@ -324,10 +336,13 @@ window.guardarInformeHematologia = async () => {
   }
 
   try {
+    informeGuardando = true;
     mostrarEstadoInforme("Guardando informe...", "info");
     cambiarEstadoBotonGuardar(true);
-    const res = await fetch("/api/informesresultado/", {
-      method: "POST",
+    const isEdit = Boolean(informeEditandoId);
+    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const res = await fetch(endpoint, {
+      method: isEdit ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -338,7 +353,9 @@ window.guardarInformeHematologia = async () => {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "No se pudo guardar el informe");
     }
-    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    informeEditandoId = null;
+    actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
     ocultarPanelNuevoInformeHematologia();
     await refrescarInformesHematologia(targetId);
@@ -346,6 +363,7 @@ window.guardarInformeHematologia = async () => {
     console.error(error);
     mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
   } finally {
+    informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
   }
 };
@@ -389,9 +407,6 @@ const imprimirInformesHematologia = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-file-import Muestras__icon Muestras__icon--infoMuestras me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeHematologia('${urlInforme || ''}')"></i>
-      ${tieneArchivo
-        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf Muestras__icon Muestras__icon--infoMuestras" data-action="ver-link"></i></a>`
-        : `<i class="fa-solid fa-file-pdf Muestras__icon Muestras__icon--infoMuestras me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
       <i class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeHematologia('${informe.id_informe}')"></i>
       <i class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeHematologia('${informe.id_informe}')"></i>
     `;
@@ -417,6 +432,8 @@ const refrescarInformesHematologia = async (idHematologia) => {
 };
 
 const limpiarFormularioInformeHematologia = () => {
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = "";
   if (muestrasInformeFecha) muestrasInformeFecha.value = "";
   if (muestrasInformeTincion) muestrasInformeTincion.value = "";
@@ -447,6 +464,8 @@ const mostrarPanelNuevoInformeHematologia = (limpiar = true) => {
 
 const ocultarPanelNuevoInformeHematologia = () => {
   if (!modalNuevoInforme) return;
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
 };
@@ -1738,7 +1757,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (btnGuardarInforme) {
     btnGuardarInforme.addEventListener("click", (event) => {
       event.preventDefault();
-      guardarInformeMedico();
+      window.guardarInformeHematologia();
     });
   }
 
@@ -1746,6 +1765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     informesListaHematologia.addEventListener("click", async (event) => {
       const target = event.target.closest("i[data-action]");
       if (!target) return;
+      if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
       if (!currentHematologiaId || !informeId) return;

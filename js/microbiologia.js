@@ -38,7 +38,6 @@ const btnformcerrarmodificarMicrobiologia = document.getElementById(
 const btnmodificar = document.getElementById("btnmodificar");
 const nuevoMicrobiologia = document.getElementById("nuevoMicrobiologia");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
-
 const microbiologiaDescripcion = document.getElementById("microbiologia__descripcionMain");
 const microbiologiaTipoMuestra = document.getElementById("microbiologia__tipo_microbiologiaMain");
 const microbiologiaMicrobiologia = document.getElementById("microbiologia__muestraMain");
@@ -50,8 +49,6 @@ const microbiologiaCaracteristicas = document.getElementById(
 const microbiologiaObservaciones = document.getElementById(
   "microbiologia__observacionesMain"
 );
-
-// Variables que se asignarán en DOMContentLoaded
 let microbiologiaInformeDescripcion = null;
 let microbiologiaInformeFecha = null;
 let microbiologiaInformeTincion = null;
@@ -70,6 +67,8 @@ const eliminarMicrobiologiaModal = document.getElementById("eliminarMicrobiologi
 
 // Detalle Microbiologia
 let currentMicrobiologiaId = null;
+let informeEditandoId = null;
+let informeGuardando = false;
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
 const btn__imprimrqrAlt = document.getElementById("btn__imprimirqrmicrobiologia");
 
@@ -682,6 +681,8 @@ window.editarInformeMicrobiologia = async (informeId) => {
   const informes = await cargarInformesMicrobiologia(targetId);
   const informe = informes.find((item) => String(item.id_informe) === String(informeId));
   if (!informe) return;
+  informeEditandoId = String(informe.id_informe);
+  actualizarEtiquetaBotonInforme();
   cargarInformeEnFormularioMicrobiologia(informe);
   mostrarPanelNuevoInformeMicrobiologia(false);
 };
@@ -707,6 +708,7 @@ window.guardarInformeMicrobiologia = async () => {
     mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
     return;
   }
+  if (informeGuardando) return;
 
   const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
   const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
@@ -725,10 +727,13 @@ window.guardarInformeMicrobiologia = async () => {
   }
 
   try {
+    informeGuardando = true;
     mostrarEstadoInforme("Guardando informe...", "info");
     cambiarEstadoBotonGuardar(true);
-    const res = await fetch("/api/informesresultado/", {
-      method: "POST",
+    const isEdit = Boolean(informeEditandoId);
+    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const res = await fetch(endpoint, {
+      method: isEdit ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -739,7 +744,9 @@ window.guardarInformeMicrobiologia = async () => {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "No se pudo guardar el informe");
     }
-    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    informeEditandoId = null;
+    actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
     ocultarPanelNuevoInformeMicrobiologia();
     await refrescarInformesMicrobiologia(targetId);
@@ -747,6 +754,7 @@ window.guardarInformeMicrobiologia = async () => {
     console.error(error);
     mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
   } finally {
+    informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
   }
 };
@@ -790,9 +798,6 @@ const imprimirInformesMicrobiologia = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeMicrobiologia('${urlInforme || ''}')"></i>
-      ${tieneArchivo
-        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia" data-action="ver-link"></i></a>`
-        : `<i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
       <i class="fa-solid fa-file-pen microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeMicrobiologia('${informe.id_informe}')"></i>
       <i class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeMicrobiologia('${informe.id_informe}')"></i>
     `;
@@ -818,6 +823,8 @@ const refrescarInformesMicrobiologia = async (idMicrobiologia) => {
 };
 
 const limpiarFormularioInformeMicrobiologia = () => {
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
@@ -848,6 +855,8 @@ const mostrarPanelNuevoInformeMicrobiologia = (limpiar = true) => {
 
 const ocultarPanelNuevoInformeMicrobiologia = () => {
   if (!modalNuevoInforme) return;
+  informeEditandoId = null;
+  actualizarEtiquetaBotonInforme();
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
 };
@@ -865,6 +874,13 @@ const mostrarEstadoInforme = (mensaje, tipo = "success") => {
   informeStatus.textContent = mensaje;
 };
 
+const actualizarEtiquetaBotonInforme = () => {
+  if (!btnGuardarInforme || informeGuardando) return;
+  btnGuardarInforme.innerHTML = informeEditandoId
+    ? '<i class="fa-solid fa-pen-to-square me-2"></i> Actualizar Informe'
+    : '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+};
+
 const cambiarEstadoBotonGuardar = (guardando) => {
   if (!btnGuardarInforme) return;
   if (guardando) {
@@ -872,7 +888,7 @@ const cambiarEstadoBotonGuardar = (guardando) => {
     btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-save me-2"></i> Guardar Informe';
+    actualizarEtiquetaBotonInforme();
   }
 };
 
@@ -1993,7 +2009,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       event.preventDefault();
       console.log("=== CLICK EN BOTÓN EJECUTADO ===");
       console.log("Event:", event);
-      guardarInformeMedico();
+      window.guardarInformeMicrobiologia();
     });
   } else {
     console.error("=== ERROR: btnGuardarInforme NO ENCONTRADO ===");
@@ -2003,6 +2019,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     informesListaMicrobiologia.addEventListener("click", async (event) => {
       const target = event.target.closest("i[data-action]");
       if (!target) return;
+      if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
       if (!currentMicrobiologiaId || !informeId) return;
