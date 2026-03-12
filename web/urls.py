@@ -51,6 +51,7 @@ urlpatterns = [
     path('hematologias/<int:pk>/editar/',                             views.hematologia_update,          name='hematologia_update'),
     path('hematologias/<int:pk>/eliminar/',                           views.hematologia_delete,          name='hematologia_delete'),
     path('hematologias/<int:pk>/informe/',                            views.hematologia_informe,         name='hematologia_informe'),
+    path('hematologias/<int:pk>/informes/<int:informe_pk>/eliminar/', views.hematologia_informe_delete,  name='hematologia_informe_delete'),
     path('hematologias/<int:hematologia_pk>/muestras/crear/',         views.muestra_hematologia_create,  name='muestra_hematologia_create'),
     path('muestras-hematologia/<int:pk>/editar/',                     views.muestra_hematologia_update,  name='muestra_hematologia_update'),
     path('muestras-hematologia/<int:pk>/eliminar/',                   views.muestra_hematologia_delete,  name='muestra_hematologia_delete'),
