@@ -50,7 +50,7 @@
 <div class="col-md-12 mt-3">
     <label class="form-label blue__color">Informe de autopsia (archivo)</label>
     <input type="file" name="volante_peticion" class="form-control blue__color"
-        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+        accept="*/*">
     {% if edit and c.volante_peticion_nombre %}
         <small class="form-text text-muted">Archivo actual: {{ c.volante_peticion_nombre }}</small>
     {% endif %}

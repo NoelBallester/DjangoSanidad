@@ -946,7 +946,7 @@ const detailMuestra = async (muestraid) => {
 const aniadirImagenMuestra = () => {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'image/*';
+  input.accept = '*/*';
   input.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;

@@ -618,7 +618,7 @@
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Volante de petición (archivo)</label>
-                    <input type="file" name="imagen" accept="image/*" class="form-control">
+                    <input type="file" name="imagen" accept="*/*" class="form-control">
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal" type="submit">Crear Muestra</button>
@@ -699,7 +699,7 @@
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </label>
                                 <input id="img_modal_{{ selected_muestra_item.muestra.pk }}" type="file" name="imagen"
-                                    accept=".jpg,.jpeg,.png,.gif" class="d-none" onchange="this.form.submit()">
+                                    accept="*/*" class="d-none" onchange="this.form.submit()">
                             </form>
                         </div>
                     </section>
