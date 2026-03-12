@@ -369,11 +369,23 @@ td {
 }
 
 #modalNuevoInforme {
-  align-items: flex-start;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+#modalNuevoInforme.d-flex {
+  display: flex !important;
 }
 
 #modalNuevoInforme .informe-modal-panel {
-  margin-top: 1rem;
+  width: min(720px, 96vw);
+  margin: 0 !important;
 }
 
 .form__header {

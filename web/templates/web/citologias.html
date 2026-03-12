@@ -573,7 +573,7 @@
                             <i class="fa-solid fa-save me-2"></i> Guardar Informe
                         </button>
                         <button type="button" class="btn btn-outline-secondary w-100 py-2"
-                            onclick="closeModal('modalNuevoInforme')">
+                            onclick="cerrarModalInforme()">
                             Cancelar
                         </button>
                     </div>
@@ -1050,6 +1050,24 @@
             }
         }
 
+        function abrirModalInforme() {
+            const modal = document.getElementById('modalNuevoInforme');
+            if (!modal) return;
+            modal.classList.remove('d-none');
+            modal.classList.add('d-flex');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModalInforme() {
+            const modal = document.getElementById('modalNuevoInforme');
+            if (!modal) return;
+            modal.classList.add('d-none');
+            modal.classList.remove('d-flex');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
         document.getElementById('btnformnuevacitologia')
             ?.addEventListener('click', () => openModal('modalnuevaCitologia'));
         document.getElementById('btnformcerrarnuevaCitologia')
@@ -1172,7 +1190,7 @@
             if (idInput) idInput.value = "";
             const title = document.querySelector('#modalNuevoInforme h3');
             if (title) title.textContent = "Nuevo informe de resultados";
-            openModal('modalNuevoInforme');
+            abrirModalInforme();
         }
 
         function editarInforme(id, descripcion, fecha, tincion, observaciones) {
@@ -1195,8 +1213,12 @@
             
             const title = document.querySelector('#modalNuevoInforme h3');
             if (title) title.textContent = "Editar informe de resultados";
-            openModal('modalNuevoInforme');
+            abrirModalInforme();
         }
+
+        document.getElementById('modalNuevoInforme')?.addEventListener('click', function (e) {
+            if (e.target === this) cerrarModalInforme();
+        });
 
         // ── Confirmar borrar muestra ──────────────────────────────────────────
         document.getElementById('eliminarMuestraModal')?.addEventListener('show.bs.modal', e => {

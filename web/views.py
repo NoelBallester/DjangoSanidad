@@ -120,15 +120,52 @@ def _informes_genericos_disponibles():
     return _tabla_tiene_columnas('informesresultado', 'content_type_id', 'object_id')
 
 
-def _informes_por_registro(registro):
-    if not _informes_genericos_disponibles():
-        return InformeResultado.objects.none()
+def _columna_fk_legacy_informe(modelo):
+    legacy_map = {
+        Cassette: 'cassette_id',
+        Citologia: 'citologia_id',
+        Necropsia: 'necropsia_id',
+        Hematologia: 'hematologia_id',
+        Tubo: 'tubo_id',
+        Microbiologia: 'microbiologia_id',
+    }
+    return legacy_map.get(modelo)
 
-    ct = ContentType.objects.get_for_model(registro.__class__)
+
+def _informes_legacy_disponibles(modelo):
+    columna_fk = _columna_fk_legacy_informe(modelo)
+    if not columna_fk:
+        return False
+    return _tabla_tiene_columnas('informesresultado', columna_fk)
+
+
+def _guardar_archivo_informe(archivo):
+    if not archivo:
+        return None
+    return default_storage.save(f'informes/{archivo.name}', archivo)
+
+
+def _informes_por_registro(registro):
+    if _informes_genericos_disponibles():
+        ct = ContentType.objects.get_for_model(registro.__class__)
+        try:
+            return list(InformeResultado.objects.filter(content_type=ct, object_id=registro.pk).order_by('-fecha', '-creado_en', '-id_informe'))
+        except (OperationalError, ProgrammingError):
+            return []
+
+    if not _informes_legacy_disponibles(registro.__class__):
+        return []
+
+    columna_fk = _columna_fk_legacy_informe(registro.__class__)
     try:
-        return InformeResultado.objects.filter(content_type=ct, object_id=registro.pk)
-    except (OperationalError, ProgrammingError):
-        return InformeResultado.objects.none()
+        query = (
+            f"SELECT id AS id_informe, descripcion, fecha, tincion, observaciones, imagen, creado_en "
+            f"FROM informesresultado WHERE {columna_fk} = %s "
+            f"ORDER BY fecha DESC, creado_en DESC, id DESC"
+        )
+        return list(InformeResultado.objects.raw(query, [registro.pk]))
+    except Exception:
+        return []
 
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
@@ -221,9 +258,7 @@ def cassette_list(request):
 
             selected_qr_url = _build_qr_link(request, selected.qr_casette)
 
-            informes_resultado = list(
-                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
-            )
+            informes_resultado = _informes_por_registro(selected)
 
             if informe_pk and informe_pk != 'nuevo':
                 informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
@@ -322,53 +357,131 @@ def cassette_delete(request, pk):
 
 def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
     registro = get_object_or_404(modelo, pk=pk)
-    if not _informes_genericos_disponibles():
-        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
-        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
 
     form = InformeForm(request.POST, request.FILES)
     if form.is_valid():
         informe_id = request.POST.get('informe_id', '').strip()
-        ct = ContentType.objects.get_for_model(modelo)
-        try:
-            informe = InformeResultado.objects.filter(
-                pk=informe_id,
-                content_type=ct,
-                object_id=registro.pk,
-            ).first() if informe_id else None
-        except (OperationalError, ProgrammingError):
-            messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
-            return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
-        if informe is None:
-            informe = InformeResultado(content_type=ct, object_id=registro.pk)
-        informe.descripcion = form.cleaned_data['informe_descripcion']
-        informe.fecha = form.cleaned_data['informe_fecha']
-        informe.tincion = form.cleaned_data['informe_tincion']
-        informe.observaciones = form.cleaned_data['informe_observaciones']
-        img = form.cleaned_data.get('informe_imagen')
-        if img:
-            informe.imagen = img.read()
-        informe.save()
-        messages.success(request, 'Informe de resultados guardado correctamente.')
-        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe&informe={informe.pk}')
+        if _informes_genericos_disponibles():
+            ct = ContentType.objects.get_for_model(modelo)
+            try:
+                informe = InformeResultado.objects.filter(
+                    pk=informe_id,
+                    content_type=ct,
+                    object_id=registro.pk,
+                ).first() if informe_id else None
+            except (OperationalError, ProgrammingError):
+                messages.error(request, 'Error al guardar el informe con el esquema actual.')
+                return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
+            if informe is None:
+                informe = InformeResultado(content_type=ct, object_id=registro.pk)
+            informe.descripcion = form.cleaned_data['informe_descripcion']
+            informe.fecha = form.cleaned_data['informe_fecha']
+            informe.tincion = form.cleaned_data['informe_tincion']
+            informe.observaciones = form.cleaned_data['informe_observaciones']
+            img = form.cleaned_data.get('informe_imagen')
+            if img:
+                informe.imagen = img.read()
+            informe.save()
+            messages.success(request, 'Informe de resultados guardado correctamente.')
+            return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe&informe={informe.pk}')
+
+        if _informes_legacy_disponibles(modelo):
+            columna_fk = _columna_fk_legacy_informe(modelo)
+            img = form.cleaned_data.get('informe_imagen')
+            img_path = _guardar_archivo_informe(img) if img else None
+
+            try:
+                with connection.cursor() as cursor:
+                    if informe_id:
+                        if img_path:
+                            cursor.execute(
+                                f"""
+                                UPDATE informesresultado
+                                SET descripcion=%s, fecha=%s, tincion=%s, observaciones=%s, imagen=%s
+                                WHERE id=%s AND {columna_fk}=%s
+                                """,
+                                [
+                                    form.cleaned_data['informe_descripcion'],
+                                    form.cleaned_data['informe_fecha'],
+                                    form.cleaned_data['informe_tincion'],
+                                    form.cleaned_data['informe_observaciones'],
+                                    img_path,
+                                    informe_id,
+                                    registro.pk,
+                                ],
+                            )
+                        else:
+                            cursor.execute(
+                                f"""
+                                UPDATE informesresultado
+                                SET descripcion=%s, fecha=%s, tincion=%s, observaciones=%s
+                                WHERE id=%s AND {columna_fk}=%s
+                                """,
+                                [
+                                    form.cleaned_data['informe_descripcion'],
+                                    form.cleaned_data['informe_fecha'],
+                                    form.cleaned_data['informe_tincion'],
+                                    form.cleaned_data['informe_observaciones'],
+                                    informe_id,
+                                    registro.pk,
+                                ],
+                            )
+                        informe_pk = informe_id
+                    else:
+                        cursor.execute(
+                            f"""
+                            INSERT INTO informesresultado
+                            (descripcion, fecha, tincion, observaciones, imagen, creado_en, {columna_fk})
+                            VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)
+                            """,
+                            [
+                                form.cleaned_data['informe_descripcion'],
+                                form.cleaned_data['informe_fecha'],
+                                form.cleaned_data['informe_tincion'],
+                                form.cleaned_data['informe_observaciones'],
+                                img_path,
+                                registro.pk,
+                            ],
+                        )
+                        informe_pk = cursor.lastrowid
+            except Exception as exc:
+                messages.error(request, f'Error al guardar el informe (esquema legacy): {exc}')
+                return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+
+            messages.success(request, 'Informe de resultados guardado correctamente.')
+            return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe&informe={informe_pk}')
+
+        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+        return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
     messages.error(request, 'No se pudo guardar el informe. Revisa los campos e inténtalo de nuevo.')
     return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
 
 
 def _eliminar_informe(request, pk, informe_pk, modelo, fk_campo, redirect_name):
     registro = get_object_or_404(modelo, pk=pk)
-    if not _informes_genericos_disponibles():
-        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+    if _informes_genericos_disponibles():
+        ct = ContentType.objects.get_for_model(modelo)
+        try:
+            informe = get_object_or_404(InformeResultado, pk=informe_pk, content_type=ct, object_id=registro.pk)
+        except (OperationalError, ProgrammingError):
+            messages.error(request, 'Error al eliminar el informe con el esquema actual.')
+            return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
+        informe.delete()
+        messages.success(request, 'Informe eliminado correctamente.')
         return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
 
-    ct = ContentType.objects.get_for_model(modelo)
-    try:
-        informe = get_object_or_404(InformeResultado, pk=informe_pk, content_type=ct, object_id=registro.pk)
-    except (OperationalError, ProgrammingError):
-        messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
+    if _informes_legacy_disponibles(modelo):
+        columna_fk = _columna_fk_legacy_informe(modelo)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"DELETE FROM informesresultado WHERE id=%s AND {columna_fk}=%s",
+                [informe_pk, registro.pk],
+            )
+        messages.success(request, 'Informe eliminado correctamente.')
         return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
-    informe.delete()
-    messages.success(request, 'Informe eliminado correctamente.')
+
+    messages.error(request, 'La base de datos actual no soporta informes vinculados para este módulo.')
     return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
 
 
@@ -503,9 +616,7 @@ def citologia_list(request):
 
             selected_qr_url = _build_qr_link(request, selected.qr_citologia)
 
-            informes_resultado = list(
-                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
-            )
+            informes_resultado = _informes_por_registro(selected)
 
             if informe_pk and informe_pk != 'nuevo':
                 informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
@@ -800,9 +911,7 @@ def necropsia_list(request):
 
             selected_qr_url = _build_qr_link(request, selected.qr_necropsia)
 
-            informes_resultado = list(
-                _informes_por_registro(selected).order_by('-fecha', '-creado_en', '-id_informe')
-            )
+            informes_resultado = _informes_por_registro(selected)
 
             if informe_pk and informe_pk != 'nuevo':
                 informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
@@ -1247,18 +1356,37 @@ def descargar_informe_resultado(request, informe_pk):
     informe = get_object_or_404(InformeResultado, pk=informe_pk)
     if not informe.imagen:
         return HttpResponse('No hay archivo disponible', status=404)
-    
-    content = informe.imagen
-    if isinstance(content, memoryview):
-        content = content.tobytes()
-        
+
+    content = None
+    ext = 'bin'
+    content_type = 'application/octet-stream'
+
+    # Legacy BinaryField payload.
+    if isinstance(informe.imagen, (bytes, bytearray, memoryview)):
+        content = bytes(informe.imagen)
+    else:
+        # FileField path payload.
+        try:
+            informe.imagen.open('rb')
+            content = informe.imagen.read()
+            informe.imagen.close()
+            ext = os.path.splitext(getattr(informe.imagen, 'name', '') or '')[1].lstrip('.') or 'bin'
+        except Exception:
+            content = None
+
+    if not content:
+        return HttpResponse('No hay archivo disponible', status=404)
+
     if content.startswith(b'%PDF'):
         content_type = 'application/pdf'
         ext = 'pdf'
-    else:
+    elif ext.lower() in ('jpg', 'jpeg'):
         content_type = 'image/jpeg'
-        ext = 'jpg'
-        
+    elif ext.lower() == 'png':
+        content_type = 'image/png'
+    elif ext.lower() == 'gif':
+        content_type = 'image/gif'
+
     response = HttpResponse(content, content_type=content_type)
     response['Content-Disposition'] = f'inline; filename="informe_{informe.pk}.{ext}"'
     return response

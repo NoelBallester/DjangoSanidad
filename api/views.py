@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db import connection
 from django.contrib.contenttypes.models import ContentType
 from django.http import FileResponse, Http404, HttpResponse
 from datetime import datetime
@@ -807,9 +808,109 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
     serializer_class = InformeResultadoSerializer
 
     @staticmethod
+    def _tabla_tiene_columnas(tabla, *columnas):
+        try:
+            with connection.cursor() as cursor:
+                descripcion = connection.introspection.get_table_description(cursor, tabla)
+        except Exception:
+            return False
+        disponibles = {getattr(col, 'name', col[0]) for col in descripcion}
+        return all(col in disponibles for col in columnas)
+
+    @classmethod
+    def _modo_generico(cls):
+        return cls._tabla_tiene_columnas('informesresultado', 'content_type_id', 'object_id')
+
+    @staticmethod
+    def _legacy_fk_col_for_model(modelo):
+        return {
+            Cassette: 'cassette_id',
+            Citologia: 'citologia_id',
+            Necropsia: 'necropsia_id',
+            Tubo: 'tubo_id',
+            Hematologia: 'hematologia_id',
+            Microbiologia: 'microbiologia_id',
+        }.get(modelo)
+
+    @classmethod
+    def _legacy_parse_target(cls, data):
+        targets = [
+            ('cassette', Cassette, 'cassette_id'),
+            ('citologia', Citologia, 'citologia_id'),
+            ('necropsia', Necropsia, 'necropsia_id'),
+            ('tubo', Tubo, 'tubo_id'),
+            ('hematologia', Hematologia, 'hematologia_id'),
+            ('microbiologia', Microbiologia, 'microbiologia_id'),
+        ]
+        provided = []
+        for key, model, col in targets:
+            value = data.get(key)
+            if value not in (None, ''):
+                provided.append((key, model, col, value))
+        if len(provided) != 1:
+            return None
+        return provided[0]
+
+    @staticmethod
+    def _decode_base64_image(imagen_data):
+        if not imagen_data:
+            return None
+        if not isinstance(imagen_data, str):
+            raise ValueError('Formato de imagen invalido.')
+        value = imagen_data
+        if value.startswith('data:image'):
+            value = value.split(',', 1)[1]
+        return base64.b64decode(value, validate=True)
+
+    @staticmethod
+    def _legacy_row_to_payload(row, target_model=None, target_id=None):
+        image_value = row.get('imagen')
+        image_bytes = None
+        if isinstance(image_value, memoryview):
+            image_bytes = image_value.tobytes()
+        elif isinstance(image_value, (bytes, bytearray)):
+            image_bytes = bytes(image_value)
+
+        return {
+            'id_informe': row.get('id'),
+            'descripcion': row.get('descripcion'),
+            'fecha': row.get('fecha'),
+            'tincion': row.get('tincion'),
+            'observaciones': row.get('observaciones'),
+            'imagen_base64': base64.b64encode(image_bytes).decode('utf-8') if image_bytes else None,
+            'target_model': target_model,
+            'target_id': int(target_id) if target_id not in (None, '') else None,
+            'creado_en': row.get('creado_en'),
+        }
+
+    @staticmethod
     def _filtrar_por_modelo(modelo, object_id):
-        ct = ContentType.objects.get_for_model(modelo)
-        return InformeResultado.objects.filter(content_type=ct, object_id=object_id).order_by('-fecha', '-id_informe')
+        if InformeResultadoViewSet._modo_generico():
+            ct = ContentType.objects.get_for_model(modelo)
+            return InformeResultado.objects.filter(content_type=ct, object_id=object_id).order_by('-fecha', '-id_informe')
+
+        fk_col = InformeResultadoViewSet._legacy_fk_col_for_model(modelo)
+        if not fk_col:
+            return []
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"""
+                    SELECT id, descripcion, fecha, tincion, observaciones, imagen, creado_en
+                    FROM informesresultado
+                    WHERE {fk_col} = %s
+                    ORDER BY fecha DESC, id DESC
+                    """,
+                    [object_id],
+                )
+                cols = [col[0] for col in cursor.description]
+                rows = [dict(zip(cols, item)) for item in cursor.fetchall()]
+        except Exception:
+            return []
+
+        model_name = modelo.__name__.lower()
+        return [InformeResultadoViewSet._legacy_row_to_payload(row, model_name, object_id) for row in rows]
 
     def create(self, request):
         if request.FILES.get('imagen'):
@@ -835,37 +936,161 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         if 'imagen' in data:
             data.pop('imagen')
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        informe = serializer.save()
+        if self._modo_generico():
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            informe = serializer.save()
 
-        if imagen_bytes:
-            informe.imagen = imagen_bytes
-            informe.save(update_fields=['imagen'])
+            if imagen_bytes:
+                informe.imagen = imagen_bytes
+                informe.save(update_fields=['imagen'])
 
-        return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
+            return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
+
+        target = self._legacy_parse_target(data)
+        if not target:
+            return Response({'error': 'Debe indicar exactamente un destino para el informe.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_key, _target_model, target_fk_col, target_id = target
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"""
+                    INSERT INTO informesresultado
+                    (descripcion, fecha, tincion, observaciones, imagen, creado_en, {target_fk_col})
+                    VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)
+                    """,
+                    [
+                        data.get('descripcion'),
+                        data.get('fecha'),
+                        data.get('tincion'),
+                        data.get('observaciones'),
+                        imagen_bytes,
+                        target_id,
+                    ],
+                )
+                new_id = cursor.lastrowid
+        except Exception as exc:
+            return Response({'error': f'Error guardando informe: {exc}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        payload = {
+            'id': new_id,
+            'descripcion': data.get('descripcion'),
+            'fecha': data.get('fecha'),
+            'tincion': data.get('tincion'),
+            'observaciones': data.get('observaciones'),
+            'imagen': imagen_bytes,
+            'creado_en': None,
+        }
+        return Response(self._legacy_row_to_payload(payload, target_key, target_id), status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        if self._modo_generico():
+            return super().update(request, *args, **kwargs)
+
+        informe_id = kwargs.get('pk')
+        data = request.data.copy()
+
+        try:
+            imagen_bytes = self._decode_base64_image(data.get('imagen')) if 'imagen' in data and data.get('imagen') else None
+        except Exception:
+            return Response({'error': 'La imagen no es base64 valido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        target = self._legacy_parse_target(data)
+        target_fk_col = target[2] if target else None
+        target_id = target[3] if target else None
+
+        try:
+            with connection.cursor() as cursor:
+                if target_fk_col:
+                    set_target_sql = f", {target_fk_col} = %s"
+                    target_params = [target_id]
+                else:
+                    set_target_sql = ""
+                    target_params = []
+
+                if imagen_bytes is not None:
+                    cursor.execute(
+                        f"""
+                        UPDATE informesresultado
+                        SET descripcion=%s, fecha=%s, tincion=%s, observaciones=%s, imagen=%s {set_target_sql}
+                        WHERE id=%s
+                        """,
+                        [
+                            data.get('descripcion'),
+                            data.get('fecha'),
+                            data.get('tincion'),
+                            data.get('observaciones'),
+                            imagen_bytes,
+                            *target_params,
+                            informe_id,
+                        ],
+                    )
+                else:
+                    cursor.execute(
+                        f"""
+                        UPDATE informesresultado
+                        SET descripcion=%s, fecha=%s, tincion=%s, observaciones=%s {set_target_sql}
+                        WHERE id=%s
+                        """,
+                        [
+                            data.get('descripcion'),
+                            data.get('fecha'),
+                            data.get('tincion'),
+                            data.get('observaciones'),
+                            *target_params,
+                            informe_id,
+                        ],
+                    )
+        except Exception as exc:
+            return Response({'error': f'Error actualizando informe: {exc}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        payload = {
+            'id': int(informe_id),
+            'descripcion': data.get('descripcion'),
+            'fecha': data.get('fecha'),
+            'tincion': data.get('tincion'),
+            'observaciones': data.get('observaciones'),
+            'imagen': imagen_bytes,
+            'creado_en': None,
+        }
+        target_model = target[0] if target else None
+        return Response(self._legacy_row_to_payload(payload, target_model, target_id), status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='tubo/(?P<id>[^/.]+)')
     def por_tubo(self, request, id=None):
         informes = self._filtrar_por_modelo(Tubo, id)
-        return Response(InformeResultadoSerializer(informes, many=True).data)
+        if self._modo_generico():
+            return Response(InformeResultadoSerializer(informes, many=True).data)
+        return Response(informes)
 
     @action(detail=False, methods=['get'], url_path='hematologia/(?P<id>[^/.]+)')
     def por_hematologia(self, request, id=None):
         informes = self._filtrar_por_modelo(Hematologia, id)
-        return Response(InformeResultadoSerializer(informes, many=True).data)
+        if self._modo_generico():
+            return Response(InformeResultadoSerializer(informes, many=True).data)
+        return Response(informes)
 
     @action(detail=False, methods=['get'], url_path='microbiologia/(?P<id>[^/.]+)')
     def por_microbiologia(self, request, id=None):
         informes = self._filtrar_por_modelo(Microbiologia, id)
-        return Response(InformeResultadoSerializer(informes, many=True).data)
+        if self._modo_generico():
+            return Response(InformeResultadoSerializer(informes, many=True).data)
+        return Response(informes)
 
     @action(detail=False, methods=['get'], url_path='cassette/(?P<id>[^/.]+)')
     def por_cassette(self, request, id=None):
         informes = self._filtrar_por_modelo(Cassette, id)
-        return Response(InformeResultadoSerializer(informes, many=True).data)
+        if self._modo_generico():
+            return Response(InformeResultadoSerializer(informes, many=True).data)
+        return Response(informes)
 
     @action(detail=False, methods=['get'], url_path='citologia/(?P<id>[^/.]+)')
     def por_citologia(self, request, id=None):
         informes = self._filtrar_por_modelo(Citologia, id)
-        return Response(InformeResultadoSerializer(informes, many=True).data)
+        if self._modo_generico():
+            return Response(InformeResultadoSerializer(informes, many=True).data)
+        return Response(informes)
