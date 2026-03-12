@@ -30,9 +30,9 @@
     <link rel="stylesheet" href="css/index.css">
 
     <!-- Dark Mode Logic -->
-        <!-- Dark Mode: apply theme immediately to avoid flash -->
+    <!-- Dark Mode: apply theme immediately to avoid flash -->
     <script>
-        (function(){
+        (function () {
             var t = localStorage.getItem('theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark-theme');
@@ -45,10 +45,6 @@
 </head>
 
 <body>
-
-    <!-- Boton inicio -->
-    <a href="#"><img class="subir" src="./assets/images/prueba.png" alt="">
-    </a>
 
     <div class="container-fluid margin p-0">
         <!-- Navigation -->
@@ -88,7 +84,10 @@
                         </li>
                         {% endif %}
                         <li class="nav-item nav__item">
-                            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
+                            <form method="post" action="/logout/" style="display:inline"><input type="hidden"
+                                    name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit"
+                                    class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar
+                                    Sesión</button></form>
                         </li>
                         <li class="nav-item nav__item d-flex align-items-center">
                             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"
