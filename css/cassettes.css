@@ -806,3 +806,32 @@ html.dark-theme .fondo:hover,
     background: #0f172a !important;
     border-top-color: rgba(255, 255, 255, 0.14) !important;
 }
+
+/* ── Detail-panel: visually separate label from value ─────────── */
+.list-group .blue__color--negrita,
+.list-group-item.blue__color--negrita {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 0.55rem;
+    padding-bottom: 0.3rem;
+    border-color: rgba(76, 160, 204, 0.15) !important;
+}
+
+.list-group .blue__color--negrita .cassette__text,
+.list-group-item.blue__color--negrita .cassette__text,
+.list-group-item.blue__color--negrita .muestradescripcion__text {
+    display: block;
+    color: #212529;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin-top: 0.15rem;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+:root.dark-theme .list-group .blue__color--negrita .cassette__text,
+:root.dark-theme .list-group-item.blue__color--negrita .cassette__text,
+:root.dark-theme .list-group-item.blue__color--negrita .muestradescripcion__text {
+    color: #e2e8f0;
+}
