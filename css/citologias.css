@@ -350,6 +350,32 @@ td {
   border-radius: 0.25rem;
 }
 
+/* Informe editor modal: solid panel + proper layering */
+.informe-modal-overlay {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.informe-modal-panel {
+  background: var(--card-bg);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.35);
+}
+
+.informe-modal-panel .informe-modal-panel-footer {
+  background: var(--card-bg);
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+#modalNuevoInforme {
+  align-items: flex-start;
+}
+
+#modalNuevoInforme .informe-modal-panel {
+  margin-top: 1rem;
+}
+
 .form__header {
   display: flex;
   justify-content: space-between;
@@ -588,4 +614,15 @@ td {
 /* Higher contrast for bold blue text in dark mode */
 :root.dark-theme .blue__color--negrita {
     color: #60A5FA !important;
+}
+
+:root.dark-theme .informe-modal-panel {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55) !important;
+}
+
+:root.dark-theme .informe-modal-panel .informe-modal-panel-footer {
+  background: #0f172a !important;
+  border-top-color: rgba(255, 255, 255, 0.14) !important;
 }
