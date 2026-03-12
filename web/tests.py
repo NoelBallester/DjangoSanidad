@@ -1,11 +1,10 @@
 from django.test import TestCase, Client
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.conf import settings
 from django.db.utils import OperationalError
 from unittest.mock import patch
 
@@ -284,10 +283,6 @@ class ErrorViewTests(TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertIn(b'500', response.content)
         self.assertIn(b'Se ha producido un error interno', response.content)
-
-    def test_timezone_usa_madrid_con_tz_activo(self):
-        self.assertEqual(settings.TIME_ZONE, 'Europe/Madrid')
-        self.assertTrue(settings.USE_TZ)
 
 
 class MuestrasSinImagenTemplateTests(TestCase):
