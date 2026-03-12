@@ -3,6 +3,46 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+
+class SoftDeleteQuerySet(models.QuerySet):
+    def delete(self):
+        return super().update(is_deleted=True)
+
+    def hard_delete(self):
+        return super().delete()
+
+    def alive(self):
+        return self.filter(is_deleted=False)
+
+    def deleted(self):
+        return self.filter(is_deleted=True)
+
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
+
+
+class SoftDeleteModel(models.Model):
+    is_deleted = models.BooleanField(default=False, db_index=True)
+
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
+
+    class Meta:
+        abstract = True
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.save(update_fields=['is_deleted'])
+
+    def hard_delete(self, using=None, keep_parents=False):
+        return super().delete(using=using, keep_parents=keep_parents)
+
+    def restore(self):
+        self.is_deleted = False
+        self.save(update_fields=['is_deleted'])
+
 class TecnicoManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -128,7 +168,7 @@ class RegistroConInforme(RegistroBase):
         abstract = True
 
 
-class MuestraBase(models.Model):
+class MuestraBase(SoftDeleteModel):
     """
     Base abstracta para todos los modelos de muestra.
     Contiene los campos comunes de descripción, fecha, tinción y QR.
@@ -143,7 +183,7 @@ class MuestraBase(models.Model):
         abstract = True
 
 
-class ImagenBase(models.Model):
+class ImagenBase(SoftDeleteModel):
     """
     Base abstracta para todos los modelos de imagen de muestra.
     """

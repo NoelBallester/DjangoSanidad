@@ -39,6 +39,15 @@ FILE_PROXY_MODELS = {
     'informeresultado': (InformeResultado, {'imagen'}),
 }
 
+IMAGE_MODELS = (
+    Imagen,
+    ImagenCitologia,
+    ImagenNecropsia,
+    ImagenTubo,
+    ImagenHematologia,
+    ImagenMicrobiologia,
+)
+
 
 def _read_file_bytes(file_value):
     if not file_value:
@@ -128,11 +137,22 @@ def generar_qr(prefijo):
 
 def generar_qr_unico(prefijo, modelo, campo, max_intentos=50):
     """Genera un QR y verifica colisiones contra base de datos."""
+    manager = getattr(modelo, 'all_objects', modelo.objects)
     for _ in range(max_intentos):
         candidato = generar_qr(prefijo)
-        if not modelo.objects.filter(**{campo: candidato}).exists():
+        if not manager.filter(**{campo: candidato}).exists():
             return candidato
     raise RuntimeError(f'No se pudo generar QR unico para {modelo.__name__}.{campo}')
+
+
+def _soft_delete_related_images(instance):
+    for relation in instance._meta.related_objects:
+        if relation.related_model not in IMAGE_MODELS:
+            continue
+        accessor = relation.get_accessor_name()
+        related_manager = getattr(instance, accessor, None)
+        if related_manager is not None:
+            related_manager.all().update(is_deleted=True)
 
 
 # ─── Mixins y ViewSet base ────────────────────────────────────────────────────
@@ -201,6 +221,17 @@ class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
             return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
         qs = self.get_queryset().filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin)
         return Response(self.get_serializer(qs, many=True).data)
+
+
+class SoftDeleteDestroyMixin:
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
+class MuestraSoftDeleteDestroyMixin(SoftDeleteDestroyMixin):
+    def perform_destroy(self, instance):
+        _soft_delete_related_images(instance)
+        super().perform_destroy(instance)
 
 
 class TecnicoViewSet(viewsets.ModelViewSet):
@@ -333,7 +364,7 @@ class NecropsiaViewSet(RegistroViewSet):
         necropsias = Necropsia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(NecropsiaSerializer(necropsias, many=True).data)
 
-class MuestraViewSet(viewsets.ModelViewSet):
+class MuestraViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = Muestra.objects.all()
     serializer_class = MuestraSerializer
     
@@ -359,7 +390,7 @@ class MuestraViewSet(viewsets.ModelViewSet):
         muestras = Muestra.objects.filter(qr_muestra=qr)
         return Response(MuestraSerializer(muestras, many=True).data)
 
-class MuestraCitologiaViewSet(viewsets.ModelViewSet):
+class MuestraCitologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = MuestraCitologia.objects.all()
     serializer_class = MuestraCitologiaSerializer
     
@@ -385,7 +416,7 @@ class MuestraCitologiaViewSet(viewsets.ModelViewSet):
         muestras = MuestraCitologia.objects.filter(qr_muestra=qr)
         return Response(MuestraCitologiaSerializer(muestras, many=True).data)
 
-class MuestraNecropsiaViewSet(viewsets.ModelViewSet):
+class MuestraNecropsiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = MuestraNecropsia.objects.all()
     serializer_class = MuestraNecropsiaSerializer
 
@@ -408,7 +439,7 @@ class MuestraNecropsiaViewSet(viewsets.ModelViewSet):
         muestras = MuestraNecropsia.objects.filter(qr_muestra=qr)
         return Response(MuestraNecropsiaSerializer(muestras, many=True).data)
 
-class ImagenViewSet(viewsets.ModelViewSet):
+class ImagenViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = Imagen.objects.all()
     serializer_class = ImagenSerializer
 
@@ -433,7 +464,7 @@ class ImagenViewSet(viewsets.ModelViewSet):
         imagenes = Imagen.objects.filter(muestra_id=id)
         return Response(self.get_serializer(imagenes, many=True).data)
 
-class ImagenCitologiaViewSet(viewsets.ModelViewSet):
+class ImagenCitologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = ImagenCitologia.objects.all()
     serializer_class = ImagenCitologiaSerializer
 
@@ -458,7 +489,7 @@ class ImagenCitologiaViewSet(viewsets.ModelViewSet):
         imagenes = ImagenCitologia.objects.filter(muestra_id=id)
         return Response(self.get_serializer(imagenes, many=True).data)
 
-class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
+class ImagenNecropsiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = ImagenNecropsia.objects.all()
     serializer_class = ImagenNecropsiaSerializer
 
@@ -529,7 +560,7 @@ class TuboViewSet(RegistroViewSet):
         tubos = Tubo.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(TuboSerializer(tubos, many=True).data)
 
-class MuestraTuboViewSet(viewsets.ModelViewSet):
+class MuestraTuboViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = MuestraTubo.objects.all()
     serializer_class = MuestraTuboSerializer
     
@@ -568,7 +599,7 @@ class MuestraTuboViewSet(viewsets.ModelViewSet):
         muestras = MuestraTubo.objects.filter(qr_muestra=qr)
         return Response(MuestraTuboSerializer(muestras, many=True).data)
 
-class ImagenTuboViewSet(viewsets.ModelViewSet):
+class ImagenTuboViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = ImagenTubo.objects.all()
     serializer_class = ImagenTuboSerializer
     
@@ -630,7 +661,7 @@ class HematologiaViewSet(RegistroViewSet):
         hematologias = Hematologia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(HematologiaSerializer(hematologias, many=True).data)
 
-class MuestraHematologiaViewSet(viewsets.ModelViewSet):
+class MuestraHematologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = MuestraHematologia.objects.all()
     serializer_class = MuestraHematologiaSerializer
     
@@ -669,7 +700,7 @@ class MuestraHematologiaViewSet(viewsets.ModelViewSet):
         return Response(MuestraHematologiaSerializer(muestras, many=True).data)
 
 
-class ImagenHematologiaViewSet(viewsets.ModelViewSet):
+class ImagenHematologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = ImagenHematologia.objects.all()
     serializer_class = ImagenHematologiaSerializer
     
@@ -742,7 +773,7 @@ class MicrobiologiaViewSet(RegistroViewSet):
         microbiologias = Microbiologia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
 
-class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
+class MuestraMicrobiologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = MuestraMicrobiologia.objects.all()
     serializer_class = MuestraMicrobiologiaSerializer
     
@@ -775,7 +806,7 @@ class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
         muestras = MuestraMicrobiologia.objects.filter(qr_muestra=qr)
         return Response(MuestraMicrobiologiaSerializer(muestras, many=True).data)
 
-class ImagenMicrobiologiaViewSet(viewsets.ModelViewSet):
+class ImagenMicrobiologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
     queryset = ImagenMicrobiologia.objects.all()
     serializer_class = ImagenMicrobiologiaSerializer
     

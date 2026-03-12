@@ -1080,6 +1080,8 @@ def hematologia_list(request):
     inicio = request.GET.get('inicio', '').strip()
     fin    = request.GET.get('fin', '').strip()
     sel_pk = request.GET.get('hematologia', '').strip()
+    muestra_pk = request.GET.get('muestra', '').strip()
+    informe_pk = request.GET.get('informe', '').strip()
 
     if organo and organo != '*':
         qs = qs.filter(organo__icontains=organo)
@@ -1093,6 +1095,10 @@ def hematologia_list(request):
 
     selected = None
     muestras_con_imagenes = []
+    selected_muestra_item = None
+    informes_resultado = []
+    informe_activo = None
+    informe_imagen_base64 = ''
     selected_qr_url = ''
 
     if sel_pk:
@@ -1113,18 +1119,46 @@ def hematologia_list(request):
                 }
                 for m in MuestraHematologia.objects.filter(hematologia=selected)
             ]
+            if muestra_pk:
+                selected_muestra_item = next((item for item in muestras_con_imagenes if str(item['muestra'].pk) == muestra_pk), None)
+            if not selected_muestra_item and muestras_con_imagenes:
+                selected_muestra_item = muestras_con_imagenes[0]
+
+            informes_resultado = _informes_por_registro(selected)
+            if informe_pk:
+                informe_activo = next((item for item in informes_resultado if str(item.pk) == informe_pk), None)
+            if not informe_activo and informes_resultado:
+                informe_activo = informes_resultado[0]
+            if informe_activo and informe_activo.imagen:
+                informe_imagen_base64 = _imagen_bytes_a_base64(informe_activo.imagen)
             selected_qr_url = _build_qr_link(request, selected.qr_hematologia)
         except Hematologia.DoesNotExist:
             pass
+
+    informe_initial = {}
+    if selected:
+        if informe_activo:
+            informe_initial = {
+                'informe_descripcion': informe_activo.descripcion or '',
+                'informe_fecha': informe_activo.fecha,
+                'informe_tincion': informe_activo.tincion or '',
+                'informe_observaciones': informe_activo.observaciones or '',
+            }
+        else:
+            informe_initial = {'informe_fecha': timezone.localdate()}
 
     return render(request, 'web/hematologias.html', {
         'hematologias':          qs,
         'selected':              selected,
         'muestras_con_imagenes': muestras_con_imagenes,
+        'selected_muestra_item': selected_muestra_item,
+        'informes_resultado': informes_resultado,
+        'informe_activo': informe_activo,
+        'informe_imagen_base64': informe_imagen_base64,
         'hematologia_form':      HematologiaForm(instance=selected) if selected else HematologiaForm(),
         'nueva_hematologia_form': HematologiaForm(),
         'muestra_form':          MuestraHematologiaForm(),
-        'informe_form': None,
+        'informe_form': InformeForm(initial=informe_initial) if selected else None,
         'selected_qr_url': selected_qr_url,
         'filtros': {'organo': organo, 'numero': numero, 'inicio': inicio, 'fin': fin},
     })
@@ -1176,18 +1210,13 @@ def hematologia_delete(request, pk):
 @login_required
 @require_POST
 def hematologia_informe(request, pk):
-    hematologia = get_object_or_404(Hematologia, pk=pk)
-    form = InformeForm(request.POST, request.FILES)
-    if form.is_valid():
-        hematologia.informe_descripcion   = form.cleaned_data['informe_descripcion']
-        hematologia.informe_fecha         = form.cleaned_data['informe_fecha']
-        hematologia.informe_tincion       = form.cleaned_data['informe_tincion']
-        hematologia.informe_observaciones = form.cleaned_data['informe_observaciones']
-        img = form.cleaned_data.get('informe_imagen')
-        if img:
-            hematologia.informe_imagen = img.read()
-        hematologia.save()
-    return redirect(reverse('hematologias') + f'?hematologia={pk}')
+    return _guardar_informe(request, pk, Hematologia, 'hematologia', 'hematologias')
+
+
+@login_required
+@require_POST
+def hematologia_informe_delete(request, pk, informe_pk):
+    return _eliminar_informe(request, pk, informe_pk, Hematologia, 'hematologia', 'hematologias')
 
 
 # ── Muestras Hematología ────────────────────────────────────────────────────────
