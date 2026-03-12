@@ -242,8 +242,12 @@
                         <td>
                             {% if t.is_staff %}
                             <span class="badge bg-primary">Admin</span>
+                            {% elif t.rol == 'profesor' %}
+                            <span class="badge bg-success">Profesor</span>
+                            {% elif t.rol == 'anatomia_patologica' %}
+                            <span class="badge bg-info text-dark">Anatomía Patológica</span>
                             {% else %}
-                            <span class="badge bg-secondary">Técnico</span>
+                            <span class="badge bg-secondary">Laboratorio</span>
                             {% endif %}
                         </td>
                         {% if request.user.is_staff %}
@@ -252,6 +256,7 @@
                                 data-pk="{{ t.pk }}"
                                 data-username="{{ t.username }}"
                                 data-centro="{{ t.centro|default:'' }}"
+                                data-rol="{{ t.rol }}"
                                 data-is-staff="{{ t.is_staff|yesno:'true,false' }}">
                                 <i class="fa-solid fa-file-pen"></i>
                             </button>
@@ -293,6 +298,14 @@
                     <input type="text" name="centro" class="form-control blue__color" placeholder="Nombre del centro (opcional)">
                 </div>
                 <div class="col-md-6">
+                    <label class="form-label blue__color--negrita">Tipo de usuario *</label>
+                    <select name="rol" class="form-control blue__color" required>
+                        <option value="profesor">Profesor</option>
+                        <option value="anatomia_patologica">Anatomía Patológica</option>
+                        <option value="laboratorio" selected>Laboratorio</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Contraseña *</label>
                     <input type="password" name="password" class="form-control blue__color" required autocomplete="new-password">
                 </div>
@@ -325,6 +338,14 @@
                 <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Centro</label>
                     <input type="text" name="centro" id="editCentro" class="form-control blue__color">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label blue__color--negrita">Tipo de usuario</label>
+                    <select name="rol" id="editRol" class="form-control blue__color">
+                        <option value="profesor">Profesor</option>
+                        <option value="anatomia_patologica">Anatomía Patológica</option>
+                        <option value="laboratorio">Laboratorio</option>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label blue__color--negrita">Nueva contraseña</label>
@@ -406,6 +427,7 @@
                 document.getElementById('formEditarTecnico').action = `/usuarios/${d.pk}/editar/`;
                 document.getElementById('editUsername').value  = d.username;
                 document.getElementById('editCentro').value    = d.centro;
+                document.getElementById('editRol').value       = d.rol || 'laboratorio';
                 document.getElementById('editIsStaff').checked = d.isStaff === 'true';
                 openModal('modalupdateTecnico');
             });

@@ -70,12 +70,23 @@ class TecnicoManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class Tecnico(AbstractBaseUser, PermissionsMixin):
+    ROL_PROFESOR = 'profesor'
+    ROL_ANATOMIA = 'anatomia_patologica'
+    ROL_LABORATORIO = 'laboratorio'
+
+    ROL_CHOICES = [
+        (ROL_PROFESOR, 'Profesor'),
+        (ROL_ANATOMIA, 'Anatomía Patológica'),
+        (ROL_LABORATORIO, 'Laboratorio'),
+    ]
+
     id_tecnico = models.AutoField(primary_key=True, db_column='id')
     nombre = models.CharField(max_length=255, db_column='first_name')
     apellidos = models.CharField(max_length=255, db_column='last_name')
     username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     centro = models.CharField(max_length=255, null=True, blank=True)
+    rol = models.CharField(max_length=30, choices=ROL_CHOICES, default=ROL_LABORATORIO)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

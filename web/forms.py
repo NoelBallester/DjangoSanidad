@@ -575,17 +575,19 @@ class TecnicoForm(forms.ModelForm):
 
     class Meta:
         model = Tecnico
-        fields = ['username', 'nombre', 'apellidos', 'email', 'centro', 'is_staff', 'password']
+        fields = ['username', 'nombre', 'apellidos', 'email', 'centro', 'rol', 'is_staff', 'password']
         widgets = {
             'username':  forms.TextInput(attrs=_W),
             'nombre':    forms.TextInput(attrs=_W),
             'apellidos': forms.TextInput(attrs=_W),
             'email':     forms.EmailInput(attrs=_W),
             'centro':    forms.TextInput(attrs={**_W, 'placeholder': 'Nombre del centro (opcional)'}),
+            'rol':       forms.Select(attrs=_W),
             'is_staff':  forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
             'nombre':    'Nombre',
             'apellidos': 'Apellidos',
+            'rol':       'Tipo de usuario',
             'is_staff':  'Administrador',
         }
