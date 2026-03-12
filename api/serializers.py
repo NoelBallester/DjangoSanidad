@@ -14,6 +14,28 @@ def _validar_catalogo(tipo, valor, campo):
     return valor
 
 
+class QrUnicoValidatorMixin:
+    """
+    Mixin para serializers que necesiten validar unicidad de un campo QR.
+    La subclase debe declarar `qr_field` con el nombre del campo a validar.
+    """
+    qr_field: str = None
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if not self.qr_field:
+            return attrs
+        value = attrs.get(self.qr_field)
+        if not value:
+            return attrs
+        qs = self.Meta.model.objects.filter(**{self.qr_field: value})
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError({self.qr_field: 'El QR ya existe.'})
+        return attrs
+
+
 class FileUrlSerializerMixin:
     def _file_url(self, instance, field_name):
         archivo = getattr(instance, field_name, None)
@@ -30,14 +52,8 @@ class TecnicoSerializer(serializers.ModelSerializer):
         model = Tecnico
         fields = ['id_tecnico', 'nombre', 'apellidos', 'email', 'centro']
 
-class CassetteSerializer(serializers.ModelSerializer):
-    def validate_qr_casette(self, value):
-        qs = Cassette.objects.filter(qr_casette=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR del cassette ya existe.')
-        return value
+class CassetteSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_casette'
 
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
@@ -52,14 +68,8 @@ class CassetteSerializer(serializers.ModelSerializer):
             'volante_peticion_nombre', 'volante_peticion_tipo'
         ]
 
-class MuestraSerializer(serializers.ModelSerializer):
-    def validate_qr_muestra(self, value):
-        qs = Muestra.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para cassette.')
-        return value
+class MuestraSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
 
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
@@ -79,14 +89,8 @@ class ImagenSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class CitologiaSerializer(serializers.ModelSerializer):
-    def validate_qr_citologia(self, value):
-        qs = Citologia.objects.filter(qr_citologia=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de citologia ya existe.')
-        return value
+class CitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_citologia'
 
     def validate_tipo_citologia(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_CITOLOGIA, value, 'Tipo de citologia')
@@ -102,14 +106,8 @@ class CitologiaSerializer(serializers.ModelSerializer):
             'volante_peticion_nombre', 'volante_peticion_tipo'
         ]
 
-class MuestraCitologiaSerializer(serializers.ModelSerializer):
-    def validate_qr_muestra(self, value):
-        qs = MuestraCitologia.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para citologia.')
-        return value
+class MuestraCitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
 
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
@@ -132,14 +130,8 @@ class ImagenCitologiaSerializer(FileUrlSerializerMixin, serializers.ModelSeriali
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class NecropsiaSerializer(serializers.ModelSerializer):
-    def validate_qr_necropsia(self, value):
-        qs = Necropsia.objects.filter(qr_necropsia=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de necropsia ya existe.')
-        return value
+class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_necropsia'
 
     def validate_tipo_necropsia(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_AUTOPSIA, value, 'Tipo de necropsia')
@@ -151,14 +143,8 @@ class NecropsiaSerializer(serializers.ModelSerializer):
         model = Necropsia
         fields = '__all__'
 
-class MuestraNecropsiaSerializer(serializers.ModelSerializer):
-    def validate_qr_muestra(self, value):
-        qs = MuestraNecropsia.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para necropsia.')
-        return value
+class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
 
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
@@ -178,7 +164,8 @@ class ImagenNecropsiaSerializer(FileUrlSerializerMixin, serializers.ModelSeriali
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class TuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_tubo'
     informe_imagen_url = serializers.SerializerMethodField()
     volante_peticion_url = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend de PHPSanidad
@@ -203,18 +190,11 @@ class TuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     def get_volante_peticion_url(self, obj):
         return self._file_url(obj, 'volante_peticion')
 
-    def validate_qr_tubo(self, value):
-        qs = Tubo.objects.filter(qr_tubo=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de tubo ya existe.')
-        return value
-
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class MuestraTuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -231,14 +211,6 @@ class MuestraTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer)
         except Exception:
             pass
         return None
-
-    def validate_qr_muestra(self, value):
-        qs = MuestraTubo.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para tubo.')
-        return value
 
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
@@ -258,7 +230,8 @@ class ImagenTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
             logger.error(f"Error al obtener URL de imagen {obj.id_imagen}: {e}")
             return None
 
-class HematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_hematologia'
     informe_imagen_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -274,18 +247,11 @@ class HematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer)
     def get_informe_imagen_url(self, obj):
         return self._file_url(obj, 'informe_imagen')
 
-    def validate_qr_hematologia(self, value):
-        qs = Hematologia.objects.filter(qr_hematologia=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de hematologia ya existe.')
-        return value
-
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraHematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class MuestraHematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
     id_muestra = serializers.IntegerField(read_only=True)
 
@@ -307,14 +273,6 @@ class MuestraHematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSeri
             pass
         return None
 
-    def validate_qr_muestra(self, value):
-        qs = MuestraHematologia.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para hematologia.')
-        return value
-
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
 
@@ -334,7 +292,8 @@ class ImagenHematologiaSerializer(FileUrlSerializerMixin, serializers.ModelSeria
             logger.error(f"Error al obtener URL de imagen {obj.id_imagen}: {e}")
             return None
 
-class MicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class MicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_microbiologia'
     informe_imagen_url = serializers.SerializerMethodField()
     volante_peticion_url = serializers.SerializerMethodField()
     # Aliases para compatibilidad con el frontend
@@ -359,18 +318,11 @@ class MicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerialize
     def get_volante_peticion_url(self, obj):
         return self._file_url(obj, 'volante_peticion')
 
-    def validate_qr_microbiologia(self, value):
-        qs = Microbiologia.objects.filter(qr_microbiologia=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de microbiologia ya existe.')
-        return value
-
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
-class MuestraMicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
+class MuestraMicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -390,14 +342,6 @@ class MuestraMicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSe
         except Exception:
             return None
         return None
-
-    def validate_qr_muestra(self, value):
-        qs = MuestraMicrobiologia.objects.filter(qr_muestra=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError('El QR de la muestra ya existe para microbiologia.')
-        return value
 
     def validate_tincion(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')

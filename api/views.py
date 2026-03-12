@@ -133,6 +133,75 @@ def generar_qr_unico(prefijo, modelo, campo, max_intentos=50):
             return candidato
     raise RuntimeError(f'No se pudo generar QR unico para {modelo.__name__}.{campo}')
 
+
+# ─── Mixins y ViewSet base ────────────────────────────────────────────────────
+
+class ActualizarInformeMixin:
+    """
+    Mixin que expone el action `actualizar_informe` para todos los registros
+    que heredan de RegistroConInforme.  Las subclases solo necesitan definir
+    `serializer_class`.
+    """
+    @action(detail=True, methods=['post'])
+    def actualizar_informe(self, request, pk=None):
+        instance = self.get_object()
+        data = request.data
+
+        campos_simples = ('informe_descripcion', 'informe_fecha', 'informe_tincion', 'informe_observaciones')
+        for campo in campos_simples:
+            if campo in data:
+                setattr(instance, campo, data[campo])
+
+        if 'informe_imagen' in data:
+            imagen_data = data['informe_imagen']
+            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
+                imagen_data = imagen_data.split(',')[1]
+            instance.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
+
+        instance.save()
+        return Response(self.get_serializer(instance).data)
+
+
+class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
+    """
+    ViewSet base para los modelos principales (Cassette, Citologia, Tubo…).
+    Implementa `create` con generación automática de QR mediante Template Method:
+    las subclases declaran `qr_prefix` y `qr_field`.
+    """
+    qr_prefix: str = None
+    qr_field: str = None
+
+    def create(self, request):
+        data = request.data.copy()
+        if self.qr_field and not data.get(self.qr_field):
+            data[self.qr_field] = generar_qr_unico(
+                self.qr_prefix, self.queryset.model, self.qr_field
+            )
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        qs = self.get_queryset()[:10]
+        return Response(self.get_serializer(qs, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def todos(self, request):
+        qs = self.get_queryset()
+        return Response(self.get_serializer(qs, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def rango_fechas(self, request):
+        fecha_inicio = request.query_params.get('inicio')
+        fecha_fin = request.query_params.get('fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
+        qs = self.get_queryset().filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin)
+        return Response(self.get_serializer(qs, many=True).data)
+
+
 class TecnicoViewSet(viewsets.ModelViewSet):
     queryset = Tecnico.objects.all()
     serializer_class = TecnicoSerializer
@@ -168,31 +237,11 @@ class TecnicoViewSet(viewsets.ModelViewSet):
         except Tecnico.DoesNotExist:
             return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class CassetteViewSet(viewsets.ModelViewSet):
+class CassetteViewSet(RegistroViewSet):
     queryset = Cassette.objects.all().order_by('-fecha')
     serializer_class = CassetteSerializer
-    
-    def create(self, request):
-        data = request.data.copy()
-        # Generar QR automáticamente si no existe
-        if 'qr_casette' not in data or not data['qr_casette']:
-            data['qr_casette'] = generar_qr_unico('--c--', Cassette, 'qr_casette')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        """Carga los últimos 10 cassettes"""
-        cassettes = self.get_queryset()[:10]
-        return Response(CassetteSerializer(cassettes, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        """Carga todos los cassettes"""
-        cassettes = self.get_queryset()
-        return Response(CassetteSerializer(cassettes, many=True).data)
+    qr_prefix = '--c--'
+    qr_field = 'qr_casette'
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -220,66 +269,12 @@ class CassetteViewSet(viewsets.ModelViewSet):
         """Filtra cassettes por fecha específica"""
         cassettes = Cassette.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(CassetteSerializer(cassettes, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        """Filtra cassettes por rango de fechas"""
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        cassettes = Cassette.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(CassetteSerializer(cassettes, many=True).data)
-    
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        """Actualiza el informe médico de un cassette"""
-        cassette = self.get_object()
-        data = request.data
-        
-        if 'informe_descripcion' in data:
-            cassette.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            cassette.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            cassette.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            cassette.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            # Convertir base64 a bytes si viene como string
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            cassette.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-        
-        cassette.save()
-        return Response(CassetteSerializer(cassette).data)
 
-class CitologiaViewSet(viewsets.ModelViewSet):
+class CitologiaViewSet(RegistroViewSet):
     queryset = Citologia.objects.all().order_by('-fecha')
     serializer_class = CitologiaSerializer
-    
-    def create(self, request):
-        data = request.data.copy()
-        # Generar QR automáticamente si no existe
-        if 'qr_citologia' not in data or not data['qr_citologia']:
-            data['qr_citologia'] = generar_qr_unico('--cit--', Citologia, 'qr_citologia')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        """Carga las últimas 10 citologías"""
-        citologias = self.get_queryset()[:10]
-        return Response(CitologiaSerializer(citologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        """Carga todas las citologías"""
-        citologias = self.get_queryset()
-        return Response(CitologiaSerializer(citologias, many=True).data)
+    qr_prefix = '--cit--'
+    qr_field = 'qr_citologia'
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -307,63 +302,12 @@ class CitologiaViewSet(viewsets.ModelViewSet):
         """Filtra citologías por fecha específica"""
         citologias = Citologia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(CitologiaSerializer(citologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        """Filtra citologías por rango de fechas"""
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        citologias = Citologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(CitologiaSerializer(citologias, many=True).data)
-    
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        """Actualiza el informe médico de una citología"""
-        citologia = self.get_object()
-        data = request.data
-        
-        if 'informe_descripcion' in data:
-            citologia.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            citologia.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            citologia.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            citologia.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            # Convertir base64 a bytes si viene como string
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            citologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-        
-        citologia.save()
-        return Response(CitologiaSerializer(citologia).data)
 
-class NecropsiaViewSet(viewsets.ModelViewSet):
+class NecropsiaViewSet(RegistroViewSet):
     queryset = Necropsia.objects.all().order_by('-fecha')
     serializer_class = NecropsiaSerializer
-
-    def create(self, request):
-        data = request.data.copy()
-        if 'qr_necropsia' not in data or not data['qr_necropsia']:
-            data['qr_necropsia'] = generar_qr_unico('--nec--', Necropsia, 'qr_necropsia')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        necropsias = self.get_queryset()[:10]
-        return Response(NecropsiaSerializer(necropsias, many=True).data)
-
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        necropsias = self.get_queryset()
-        return Response(NecropsiaSerializer(necropsias, many=True).data)
+    qr_prefix = '--nec--'
+    qr_field = 'qr_necropsia'
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -387,37 +331,6 @@ class NecropsiaViewSet(viewsets.ModelViewSet):
     def por_fecha(self, request, fecha=None):
         necropsias = Necropsia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(NecropsiaSerializer(necropsias, many=True).data)
-
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        necropsias = Necropsia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(NecropsiaSerializer(necropsias, many=True).data)
-
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        necropsia = self.get_object()
-        data = request.data
-
-        if 'informe_descripcion' in data:
-            necropsia.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            necropsia.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            necropsia.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            necropsia.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            necropsia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-
-        necropsia.save()
-        return Response(NecropsiaSerializer(necropsia).data)
 
 class MuestraViewSet(viewsets.ModelViewSet):
     queryset = Muestra.objects.all()
@@ -569,39 +482,24 @@ class ImagenNecropsiaViewSet(viewsets.ModelViewSet):
         imagenes = ImagenNecropsia.objects.filter(muestra_id=id)
         return Response(self.get_serializer(imagenes, many=True).data)
 
-class TuboViewSet(viewsets.ModelViewSet):
+class TuboViewSet(RegistroViewSet):
     queryset = Tubo.objects.all().order_by('-fecha')
     serializer_class = TuboSerializer
-    
+    qr_prefix = '--t--'
+    qr_field = 'qr_tubo'
+
     def create(self, request):
+        """Extiende el create base añadiendo generación de número de tubo."""
+        import time
         data = request.data.copy()
-        # Generar QR automáticamente si no existe
-        if 'qr_tubo' not in data or not data['qr_tubo']:
-            data['qr_tubo'] = generar_qr_unico('--t--', Tubo, 'qr_tubo')
-        
-        # Generar número de tubo si no existe
-        if 'tubo' not in data or not data['tubo']:
-            if 'muestra' in data and data['muestra']:
-                data['tubo'] = data['muestra']
-            else:
-                import time
-                data['tubo'] = f"T-{int(time.time())}"
+        if not data.get('qr_tubo'):
+            data['qr_tubo'] = generar_qr_unico(self.qr_prefix, Tubo, self.qr_field)
+        if not data.get('tubo'):
+            data['tubo'] = data.get('muestra') or f"T-{int(time.time())}"
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        """Carga los últimos 10 tubos"""
-        tubos = self.get_queryset()[:10]
-        return Response(TuboSerializer(tubos, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        """Carga todos los tubos"""
-        tubos = self.get_queryset()
-        return Response(TuboSerializer(tubos, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -629,40 +527,6 @@ class TuboViewSet(viewsets.ModelViewSet):
         """Filtra tubos por fecha específica"""
         tubos = Tubo.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(TuboSerializer(tubos, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        """Filtra tubos por rango de fechas"""
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        tubos = Tubo.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(TuboSerializer(tubos, many=True).data)
-    
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        """Actualiza el informe médico de un tubo"""
-        tubo = self.get_object()
-        data = request.data
-        
-        if 'informe_descripcion' in data:
-            tubo.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            tubo.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            tubo.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            tubo.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            # Convertir base64 a bytes si viene como string
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            tubo.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-        
-        tubo.save()
-        return Response(TuboSerializer(tubo).data)
 
 class MuestraTuboViewSet(viewsets.ModelViewSet):
     queryset = MuestraTubo.objects.all()
@@ -732,31 +596,11 @@ class ImagenTuboViewSet(viewsets.ModelViewSet):
         imagenes = ImagenTubo.objects.filter(muestra_id=id)
         return Response(self.get_serializer(imagenes, many=True).data)
 
-class HematologiaViewSet(viewsets.ModelViewSet):
+class HematologiaViewSet(RegistroViewSet):
     queryset = Hematologia.objects.all().order_by('-fecha')
     serializer_class = HematologiaSerializer
-    
-    def create(self, request):
-        data = request.data.copy()
-        # Generar QR automáticamente si no existe
-        if 'qr_hematologia' not in data or not data['qr_hematologia']:
-            data['qr_hematologia'] = generar_qr_unico('--h--', Hematologia, 'qr_hematologia')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        """Carga las últimas 10 hematologías"""
-        hematologias = self.get_queryset()[:10]
-        return Response(HematologiaSerializer(hematologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        """Carga todas las hematologías"""
-        hematologias = self.get_queryset()
-        return Response(HematologiaSerializer(hematologias, many=True).data)
+    qr_prefix = '--h--'
+    qr_field = 'qr_hematologia'
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -784,40 +628,6 @@ class HematologiaViewSet(viewsets.ModelViewSet):
         """Filtra hematologías por fecha específica"""
         hematologias = Hematologia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(HematologiaSerializer(hematologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        """Filtra hematologías por rango de fechas"""
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        hematologias = Hematologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(HematologiaSerializer(hematologias, many=True).data)
-    
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        """Actualiza el informe médico de una hematología"""
-        hematologia = self.get_object()
-        data = request.data
-        
-        if 'informe_descripcion' in data:
-            hematologia.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            hematologia.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            hematologia.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            hematologia.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            # Convertir base64 a bytes si viene como string
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            hematologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-        
-        hematologia.save()
-        return Response(HematologiaSerializer(hematologia).data)
 
 class MuestraHematologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraHematologia.objects.all()
@@ -885,39 +695,24 @@ class ImagenHematologiaViewSet(viewsets.ModelViewSet):
         imagenes = ImagenHematologia.objects.filter(muestra_id=id)
         return Response(self.get_serializer(imagenes, many=True).data)
 
-class MicrobiologiaViewSet(viewsets.ModelViewSet):
+class MicrobiologiaViewSet(RegistroViewSet):
     queryset = Microbiologia.objects.all().order_by('-fecha')
     serializer_class = MicrobiologiaSerializer
-    
+    qr_prefix = '--mb--'
+    qr_field = 'qr_microbiologia'
+
     def create(self, request):
+        """Extiende el create base añadiendo generación de número de microbiología."""
+        import time
         data = request.data.copy()
-        # Generar QR automáticamente si no existe
-        if 'qr_microbiologia' not in data or not data['qr_microbiologia']:
-            data['qr_microbiologia'] = generar_qr_unico('--mb--', Microbiologia, 'qr_microbiologia')
-        
-        # Generar número de tubo si no existe
-        if 'microbiologia' not in data or not data['microbiologia']:
-            if 'muestra' in data and data['muestra']:
-                data['microbiologia'] = data['muestra']
-            else:
-                import time
-                data['microbiologia'] = f"MB-{int(time.time())}"
+        if not data.get('qr_microbiologia'):
+            data['qr_microbiologia'] = generar_qr_unico(self.qr_prefix, Microbiologia, self.qr_field)
+        if not data.get('microbiologia'):
+            data['microbiologia'] = data.get('muestra') or f"MB-{int(time.time())}"
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=False, methods=['get'])
-    def index(self, request):
-        """Carga los últimos 10 de microbiología"""
-        microbiologias = self.get_queryset()[:10]
-        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def todos(self, request):
-        """Carga todos"""
-        microbiologias = self.get_queryset()
-        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
 
     @action(detail=False, methods=['get'], url_path='qr/(?P<qr>.+)')
     def por_qr(self, request, qr=None):
@@ -945,39 +740,6 @@ class MicrobiologiaViewSet(viewsets.ModelViewSet):
         """Filtra por fecha específica"""
         microbiologias = Microbiologia.objects.filter(fecha=fecha).order_by('-fecha')
         return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
-    
-    @action(detail=False, methods=['get'])
-    def rango_fechas(self, request):
-        """Filtra por rango de fechas"""
-        fecha_inicio = request.query_params.get('inicio')
-        fecha_fin = request.query_params.get('fin')
-        if not fecha_inicio or not fecha_fin:
-            return Response({'error': 'Se requieren inicio y fin'}, status=status.HTTP_400_BAD_REQUEST)
-        microbiologias = Microbiologia.objects.filter(fecha__gte=fecha_inicio, fecha__lte=fecha_fin).order_by('-fecha')
-        return Response(MicrobiologiaSerializer(microbiologias, many=True).data)
-    
-    @action(detail=True, methods=['post'])
-    def actualizar_informe(self, request, pk=None):
-        """Actualiza el informe médico"""
-        microbiologia = self.get_object()
-        data = request.data
-        
-        if 'informe_descripcion' in data:
-            microbiologia.informe_descripcion = data['informe_descripcion']
-        if 'informe_fecha' in data:
-            microbiologia.informe_fecha = data['informe_fecha']
-        if 'informe_tincion' in data:
-            microbiologia.informe_tincion = data['informe_tincion']
-        if 'informe_observaciones' in data:
-            microbiologia.informe_observaciones = data['informe_observaciones']
-        if 'informe_imagen' in data:
-            imagen_data = data['informe_imagen']
-            if isinstance(imagen_data, str) and imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
-            microbiologia.informe_imagen = base64.b64decode(imagen_data) if isinstance(imagen_data, str) else imagen_data
-        
-        microbiologia.save()
-        return Response(MicrobiologiaSerializer(microbiologia).data)
 
 class MuestraMicrobiologiaViewSet(viewsets.ModelViewSet):
     queryset = MuestraMicrobiologia.objects.all()
