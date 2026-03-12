@@ -177,15 +177,51 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
-const resolverTextoEscaneado = (text) => {
+const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
+
+  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    window.location.href = value;
-    return;
+    try {
+      const parsed = new URL(value);
+      const codeParam = parsed.searchParams.get("code");
+      if (codeParam) {
+        code = codeParam;
+      } else {
+        window.location.href = value;
+        return;
+      }
+    } catch (_) {
+      window.location.href = value;
+      return;
+    }
   }
-  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+
+  if (await consultarHematologiaQR(code, true)) return;
+  if (await consultarSubMuestraQR(code, true)) return;
+
+  alert("No se encontró ningún registro para ese QR.");
 };
+
+const irConsultaQr = async () => {
+  await resolverTextoEscaneado(input__consultarqr?.value || "");
+};
+
+window.irConsultaQr = irConsultaQr;
+
+if (manualQrBtn) {
+  manualQrBtn.onclick = irConsultaQr;
+}
+
+if (input__consultarqr) {
+  input__consultarqr.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      irConsultaQr();
+    }
+  };
+}
 
 // ============================================================
 // UTILIDADES
@@ -1192,7 +1228,7 @@ const consultaFechaFin = async () => {
 // CONSULTAS QR
 // ============================================================
 
-const consultarHematologiaQR = async (qr) => {
+const consultarHematologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/hematologia/qr/${qr}/`);
   const lista = await response.json();
   if (lista.length > 0) {
@@ -1202,21 +1238,25 @@ const consultarHematologiaQR = async (qr) => {
     hematologiaId = h.id_hematologia;
     const subMuestras = await cargarSubMuestras(hematologiaId);
     imprimirSubMuestras(subMuestras);
+    return true;
   } else {
-    alert("No se encontró ninguna muestra con ese QR");
+    if (!silent) alert("No se encontró ninguna muestra con ese QR");
+    return false;
   }
 };
 
-const consultarSubMuestraQR = async (qr) => {
+const consultarSubMuestraQR = async (qr, silent = false) => {
   const response = await fetch(`/api/muestrashematologia/qr/${qr}/`);
   const lista = await response.json();
   if (lista.length > 0) {
     const hResp = await fetch(`/api/hematologia/${lista[0].hematologia}/`);
     const h = await hResp.json();
-    await consultarHematologiaQR(h.qr_hematologia);
+    await consultarHematologiaQR(h.qr_hematologia, true);
     await detailSubMuestra(lista[0].id_muestra);
+    return true;
   } else {
-    alert("No se encontró ningún análisis con ese QR");
+    if (!silent) alert("No se encontró ningún análisis con ese QR");
+    return false;
   }
 };
 

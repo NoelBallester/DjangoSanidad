@@ -241,15 +241,51 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
-const resolverTextoEscaneado = (text) => {
+const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
+
+  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    window.location.href = value;
-    return;
+    try {
+      const parsed = new URL(value);
+      const codeParam = parsed.searchParams.get("code");
+      if (codeParam) {
+        code = codeParam;
+      } else {
+        window.location.href = value;
+        return;
+      }
+    } catch (_) {
+      window.location.href = value;
+      return;
+    }
   }
-  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+
+  if (await consultarTuboQR(code, true)) return;
+  if (await consultarMuestraQR(code, true)) return;
+
+  alert("No se encontró ningún registro para ese QR.");
 };
+
+const irConsultaQr = async () => {
+  await resolverTextoEscaneado(input__consultarqr?.value || "");
+};
+
+window.irConsultaQr = irConsultaQr;
+
+if (manualQrBtn) {
+  manualQrBtn.onclick = irConsultaQr;
+}
+
+if (input__consultarqr) {
+  input__consultarqr.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      irConsultaQr();
+    }
+  };
+}
 
 // Utility to get CSRF token from cookies
 function getCookie(name) {
@@ -1386,7 +1422,7 @@ const borrarMuestra = async () => {
     }).catch(err => console.error(err));
 };
 
-const consultarTuboQR = async (qr) => {
+const consultarTuboQR = async (qr, silent = false) => {
   const response = await fetch(`/api/tubos/qr/${encodeURIComponent(qr)}/`);
   let tubo = await response.json();
   if (tubo.length > 0) {
@@ -1396,21 +1432,25 @@ const consultarTuboQR = async (qr) => {
     tuboId = tubo.id_muestra;
     let muestras_resp = await cargarMuestras(tuboId);
     imprimirMuestras(muestras_resp);
+    return true;
   } else {
-    alert("No se encontró ningún tubo con ese QR");
+    if (!silent) alert("No se encontró ningún tubo con ese QR");
+    return false;
   }
 };
 
-const consultarMuestraQR = async (qr) => {
+const consultarMuestraQR = async (qr, silent = false) => {
   let response = await fetch(`/api/muestrastubo/qr/${encodeURIComponent(qr)}/`);
   let muestra = await response.json();
   if (muestra.length > 0) {
     let tubo_response = await fetch(`/api/tubos/${muestra[0].tubo}/`);
     let tubo = await tubo_response.json();
-    consultarTuboQR(tubo.qr_tubo || tubo.qr_muestra);
-    detailMuestra(muestra[0].id_muestra);
+    await consultarTuboQR(tubo.qr_tubo || tubo.qr_muestra, true);
+    await detailMuestra(muestra[0].id_muestra);
+    return true;
   } else {
-    alert("No se encontró ningún análisis");
+    if (!silent) alert("No se encontró ningún análisis");
+    return false;
   }
 };
 
