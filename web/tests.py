@@ -1,9 +1,11 @@
 from django.test import TestCase, Client
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
+from django.conf import settings
 from django.db.utils import OperationalError
 from unittest.mock import patch
 
@@ -12,6 +14,7 @@ from api.models import (
     ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia, Necropsia, MuestraNecropsia,
     InformeResultado,
 )
+from core.error_views import custom_404, custom_500
 from web.views import _imagen_bytes_a_base64, _mime_tipo_desde_bytes
 
 
@@ -259,6 +262,32 @@ class ImageHelperTests(TestCase):
     def test_helpers_leen_bytes_legacy_correctamente(self):
         self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), 'image/png')
         self.assertTrue(_imagen_bytes_a_base64(PNG_BYTES))
+
+
+class ErrorViewTests(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_custom_404_renderiza_plantilla_propia(self):
+        request = self.factory.get('/ruta-inexistente/')
+        response = custom_404(request, Exception('missing'))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(b'404', response.content)
+        self.assertIn(b'La pagina solicitada no existe', response.content)
+
+    def test_custom_500_renderiza_plantilla_propia(self):
+        request = self.factory.get('/error/')
+        response = custom_500(request)
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn(b'500', response.content)
+        self.assertIn(b'Se ha producido un error interno', response.content)
+
+    def test_timezone_usa_madrid_con_tz_activo(self):
+        self.assertEqual(settings.TIME_ZONE, 'Europe/Madrid')
+        self.assertTrue(settings.USE_TZ)
 
 
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────

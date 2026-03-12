@@ -11,6 +11,7 @@ from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.utils import OperationalError, ProgrammingError
+from django.utils import timezone
 from urllib.parse import urlparse, parse_qs
 import base64
 import os

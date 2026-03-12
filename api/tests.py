@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -34,6 +35,11 @@ class ApiPermissionTests(TestCase):
 	def setUp(self):
 		self.client = APIClient()
 		self.tecnico = make_tecnico(email='perm@test.com')
+
+	def test_unauthenticated_api_returns_consistent_error_payload(self):
+		response = self.client.get('/api/tubos/')
+		self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+		self.assertIn('error', response.data)
 
 	def test_cassettes_requires_authentication(self):
 		response = self.client.get('/api/cassettes/')
@@ -160,3 +166,50 @@ class ImagenEndpointTests(TestCase):
 		proxy_response = self.client.get(list_response.data[0]['imagen_url'])
 		self.assertEqual(proxy_response.status_code, status.HTTP_200_OK)
 		self.assertEqual(proxy_response['Content-Type'], 'image/webp')
+
+
+class ApiCustomActionTests(TestCase):
+	def setUp(self):
+		self.client = APIClient()
+		self.tecnico = make_tecnico(email='acciones@test.com')
+		self.client.force_authenticate(user=self.tecnico)
+		self.cassette = make_cassette(qr='QRCUSTOM01')
+
+	def test_cassette_por_qr_devuelve_registro_esperado(self):
+		response = self.client.get('/api/cassettes/qr/QRCUSTOM01/')
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(len(response.data), 1)
+		self.assertEqual(response.data[0]['id_casette'], self.cassette.pk)
+
+	def test_rango_fechas_requiere_inicio_y_fin(self):
+		response = self.client.get('/api/cassettes/rango_fechas/')
+
+		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertEqual(response.data['error'], 'Se requieren inicio y fin')
+
+	def test_informe_resultado_rechaza_base64_invalido(self):
+		hematologia = Hematologia.objects.create(
+			hematologia='H002',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_hematologia='QRH-API-2',
+			organo='Pulmón',
+		)
+
+		response = self.client.post('/api/informesresultado/', {
+			'descripcion': 'Informe',
+			'fecha': '2024-01-02',
+			'tincion': 'Gram',
+			'observaciones': 'Obs',
+			'hematologia': hematologia.pk,
+			'imagen': 'no-es-base64',
+		}, format='json')
+
+		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertEqual(response.data['error'], 'La imagen no es base64 válido.')
+
+	def test_timezone_usa_madrid_con_tz_activo(self):
+		self.assertEqual(settings.TIME_ZONE, 'Europe/Madrid')
+		self.assertTrue(settings.USE_TZ)
