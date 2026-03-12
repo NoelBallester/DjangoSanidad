@@ -1393,12 +1393,35 @@ const imprimirQR = (elemento) => {
 const mostrarImagenesMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId_val);
+  const visorImagen = typeof visor__img !== 'undefined' ? visor__img : document.getElementById("visor__img");
+
+  const renderEstadoSinImagen = () => {
+    muestra__img.style.display = "flex";
+    muestra__img.classList.add("muestra__galeria--vacia");
+    imageId = null;
+
+    if (visorImagen) {
+      visorImagen.src = "./assets/images/no_disponible.jpg";
+      visorImagen.classList.add("visor__img--empty");
+      visorImagen.alt = "Sin imagen disponible";
+    }
+
+    const emptyState = document.createElement("div");
+    emptyState.className = "muestra__empty-state";
+    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    muestra__img.appendChild(emptyState);
+  };
+
   // Imagen de sustitución si no hay imágenes
   if (imagenes.length == 0) {
-    muestra__img.style.display = "none";
-    if (typeof visor__img !== 'undefined') visor__img.src = "./assets/images/no_disponible.jpg";
+    renderEstadoSinImagen();
   } else {
     muestra__img.style.display = "flex";
+    muestra__img.classList.remove("muestra__galeria--vacia");
+    if (visorImagen) {
+      visorImagen.classList.remove("visor__img--empty");
+      visorImagen.alt = "Vista previa de la muestra";
+    }
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
@@ -1407,7 +1430,7 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
       newimg.classList.add("muestra__img");
 
       if (index == 0) {
-        if (typeof visor__img !== 'undefined') visor__img.src = newimg.src;
+        if (visorImagen) visorImagen.src = newimg.src;
         imageId = newimg.id;
       }
 
