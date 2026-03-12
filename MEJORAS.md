@@ -4,7 +4,7 @@
 
 
 
-### 2. Paginación en endpoints de lista
+### 2. Paginación en endpoints de lista HECHO
 - **Problema:** Endpoints como `/todos/` devuelven todos los registros sin límite. Con volúmenes grandes causará problemas de rendimiento.
 - **Solución:** Añadir `PageNumberPagination` en DRF para todos los ViewSets.
 - **Afecta:** `api/views.py`, `core/settings.py`
@@ -65,12 +65,12 @@
 
 ## 🟡 Pendientes
 
-### 15. Sin borrado suave (soft delete)
+### 15. Sin borrado suave (soft delete) HECHO
 - **Problema:** Al borrar una muestra se eliminan permanentemente sus imágenes e informes. Sin trazabilidad ni recuperación.
 - **Solución:** Campo `is_deleted = BooleanField(default=False)` con manager personalizado.
 - **Afecta:** `api/models.py`, `api/views.py`
 
-### 16. Sin logging
+### 16. Sin logging HECHO  
 - **Problema:** No hay registro de errores ni operaciones importantes. Imposible depurar en producción.
 - **Solución:** Configurar `LOGGING` en `settings.py` para errores a fichero.
 - **Afecta:** `core/settings.py`
