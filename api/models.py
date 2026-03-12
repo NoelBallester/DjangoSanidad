@@ -32,7 +32,18 @@ class SoftDeleteModel(models.Model):
     class Meta:
         abstract = True
 
+    def _cascade_soft_delete_children(self):
+        for relation in self._meta.related_objects:
+            related_model = relation.related_model
+            if not isinstance(related_model, type) or not issubclass(related_model, SoftDeleteModel):
+                continue
+            accessor = relation.get_accessor_name()
+            related_manager = getattr(self, accessor, None)
+            if related_manager is not None:
+                related_manager.all().update(is_deleted=True)
+
     def delete(self, using=None, keep_parents=False):
+        self._cascade_soft_delete_children()
         self.is_deleted = True
         self.save(update_fields=['is_deleted'])
 
