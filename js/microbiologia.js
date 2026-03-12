@@ -238,6 +238,12 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
+const cerrarModalQrConsulta = () => {
+  if (!qrConsultaModal || !window.bootstrap?.Modal) return;
+  const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
+  modal.hide();
+};
+
 const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
@@ -259,8 +265,14 @@ const resolverTextoEscaneado = async (text) => {
     }
   }
 
-  if (await consultarMicrobiologiaQR(code, true)) return;
-  if (await consultarMuestraQR(code, true)) return;
+  if (await consultarMicrobiologiaQR(code, true)) {
+    cerrarModalQrConsulta();
+    return;
+  }
+  if (await consultarMuestraQR(code, true)) {
+    cerrarModalQrConsulta();
+    return;
+  }
 
   alert("No se encontró ningún registro para ese QR.");
 };
