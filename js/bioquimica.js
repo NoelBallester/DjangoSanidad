@@ -660,6 +660,97 @@ const cargarInformeEnFormularioTubo = (informe) => {
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
+const obtenerUrlInformeTubo = (informe) => {
+  if (!informe) return "";
+  if (informe.imagen_url) return informe.imagen_url;
+  if (informe.informe_imagen_url) return informe.informe_imagen_url;
+  if (informe.imagen_base64) return `data:application/octet-stream;base64,${informe.imagen_base64}`;
+  return "";
+};
+
+window.verInformeBioquimica = (url) => {
+  if (!url) {
+    mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+    return;
+  }
+  window.open(url, "_blank", "noopener");
+};
+
+window.editarInformeBioquimica = async (informeId) => {
+  const targetId = currentTuboId || tuboId;
+  if (!targetId || !informeId) return;
+  const informes = await cargarInformesTubo(targetId);
+  const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+  if (!informe) return;
+  cargarInformeEnFormularioTubo(informe);
+  mostrarPanelNuevoInformeTubo(false);
+};
+
+window.eliminarInformeBioquimica = async (informeId) => {
+  const targetId = currentTuboId || tuboId;
+  if (!targetId || !informeId) return;
+  if (!confirm("¿Eliminar este informe?")) return;
+
+  try {
+    await borrarInformeTubo(informeId);
+    mostrarEstadoInforme("Informe eliminado correctamente.", "success");
+    await refrescarInformesTubo(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme("Error al eliminar el informe.", "danger");
+  }
+};
+
+window.guardarInformeBioquimica = async () => {
+  const targetId = currentTuboId || tuboId;
+  if (!targetId) {
+    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    return;
+  }
+
+  const descripcion = document.getElementById("tubo__informe_descripcion")?.value || "";
+  const fecha = document.getElementById("tubo__informe_fecha")?.value || "";
+  const tincion = document.getElementById("tubo__informe_tincion")?.value || "";
+  const observaciones = document.getElementById("tubo__informe_observaciones")?.value || "";
+  const inputFile = document.getElementById("tubo__informe_imagen");
+  const payload = { descripcion, fecha, tincion, observaciones, tubo: targetId };
+
+  if (inputFile && inputFile.files && inputFile.files[0]) {
+    payload.imagen = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || "");
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsDataURL(inputFile.files[0]);
+    });
+  }
+
+  try {
+    mostrarEstadoInforme("Guardando informe...", "info");
+    cambiarEstadoBotonGuardar(true);
+    const res = await fetch("/api/informesresultado/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "No se pudo guardar el informe");
+    }
+    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    if (inputFile) inputFile.value = "";
+    ocultarPanelNuevoInformeTubo();
+    await refrescarInformesTubo(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+  } finally {
+    cambiarEstadoBotonGuardar(false);
+  }
+};
+
 const borrarInformeTubo = async (informeId) => {
   await fetch(`/api/informesresultado/${informeId}/`, {
     method: "DELETE",
@@ -680,6 +771,8 @@ const imprimirInformesTubo = (informes) => {
 
   const fragmento = document.createDocumentFragment();
   informes.forEach((informe) => {
+    const urlInforme = obtenerUrlInformeTubo(informe);
+    const tieneArchivo = Boolean(obtenerUrlInformeTubo(informe));
     const tr = document.createElement("tr");
     tr.classList.add("table__row");
 
@@ -696,8 +789,12 @@ const imprimirInformesTubo = (informes) => {
     const tdAcciones = document.createElement("td");
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
-      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2" title="Cargar en formulario" data-action="cargar" data-id="${informe.id_informe}"></i>
-      <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
+      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeBioquimica('${urlInforme || ''}')"></i>
+      ${tieneArchivo
+        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf tubo__icon tubo__icon--infotubo" data-action="ver-link"></i></a>`
+        : `<i class="fa-solid fa-file-pdf tubo__icon tubo__icon--infotubo me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
+      <i class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeBioquimica('${informe.id_informe}')"></i>
+      <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeBioquimica('${informe.id_informe}')"></i>
     `;
 
     tr.appendChild(tdFecha);
@@ -1896,6 +1993,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarPanelNuevoInformeTubo(false);
       }
 
+      if (action === "ver") {
+        const urlInforme = obtenerUrlInformeTubo(informe);
+        if (!urlInforme) {
+          mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+          return;
+        }
+        window.open(urlInforme, "_blank", "noopener");
+      }
+
       if (action === "eliminar") {
         if (!confirm("¿Eliminar este informe?")) return;
         await borrarInformeTubo(informeId);
@@ -1905,3 +2011,77 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
+
+// Fallback robusto para evitar bloqueos por listeners rotos en la pagina.
+document.addEventListener("click", (event) => {
+  const iconoVer = event.target.closest("#informes_lista_tubo i[data-action='ver']");
+  if (!iconoVer) return;
+  const url = iconoVer.dataset.url;
+  if (!url) {
+    mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  window.open(url, "_blank", "noopener");
+}, true);
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest("#btnGuardarInforme");
+  if (!btn || event.defaultPrevented) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  const targetId = currentTuboId || tuboId;
+  if (!targetId) {
+    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    return;
+  }
+
+  const descripcion = document.getElementById("tubo__informe_descripcion")?.value || "";
+  const fecha = document.getElementById("tubo__informe_fecha")?.value || "";
+  const tincion = document.getElementById("tubo__informe_tincion")?.value || "";
+  const observaciones = document.getElementById("tubo__informe_observaciones")?.value || "";
+  const inputFile = document.getElementById("tubo__informe_imagen");
+
+  const payload = { descripcion, fecha, tincion, observaciones, tubo: targetId };
+
+  if (inputFile && inputFile.files && inputFile.files[0]) {
+    payload.imagen = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || "");
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsDataURL(inputFile.files[0]);
+    });
+  }
+
+  try {
+    mostrarEstadoInforme("Guardando informe...", "info");
+    cambiarEstadoBotonGuardar(true);
+    const res = await fetch("/api/informesresultado/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "No se pudo guardar el informe");
+    }
+
+    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    if (inputFile) inputFile.value = "";
+    ocultarPanelNuevoInformeTubo();
+    await refrescarInformesTubo(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+  } finally {
+    cambiarEstadoBotonGuardar(false);
+  }
+}, true);

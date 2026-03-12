@@ -660,6 +660,97 @@ const cargarInformeEnFormularioMicrobiologia = (informe) => {
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
+const obtenerUrlInformeMicrobiologia = (informe) => {
+  if (!informe) return "";
+  if (informe.imagen_url) return informe.imagen_url;
+  if (informe.informe_imagen_url) return informe.informe_imagen_url;
+  if (informe.imagen_base64) return `data:application/octet-stream;base64,${informe.imagen_base64}`;
+  return "";
+};
+
+window.verInformeMicrobiologia = (url) => {
+  if (!url) {
+    mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+    return;
+  }
+  window.open(url, "_blank", "noopener");
+};
+
+window.editarInformeMicrobiologia = async (informeId) => {
+  const targetId = currentMicrobiologiaId || microbiologiaId;
+  if (!targetId || !informeId) return;
+  const informes = await cargarInformesMicrobiologia(targetId);
+  const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+  if (!informe) return;
+  cargarInformeEnFormularioMicrobiologia(informe);
+  mostrarPanelNuevoInformeMicrobiologia(false);
+};
+
+window.eliminarInformeMicrobiologia = async (informeId) => {
+  const targetId = currentMicrobiologiaId || microbiologiaId;
+  if (!targetId || !informeId) return;
+  if (!confirm("¿Eliminar este informe?")) return;
+
+  try {
+    await borrarInformeMicrobiologia(informeId);
+    mostrarEstadoInforme("Informe eliminado correctamente.", "success");
+    await refrescarInformesMicrobiologia(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme("Error al eliminar el informe.", "danger");
+  }
+};
+
+window.guardarInformeMicrobiologia = async () => {
+  const targetId = currentMicrobiologiaId || microbiologiaId;
+  if (!targetId) {
+    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    return;
+  }
+
+  const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
+  const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
+  const tincion = document.getElementById("microbiologia__informe_tincion")?.value || "";
+  const observaciones = document.getElementById("microbiologia__informe_observaciones")?.value || "";
+  const inputFile = document.getElementById("microbiologia__informe_imagen");
+  const payload = { descripcion, fecha, tincion, observaciones, microbiologia: targetId };
+
+  if (inputFile && inputFile.files && inputFile.files[0]) {
+    payload.imagen = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || "");
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsDataURL(inputFile.files[0]);
+    });
+  }
+
+  try {
+    mostrarEstadoInforme("Guardando informe...", "info");
+    cambiarEstadoBotonGuardar(true);
+    const res = await fetch("/api/informesresultado/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "No se pudo guardar el informe");
+    }
+    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    if (inputFile) inputFile.value = "";
+    ocultarPanelNuevoInformeMicrobiologia();
+    await refrescarInformesMicrobiologia(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+  } finally {
+    cambiarEstadoBotonGuardar(false);
+  }
+};
+
 const borrarInformeMicrobiologia = async (informeId) => {
   await fetch(`/api/informesresultado/${informeId}/`, {
     method: "DELETE",
@@ -680,6 +771,8 @@ const imprimirInformesMicrobiologia = (informes) => {
 
   const fragmento = document.createDocumentFragment();
   informes.forEach((informe) => {
+    const urlInforme = obtenerUrlInformeMicrobiologia(informe);
+    const tieneArchivo = Boolean(obtenerUrlInformeMicrobiologia(informe));
     const tr = document.createElement("tr");
     tr.classList.add("table__row");
 
@@ -696,8 +789,12 @@ const imprimirInformesMicrobiologia = (informes) => {
     const tdAcciones = document.createElement("td");
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
-      <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Cargar en formulario" data-action="cargar" data-id="${informe.id_informe}"></i>
-      <i class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
+      <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeMicrobiologia('${urlInforme || ''}')"></i>
+      ${tieneArchivo
+        ? `<a href="${urlInforme}" target="_blank" rel="noopener" class="me-2" title="Ver informe"><i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia" data-action="ver-link"></i></a>`
+        : `<i class="fa-solid fa-file-pdf microbiologia__icon microbiologia__icon--infomicrobiologia me-2 text-muted" title="Este informe no tiene archivo adjunto"></i>`}
+      <i class="fa-solid fa-file-pen microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeMicrobiologia('${informe.id_informe}')"></i>
+      <i class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeMicrobiologia('${informe.id_informe}')"></i>
     `;
 
     tr.appendChild(tdFecha);
@@ -1919,6 +2016,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarPanelNuevoInformeMicrobiologia(false);
       }
 
+      if (action === "ver") {
+        const urlInforme = obtenerUrlInformeMicrobiologia(informe);
+        if (!urlInforme) {
+          mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+          return;
+        }
+        window.open(urlInforme, "_blank", "noopener");
+      }
+
       if (action === "eliminar") {
         if (!confirm("¿Eliminar este informe?")) return;
         await borrarInformeMicrobiologia(informeId);
@@ -1928,3 +2034,77 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
+
+// Fallback robusto para evitar bloqueos por listeners rotos en la pagina.
+document.addEventListener("click", (event) => {
+  const iconoVer = event.target.closest("#informes_lista_microbiologia i[data-action='ver']");
+  if (!iconoVer) return;
+  const url = iconoVer.dataset.url;
+  if (!url) {
+    mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  window.open(url, "_blank", "noopener");
+}, true);
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest("#btnGuardarInforme");
+  if (!btn || event.defaultPrevented) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  const targetId = currentMicrobiologiaId || microbiologiaId;
+  if (!targetId) {
+    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    return;
+  }
+
+  const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
+  const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
+  const tincion = document.getElementById("microbiologia__informe_tincion")?.value || "";
+  const observaciones = document.getElementById("microbiologia__informe_observaciones")?.value || "";
+  const inputFile = document.getElementById("microbiologia__informe_imagen");
+
+  const payload = { descripcion, fecha, tincion, observaciones, microbiologia: targetId };
+
+  if (inputFile && inputFile.files && inputFile.files[0]) {
+    payload.imagen = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || "");
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsDataURL(inputFile.files[0]);
+    });
+  }
+
+  try {
+    mostrarEstadoInforme("Guardando informe...", "info");
+    cambiarEstadoBotonGuardar(true);
+    const res = await fetch("/api/informesresultado/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "No se pudo guardar el informe");
+    }
+
+    mostrarEstadoInforme("Informe guardado correctamente.", "success");
+    if (inputFile) inputFile.value = "";
+    ocultarPanelNuevoInformeMicrobiologia();
+    await refrescarInformesMicrobiologia(targetId);
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+  } finally {
+    cambiarEstadoBotonGuardar(false);
+  }
+}, true);

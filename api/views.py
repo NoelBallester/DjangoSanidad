@@ -857,8 +857,8 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
             return None
         if not isinstance(imagen_data, str):
             raise ValueError('Formato de imagen invalido.')
-        value = imagen_data
-        if value.startswith('data:image'):
+        value = imagen_data.strip()
+        if value.startswith('data:') and ';base64,' in value:
             value = value.split(',', 1)[1]
         return base64.b64decode(value, validate=True)
 
@@ -926,8 +926,8 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         if imagen_data:
             if not isinstance(imagen_data, str):
                 return Response({'error': 'Formato de imagen inválido.'}, status=status.HTTP_400_BAD_REQUEST)
-            if imagen_data.startswith('data:image'):
-                imagen_data = imagen_data.split(',')[1]
+            if imagen_data.startswith('data:') and ';base64,' in imagen_data:
+                imagen_data = imagen_data.split(',', 1)[1]
             try:
                 imagen_bytes = base64.b64decode(imagen_data, validate=True)
             except Exception:

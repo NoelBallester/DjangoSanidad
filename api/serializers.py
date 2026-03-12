@@ -389,7 +389,9 @@ class InformeResultadoSerializer(FileUrlSerializerMixin, serializers.ModelSerial
         return obj.object_id
 
     def validate_tincion(self, value):
-        return _validar_catalogo(CatalogoOpcion.TIPO_TINCION, value, 'Tincion')
+        # En informes de laboratorio se usan analisis libres (p.ej. "Perfil hepatico").
+        # No forzamos catalogo aqui para mantener compatibilidad con esos flujos.
+        return value
 
     def validate(self, attrs):
         target_payload = {
