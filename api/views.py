@@ -999,6 +999,16 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         }
 
     @staticmethod
+    def _validar_columna_fk(columna):
+        # Whitelist de columnas permitidas para interpolación SQL (SEC-5)
+        permitidas = {
+            'cassette_id', 'citologia_id', 'necropsia_id',
+            'tubo_id', 'hematologia_id', 'microbiologia_id'
+        }
+        if columna not in permitidas:
+            raise ValueError(f'Columna FK no reconocida: {columna!r}')
+
+    @staticmethod
     def _filtrar_por_modelo(modelo, object_id):
         if InformeResultadoViewSet._modo_generico():
             ct = ContentType.objects.get_for_model(modelo)
@@ -1007,6 +1017,8 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         fk_col = InformeResultadoViewSet._legacy_fk_col_for_model(modelo)
         if not fk_col:
             return []
+        
+        InformeResultadoViewSet._validar_columna_fk(fk_col)
 
         try:
             with connection.cursor() as cursor:

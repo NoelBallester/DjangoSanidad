@@ -180,6 +180,15 @@ def _columna_fk_legacy_informe(modelo):
         Microbiologia: 'microbiologia_id',
     }
     return legacy_map.get(modelo)
+    
+COLUMNAS_FK_PERMITIDAS = frozenset({
+    'cassette_id', 'citologia_id', 'necropsia_id',
+    'tubo_id', 'hematologia_id', 'microbiologia_id'
+})
+
+def _validar_columna_fk(columna):
+    if columna not in COLUMNAS_FK_PERMITIDAS:
+        raise ValueError(f'Columna FK no reconocida: {columna!r}')
 
 
 def _informes_legacy_disponibles(modelo):
@@ -207,6 +216,7 @@ def _informes_por_registro(registro):
         return []
 
     columna_fk = _columna_fk_legacy_informe(registro.__class__)
+    _validar_columna_fk(columna_fk)
     try:
         query = (
             f"SELECT id AS id_informe, descripcion, fecha, tincion, observaciones, imagen, creado_en "
@@ -443,6 +453,7 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
 
         if _informes_legacy_disponibles(modelo):
             columna_fk = _columna_fk_legacy_informe(modelo)
+            _validar_columna_fk(columna_fk)
             img = form.cleaned_data.get('informe_imagen')
             img_path = _guardar_archivo_informe(img) if img else None
 
