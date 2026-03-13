@@ -1467,6 +1467,26 @@ def usuario_delete(request, pk):
     return redirect('usuarios')
 
 
+@login_required
+@require_POST
+def usuario_bulk_delete(request):
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para realizar esta acción.')
+        return redirect('usuarios')
+
+    # Eliminar todos los usuarios excepto IDs 1 y 2
+    queryset = Tecnico.objects.exclude(id_tecnico__in=[1, 2])
+    count = queryset.count()
+    queryset.delete()
+
+    # Resetear secuencia de IDs para que el siguiente empiece en 3
+    with connection.cursor() as cursor:
+        cursor.execute("UPDATE sqlite_sequence SET seq = 2 WHERE name = 'tecnicos'")
+
+    messages.success(request, f'Limpieza completada: {count} usuarios eliminados. Se han conservado los usuarios con ID 1 y 2, y el siguiente ID empezará en 3.')
+    return redirect('usuarios')
+
+
 # ── Descargar archivos desde BD ───────────────────────────────────────────────
 
 def _descargar_volante(instancia):
