@@ -1569,5 +1569,7 @@ def descargar_informe_resultado(request, informe_pk):
         content_type = 'image/gif'
 
     response = HttpResponse(content, content_type=content_type)
+    # Evita que el navegador intente reinterpretar como HTML/JS un binario servido.
+    response['X-Content-Type-Options'] = 'nosniff'
     response['Content-Disposition'] = f'inline; filename="informe_{informe.pk}.{ext}"'
     return response

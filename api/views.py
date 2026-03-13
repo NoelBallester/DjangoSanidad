@@ -346,11 +346,12 @@ class TecnicoViewSet(viewsets.ModelViewSet):
     def get_by_mail(self, request, mail=None):
         if not request.user.is_staff:
             return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            tecnico = Tecnico.objects.get(email=mail)
-            return Response(TecnicoSerializer(tecnico).data)
-        except Tecnico.DoesNotExist:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        tecnico = Tecnico.objects.filter(email=mail).first()
+        if not tecnico:
+            return Response({'error': 'Técnico no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+            
+        return Response(TecnicoSerializer(tecnico).data)
 
 class CassetteViewSet(RegistroViewSet):
     queryset = Cassette.objects.all().order_by('-fecha')
