@@ -1496,6 +1496,8 @@ def _descargar_volante(instancia):
     content = bytes(instancia.volante_peticion)
     content_type = _detectar_tipo_volante(content)
     response = HttpResponse(content, content_type=content_type)
+    # Evita que el navegador intente reinterpretar como HTML/JS un binario servido.
+    response['X-Content-Type-Options'] = 'nosniff'
     response['Content-Disposition'] = f'inline; filename="{instancia.volante_peticion_nombre or "volante.pdf"}"'
     return response
 
