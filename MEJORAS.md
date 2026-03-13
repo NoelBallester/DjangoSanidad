@@ -140,11 +140,11 @@
 - [x] Logout roto — sesión no destruida en servidor (#SEC-11)
 - [ ] Fuga de información en mensajes de error (#SEC-12)
 - [x] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
-- [ ] Open Redirect en login — phishing interno (#SEC-1)
+- [x] Open Redirect en login — phishing interno (#SEC-1)
 - [ ] Enumeración de usuarios en get_by_mail (#SEC-10)
-- [ ] Carga de archivos sin validación en endpoints API (#SEC-3)
+- [x] Carga de archivos sin validación en endpoints API (#SEC-3)
 - [ ] SQL con nombre de columna interpolado por f-string (#SEC-5)
-- [ ] BasicAuthentication habilitada — credenciales en claro en red interna (#SEC-13)
+- [x] BasicAuthentication habilitada — credenciales en claro en red interna (#SEC-13)
 - [x] Archivo `.env` en el historial de git (#26)
 - [x] Logging sin rotación de ficheros (#27)
 
@@ -156,12 +156,14 @@
 > Las vulnerabilidades que solo aplican a exposición pública en internet han sido descartadas.
 
 ### Estado de verificación práctica (13/03/2026)
-- **SEC-1 Open Redirect:** ✅ **Confirmada (explotable)**. Prueba real: login con `?next=http://evil.local/` devuelve `302` con `Location: http://evil.local/`.
+- **SEC-1 Open Redirect:** ✅ **Mitigada**. `login_view` valida `next` con `url_has_allowed_host_and_scheme()` y rechaza destinos externos redirigiendo a `/index.html`.
 - **SEC-2 IDOR entre roles en `proxy_file`:** ✅ **Confirmada (riesgo real)**. Hay `@login_required`, pero no validación de rol/propiedad antes de acceder al objeto por `pk`.
+- **SEC-3 Carga de archivos sin validación en API:** ✅ **Mitigada**. Se valida extensión permitida, tamaño máximo (20 MB) y magic bytes en los 9 endpoints `create()` afectados.
 - **SEC-4 Mass Assignment (`fields='__all__'`):** ✅ **Confirmada (riesgo real)**. `NecropsiaSerializer` y `MuestraNecropsiaSerializer` exponen `__all__`.
 - **SEC-6 DEBUG por defecto:** ✅ **Mitigada**. `DJANGO_DEBUG` ahora tiene default `'false'` en `settings.py`.
 - **SEC-11 Logout roto en frontend:** ✅ **Mitigada**. `auth.js` hace `POST` a `/logout/` con CSRF y limpia sesión local redirigiendo a `/login/`.
 - **SEC-12 Fuga de errores internos:** ✅ **Confirmada (riesgo real)**. Se encontraron `messages.error(... {e})` mostrando excepción al usuario.
+- **SEC-13 BasicAuthentication habilitada:** ✅ **Mitigada**. `REST_FRAMEWORK` usa solo `SessionAuthentication` y se eliminó `BasicAuthentication`.
 - **SEC-16 Stored XSS por Content-Type:** ✅ **Mitigada**. El tipo de volante se detecta por magic bytes y se sirve con `X-Content-Type-Options: nosniff`.
 - **SEC-10 Enumeración en `get_by_mail`:** ⚠️ **Riesgo latente (no explotable hoy)**. Con usuarios actuales y ruta actual devuelve `404` tanto para email existente como inexistente. Motivo: el patrón de URL `[^/.]+` no acepta emails normales con punto (`.`). Si se corrige la ruta para aceptar email real, la enumeración reaparece.
 
@@ -295,7 +297,7 @@ response = HttpResponse(content, content_type=content_type_real)
 
 ---
 
-### SEC-1. Open Redirect en login_view — BAJA
+### SEC-1. Open Redirect en login_view — BAJA HECHO
 - **Tipo:** Unvalidated Redirect (CWE-601)
 - **Archivo:** `web/views.py` — `login_view`
 - **Problema:** El parámetro `?next=` no se valida. En una red clase A con miles de usuarios, un atacante interno puede enviar a un compañero el enlace `http://app/login/?next=http://sitio-falso.interno/` para redirigirle tras autenticarse a una página de phishing que suplante al sistema. El destino malicioso puede estar alojado en otra máquina de la misma red.
@@ -336,7 +338,7 @@ def get_by_mail(self, request, mail=None):
 
 ---
 
-### SEC-3. Carga de archivos sin validación en endpoints API — ALTA
+### SEC-3. Carga de archivos sin validación en endpoints API — ALTA HECHO
 - **Tipo:** Unrestricted File Upload (CWE-434)
 - **Archivos:** `api/views.py` — `ImagenViewSet.create`, `ImagenCitologiaViewSet.create`, `ImagenNecropsiaViewSet.create`, `ImagenTuboViewSet.create`, `ImagenHematologiaViewSet.create`, `ImagenMicrobiologiaViewSet.create`, `MuestraTuboViewSet.create`, `MuestraHematologiaViewSet.create`, `MuestraMicrobiologiaViewSet.create`
 - **Problema:** Los endpoints de la API aceptan cualquier fichero sin comprobar tipo ni tamaño. Los formularios web (`web/forms.py`) sí aplican validación (extensión permitida + máximo 20 MB), pero esa validación **no existe en ninguno de los 9 ViewSets** de imagen de la API. Un usuario autenticado puede subir ejecutables, scripts o archivos de varios GB directamente por la API sin ningún rechazo.
@@ -397,7 +399,7 @@ query = f"SELECT ... FROM informesresultado WHERE {columna_fk} = %s"
 
 ---
 
-### SEC-13. BasicAuthentication habilitada — credenciales en Base64 en la red — MEDIA
+### SEC-13. BasicAuthentication habilitada — credenciales en Base64 en la red — MEDIA HECHO
 - **Tipo:** Cryptographic Failure / Cleartext Transmission (CWE-319)
 - **Archivo:** `core/settings.py` — `REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']`
 - **Problema:** `BasicAuthentication` está activada junto a `SessionAuthentication`. HTTP Basic Auth envía las credenciales codificadas en Base64 (no cifradas) en cada petición: `Authorization: Basic dGVzdDp0ZXN0`. Cualquier máquina de la misma red interna puede capturar el tráfico con Wireshark y decodificar el `id_tecnico` y la contraseña en claro. En una red de laboratorio con equipos compartidos y switches gestionados (o sin gestionar) el riesgo es real.

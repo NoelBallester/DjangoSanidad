@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.db.models import Q
@@ -64,6 +65,50 @@ IMAGE_MODELS = (
     ImagenHematologia,
     ImagenMicrobiologia,
 )
+
+_EXTENSIONES_IMAGEN_PERMITIDAS = frozenset({
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.tif', '.tiff',
+})
+_MAX_IMAGE_UPLOAD_BYTES = 20 * 1024 * 1024
+
+
+def _extract_validation_error_message(exc):
+    detail = getattr(exc, 'detail', exc)
+    if isinstance(detail, dict):
+        for value in detail.values():
+            if isinstance(value, list) and value:
+                return str(value[0])
+            return str(value)
+    if isinstance(detail, list) and detail:
+        return str(detail[0])
+    return str(detail)
+
+
+def _validar_imagen_api(imagen_file):
+    nombre = getattr(imagen_file, 'name', '') or ''
+    ext = os.path.splitext(nombre)[1].lower()
+    if ext not in _EXTENSIONES_IMAGEN_PERMITIDAS:
+        raise ValidationError(f'Extension no permitida: {ext or "(sin extension)"}')
+
+    size = getattr(imagen_file, 'size', None)
+    if size is not None and int(size) > _MAX_IMAGE_UPLOAD_BYTES:
+        raise ValidationError('La imagen supera el limite de 20 MB.')
+
+    cabecera = imagen_file.read(16) or b''
+    if hasattr(imagen_file, 'seek'):
+        imagen_file.seek(0)
+
+    es_webp = cabecera.startswith(b'RIFF') and cabecera[8:12] == b'WEBP'
+    es_imagen = (
+        cabecera.startswith(b'\xff\xd8\xff') or
+        cabecera.startswith(b'\x89PNG\r\n\x1a\n') or
+        cabecera.startswith((b'GIF87a', b'GIF89a')) or
+        cabecera.startswith(b'BM') or
+        es_webp or
+        cabecera.startswith((b'II*\x00', b'MM\x00*'))
+    )
+    if not es_imagen:
+        raise ValidationError('El archivo no es una imagen valida.')
 
 
 def _read_file_bytes(file_value):
@@ -536,6 +581,11 @@ class ImagenViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
         imagen_obj = Imagen.objects.create(
             imagen=imagen_file.read(),
             muestra_id=muestra_id
@@ -561,6 +611,11 @@ class ImagenCitologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
         imagen_obj = ImagenCitologia.objects.create(
             imagen=imagen_file.read(),
             muestra_id=muestra_id
@@ -585,6 +640,11 @@ class ImagenNecropsiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         imagen_obj = ImagenNecropsia.objects.create(
             imagen=imagen_file.read(),
@@ -656,6 +716,11 @@ class MuestraTuboViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
         
         # Separar la imagen de los datos si existe
         imagen_file = request.FILES.get('imagen', None)
+        if imagen_file:
+            try:
+                _validar_imagen_api(imagen_file)
+            except ValidationError as exc:
+                return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -697,6 +762,11 @@ class ImagenTuboViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
         
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_bytes = imagen_file.read()
         imagen_tubo = ImagenTubo.objects.create(
@@ -757,6 +827,11 @@ class MuestraHematologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelVie
         
         # Separar la imagen de los datos si existe
         imagen_file = request.FILES.get('imagen', None)
+        if imagen_file:
+            try:
+                _validar_imagen_api(imagen_file)
+            except ValidationError as exc:
+                return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -797,6 +872,11 @@ class ImagenHematologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             return Response({'error': 'No se proporcionó imagen'}, status=status.HTTP_400_BAD_REQUEST)
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_hematologia = ImagenHematologia.objects.create(
             imagen=imagen_file.read(),
@@ -867,6 +947,11 @@ class MuestraMicrobiologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelV
             data['qr_muestra'] = generar_qr_unico('--mmb--', MuestraMicrobiologia, 'qr_muestra')
         
         imagen_file = request.FILES.get('imagen', None)
+        if imagen_file:
+            try:
+                _validar_imagen_api(imagen_file)
+            except ValidationError as exc:
+                return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -903,6 +988,11 @@ class ImagenMicrobiologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
         
         if not muestra_id:
             return Response({'error': 'No se proporcionó ID de muestra'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            _validar_imagen_api(imagen_file)
+        except ValidationError as exc:
+            return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         imagen_microbiologia = ImagenMicrobiologia.objects.create(
             imagen=imagen_file.read(),
