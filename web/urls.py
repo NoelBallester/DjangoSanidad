@@ -63,6 +63,7 @@ urlpatterns = [
     path('usuarios/crear/',                    views.usuario_create, name='usuario_create'),
     path('usuarios/<int:pk>/editar/',          views.usuario_update, name='usuario_update'),
     path('usuarios/<int:pk>/eliminar/',        views.usuario_delete, name='usuario_delete'),
+    path('usuarios/bulk-delete/',              views.usuario_bulk_delete, name='usuario_bulk_delete'),
 
     # Descargar volantes de petición
     path('cassettes/<int:pk>/volante/',         views.descargar_volante_cassette,       name='descargar_volante_cassette'),

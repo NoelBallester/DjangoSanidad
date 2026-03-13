@@ -214,10 +214,16 @@
                     <span class="text-muted small">({{ tecnicos|length }} registrados)</span>
                 </div>
                 {% if request.user.is_staff %}
-                <div class="col-auto">
+                <div class="col-auto d-flex gap-2">
+                    <button id="btnBulkDelete" class="btn btn-outline-danger">
+                        <i class="fa-solid fa-trash-sweep me-1"></i> Borrado de usuarios
+                    </button>
                     <button id="btnNuevoTecnico" class="btn btn__modal blue__color">
                         <i class="fa-solid fa-user-plus me-1"></i> Nuevo Técnico
                     </button>
+                    <form id="formBulkDelete" method="post" action="{% url 'usuario_bulk_delete' %}" style="display:none;">
+                        {% csrf_token %}
+                    </form>
                 </div>
                 {% endif %}
             </div>
@@ -443,6 +449,15 @@
             const btn = e.relatedTarget;
             document.getElementById('nombreTecnicoEliminar').textContent = btn.dataset.username;
             document.getElementById('formEliminarTecnico').action = `/usuarios/${btn.dataset.pk}/eliminar/`;
+        });
+
+        // ── Borrado masivo (Limpieza) ─────────────────────────────────────────
+        document.getElementById('btnBulkDelete')?.addEventListener('click', () => {
+            if (confirm('¿ESTÁS SEGURO? Esta acción eliminará a TODOS los técnicos excepto los usuarios con ID 1 y 2. Esta acción no se puede deshacer.')) {
+                if (confirm('Confirma por segunda vez: ¿Realmente quieres vaciar la tabla de técnicos (excepto IDs 1 y 2)?')) {
+                    document.getElementById('formBulkDelete').submit();
+                }
+            }
         });
     </script>
 </body>
