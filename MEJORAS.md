@@ -137,9 +137,9 @@
 - [x] IDOR entre roles — acceso a datos de otros departamentos (#SEC-2)
 - [ ] Mass Assignment en serializers (#SEC-4)
 - [x] DEBUG=True por defecto (#SEC-6)
-- [ ] Logout roto — sesión no destruida en servidor (#SEC-11)
+- [x] Logout roto — sesión no destruida en servidor (#SEC-11)
 - [ ] Fuga de información en mensajes de error (#SEC-12)
-- [ ] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
+- [x] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
 - [ ] Open Redirect en login — phishing interno (#SEC-1)
 - [ ] Enumeración de usuarios en get_by_mail (#SEC-10)
 - [ ] Carga de archivos sin validación en endpoints API (#SEC-3)
@@ -160,9 +160,9 @@
 - **SEC-2 IDOR entre roles en `proxy_file`:** ✅ **Confirmada (riesgo real)**. Hay `@login_required`, pero no validación de rol/propiedad antes de acceder al objeto por `pk`.
 - **SEC-4 Mass Assignment (`fields='__all__'`):** ✅ **Confirmada (riesgo real)**. `NecropsiaSerializer` y `MuestraNecropsiaSerializer` exponen `__all__`.
 - **SEC-6 DEBUG por defecto:** ✅ **Mitigada**. `DJANGO_DEBUG` ahora tiene default `'false'` en `settings.py`.
-- **SEC-11 Logout roto en frontend:** ✅ **Confirmada (riesgo real)**. `auth.js` redirige a `./registro.html` y no llama a `/logout/`.
+- **SEC-11 Logout roto en frontend:** ✅ **Mitigada**. `auth.js` hace `POST` a `/logout/` con CSRF y limpia sesión local redirigiendo a `/login/`.
 - **SEC-12 Fuga de errores internos:** ✅ **Confirmada (riesgo real)**. Se encontraron `messages.error(... {e})` mostrando excepción al usuario.
-- **SEC-16 Stored XSS por Content-Type:** ✅ **Confirmada (riesgo real)**. Se guarda `archivo.content_type` del usuario y luego se sirve ese tipo sin redetección.
+- **SEC-16 Stored XSS por Content-Type:** ✅ **Mitigada**. El tipo de volante se detecta por magic bytes y se sirve con `X-Content-Type-Options: nosniff`.
 - **SEC-10 Enumeración en `get_by_mail`:** ⚠️ **Riesgo latente (no explotable hoy)**. Con usuarios actuales y ruta actual devuelve `404` tanto para email existente como inexistente. Motivo: el patrón de URL `[^/.]+` no acepta emails normales con punto (`.`). Si se corrige la ruta para aceptar email real, la enumeración reaparece.
 
 **Leyenda:**
@@ -243,7 +243,7 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'false').strip().lower() == 'true'
 
 ---
 
-### SEC-11. Logout roto — sesión Django no destruida — ALTA
+### SEC-11. Logout roto — sesión Django no destruida — ALTA HECHO
 - **Archivo:** `js/auth.js` — función `logout()`
 - **Problema:** La función de logout del frontend redirige a `./registro.html` (ruta PHP del sistema anterior) en lugar de llamar al endpoint `/logout/` de Django. La cookie `sessionid` sigue siendo válida indefinidamente en el servidor. En un entorno de laboratorio con ordenadores compartidos, cualquier persona que acceda al equipo después puede continuar con la sesión abierta.
 - **Solución:** Llamar al endpoint Django real con POST y el token CSRF.
@@ -279,7 +279,7 @@ messages.error(request, 'Error interno al guardar el cassette. Contacta con el a
 
 ---
 
-### SEC-16. Stored XSS via Content-Type controlado por el usuario — ALTA
+### SEC-16. Stored XSS via Content-Type controlado por el usuario — ALTA HECHO
 - **Archivos:** `web/views.py:100` — `_guardar_volante_peticion` · `web/views.py:1352` — `_descargar_volante`
 - **Problema:** El sistema guarda el `Content-Type` tal como lo reporta el navegador del usuario que sube el archivo (`archivo.content_type`), y luego lo usa directamente al servir el archivo a otros usuarios. Un técnico puede subir un archivo HTML con `Content-Type: text/html` — cuando otro usuario lo descargue, el navegador lo ejecutará como HTML con JavaScript completo, pudiendo robar cookies de sesión o realizar acciones en nombre de la víctima.
 - **Solución:** Detectar el tipo real por magic bytes al servir el archivo, nunca confiar en el Content-Type almacenado.

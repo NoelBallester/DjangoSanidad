@@ -286,6 +286,40 @@ class ErrorViewTests(TestCase):
         self.assertIn(b'Se ha producido un error interno', response.content)
 
 
+class VolanteSecurityTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(111)
+        self.client.force_login(self.tecnico)
+
+    def test_descarga_volante_ignora_content_type_manipulado(self):
+        cassette = make_cassette(700)
+        cassette.volante_peticion = b'%PDF-1.4\n%test\n'
+        cassette.volante_peticion_nombre = 'volante.pdf'
+        cassette.volante_peticion_tipo = 'text/html'
+        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+
+        response = self.client.get(reverse('descargar_volante_cassette', args=[cassette.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+
+    def test_descarga_volante_html_se_serve_como_octet_stream(self):
+        cassette = make_cassette(701)
+        cassette.volante_peticion = b'<!doctype html><html><script>alert(1)</script></html>'
+        cassette.volante_peticion_nombre = 'volante.html'
+        cassette.volante_peticion_tipo = 'text/html'
+        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+
+        response = self.client.get(reverse('descargar_volante_cassette', args=[cassette.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/octet-stream')
+        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+
+
 class MuestrasSinImagenTemplateTests(TestCase):
 
     def setUp(self):
