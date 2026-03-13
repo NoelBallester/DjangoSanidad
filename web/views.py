@@ -1352,11 +1352,21 @@ def usuario_create(request):
         return redirect('usuarios')
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
+        nombre = (request.POST.get('nombre') or '').strip()
+        apellidos = (request.POST.get('apellidos') or '').strip()
+        email = (request.POST.get('email') or '').strip()
         centro = (request.POST.get('centro') or '').strip() or None
         rol = _rol_valido(request.POST.get('rol'))
         is_staff = (request.POST.get('is_staff') == 'on')
         password = request.POST.get('password') or ''
 
+        if not username:
+            # Mantiene compatibilidad con tests/API legacy que enviaban nombre+apellidos sin username.
+            if nombre and apellidos:
+                username = f'{nombre}.{apellidos}'.strip('.').replace(' ', '').lower()
+            else:
+                messages.error(request, 'Usuario: este campo es obligatorio.')
+                return redirect('usuarios')
         if not username:
             messages.error(request, 'Usuario: este campo es obligatorio.')
             return redirect('usuarios')
@@ -1367,11 +1377,17 @@ def usuario_create(request):
             messages.error(request, 'Usuario: ya existe un técnico con ese nombre de usuario.')
             return redirect('usuarios')
 
+        if not email:
+            email = _email_unico_para_username(username)
+        elif Tecnico.objects.filter(email=email).exists():
+            messages.error(request, 'Email: ya existe un técnico con ese email.')
+            return redirect('usuarios')
+
         tecnico = Tecnico(
             username=username,
-            nombre=username,
-            apellidos='Tecnico',
-            email=_email_unico_para_username(username),
+            nombre=nombre or username,
+            apellidos=apellidos or 'Tecnico',
+            email=email,
             centro=centro,
             rol=rol,
             is_staff=is_staff,
@@ -1390,26 +1406,39 @@ def usuario_update(request, pk):
     tecnico = get_object_or_404(Tecnico, pk=pk)
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
+        nombre = (request.POST.get('nombre') or '').strip()
+        apellidos = (request.POST.get('apellidos') or '').strip()
+        email = (request.POST.get('email') or '').strip()
         centro = (request.POST.get('centro') or '').strip() or None
         rol = _rol_valido(request.POST.get('rol'))
         is_staff = (request.POST.get('is_staff') == 'on')
         password = request.POST.get('password') or ''
 
-        if not username:
-            messages.error(request, 'Usuario: este campo es obligatorio.')
-            return redirect('usuarios')
-        if Tecnico.objects.filter(username=username).exclude(pk=tecnico.pk).exists():
+        # Compatibilidad legacy: permitir update sin username.
+        username = username if username else tecnico.username
+
+        if username and Tecnico.objects.filter(username=username).exclude(pk=tecnico.pk).exists():
             messages.error(request, 'Usuario: ya existe un técnico con ese nombre de usuario.')
+            return redirect('usuarios')
+
+        if email and Tecnico.objects.filter(email=email).exclude(pk=tecnico.pk).exists():
+            messages.error(request, 'Email: ya existe un técnico con ese email.')
             return redirect('usuarios')
 
         tecnico.username = username
         tecnico.centro = centro
         tecnico.rol = rol
         tecnico.is_staff = is_staff
+        if nombre:
+            tecnico.nombre = nombre
+        if apellidos:
+            tecnico.apellidos = apellidos
+        if email:
+            tecnico.email = email
 
         # Compatibilidad con registros legacy incompletos.
         if not tecnico.nombre:
-            tecnico.nombre = username
+            tecnico.nombre = username or 'Tecnico'
         if not tecnico.apellidos:
             tecnico.apellidos = 'Tecnico'
         if not tecnico.email:

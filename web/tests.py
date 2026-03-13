@@ -24,6 +24,7 @@ def make_tecnico(id_tecnico=None, password='pass1234', staff=False):
     kwargs = dict(
         nombre='Test', apellidos='User',
         email=f'test{id_tecnico or ""}@test.com',
+        rol='profesor',
         is_staff=staff, is_active=True,
     )
     t = Tecnico(**kwargs)

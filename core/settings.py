@@ -206,9 +206,11 @@ LOGGING = {
     'handlers': {
         'error_file': {
             'level': 'ERROR',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_DIR / 'errors.log',
             'formatter': 'verbose',
+            'maxBytes': int(os.getenv('DJANGO_LOG_MAX_BYTES', str(10 * 1024 * 1024))),
+            'backupCount': int(os.getenv('DJANGO_LOG_BACKUP_COUNT', '5')),
         },
         'console': {
             'class': 'logging.StreamHandler',
