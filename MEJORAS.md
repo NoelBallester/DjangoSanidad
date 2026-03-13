@@ -132,6 +132,9 @@
 - [ ] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
 - [ ] Open Redirect en login — phishing interno (#SEC-1)
 - [ ] Enumeración de usuarios en get_by_mail (#SEC-10)
+- [ ] Carga de archivos sin validación en endpoints API (#SEC-3)
+- [ ] SQL con nombre de columna interpolado por f-string (#SEC-5)
+- [ ] BasicAuthentication habilitada — credenciales en claro en red interna (#SEC-13)
 
 ---
 
@@ -139,6 +142,20 @@
 
 > **Contexto:** Aplicación desplegada en intranet, red privada clase A, usuarios internos autenticados.
 > Las vulnerabilidades que solo aplican a exposición pública en internet han sido descartadas.
+
+### Estado de verificación práctica (13/03/2026)
+- **SEC-1 Open Redirect:** ✅ **Confirmada (explotable)**. Prueba real: login con `?next=http://evil.local/` devuelve `302` con `Location: http://evil.local/`.
+- **SEC-2 IDOR entre roles en `proxy_file`:** ✅ **Confirmada (riesgo real)**. Hay `@login_required`, pero no validación de rol/propiedad antes de acceder al objeto por `pk`.
+- **SEC-4 Mass Assignment (`fields='__all__'`):** ✅ **Confirmada (riesgo real)**. `NecropsiaSerializer` y `MuestraNecropsiaSerializer` exponen `__all__`.
+- **SEC-6 DEBUG por defecto:** ✅ **Confirmada (riesgo real)**. `DJANGO_DEBUG` tiene default `'true'` en `settings.py`.
+- **SEC-11 Logout roto en frontend:** ✅ **Confirmada (riesgo real)**. `auth.js` redirige a `./registro.html` y no llama a `/logout/`.
+- **SEC-12 Fuga de errores internos:** ✅ **Confirmada (riesgo real)**. Se encontraron `messages.error(... {e})` mostrando excepción al usuario.
+- **SEC-16 Stored XSS por Content-Type:** ✅ **Confirmada (riesgo real)**. Se guarda `archivo.content_type` del usuario y luego se sirve ese tipo sin redetección.
+- **SEC-10 Enumeración en `get_by_mail`:** ⚠️ **Riesgo latente (no explotable hoy)**. Con usuarios actuales y ruta actual devuelve `404` tanto para email existente como inexistente. Motivo: el patrón de URL `[^/.]+` no acepta emails normales con punto (`.`). Si se corrige la ruta para aceptar email real, la enumeración reaparece.
+
+**Leyenda:**
+- ✅ Confirmada (explotable/riesgo real): reproducida o verificada directamente en el estado actual del código.
+- ⚠️ Riesgo latente: no se reproduce hoy por una limitación actual, pero reaparece al corregir esa limitación.
 
 ---
 
@@ -277,10 +294,10 @@ return redirect('/index.html')
 
 ---
 
-### SEC-10. Enumeración de usuarios en get_by_mail — BAJA
+### SEC-10. Enumeración de usuarios en get_by_mail — BAJA (riesgo latente)
 - **Tipo:** Insecure Direct Object Reference + User Enumeration (CWE-204)
 - **Archivo:** `api/views.py` — `TecnicoViewSet.get_by_mail`
-- **Problema:** Cualquier usuario autenticado puede consultar `GET /api/tecnicos/mail/<email>/` y obtener nombre completo, apellidos, email y centro de trabajo de cualquier técnico del sistema. En una red clase A con usuarios de múltiples departamentos que no se conocen entre sí, esto expone el directorio completo de personal a cualquier cuenta comprometida.
+- **Problema:** El diseño del endpoint permite búsqueda de usuarios por email sin control adicional de permisos. En el estado actual **no se explota con emails normales** porque el patrón de ruta `[^/.]+` no acepta `.` (por ejemplo `@dominio.local`), devolviendo `404` para existente y no existente. Si la ruta se corrige para aceptar emails reales, reaparece la enumeración del directorio de personal.
 - **Solución:** Restringir el endpoint a usuarios `is_staff` o eliminarlo si no es necesario para el funcionamiento normal.
 ```python
 # ❌ Vulnerable — accesible a cualquier usuario autenticado
@@ -295,4 +312,87 @@ def get_by_mail(self, request, mail=None):
         return Response({'error': 'No autorizado'}, status=403)
     tecnico = get_object_or_404(Tecnico, email=mail)
     return Response(TecnicoSerializer(tecnico).data)
+```
+
+---
+
+### SEC-3. Carga de archivos sin validación en endpoints API — ALTA
+- **Tipo:** Unrestricted File Upload (CWE-434)
+- **Archivos:** `api/views.py` — `ImagenViewSet.create`, `ImagenCitologiaViewSet.create`, `ImagenNecropsiaViewSet.create`, `ImagenTuboViewSet.create`, `ImagenHematologiaViewSet.create`, `ImagenMicrobiologiaViewSet.create`, `MuestraTuboViewSet.create`, `MuestraHematologiaViewSet.create`, `MuestraMicrobiologiaViewSet.create`
+- **Problema:** Los endpoints de la API aceptan cualquier fichero sin comprobar tipo ni tamaño. Los formularios web (`web/forms.py`) sí aplican validación (extensión permitida + máximo 20 MB), pero esa validación **no existe en ninguno de los 9 ViewSets** de imagen de la API. Un usuario autenticado puede subir ejecutables, scripts o archivos de varios GB directamente por la API sin ningún rechazo.
+- **Solución:** Añadir una función validadora reutilizable y llamarla en cada `create()` antes de guardar.
+```python
+# ❌ Vulnerable — guarda sin validar
+imagen_obj = Imagen.objects.create(
+    imagen=imagen_file.read(),
+    muestra_id=muestra_id
+)
+
+# ✅ Seguro — valida extensión, magic bytes y tamaño
+EXTENSIONES_IMAGEN = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.tiff'}
+MAGIC_BYTES = {
+    b'\xff\xd8\xff': 'image/jpeg',
+    b'\x89PNG\r\n\x1a\n': 'image/png',
+    b'GIF87a': 'image/gif',
+    b'GIF89a': 'image/gif',
+}
+MAX_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
+
+def _validar_imagen_api(imagen_file):
+    ext = os.path.splitext(imagen_file.name)[1].lower()
+    if ext not in EXTENSIONES_IMAGEN:
+        raise ValidationError(f'Extensión no permitida: {ext}')
+    if imagen_file.size > MAX_SIZE_BYTES:
+        raise ValidationError('La imagen supera el límite de 20 MB.')
+    cabecera = imagen_file.read(16)
+    imagen_file.seek(0)
+    if not any(cabecera.startswith(magic) for magic in MAGIC_BYTES):
+        raise ValidationError('El archivo no es una imagen válida.')
+```
+
+---
+
+### SEC-5. SQL con nombre de columna interpolado por f-string — MEDIA
+- **Tipo:** SQL Injection (CWE-89) — riesgo latente / patrón frágil
+- **Archivos:** `web/views.py:167` — `_obtener_informes_legacy` · `web/views.py:400` — `_guardar_informe` · `api/views.py` — `InformeResultadoViewSet._filtrar_por_modelo`
+- **Problema:** El nombre de columna se inyecta directamente en la cadena SQL mediante f-string: `f"... WHERE {columna_fk} = %s"`. Hoy `columna_fk` proviene siempre de un diccionario Python con claves hardcodeadas (no de entrada del usuario), por lo que **no es directamente explotable en el estado actual**. Sin embargo, si en un refactor futuro la función recibe el nombre de columna del usuario o de una URL, se convierte en inyección SQL completa. Django no puede parametrizar nombres de columna.
+- **Solución:** Sustituir el pattern por un mapeo que valide el nombre de columna contra una lista permitida antes de interpolarlo.
+```python
+# ❌ Frágil — columna entra en la cadena SQL sin validación explícita en el sitio de uso
+query = f"SELECT ... FROM informesresultado WHERE {columna_fk} = %s"
+
+# ✅ Defensivo — whitelist explícita en el punto de uso
+COLUMNAS_FK_PERMITIDAS = frozenset({
+    'cassette_id', 'citologia_id', 'necropsia_id',
+    'tubo_id', 'hematologia_id', 'microbiologia_id'
+})
+if columna_fk not in COLUMNAS_FK_PERMITIDAS:
+    raise ValueError(f'Columna FK no reconocida: {columna_fk!r}')
+query = f"SELECT ... FROM informesresultado WHERE {columna_fk} = %s"
+```
+
+---
+
+### SEC-13. BasicAuthentication habilitada — credenciales en Base64 en la red — MEDIA
+- **Tipo:** Cryptographic Failure / Cleartext Transmission (CWE-319)
+- **Archivo:** `core/settings.py` — `REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']`
+- **Problema:** `BasicAuthentication` está activada junto a `SessionAuthentication`. HTTP Basic Auth envía las credenciales codificadas en Base64 (no cifradas) en cada petición: `Authorization: Basic dGVzdDp0ZXN0`. Cualquier máquina de la misma red interna puede capturar el tráfico con Wireshark y decodificar el `id_tecnico` y la contraseña en claro. En una red de laboratorio con equipos compartidos y switches gestionados (o sin gestionar) el riesgo es real.
+- **Solución:** Eliminar `BasicAuthentication` y dejar únicamente `SessionAuthentication`, que es el mecanismo de autenticación real de la aplicación.
+```python
+# ❌ Inseguro — BasicAuthentication transmite credenciales desprotegidas
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',  # ← eliminar
+    ],
+    ...
+}
+
+# ✅ Seguro — solo sesión
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    ...
+}
 ```
