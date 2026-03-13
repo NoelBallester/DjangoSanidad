@@ -141,7 +141,14 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Necropsia
-        fields = '__all__'
+        fields = [
+            'id_necropsia', 'necropsia', 'tipo_necropsia', 'fecha',
+            'descripcion', 'caracteristicas', 'observaciones', 'organo',
+            'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
+            'qr_necropsia', 'qr_imagen', 'tecnico',
+            'volante_peticion_nombre', 'volante_peticion_tipo',
+        ]
+        read_only_fields = ['id_necropsia', 'qr_necropsia']
 
 class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
     qr_field = 'qr_muestra'
@@ -151,7 +158,12 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
 
     class Meta:
         model = MuestraNecropsia
-        fields = '__all__'
+        fields = [
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'qr_muestra', 'qr_imagen', 'necropsia',
+            'examen_interno_cadaver', 'tecnica_apertura', 'datos_relevantes_region',
+        ]
+        read_only_fields = ['id_muestra']
 
 class ImagenNecropsiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     imagen_url = serializers.SerializerMethodField()

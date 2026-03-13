@@ -29,9 +29,7 @@
  * Log out the user and redirect to the login page.
  */
 function logout() {
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('userId');
-    sessionStorage.removeItem('method');
-    sessionStorage.removeItem('rol');
-    window.location.href = './registro.html';
+    const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+    fetch('/logout/', { method: 'POST', headers: { 'X-CSRFToken': csrfToken } })
+        .finally(() => { sessionStorage.clear(); window.location.href = '/login/'; });
 }

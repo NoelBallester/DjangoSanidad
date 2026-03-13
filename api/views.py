@@ -39,6 +39,20 @@ FILE_PROXY_MODELS = {
     'informeresultado': (InformeResultado, {'imagen'}),
 }
 
+# Roles autorizados por modelo de archivo (SEC-2 IDOR)
+_ROLES_POR_MODELO = {
+    Imagen:              {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    ImagenCitologia:     {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    ImagenNecropsia:     {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    ImagenTubo:          {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    ImagenHematologia:   {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    ImagenMicrobiologia: {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    Tubo:                {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    Hematologia:         {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    Microbiologia:       {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
+    InformeResultado:    {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA, Tecnico.ROL_LABORATORIO},
+}
+
 IMAGE_MODELS = (
     Imagen,
     ImagenCitologia,
@@ -98,6 +112,13 @@ def proxy_file(request, model_name, pk, field_name):
     model, allowed_fields = config
     if field_name not in allowed_fields:
         raise Http404('Campo no soportado.')
+
+    # SEC-2: verificar rol del usuario antes de acceder al archivo
+    if not request.user.is_staff:
+        rol = getattr(request.user, 'rol', None)
+        roles_permitidos = _ROLES_POR_MODELO.get(model, set())
+        if rol not in roles_permitidos:
+            raise Http404('Archivo no encontrado.')
 
     try:
         instance = model.objects.get(pk=pk)
@@ -263,6 +284,8 @@ class TecnicoViewSet(viewsets.ModelViewSet):
             
     @action(detail=False, methods=['get'], url_path='mail/(?P<mail>[^/.]+)')
     def get_by_mail(self, request, mail=None):
+        if not request.user.is_staff:
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
         try:
             tecnico = Tecnico.objects.get(email=mail)
             return Response(TecnicoSerializer(tecnico).data)
