@@ -148,7 +148,7 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
             'qr_necropsia', 'qr_imagen', 'tecnico',
             'volante_peticion_nombre', 'volante_peticion_tipo',
         ]
-        read_only_fields = ['id_necropsia', 'qr_necropsia']
+        read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
 
 class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
     qr_field = 'qr_muestra'
@@ -162,8 +162,9 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
             'qr_muestra', 'qr_imagen', 'necropsia',
             'examen_interno_cadaver', 'tecnica_apertura', 'datos_relevantes_region',
+            'is_deleted',
         ]
-        read_only_fields = ['id_muestra']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'is_deleted']
 
 class ImagenNecropsiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     imagen_url = serializers.SerializerMethodField()
