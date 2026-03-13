@@ -136,7 +136,7 @@
 
 - [x] IDOR entre roles — acceso a datos de otros departamentos (#SEC-2)
 - [ ] Mass Assignment en serializers (#SEC-4)
-- [ ] DEBUG=True por defecto (#SEC-6)
+- [x] DEBUG=True por defecto (#SEC-6)
 - [ ] Logout roto — sesión no destruida en servidor (#SEC-11)
 - [ ] Fuga de información en mensajes de error (#SEC-12)
 - [ ] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
@@ -159,7 +159,7 @@
 - **SEC-1 Open Redirect:** ✅ **Confirmada (explotable)**. Prueba real: login con `?next=http://evil.local/` devuelve `302` con `Location: http://evil.local/`.
 - **SEC-2 IDOR entre roles en `proxy_file`:** ✅ **Confirmada (riesgo real)**. Hay `@login_required`, pero no validación de rol/propiedad antes de acceder al objeto por `pk`.
 - **SEC-4 Mass Assignment (`fields='__all__'`):** ✅ **Confirmada (riesgo real)**. `NecropsiaSerializer` y `MuestraNecropsiaSerializer` exponen `__all__`.
-- **SEC-6 DEBUG por defecto:** ✅ **Confirmada (riesgo real)**. `DJANGO_DEBUG` tiene default `'true'` en `settings.py`.
+- **SEC-6 DEBUG por defecto:** ✅ **Mitigada**. `DJANGO_DEBUG` ahora tiene default `'false'` en `settings.py`.
 - **SEC-11 Logout roto en frontend:** ✅ **Confirmada (riesgo real)**. `auth.js` redirige a `./registro.html` y no llama a `/logout/`.
 - **SEC-12 Fuga de errores internos:** ✅ **Confirmada (riesgo real)**. Se encontraron `messages.error(... {e})` mostrando excepción al usuario.
 - **SEC-16 Stored XSS por Content-Type:** ✅ **Confirmada (riesgo real)**. Se guarda `archivo.content_type` del usuario y luego se sirve ese tipo sin redetección.
@@ -229,7 +229,7 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
 
 ---
 
-### SEC-6. DEBUG=True por defecto — MEDIA
+### SEC-6. DEBUG=True por defecto — MEDIA HECHO
 - **Archivo:** `core/settings.py`
 - **Problema:** Si el servidor arranca sin `.env` configurado, `DEBUG=True` activa la página de error de Django, que muestra stack traces con rutas del servidor, código fuente de las vistas e historial SQL. Cualquier usuario interno lo vería.
 - **Solución:** Cambiar el valor por defecto a `'false'`.
