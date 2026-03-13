@@ -500,8 +500,9 @@ def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
                             ],
                         )
                         informe_pk = cursor.lastrowid
-            except Exception as exc:
-                messages.error(request, f'Error al guardar el informe (esquema legacy): {exc}')
+            except Exception:
+                logger.exception('Error al guardar informe (esquema legacy) user=%s', request.user.pk)
+                messages.error(request, 'Error interno al guardar el informe. Contacta con el administrador.')
                 return redirect(reverse(redirect_name) + f'?{fk_campo}={pk}&tab=informe')
 
             messages.success(request, 'Informe de resultados guardado correctamente.')
