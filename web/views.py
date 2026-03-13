@@ -12,8 +12,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from urllib.parse import urlparse, parse_qs
 import base64
+import logging
 import os
 import re
 
@@ -24,6 +26,8 @@ from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     NecropsiaForm, MuestraNecropsiaForm, ImagenNecropsiaForm,
                     HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
                     TecnicoForm)
+
+logger = logging.getLogger('web')
 
 
 def _email_desde_username(username):
@@ -124,7 +128,25 @@ def _guardar_volante_peticion(archivo, instancia):
     
     instancia.volante_peticion = archivo.read()
     instancia.volante_peticion_nombre = archivo.name
-    instancia.volante_peticion_tipo = archivo.content_type
+    # No se almacena el Content-Type declarado por el cliente (SEC-16).
+    # El tipo real se detecta por magic bytes al servir el archivo.
+
+
+def _detectar_tipo_volante(content: bytes) -> str:
+    """Detecta el Content-Type real de un volante por magic bytes."""
+    if content[:4] == b'%PDF':
+        return 'application/pdf'
+    if content[:2] == b'PK':
+        return 'application/octet-stream'  # docx/odt zip-based
+    if content[:8] == b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1':
+        return 'application/msword'  # legacy .doc
+    if content[:3] == b'\xff\xd8\xff':
+        return 'image/jpeg'
+    if content[:8] == b'\x89PNG\r\n\x1a\n':
+        return 'image/png'
+    if content[:6] in (b'GIF87a', b'GIF89a'):
+        return 'image/gif'
+    return 'application/octet-stream'
 
 
 def _build_qr_link(request, code):
@@ -210,7 +232,10 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect(request.GET.get('next', '/index.html'))
+            next_url = request.GET.get('next', '').strip()
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect('/index.html')
         error = 'ID o contraseña incorrectos.'
     return render(request, 'web/login.html', {'error': error})
 
@@ -350,7 +375,8 @@ def cassette_create(request):
             c.save()
             return redirect(reverse('cassettes') + f'?cassette={c.pk}')
         except Exception as e:
-            messages.error(request, f'Error al guardar el cassette: {e}')
+            logger.exception('Error al guardar cassette user=%s', request.user.pk)
+            messages.error(request, 'Error interno al guardar el cassette. Contacta con el administrador.')
             return redirect('cassettes')
     error_detail = '; '.join(
         f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
@@ -777,7 +803,8 @@ def citologia_create(request):
             c.save()
             return redirect(reverse('citologias') + f'?citologia={c.pk}')
         except Exception as e:
-            messages.error(request, f'Error al guardar la citología: {e}')
+            logger.exception('Error al guardar citologia user=%s', request.user.pk)
+            messages.error(request, 'Error interno al guardar la citología. Contacta con el administrador.')
             return redirect('citologias')
     error_detail = '; '.join(
         f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
@@ -1001,7 +1028,8 @@ def necropsia_create(request):
             n.save()
             return redirect(reverse('necropsias') + f'?necropsia={n.pk}')
         except Exception as e:
-            messages.error(request, f'Error al guardar la autopsia: {e}')
+            logger.exception('Error al guardar autopsia user=%s', request.user.pk)
+            messages.error(request, 'Error interno al guardar la autopsia. Contacta con el administrador.')
             return redirect('necropsias')
     error_detail = '; '.join(
         f'{form.fields[k].label or k}: {", ".join(v)}' if k != '__all__' else ', '.join(v)
@@ -1416,7 +1444,8 @@ def _descargar_volante(instancia):
     if not instancia.volante_peticion:
         return HttpResponse('No hay archivo disponible', status=404)
     content = bytes(instancia.volante_peticion)
-    response = HttpResponse(content, content_type=instancia.volante_peticion_tipo or 'application/octet-stream')
+    content_type = _detectar_tipo_volante(content)
+    response = HttpResponse(content, content_type=content_type)
     response['Content-Disposition'] = f'inline; filename="{instancia.volante_peticion_nombre or "volante.pdf"}"'
     return response
 
