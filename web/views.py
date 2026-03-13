@@ -15,6 +15,7 @@ from django.utils import timezone
 from urllib.parse import urlparse, parse_qs
 import base64
 import os
+import re
 
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
 from django.contrib.auth.hashers import make_password
@@ -23,6 +24,32 @@ from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
                     NecropsiaForm, MuestraNecropsiaForm, ImagenNecropsiaForm,
                     HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
                     TecnicoForm)
+
+
+def _email_desde_username(username):
+    slug = re.sub(r'[^a-z0-9._-]+', '.', (username or '').strip().lower()).strip('._-')
+    if not slug:
+        slug = 'tecnico'
+    return f'{slug}@local.invalid'
+
+
+def _email_unico_para_username(username, exclude_pk=None):
+    base_email = _email_desde_username(username)
+    local, domain = base_email.split('@', 1)
+    idx = 0
+    while True:
+        candidato = f'{local}@{domain}' if idx == 0 else f'{local}.{idx}@{domain}'
+        qs = Tecnico.objects.filter(email=candidato)
+        if exclude_pk is not None:
+            qs = qs.exclude(pk=exclude_pk)
+        if not qs.exists():
+            return candidato
+        idx += 1
+
+
+def _rol_valido(valor):
+    permitidos = {k for k, _ in Tecnico.ROL_CHOICES}
+    return valor if valor in permitidos else Tecnico.ROL_LABORATORIO
 
 
 def _imagen_bytes_a_base64(imagen_bytes):
@@ -1296,16 +1323,34 @@ def usuario_create(request):
         messages.error(request, 'No tienes permisos para crear usuarios.')
         return redirect('usuarios')
     if request.method == 'POST':
-        form = TecnicoForm(request.POST)
-        if form.is_valid():
-            tecnico = form.save(commit=False)
-            pwd = form.cleaned_data.get('password')
-            if pwd:
-                tecnico.password = make_password(pwd)
-            else:
-                tecnico.set_unusable_password()
-            tecnico.save()
-            messages.success(request, f'Técnico "{tecnico.nombre} {tecnico.apellidos}" creado.')
+        username = (request.POST.get('username') or '').strip()
+        centro = (request.POST.get('centro') or '').strip() or None
+        rol = _rol_valido(request.POST.get('rol'))
+        is_staff = (request.POST.get('is_staff') == 'on')
+        password = request.POST.get('password') or ''
+
+        if not username:
+            messages.error(request, 'Usuario: este campo es obligatorio.')
+            return redirect('usuarios')
+        if not password:
+            messages.error(request, 'Contraseña: este campo es obligatorio.')
+            return redirect('usuarios')
+        if Tecnico.objects.filter(username=username).exists():
+            messages.error(request, 'Usuario: ya existe un técnico con ese nombre de usuario.')
+            return redirect('usuarios')
+
+        tecnico = Tecnico(
+            username=username,
+            nombre=username,
+            apellidos='Tecnico',
+            email=_email_unico_para_username(username),
+            centro=centro,
+            rol=rol,
+            is_staff=is_staff,
+        )
+        tecnico.password = make_password(password)
+        tecnico.save()
+        messages.success(request, f'Técnico "{tecnico.username}" creado.')
     return redirect('usuarios')
 
 
@@ -1316,14 +1361,36 @@ def usuario_update(request, pk):
         return redirect('usuarios')
     tecnico = get_object_or_404(Tecnico, pk=pk)
     if request.method == 'POST':
-        form = TecnicoForm(request.POST, instance=tecnico)
-        if form.is_valid():
-            t = form.save(commit=False)
-            pwd = form.cleaned_data.get('password')
-            if pwd:
-                t.password = make_password(pwd)
-            t.save()
-            messages.success(request, f'Técnico "{t.nombre} {t.apellidos}" actualizado.')
+        username = (request.POST.get('username') or '').strip()
+        centro = (request.POST.get('centro') or '').strip() or None
+        rol = _rol_valido(request.POST.get('rol'))
+        is_staff = (request.POST.get('is_staff') == 'on')
+        password = request.POST.get('password') or ''
+
+        if not username:
+            messages.error(request, 'Usuario: este campo es obligatorio.')
+            return redirect('usuarios')
+        if Tecnico.objects.filter(username=username).exclude(pk=tecnico.pk).exists():
+            messages.error(request, 'Usuario: ya existe un técnico con ese nombre de usuario.')
+            return redirect('usuarios')
+
+        tecnico.username = username
+        tecnico.centro = centro
+        tecnico.rol = rol
+        tecnico.is_staff = is_staff
+
+        # Compatibilidad con registros legacy incompletos.
+        if not tecnico.nombre:
+            tecnico.nombre = username
+        if not tecnico.apellidos:
+            tecnico.apellidos = 'Tecnico'
+        if not tecnico.email:
+            tecnico.email = _email_unico_para_username(username, exclude_pk=tecnico.pk)
+
+        if password:
+            tecnico.password = make_password(password)
+        tecnico.save()
+        messages.success(request, f'Técnico "{tecnico.username}" actualizado.')
     return redirect('usuarios')
 
 

@@ -189,7 +189,7 @@ instance = get_object_or_404(model, pk=pk)
 - **Tipo:** Mass Assignment (CWE-915)
 - **Archivo:** `api/serializers.py` — `NecropsiaSerializer`, `MuestraNecropsiaSerializer`
 - **Problema:** Exponer `'__all__'` permite a un usuario enviar `{"is_deleted": false}` para restaurar registros borrados, o `{"tecnico": <id_ajeno>}` para reasignar datos de otros técnicos.
-- **Solución:** Declarar `fields` explícitamente y marcar como `read_only_fields` los campos que no deben modificarse desde la API.
+- **Solución:** Declarar `fields` explícitamente y marcar como `read_only_fields` los campos sensibles (`id`, `QR`, `tecnico`, `is_deleted`) para que no puedan sobrescribirse por entrada del cliente.
 ```python
 # ❌ Vulnerable
 class NecropsiaSerializer(serializers.ModelSerializer):
@@ -204,7 +204,15 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
         fields = ['id_necropsia', 'necropsia', 'tipo_necropsia', 'fecha',
                   'descripcion', 'caracteristicas', 'observaciones', 'organo',
                   'qr_necropsia', 'tecnico', 'volante_peticion_nombre', 'volante_peticion_tipo']
-        read_only_fields = ['id_necropsia', 'qr_necropsia']
+        read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
+
+class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    class Meta:
+        model = MuestraNecropsia
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+                  'qr_muestra', 'qr_imagen', 'examen_interno_cadaver',
+                  'tecnica_apertura', 'datos_relevantes_region', 'necropsia', 'is_deleted']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'is_deleted']
 ```
 
 ---
