@@ -80,6 +80,16 @@
 - **Solución:** Eliminar la opción y requerir lista explícita de orígenes.
 - **Afecta:** `core/settings.py`
 
+### 26. Archivo `.env` en el historial de git
+- **Problema:** El fichero `.env` está committed en el repositorio. Aunque contenga valores de desarrollo, expone la estructura de secretos y crea el hábito de commitear credenciales. Si en algún momento se usa una secret key real, quedará en el historial.
+- **Solución:** Añadir `.env` a `.gitignore` y eliminarlo del historial con `git rm --cached .env`.
+- **Afecta:** `.gitignore`, `.env`
+
+### 27. Logging sin rotación de ficheros
+- **Problema:** `core/settings.py` configura `FileHandler` para los logs. El fichero crece indefinidamente sin límite de tamaño ni rotación automática, pudiendo llenar el disco en producción.
+- **Solución:** Sustituir `FileHandler` por `RotatingFileHandler` con `maxBytes` y `backupCount`.
+- **Afecta:** `core/settings.py`
+
 ### 19. Sin manejo de zona horaria HECHO
 - **Problema:** `TIME_ZONE = 'UTC'` puede causar problemas de fechas en España.
 - **Solución:** Activar `USE_TZ = True` con `TIME_ZONE = 'Europe/Madrid'`.
@@ -113,10 +123,10 @@
 - [x] Mover opciones hardcodeadas a BD (#8)
 - [x] Validación en serializers (#12)
 
-### Fase 3 - Pendientes
-- [ ] Paginación (#2)
-- [ ] Borrado suave (#15)
-- [ ] Logging (#16)
+### Fase 3 - Estabilidad (completada)
+- [x] Paginación (#2)
+- [x] Borrado suave (#15)
+- [x] Logging (#16)
 - [x] Zona horaria (#19)
 - [x] Manejo de errores (#20)
 - [x] Ampliar tests (#25)
@@ -135,6 +145,8 @@
 - [ ] Carga de archivos sin validación en endpoints API (#SEC-3)
 - [ ] SQL con nombre de columna interpolado por f-string (#SEC-5)
 - [ ] BasicAuthentication habilitada — credenciales en claro en red interna (#SEC-13)
+- [ ] Archivo `.env` en el historial de git (#26)
+- [ ] Logging sin rotación de ficheros (#27)
 
 ---
 
@@ -335,6 +347,10 @@ MAGIC_BYTES = {
     b'\x89PNG\r\n\x1a\n': 'image/png',
     b'GIF87a': 'image/gif',
     b'GIF89a': 'image/gif',
+    b'BM': 'image/bmp',
+    b'RIFF': 'image/webp',
+    b'II*\x00': 'image/tiff',
+    b'MM\x00*': 'image/tiff',
 }
 MAX_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
 
