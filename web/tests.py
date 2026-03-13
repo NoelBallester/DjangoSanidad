@@ -121,6 +121,20 @@ class LoginTests(TestCase):
         )
         self.assertRedirects(r, '/cassettes/', fetch_redirect_response=False)
 
+    def test_login_next_externo_bloqueado(self):
+        r = self.client.post(
+            self.url + '?next=http://evil.local/',
+            {'tecnico_id': self.tecnico.pk, 'password': 'pass1234'},
+        )
+        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+
+    def test_login_next_scheme_relative_bloqueado(self):
+        r = self.client.post(
+            self.url + '?next=//evil.local/path',
+            {'tecnico_id': self.tecnico.pk, 'password': 'pass1234'},
+        )
+        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+
 
 class LogoutTests(TestCase):
 

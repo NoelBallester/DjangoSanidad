@@ -9,7 +9,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import Tecnico, Cassette, Muestra, Imagen, Hematologia, MuestraHematologia, ImagenHematologia
-from .models import Necropsia, MuestraNecropsia, ImagenNecropsia, InformeResultado
+from .models import Citologia, MuestraCitologia, ImagenCitologia, Tubo, MuestraTubo, ImagenTubo
+from .models import Necropsia, MuestraNecropsia, ImagenNecropsia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 
 
 def make_tecnico(password='pass1234', email='api@test.com'):
@@ -39,6 +40,11 @@ class ApiPermissionTests(TestCase):
 	def setUp(self):
 		self.client = APIClient()
 		self.tecnico = make_tecnico(email='perm@test.com')
+
+	def test_rest_framework_uses_only_session_authentication(self):
+		auth_classes = settings.REST_FRAMEWORK.get('DEFAULT_AUTHENTICATION_CLASSES', [])
+		self.assertIn('rest_framework.authentication.SessionAuthentication', auth_classes)
+		self.assertNotIn('rest_framework.authentication.BasicAuthentication', auth_classes)
 
 	def test_unauthenticated_api_returns_consistent_error_payload(self):
 		response = self.client.get('/api/tubos/')
@@ -120,6 +126,93 @@ class ImagenEndpointTests(TestCase):
 			cassette=cassette,
 		)
 
+		citologia = Citologia.objects.create(
+			citologia='CITO-API',
+			tipo_citologia='Tipo',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_citologia='QRCITO-API',
+			organo='Pulmón',
+		)
+		self.muestra_citologia = MuestraCitologia.objects.create(
+			descripcion='Sub C',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='HE',
+			qr_muestra='QRMC-API',
+			citologia=citologia,
+		)
+
+		self.necropsia = Necropsia.objects.create(
+			necropsia='N-API',
+			tipo_necropsia='Clinica',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_necropsia='QRN-API',
+			organo='Pulmón',
+		)
+		self.muestra_necropsia = MuestraNecropsia.objects.create(
+			descripcion='Sub N',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='HE',
+			qr_muestra='QRMN-API',
+			necropsia=self.necropsia,
+		)
+
+		self.tubo = Tubo.objects.create(
+			tubo='T-API',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_tubo='QRT-API',
+			organo='Pulmón',
+		)
+		self.muestra_tubo = MuestraTubo.objects.create(
+			descripcion='Sub T',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='Gram',
+			qr_muestra='QRMT-API',
+			tubo=self.tubo,
+		)
+
+		self.hematologia = Hematologia.objects.create(
+			hematologia='H-API',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_hematologia='QRH-API',
+			organo='Pulmón',
+		)
+		self.muestra_hematologia = MuestraHematologia.objects.create(
+			descripcion='Sub H',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='Gram',
+			qr_muestra='QRMH-API',
+			hematologia=self.hematologia,
+		)
+
+		self.microbiologia = Microbiologia.objects.create(
+			microbiologia='MB-API',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_microbiologia='QRMB-API',
+			organo='Pulmón',
+		)
+		self.muestra_microbiologia = MuestraMicrobiologia.objects.create(
+			descripcion='Sub MB',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='Gram',
+			qr_muestra='QRMMB-API',
+			microbiologia=self.microbiologia,
+		)
+
 	def test_por_muestra_returns_expected_serializer_shape(self):
 		Imagen.objects.create(
 			muestra=self.muestra,
@@ -139,6 +232,69 @@ class ImagenEndpointTests(TestCase):
 	def test_create_imagen_requires_file_and_muestra(self):
 		response = self.client.post('/api/imagenes/', {}, format='multipart')
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+	def test_create_rejects_disallowed_extension_on_all_sec3_endpoints(self):
+		endpoints = [
+			('/api/imagenes/', {'muestra': self.muestra.pk}),
+			('/api/imagenescitologia/', {'muestra': self.muestra_citologia.pk}),
+			('/api/imagenesnecropsia/', {'muestra': self.muestra_necropsia.pk}),
+			('/api/imagenestubo/', {'muestra': self.muestra_tubo.pk}),
+			('/api/imageneshematologia/', {'muestra': self.muestra_hematologia.pk}),
+			('/api/imagenesmicrobiologia/', {'muestra': self.muestra_microbiologia.pk}),
+			('/api/muestrastubo/', {
+				'tubo': self.tubo.pk,
+				'descripcion': 'Nueva muestra tubo',
+				'fecha': '2024-01-01',
+				'tincion': 'Gram',
+			}),
+			('/api/muestrashematologia/', {
+				'hematologia': self.hematologia.pk,
+				'descripcion': 'Nueva muestra hematologia',
+				'fecha': '2024-01-01',
+				'tincion': 'Gram',
+			}),
+			('/api/muestrasmicrobiologia/', {
+				'microbiologia': self.microbiologia.pk,
+				'descripcion': 'Nueva muestra microbiologia',
+				'fecha': '2024-01-01',
+				'tincion': 'Gram',
+			}),
+		]
+
+		for endpoint, payload in endpoints:
+			with self.subTest(endpoint=endpoint):
+				dato = dict(payload)
+				dato['imagen'] = SimpleUploadedFile(
+					'malware.exe',
+					b'MZ\x00\x00\x00\x00',
+					content_type='application/octet-stream',
+				)
+				response = self.client.post(endpoint, dato, format='multipart')
+				self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+				self.assertIn('Extension no permitida', str(response.data))
+
+	def test_create_rejects_invalid_magic_bytes(self):
+		response = self.client.post(
+			'/api/imagenes/',
+			{
+				'muestra': self.muestra.pk,
+				'imagen': SimpleUploadedFile('falsa.png', b'NO_IMAGE_HEADER', content_type='image/png'),
+			},
+			format='multipart',
+		)
+		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertIn('no es una imagen valida', str(response.data).lower())
+
+	def test_create_accepts_valid_png_file(self):
+		response = self.client.post(
+			'/api/imagenes/',
+			{
+				'muestra': self.muestra.pk,
+				'imagen': SimpleUploadedFile('ok.png', b'\x89PNG\r\n\x1a\n' + b'0' * 32, content_type='image/png'),
+			},
+			format='multipart',
+		)
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 	def test_proxy_serves_real_mime_for_bin_image(self):
 		hematologia = Hematologia.objects.create(
