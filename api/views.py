@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.db.models import Q
 from django.db import connection
 from django.contrib.contenttypes.models import ContentType
@@ -44,13 +45,15 @@ _ROLES_POR_MODELO = {
     Imagen:              {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
     ImagenCitologia:     {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
     ImagenNecropsia:     {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    Cassette:            {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    Citologia:           {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
+    Necropsia:           {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA},
     ImagenTubo:          {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
     ImagenHematologia:   {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
     ImagenMicrobiologia: {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
     Tubo:                {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
     Hematologia:         {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
     Microbiologia:       {Tecnico.ROL_PROFESOR, Tecnico.ROL_LABORATORIO},
-    InformeResultado:    {Tecnico.ROL_PROFESOR, Tecnico.ROL_ANATOMIA, Tecnico.ROL_LABORATORIO},
 }
 
 IMAGE_MODELS = (
@@ -64,12 +67,57 @@ IMAGE_MODELS = (
 
 
 def _read_file_bytes(file_value):
+    def _decode_text_reference(text):
+        text = (text or '').strip()
+        if not text:
+            return b''
+
+        # Compatibilidad legacy: data URL almacenada en texto.
+        if text.startswith('data:') and ';base64,' in text:
+            try:
+                return base64.b64decode(text.split(';base64,', 1)[1], validate=True)
+            except Exception:
+                return b''
+
+        # Compatibilidad legacy: ruta de fichero relativa a MEDIA_ROOT o absoluta.
+        candidate_paths = [text]
+        if not os.path.isabs(text):
+            candidate_paths.append(str(settings.MEDIA_ROOT / text))
+        for path in candidate_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, 'rb') as f:
+                        return f.read()
+                except Exception:
+                    continue
+
+        # Compatibilidad legacy: base64 sin prefijo data URL.
+        try:
+            return base64.b64decode(text, validate=True)
+        except Exception:
+            return b''
+
     if not file_value:
         return b''
     if isinstance(file_value, memoryview):
-        return file_value.tobytes()
+        raw = file_value.tobytes()
+        try:
+            maybe_text = raw.decode('utf-8')
+            resolved = _decode_text_reference(maybe_text)
+            return resolved or raw
+        except Exception:
+            return raw
     if isinstance(file_value, (bytes, bytearray)):
-        return bytes(file_value)
+        raw = bytes(file_value)
+        # Algunos registros legacy guardan la ruta como texto dentro del BinaryField.
+        try:
+            maybe_text = raw.decode('utf-8')
+            resolved = _decode_text_reference(maybe_text)
+            return resolved or raw
+        except Exception:
+            return raw
+    if isinstance(file_value, str):
+        return _decode_text_reference(file_value)
     try:
         if hasattr(file_value, 'open'):
             file_value.open('rb')
@@ -99,8 +147,17 @@ def _detect_content_type(file_value):
     if raw.startswith(b'%PDF'):
         return 'application/pdf'
 
-    guessed, _ = mimetypes.guess_type(getattr(file_value, 'name', ''))
+    guess_name = file_value if isinstance(file_value, str) else getattr(file_value, 'name', '')
+    guessed, _ = mimetypes.guess_type(guess_name)
     return guessed or 'application/octet-stream'
+
+
+def _roles_permitidos_para_proxy(model, instance=None):
+    """Devuelve los roles permitidos para leer archivos de un modelo concreto."""
+    if model is InformeResultado and instance is not None:
+        target_model = instance.content_type.model_class() if instance.content_type_id else None
+        return _ROLES_POR_MODELO.get(target_model, set())
+    return _ROLES_POR_MODELO.get(model, set())
 
 
 @login_required
@@ -113,24 +170,27 @@ def proxy_file(request, model_name, pk, field_name):
     if field_name not in allowed_fields:
         raise Http404('Campo no soportado.')
 
-    # SEC-2: verificar rol del usuario antes de acceder al archivo
-    if not request.user.is_staff:
-        rol = getattr(request.user, 'rol', None)
-        roles_permitidos = _ROLES_POR_MODELO.get(model, set())
-        if rol not in roles_permitidos:
-            raise Http404('Archivo no encontrado.')
-
     try:
         instance = model.objects.get(pk=pk)
     except model.DoesNotExist as exc:
         raise Http404('Archivo no encontrado.') from exc
+
+    # SEC-2: verificar rol del usuario según el tipo real de recurso.
+    if not request.user.is_staff:
+        rol = getattr(request.user, 'rol', None)
+        roles_permitidos = _roles_permitidos_para_proxy(model, instance)
+        if rol not in roles_permitidos:
+            raise Http404('Archivo no encontrado.')
 
     file_value = getattr(instance, field_name, None)
     if not file_value:
         raise Http404('Archivo no encontrado.')
 
     content_type = _detect_content_type(file_value)
-    filename = os.path.basename(getattr(file_value, 'name', '') or f'{model_name}-{pk}')
+    if isinstance(file_value, str):
+        filename = os.path.basename(file_value) or f'{model_name}-{pk}'
+    else:
+        filename = os.path.basename(getattr(file_value, 'name', '') or f'{model_name}-{pk}')
 
     if isinstance(file_value, (bytes, bytearray, memoryview)):
         response = HttpResponse(_read_file_bytes(file_value), content_type=content_type)

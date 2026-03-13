@@ -2,10 +2,14 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+from pathlib import Path
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import Tecnico, Cassette, Muestra, Imagen, Hematologia, MuestraHematologia, ImagenHematologia
+from .models import Necropsia, MuestraNecropsia, ImagenNecropsia, InformeResultado
 
 
 def make_tecnico(password='pass1234', email='api@test.com'):
@@ -166,6 +170,114 @@ class ImagenEndpointTests(TestCase):
 		proxy_response = self.client.get(list_response.data[0]['imagen_url'])
 		self.assertEqual(proxy_response.status_code, status.HTTP_200_OK)
 		self.assertEqual(proxy_response['Content-Type'], 'image/webp')
+
+	def test_proxy_serves_legacy_string_path_image(self):
+		self.tecnico.rol = Tecnico.ROL_ANATOMIA
+		self.tecnico.save(update_fields=['rol'])
+
+		legacy_rel = 'imagenes/test_legacy_proxy.png'
+		legacy_abs = Path(settings.MEDIA_ROOT) / legacy_rel
+		legacy_abs.parent.mkdir(parents=True, exist_ok=True)
+		legacy_abs.write_bytes(b'\x89PNG\r\n\x1a\n' + b'0' * 32)
+
+		imagen = Imagen.objects.create(muestra=self.muestra, imagen=b'placeholder')
+		with connection.cursor() as cursor:
+			cursor.execute('UPDATE imagenes SET imagen = %s WHERE id_imagen = %s', [legacy_rel, imagen.pk])
+		response = self.client.get(f'/api/archivo/imagen/{imagen.pk}/imagen/')
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response['Content-Type'], 'image/png')
+
+
+class FileProxyRoleAuthorizationTests(TestCase):
+	def setUp(self):
+		self.client = APIClient()
+		self.lab = make_tecnico(email='lab-proxy@test.com')
+		self.lab.rol = Tecnico.ROL_LABORATORIO
+		self.lab.save(update_fields=['rol'])
+
+		self.anatomia = make_tecnico(email='anat-proxy@test.com')
+		self.anatomia.rol = Tecnico.ROL_ANATOMIA
+		self.anatomia.save(update_fields=['rol'])
+
+		self.profesor = make_tecnico(email='profe-proxy@test.com')
+		self.profesor.rol = Tecnico.ROL_PROFESOR
+		self.profesor.save(update_fields=['rol'])
+
+		# Recurso de laboratorio: imagen de hematologia
+		hematologia = Hematologia.objects.create(
+			hematologia='H-PROXY',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_hematologia='QRH-PROXY',
+			organo='Pulmón',
+		)
+		muestra_h = MuestraHematologia.objects.create(
+			descripcion='Submuestra H',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='Gram',
+			qr_muestra='QRMH-PROXY',
+			hematologia=hematologia,
+		)
+		self.imagen_h = ImagenHematologia.objects.create(muestra=muestra_h, imagen=b'\x89PNG\r\n\x1a\n' + b'0' * 20)
+
+		# Recurso de anatomia: imagen de necropsia
+		necropsia = Necropsia.objects.create(
+			necropsia='N-PROXY',
+			tipo_necropsia='Clínica',
+			fecha='2024-01-01',
+			descripcion='Desc',
+			caracteristicas='Caract',
+			qr_necropsia='QRN-PROXY',
+			organo='Pulmón',
+		)
+		muestra_n = MuestraNecropsia.objects.create(
+			descripcion='Submuestra N',
+			fecha='2024-01-01',
+			observaciones='Obs',
+			tincion='HE',
+			qr_muestra='QRMN-PROXY',
+			necropsia=necropsia,
+		)
+		self.imagen_n = ImagenNecropsia.objects.create(muestra=muestra_n, imagen=b'\x89PNG\r\n\x1a\n' + b'1' * 20)
+
+		ct_nec = ContentType.objects.get_for_model(Necropsia)
+		self.informe_nec = InformeResultado.objects.create(
+			content_type=ct_nec,
+			object_id=necropsia.pk,
+			descripcion='Informe necropsia',
+			fecha='2024-01-02',
+			imagen=b'\x89PNG\r\n\x1a\n' + b'2' * 20,
+		)
+
+	def test_laboratorio_no_puede_ver_imagen_necropsia(self):
+		self.client.force_login(self.lab)
+		response = self.client.get(f'/api/archivo/imagennecropsia/{self.imagen_n.pk}/imagen/')
+		self.assertEqual(response.status_code, 404)
+
+	def test_anatomia_no_puede_ver_imagen_hematologia(self):
+		self.client.force_login(self.anatomia)
+		response = self.client.get(f'/api/archivo/imagenhematologia/{self.imagen_h.pk}/imagen/')
+		self.assertEqual(response.status_code, 404)
+
+	def test_profesor_puede_ver_ambas_imagenes(self):
+		self.client.force_login(self.profesor)
+		r_h = self.client.get(f'/api/archivo/imagenhematologia/{self.imagen_h.pk}/imagen/')
+		r_n = self.client.get(f'/api/archivo/imagennecropsia/{self.imagen_n.pk}/imagen/')
+		self.assertEqual(r_h.status_code, 200)
+		self.assertEqual(r_n.status_code, 200)
+
+	def test_laboratorio_no_puede_ver_informe_de_necropsia(self):
+		self.client.force_login(self.lab)
+		response = self.client.get(f'/api/archivo/informeresultado/{self.informe_nec.pk}/imagen/')
+		self.assertEqual(response.status_code, 404)
+
+	def test_anatomia_puede_ver_informe_de_necropsia(self):
+		self.client.force_login(self.anatomia)
+		response = self.client.get(f'/api/archivo/informeresultado/{self.informe_nec.pk}/imagen/')
+		self.assertEqual(response.status_code, 200)
 
 
 class ApiCustomActionTests(TestCase):

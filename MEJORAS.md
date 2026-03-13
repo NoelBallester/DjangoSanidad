@@ -134,7 +134,7 @@
 ### Fase 4 - Seguridad (pendiente)
 > Vulnerabilidades evaluadas para entorno de **intranet en red privada clase A** con usuarios autenticados.
 
-- [ ] IDOR entre roles — acceso a datos de otros departamentos (#SEC-2)
+- [x] IDOR entre roles — acceso a datos de otros departamentos (#SEC-2)
 - [ ] Mass Assignment en serializers (#SEC-4)
 - [ ] DEBUG=True por defecto (#SEC-6)
 - [ ] Logout roto — sesión no destruida en servidor (#SEC-11)
