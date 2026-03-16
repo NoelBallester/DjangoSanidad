@@ -165,6 +165,7 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
             'id_necropsia', 'necropsia', 'tipo_necropsia', 'fecha',
             'descripcion', 'caracteristicas', 'observaciones', 'organo',
             'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
+            'prueba_complementaria',
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'informe_descripcion', 'informe_fecha',
             'informe_tincion', 'informe_observaciones',
@@ -188,6 +189,7 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
             'qr_muestra', 'qr_imagen', 'necropsia',
             'examen_interno_cadaver', 'tecnica_apertura', 'datos_relevantes_region',
+            'toma_muestras', 'prueba_complementaria',
             'is_deleted',
         ]
         read_only_fields = ['id_muestra', 'is_deleted']

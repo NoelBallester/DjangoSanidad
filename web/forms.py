@@ -327,6 +327,7 @@ class NecropsiaForm(forms.ModelForm):
         model = Necropsia
         fields = ['necropsia', 'tipo_necropsia', 'fecha', 'descripcion', 'caracteristicas',
                   'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
+                  'prueba_complementaria',
                   'observaciones', 'organo', 'volante_peticion', 'diagnostico_final',
                   'informacion_clinica', 'descripcion_microscopica']
         widgets = {
@@ -335,6 +336,7 @@ class NecropsiaForm(forms.ModelForm):
             'fenomenos_cadavericos': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'examen_externo_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'datos_muerte': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'prueba_complementaria': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'informacion_clinica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
@@ -355,6 +357,7 @@ class NecropsiaForm(forms.ModelForm):
                 'fenomenos_cadavericos',
                 'examen_externo_cadaver',
                 'datos_muerte',
+                'prueba_complementaria',
                 'observaciones',
                 'organo',
                 'tipo_necropsia',
@@ -392,6 +395,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
             'tecnica_apertura',
             'datos_relevantes_region',
             'toma_muestras',
+            'prueba_complementaria',
             'tincion',
             'observaciones',
         ]
@@ -400,6 +404,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
             'examen_interno_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'datos_relevantes_region': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'toma_muestras': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+            'prueba_complementaria': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
         }
 
@@ -422,6 +427,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
                 'examen_interno_cadaver',
                 'datos_relevantes_region',
                 'toma_muestras',
+                'prueba_complementaria',
                 'observaciones',
                 'tincion',
             ):

@@ -39,6 +39,10 @@
     <textarea name="datos_muerte" class="form-control blue__color textarea__text">{% if edit %}{{ c.datos_muerte }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Prueba complementaria</label>
+    <textarea name="prueba_complementaria" class="form-control blue__color textarea__text">{% if edit %}{{ c.prueba_complementaria }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
     <label class="form-label blue__color">Descripcion del caso</label>
     <textarea name="caracteristicas" class="form-control blue__color textarea__text"
         required>{% if edit %}{{ c.caracteristicas }}{% endif %}</textarea>
@@ -62,7 +66,7 @@
 </div>
 {% endif %}
 <div class="col-md-12 mt-3">
-    <label class="form-label blue__color">Informe de autopsia (archivo)</label>
+    <label class="form-label blue__color">Documetanción previa a la autopsia</label>
     <input type="file" name="volante_peticion" class="form-control blue__color"
         accept="*/*">
     {% if edit and c.volante_peticion_nombre %}

@@ -293,6 +293,7 @@ class Necropsia(RegistroConInforme):
     fenomenos_cadavericos = models.TextField(null=True, blank=True)
     examen_externo_cadaver = models.TextField(null=True, blank=True)
     datos_muerte = models.TextField(null=True, blank=True)
+    prueba_complementaria = models.TextField(null=True, blank=True)
     qr_necropsia = models.CharField(max_length=255, unique=True)
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
 
@@ -309,6 +310,7 @@ class MuestraNecropsia(MuestraBase):
     tecnica_apertura = models.CharField(max_length=255, null=True, blank=True)
     datos_relevantes_region = models.TextField(null=True, blank=True)
     toma_muestras = models.TextField(null=True, blank=True)
+    prueba_complementaria = models.TextField(null=True, blank=True)
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     necropsia = models.ForeignKey(Necropsia, on_delete=models.CASCADE, db_column='necropsia_id')
 

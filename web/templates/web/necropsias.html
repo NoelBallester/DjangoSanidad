@@ -350,7 +350,7 @@
                             <p class="cassette__text">{{ selected.observaciones }}</p>
                         </li>
                         {% if selected.volante_peticion %}
-                        <li class="list-group-item blue__color--negrita">Informe de autopsia:
+                        <li class="list-group-item blue__color--negrita">Documetanción previa a la autopsia:
                             <a href="{% url 'descargar_volante_necropsia' selected.pk %}" target="_blank" class="btn btn-sm btn-primary">
                                 <i class="fa-solid fa-file-arrow-down"></i> Ver archivo
                             </a>
@@ -634,6 +634,10 @@
                     <textarea name="toma_muestras" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Prueba complementaria</label>
+                    <textarea name="prueba_complementaria" class="form-control blue__color"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Detalles macroscopicos de la muestra</label>
                     <input type="text" name="descripcion" class="form-control blue__color" required>
                 </div>
@@ -711,6 +715,9 @@
                             </li>
                             <li class="list-group-item blue__color--negrita">Toma de muestras:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.toma_muestras|default:'-' }}</p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Prueba complementaria:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.prueba_complementaria|default:'-' }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Descripcion macroscopica:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.descripcion|default:'-' }}</p>
@@ -795,6 +802,10 @@
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Toma de muestras</label>
                     <textarea name="toma_muestras" id="editMuestraTomaMuestras" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.toma_muestras|default:'' }}{% endif %}</textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Prueba complementaria</label>
+                    <textarea name="prueba_complementaria" id="editMuestraPruebaComplementaria" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.prueba_complementaria|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Descripcion macroscopica</label>
