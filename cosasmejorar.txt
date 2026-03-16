@@ -11,10 +11,10 @@ CITOLOGIA:
 Detalle paciente en la tabla que se ven las cosas cambiar por tipo de citologia. HECHO
 CREAR CITOLOGIA:  
 Falta cuando creas en tipo de muestra "P.A.A.F", "liquido sinovial", "Muestra cervico-vaginal" y poner "Otros". HECHO
-Quitar descripcion microscopica. 
+Quitar descripcion microscopica. HECHO
 MUESTRA DE CITOLOGIAS: 
-Corregir "Validación de la calidad de la muestra" por "Tinción". 
-Falta "descripción microscópica" y "Aproximación diagnóstica". 
+Corregir "Validación de la calidad de la muestra" por "Tinción".  HECHO 
+Falta "descripción microscópica" y "Aproximación diagnóstica". HECHO 
 
 INFORMES:
 Hematoxilina para abajo hay que quitarlo porque son tinciones. 
