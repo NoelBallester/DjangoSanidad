@@ -32,6 +32,10 @@
         <option {% if edit and c.tipo_citologia == 'Secreción mamaria' %}selected{% endif %}>Secreción mamaria</option>
         <option {% if edit and c.tipo_citologia == 'Muestra vulvar' %}selected{% endif %}>Muestra vulvar</option>
         <option {% if edit and c.tipo_citologia == 'Muestra endometrial' %}selected{% endif %}>Muestra endometrial</option>
+        <option {% if edit and c.tipo_citologia == 'P.A.A.F' %}selected{% endif %}>P.A.A.F</option>
+        <option {% if edit and c.tipo_citologia == 'Líquido Sinovial' %}selected{% endif %}>Líquido Sinovial</option>
+        <option {% if edit and c.tipo_citologia == 'Muestra Cervico-Vaginal' %}selected{% endif %}>Muestra Cervico-Vaginal</option>
+        <option {% if edit and c.tipo_citologia == 'Otros' %}selected{% endif %}>Otros</option>
     </select>
 </div>
 <div class="row col-md-12 mt-2">
@@ -141,11 +145,6 @@
     <label class="form-label">Información clínica</label>
     <textarea name="informacion_clinica" class="form-control textarea__text"
         >{% if edit %}{{ c.informacion_clinica }}{% endif %}</textarea>
-</div>
-<div class="col-md-12 mt-3">
-    <label class="form-label">Descripción microscópica</label>
-    <textarea name="descripcion_microscopica" class="form-control textarea__text"
-        >{% if edit %}{{ c.descripcion_microscopica }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
     <label class="form-label">Volante de petición (archivo)</label>

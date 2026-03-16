@@ -287,10 +287,12 @@ class MuestraCitologiaForm(forms.ModelForm):
 
     class Meta:
         model = MuestraCitologia
-        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones', 'descripcion_microscopica', 'aproximacion_diagnostica']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color'}),
+            'aproximacion_diagnostica': forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color'}),
         }
 
     def __init__(self, *args, **kwargs):

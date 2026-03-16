@@ -269,6 +269,8 @@ class MuestraCitologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column='id')
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     citologia = models.ForeignKey(Citologia, on_delete=models.CASCADE, db_column='citologia_id')
+    descripcion_microscopica = models.TextField(null=True, blank=True)
+    aproximacion_diagnostica = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'muestrascitologia'

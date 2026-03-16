@@ -136,7 +136,7 @@ class MuestraCitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
         model = MuestraCitologia
         fields = [
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra',
-            'qr_imagen', 'citologia'
+            'qr_imagen', 'citologia', 'descripcion_microscopica', 'aproximacion_diagnostica'
         ]
 
 class ImagenCitologiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
