@@ -65,8 +65,11 @@ class CassetteSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'qr_casette', 'organo', 'tecnico', 'informe_descripcion',
             'informe_fecha', 'informe_tincion', 'informe_observaciones',
-            'volante_peticion_nombre', 'volante_peticion_tipo'
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
+
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
 
 class MuestraSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
     qr_field = 'qr_muestra'
@@ -89,8 +92,9 @@ class ImagenSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class CitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+class CitologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_citologia'
+    volante_peticion_url = serializers.SerializerMethodField()
 
     def validate_tipo_citologia(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_CITOLOGIA, value, 'Tipo de citologia')
@@ -103,8 +107,14 @@ class CitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
         fields = [
             'id_citologia', 'citologia', 'tipo_citologia', 'fecha', 'descripcion', 'caracteristicas',
             'observaciones', 'qr_citologia', 'qr_imagen', 'organo', 'tecnico',
-            'volante_peticion_nombre', 'volante_peticion_tipo'
+            'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
+            'patologo_responsable', 'informe_descripcion', 'informe_fecha',
+            'informe_tincion', 'informe_observaciones',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
+
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
 
 class MuestraCitologiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
     qr_field = 'qr_muestra'
@@ -146,9 +156,12 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
             'descripcion', 'caracteristicas', 'observaciones', 'organo',
             'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
             'qr_necropsia', 'qr_imagen', 'tecnico',
-            'volante_peticion_nombre', 'volante_peticion_tipo',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
         read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
+
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
 
 class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
     qr_field = 'qr_muestra'

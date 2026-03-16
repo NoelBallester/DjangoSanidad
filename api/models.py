@@ -247,12 +247,16 @@ class Imagen(ImagenBase):
 
 # ─── Citología ───────────────────────────────────────────────────────────────
 
-class Citologia(RegistroBase):
-    id_citologia = models.AutoField(primary_key=True, db_column='id')
-    citologia = models.CharField(max_length=50)
+class Citologia(RegistroConInforme):
+    """
+    Representa una citología.
+    Hereda de RegistroConInforme para incluir campos de diagnóstico y volante.
+    """
+    id_citologia = models.AutoField(primary_key=True)
+    citologia = models.CharField(max_length=255)
     tipo_citologia = models.CharField(max_length=255)
-    qr_citologia = models.CharField(max_length=255, unique=True)
-    qr_imagen = models.CharField(max_length=100, null=True, blank=True)
+    qr_citologia = models.CharField(max_length=255, null=True, blank=True)
+    qr_imagen = models.BinaryField(null=True, blank=True)
 
     def __str__(self):
         return f"Citología {self.citologia}"

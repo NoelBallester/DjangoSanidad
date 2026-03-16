@@ -15,7 +15,7 @@ import base64
 import mimetypes
 import os
 import uuid
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login as auth_login
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado
 from .serializers import (
     TecnicoSerializer, CassetteSerializer, MuestraSerializer, ImagenSerializer,
@@ -35,6 +35,9 @@ FILE_PROXY_MODELS = {
     'imagentubo': (ImagenTubo, {'imagen'}),
     'imagenhematologia': (ImagenHematologia, {'imagen'}),
     'imagenmicrobiologia': (ImagenMicrobiologia, {'imagen'}),
+    'citologia': (Citologia, {'volante_peticion', 'informe_imagen'}),
+    'cassette': (Cassette, {'volante_peticion', 'informe_imagen'}),
+    'necropsia': (Necropsia, {'volante_peticion'}),
     'tubo': (Tubo, {'informe_imagen', 'volante_peticion'}),
     'hematologia': (Hematologia, {'informe_imagen'}),
     'microbiologia': (Microbiologia, {'informe_imagen', 'volante_peticion'}),
@@ -377,6 +380,7 @@ class TecnicoViewSet(viewsets.ModelViewSet):
         # El login solo permite contraseñas hasheadas por seguridad.
         user = authenticate(id_tecnico=tecnico_id, password=password)
         if user:
+            auth_login(request, user)
             return Response(TecnicoSerializer(user).data)
             
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
