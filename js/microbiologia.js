@@ -1251,12 +1251,32 @@ const imprimirMuestras = (respuesta) => {
       tincion.textContent = muestra.tincion;
 
       let btn = document.createElement("td");
+      btn.style.whiteSpace = "nowrap";
+
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect";
+        "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect me-2";
       btndetalle.dataset.id = muestra.id_muestra;
-      btndetalle.title = "Detalle Análisis";
+      btndetalle.dataset.action = "view";
+      btndetalle.title = "Ver detalle";
+
+      let btneditar = document.createElement("I");
+      btneditar.className =
+        "d-inline-block microbiologia__icon fa-solid fa-file-pen microbiologia__icon--infomicrobiologia icono__efect me-2";
+      btneditar.dataset.id = muestra.id_muestra;
+      btneditar.dataset.action = "edit";
+      btneditar.title = "Modificar análisis";
+
+      let btneliminar = document.createElement("I");
+      btneliminar.className =
+        "d-inline-block microbiologia__icon fa-solid fa-trash-can text-danger icono__efect";
+      btneliminar.dataset.id = muestra.id_muestra;
+      btneliminar.dataset.action = "delete";
+      btneliminar.title = "Eliminar análisis";
+
       btn.appendChild(btndetalle);
+      btn.appendChild(btneditar);
+      btn.appendChild(btneliminar);
 
       tr.appendChild(fecha);
       tr.appendChild(descripcion);
@@ -1978,9 +1998,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Consulta Detalle Análisis
-  muestras.addEventListener("click", (event) => {
-    if (event.target.nodeName == "I") {
-      detailMuestra(event.target.dataset.id);
+  muestras.addEventListener("click", async (event) => {
+    const icon = event.target.closest("i[data-action]");
+    if (!icon) return;
+
+    const id = icon.dataset.id;
+    const action = icon.dataset.action;
+    if (!id || !action) return;
+
+    if (action === "view") {
+      detailMuestra(id);
+      return;
+    }
+
+    muestraId = id;
+
+    if (action === "edit") {
+      if (!microbiologiaId || !muestraId) {
+        alertmicrobiologia.classList.remove("ocultar");
+        return;
+      }
+      await cargarMuestraUpdateModal();
+      if (!modalmodificarMuestra.classList.contains("showmodal")) {
+        modalmodificarMuestra.classList.add("showmodal");
+        modalmodificarMuestra.classList.remove("hidemodal");
+        modalmodificarMuestra.style.display = "flex";
+      }
+      return;
+    }
+
+    if (action === "delete") {
+      if (confirm("¿Estás seguro de eliminar este análisis?")) {
+        await borrarMuestra();
+      }
     }
   });
 

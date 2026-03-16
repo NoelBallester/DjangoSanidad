@@ -851,12 +851,32 @@ const imprimirMuestras = (respuesta) => {
       tincion.textContent = muestra.tincion;
 
       let btn = document.createElement("td");
+      btn.style.whiteSpace = "nowrap";
+
       let btndetalle = document.createElement("I");
       btndetalle.className =
-        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette";
-      btndetalle.value = muestra.id_muestra;
+        "d-inline-block cassette__icon fa-solid fa-eye cassette__icon--infocassette me-2";
+      btndetalle.dataset.id = muestra.id_muestra;
+      btndetalle.dataset.action = "view";
       btndetalle.title = "Detalle Muestra";
+
+      let btneditar = document.createElement("I");
+      btneditar.className =
+        "d-inline-block cassette__icon fa-solid fa-file-pen cassette__icon--infocassette me-2";
+      btneditar.dataset.id = muestra.id_muestra;
+      btneditar.dataset.action = "edit";
+      btneditar.title = "Modificar Muestra";
+
+      let btneliminar = document.createElement("I");
+      btneliminar.className =
+        "d-inline-block cassette__icon fa-solid fa-trash-can text-danger";
+      btneliminar.dataset.id = muestra.id_muestra;
+      btneliminar.dataset.action = "delete";
+      btneliminar.title = "Eliminar Muestra";
+
       btn.appendChild(btndetalle);
+      btn.appendChild(btneditar);
+      btn.appendChild(btneliminar);
 
       tr.appendChild(fecha);
       tr.appendChild(descripcion);
@@ -1295,9 +1315,38 @@ btnformcerrarmodificarMuestra.addEventListener("click", () => {
 modificarMuestra.addEventListener("submit", modificarMuestraUpdate);
 
 // Consulta Detalle Muestras
-muestras.addEventListener("click", (event) => {
-  if (event.target.nodeName == "I") {
-    detailMuestra(event.target.value);
+muestras.addEventListener("click", async (event) => {
+  const icon = event.target.closest("i[data-action]");
+  if (!icon) return;
+
+  const id = icon.dataset.id;
+  const action = icon.dataset.action;
+  if (!id || !action) return;
+
+  if (action === "view") {
+    detailMuestra(id);
+    return;
+  }
+
+  muestraId = id;
+
+  if (action === "edit") {
+    if (!citologiaId || !muestraId) {
+      alertcitologia.classList.remove("ocultar");
+      return;
+    }
+    await cargarMuestraUpdateModal();
+    if (!modalmodificarMuestra.classList.contains("showmodal")) {
+      modalmodificarMuestra.classList.add("showmodal");
+      modalmodificarMuestra.classList.remove("hidemodal");
+    }
+    return;
+  }
+
+  if (action === "delete") {
+    if (confirm("¿Estás seguro de eliminar este análisis?")) {
+      await borrarMuestra();
+    }
   }
 });
 
