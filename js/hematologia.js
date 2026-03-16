@@ -1100,13 +1100,30 @@ const imprimirSubMuestras = (respuesta) => {
       const tdTincion = document.createElement("td");
       tdTincion.textContent = m.tincion || "";
 
-      const btndetalle = document.createElement("I");
-      btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras";
-      btndetalle.dataset.id = m.id_muestra;
-      btndetalle.title = "Detalle Análisis";
-
       const tdBtn = document.createElement("td");
+      tdBtn.style.whiteSpace = "nowrap";
+
+      const btndetalle = document.createElement("I");
+      btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras me-2";
+      btndetalle.dataset.id = m.id_muestra;
+      btndetalle.dataset.action = "view";
+      btndetalle.title = "Ver detalle";
+
+      const btneditar = document.createElement("I");
+      btneditar.className = "d-inline-block fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras me-2";
+      btneditar.dataset.id = m.id_muestra;
+      btneditar.dataset.action = "edit";
+      btneditar.title = "Modificar análisis";
+
+      const btneliminar = document.createElement("I");
+      btneliminar.className = "d-inline-block fa-solid fa-trash-can text-danger";
+      btneliminar.dataset.id = m.id_muestra;
+      btneliminar.dataset.action = "delete";
+      btneliminar.title = "Eliminar análisis";
+
       tdBtn.appendChild(btndetalle);
+      tdBtn.appendChild(btneditar);
+      tdBtn.appendChild(btneliminar);
 
       tr.appendChild(tdFecha);
       tr.appendChild(tdDesc);
@@ -1750,9 +1767,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---- Click en lista de sub-muestras ----
   if (listaTubos) {
-    listaTubos.addEventListener("click", (event) => {
-      if (event.target.nodeName === "I") {
-        detailSubMuestra(event.target.dataset.id);
+    listaTubos.addEventListener("click", async (event) => {
+      const icon = event.target.closest("i[data-action]");
+      if (!icon) return;
+
+      const id = icon.dataset.id;
+      const action = icon.dataset.action;
+      if (!id || !action) return;
+
+      if (action === "view") {
+        detailSubMuestra(id);
+        return;
+      }
+
+      muestraId = id;
+
+      if (action === "edit") {
+        await cargarSubMuestraUpdateModal();
+        abrirModal(modalmodificarMuestra);
+        return;
+      }
+
+      if (action === "delete") {
+        if (confirm("¿Estás seguro de eliminar esta sub-muestra?")) {
+          await borrarSubMuestra();
+        }
       }
     });
   }
