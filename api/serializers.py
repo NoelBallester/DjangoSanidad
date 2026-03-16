@@ -9,8 +9,18 @@ from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitolo
 def _validar_catalogo(tipo, valor, campo):
     if valor in (None, ''):
         return valor
-    if not CatalogoOpcion.objects.filter(tipo=tipo, valor=valor, activo=True).exists():
-        raise serializers.ValidationError(f'{campo} no es una opcion valida.')
+    # Compatibilidad legacy: algunas vistas antiguas envian valores con
+    # variaciones de mayusculas/espacios o valores libres que antes eran
+    # aceptados en PHPSanidad. Intentamos coincidencia flexible y, si no hay,
+    # dejamos pasar el valor para no romper altas/ediciones con 400.
+    if CatalogoOpcion.objects.filter(tipo=tipo, valor=valor, activo=True).exists():
+        return valor
+
+    valor_norm = str(valor).strip()
+    if CatalogoOpcion.objects.filter(tipo=tipo, valor__iexact=valor_norm, activo=True).exists():
+        return valor_norm
+
+    logger.warning("Catalogo sin coincidencia exacta para %s (%s): %r", campo, tipo, valor)
     return valor
 
 
@@ -155,6 +165,9 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
             'id_necropsia', 'necropsia', 'tipo_necropsia', 'fecha',
             'descripcion', 'caracteristicas', 'observaciones', 'organo',
             'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
+            'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
+            'patologo_responsable', 'informe_descripcion', 'informe_fecha',
+            'informe_tincion', 'informe_observaciones',
             'qr_necropsia', 'qr_imagen', 'tecnico',
             'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
@@ -177,7 +190,7 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
             'examen_interno_cadaver', 'tecnica_apertura', 'datos_relevantes_region',
             'is_deleted',
         ]
-        read_only_fields = ['id_muestra', 'qr_muestra', 'is_deleted']
+        read_only_fields = ['id_muestra', 'is_deleted']
 
 class ImagenNecropsiaSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     imagen_url = serializers.SerializerMethodField()
@@ -220,13 +233,15 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
 class MuestraTuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    tincion = serializers.CharField(required=False, allow_blank=True)
+    qr_muestra = serializers.CharField(required=False, allow_blank=True)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MuestraTubo
         fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_url']
-        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
+        read_only_fields = ['id_muestra', 'imagen_url']
 
     def get_imagen_url(self, obj):
         try:
@@ -259,6 +274,7 @@ class ImagenTuboSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
 class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_hematologia'
     informe_imagen_url = serializers.SerializerMethodField()
+    volante_peticion_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Hematologia
@@ -267,16 +283,22 @@ class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seria
             'observaciones', 'informacion_clinica', 'descripcion_microscopica', 
             'diagnostico_final', 'patologo_responsable', 'qr_hematologia', 'organo', 
             'tecnico', 'informe_descripcion', 'informe_fecha', 'informe_tincion', 
-            'informe_observaciones', 'informe_imagen_url'
+            'informe_observaciones', 'informe_imagen_url',
+            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_informe_imagen_url(self, obj):
         return self._file_url(obj, 'informe_imagen')
 
+    def get_volante_peticion_url(self, obj):
+        return self._file_url(obj, 'volante_peticion')
+
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
 class MuestraHematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    tincion = serializers.CharField(required=False, allow_blank=True)
+    qr_muestra = serializers.CharField(required=False, allow_blank=True)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
     id_muestra = serializers.IntegerField(read_only=True)
@@ -287,7 +309,7 @@ class MuestraHematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
             'qr_muestra', 'qr_imagen', 'hematologia', 'imagen_url'
         ]
-        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
+        read_only_fields = ['id_muestra', 'imagen_url']
 
     def get_imagen_url(self, obj):
         try:
@@ -348,6 +370,8 @@ class MicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, ser
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
 
 class MuestraMicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
+    tincion = serializers.CharField(required=False, allow_blank=True)
+    qr_muestra = serializers.CharField(required=False, allow_blank=True)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 
@@ -357,7 +381,7 @@ class MuestraMicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMix
             'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
             'qr_muestra', 'qr_imagen', 'microbiologia', 'imagen_url'
         ]
-        read_only_fields = ['id_muestra', 'qr_muestra', 'imagen_url']
+        read_only_fields = ['id_muestra', 'imagen_url']
 
     def get_imagen_url(self, obj):
         try:

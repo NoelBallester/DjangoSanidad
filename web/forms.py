@@ -165,13 +165,15 @@ class CassetteForm(forms.ModelForm):
         model = Cassette
         fields = ['cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
                   'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo',
-                  'informacion_clinica']
+                  'informacion_clinica', 'volante_peticion']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'informacion_clinica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -322,7 +324,8 @@ class NecropsiaForm(forms.ModelForm):
         model = Necropsia
         fields = ['necropsia', 'tipo_necropsia', 'fecha', 'descripcion', 'caracteristicas',
                   'fenomenos_cadavericos', 'examen_externo_cadaver', 'datos_muerte',
-                  'observaciones', 'organo']
+                  'observaciones', 'organo', 'volante_peticion', 'diagnostico_final',
+                  'informacion_clinica', 'descripcion_microscopica']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
@@ -330,6 +333,9 @@ class NecropsiaForm(forms.ModelForm):
             'examen_externo_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'datos_muerte': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'informacion_clinica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -480,13 +486,15 @@ class HematologiaForm(forms.ModelForm):
     class Meta:
         model = Hematologia
         fields = ['hematologia', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
-                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo']
+                  'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo',
+                  'volante_peticion']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'caracteristicas': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
