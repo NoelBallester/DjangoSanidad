@@ -8,9 +8,9 @@ Datos relevantes según región / descripción macroscopica.
 Crear apartado que sea "Toma de muestras", texto.
 
 CITOLOGIA: 
-Detalle paciente en la tabla que se ven las cosas cambiar por tipo de citologia.
+Detalle paciente en la tabla que se ven las cosas cambiar por tipo de citologia. HECHO
 CREAR CITOLOGIA:  
-Falta cuando creas en tipo de muestra "P.A.A.F", "liquido sinovial", "Muestra cervico-vaginal" y poner "Otros". 
+Falta cuando creas en tipo de muestra "P.A.A.F", "liquido sinovial", "Muestra cervico-vaginal" y poner "Otros". HECHO
 Quitar descripcion microscopica. 
 MUESTRA DE CITOLOGIAS: 
 Corregir "Validación de la calidad de la muestra" por "Tinción". 
