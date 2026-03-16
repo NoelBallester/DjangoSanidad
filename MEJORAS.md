@@ -20,11 +20,181 @@
 
 ## 1. 🔴 Bloqueantes para producción
 
+<<<<<<< Updated upstream
 Sin estos puntos la aplicación no funciona con `DEBUG=False` en Ubuntu Server.
 
 ---
 
 ### DEP-1 — Sin `STATIC_ROOT` ni `collectstatic`
+=======
+### 15. Sin borrado suave (soft delete) HECHO
+- **Problema:** Al borrar una muestra se eliminan permanentemente sus imágenes e informes. Sin trazabilidad ni recuperación.
+- **Solución:** Campo `is_deleted = BooleanField(default=False)` con manager personalizado.
+- **Afecta:** `api/models.py`, `api/views.py`
+
+### 16. Sin logging HECHO
+- **Problema:** No hay registro de errores ni operaciones importantes. Imposible depurar en producción.
+- **Solución:** Configurar `LOGGING` en `settings.py` para errores a fichero.
+- **Afecta:** `core/settings.py`
+
+### 18. CORS configurable a "allow all" HECHO
+- **Problema:** `DJANGO_CORS_ALLOW_ALL` puede permitir peticiones desde cualquier origen.
+- **Solución:** Eliminar la opción y requerir lista explícita de orígenes.
+- **Afecta:** `core/settings.py`
+
+### 26. Archivo `.env` en el historial de git HECHO
+- **Problema:** El fichero `.env` está committed en el repositorio. Aunque contenga valores de desarrollo, expone la estructura de secretos y crea el hábito de commitear credenciales. Si en algún momento se usa una secret key real, quedará en el historial.
+- **Solución:** Añadir `.env` a `.gitignore` y eliminarlo del historial con `git rm --cached .env`.
+- **Afecta:** `.gitignore`, `.env`
+
+### 27. Logging sin rotación de ficheros HECHO
+- **Problema:** `core/settings.py` configura `FileHandler` para los logs. El fichero crece indefinidamente sin límite de tamaño ni rotación automática, pudiendo llenar el disco en producción.
+- **Solución:** Sustituir `FileHandler` por `RotatingFileHandler` con `maxBytes` y `backupCount`.
+- **Afecta:** `core/settings.py`
+
+### 19. Sin manejo de zona horaria HECHO
+- **Problema:** `TIME_ZONE = 'UTC'` puede causar problemas de fechas en España.
+- **Solución:** Activar `USE_TZ = True` con `TIME_ZONE = 'Europe/Madrid'`.
+- **Afecta:** `core/settings.py`
+
+### 20. Sin manejo de errores personalizado HECHO
+- **Problema:** Los errores devuelven páginas 500 genéricas sin formato consistente.
+- **Solución:** Handler de excepciones personalizado en DRF y páginas 404/500 propias.
+- **Afecta:** `api/views.py`, `core/settings.py`
+
+### 25. Cobertura de tests incompleta HECHO
+- **Problema:** Faltan tests para acciones personalizadas de ViewSets y casos límite.
+- **Solución:** Ampliar `api/tests.py` y `web/tests.py`.
+- **Afecta:** `api/tests.py`, `web/tests.py`
+
+---
+
+## Fases de implementación
+
+### Fase 1 - Seguridad (completada)
+- [x] Fix `STATICFILES_DIRS` (#3)
+- [x] Proteger `SECRET_KEY` (#4)
+- [x] Crear `.env.example` (#5)
+- [x] Crear `requirements.txt` (#9)
+- [x] Eliminar rutas duplicadas (#7)
+
+### Fase 2 - Calidad del código (completada)
+- [x] Modelos abstractos base (#6)
+- [x] Rediseñar `InformeResultado` (#10)
+- [x] Unicidad de QR (#11)
+- [x] Mover opciones hardcodeadas a BD (#8)
+- [x] Validación en serializers (#12)
+
+### Fase 3 - Estabilidad (completada)
+- [x] Paginación (#2)
+- [x] Borrado suave (#15)
+- [x] Logging (#16)
+- [x] Zona horaria (#19)
+- [x] Manejo de errores (#20)
+- [x] Ampliar tests (#25)
+
+### Fase 4 - Seguridad (pendiente)
+> Vulnerabilidades evaluadas para entorno de **intranet en red privada clase A** con usuarios autenticados.
+
+- [x] IDOR entre roles — acceso a datos de otros departamentos (#SEC-2)
+- [x] Mass Assignment en serializers (#SEC-4)
+- [x] DEBUG=True por defecto (#SEC-6)
+- [x] Logout roto — sesión no destruida en servidor (#SEC-11)
+- [x] Fuga de información en mensajes de error (#SEC-12)
+- [x] Stored XSS via Content-Type controlado por el usuario (#SEC-16)
+- [x] Open Redirect en login — phishing interno (#SEC-1)
+- [x] Enumeración de usuarios en get_by_mail (#SEC-10)
+- [x] Carga de archivos sin validación en endpoints API (#SEC-3)
+- [x] SQL con nombre de columna interpolado por f-string (#SEC-5)
+- [x] BasicAuthentication habilitada — credenciales en claro en red interna (#SEC-13)
+- [x] Archivo `.env` en el historial de git (#26)
+- [x] Logging sin rotación de ficheros (#27)
+
+---
+
+## 🔴 Seguridad — Vulnerabilidades detectadas (Informe 13/03/2026)
+
+> **Contexto:** Aplicación desplegada en intranet, red privada clase A, usuarios internos autenticados.
+> Las vulnerabilidades que solo aplican a exposición pública en internet han sido descartadas.
+
+### Estado de verificación práctica (13/03/2026)
+- **SEC-1 Open Redirect:** ✅ **Mitigada**. `login_view` valida `next` con `url_has_allowed_host_and_scheme()` y rechaza destinos externos redirigiendo a `/index.html`.
+- **SEC-2 IDOR entre roles en `proxy_file`:** ✅ **Confirmada (riesgo real)**. Hay `@login_required`, pero no validación de rol/propiedad antes de acceder al objeto por `pk`.
+- **SEC-3 Carga de archivos sin validación en API:** ✅ **Mitigada**. Se valida extensión permitida, tamaño máximo (20 MB) y magic bytes en los 9 endpoints `create()` afectados.
+- **SEC-4 Mass Assignment (`fields='__all__'`):** ✅ **Confirmada (riesgo real)**. `NecropsiaSerializer` y `MuestraNecropsiaSerializer` exponen `__all__`.
+- **SEC-6 DEBUG por defecto:** ✅ **Mitigada**. `DJANGO_DEBUG` ahora tiene default `'false'` en `settings.py`.
+- **SEC-11 Logout roto en frontend:** ✅ **Mitigada**. `auth.js` hace `POST` a `/logout/` con CSRF y limpia sesión local redirigiendo a `/login/`.
+- **SEC-12 Fuga de errores internos:** ✅ **Confirmada (riesgo real)**. Se encontraron `messages.error(... {e})` mostrando excepción al usuario.
+- **SEC-13 BasicAuthentication habilitada:** ✅ **Mitigada**. `REST_FRAMEWORK` usa solo `SessionAuthentication` y se eliminó `BasicAuthentication`.
+- **SEC-16 Stored XSS por Content-Type:** ✅ **Mitigada**. El tipo de volante se detecta por magic bytes y se sirve con `X-Content-Type-Options: nosniff`.
+- **SEC-10 Enumeración en `get_by_mail`:** ⚠️ **Riesgo latente (no explotable hoy)**. Con usuarios actuales y ruta actual devuelve `404` tanto para email existente como inexistente. Motivo: el patrón de URL `[^/.]+` no acepta emails normales con punto (`.`). Si se corrige la ruta para aceptar email real, la enumeración reaparece.
+
+**Leyenda:**
+- ✅ Confirmada (explotable/riesgo real): reproducida o verificada directamente en el estado actual del código.
+- ⚠️ Riesgo latente: no se reproduce hoy por una limitación actual, pero reaparece al corregir esa limitación.
+
+---
+
+### SEC-2. IDOR entre roles — acceso a datos de otros departamentos — ALTA
+- **Tipo:** Insecure Direct Object Reference (CWE-639)
+- **Archivo:** `api/views.py` — `proxy_file`
+- **Problema:** Un técnico de `laboratorio` puede acceder a imágenes médicas, informes y volantes de `anatomia_patologica` (y viceversa) iterando PKs en la URL `/api/archivo/<modelo>/<pk>/<campo>/`. El middleware de rol protege las vistas web pero no este endpoint de ficheros.
+- **Solución:** Verificar el rol del usuario antes de servir el archivo, según el tipo de modelo solicitado.
+```python
+# ❌ Vulnerable — cualquier usuario autenticado accede a cualquier archivo
+instance = model.objects.get(pk=pk)
+
+# ✅ Seguro — verificar rol según el modelo
+ROLES_POR_MODELO = {
+    Imagen:            {'profesor', 'anatomia_patologica'},
+    ImagenCitologia:   {'profesor', 'anatomia_patologica'},
+    ImagenNecropsia:   {'profesor', 'anatomia_patologica'},
+    ImagenHematologia: {'profesor', 'laboratorio'},
+    ImagenMicrobiologia: {'profesor', 'laboratorio'},
+    ImagenTubo:        {'profesor', 'laboratorio'},
+}
+rol = getattr(request.user, 'rol', None)
+if not request.user.is_staff and rol not in ROLES_POR_MODELO.get(model, set()):
+    raise Http404()
+instance = get_object_or_404(model, pk=pk)
+```
+
+---
+
+### SEC-4. Mass Assignment por `fields = '__all__'` — ALTA
+- **Tipo:** Mass Assignment (CWE-915)
+- **Archivo:** `api/serializers.py` — `NecropsiaSerializer`, `MuestraNecropsiaSerializer`
+- **Problema:** Exponer `'__all__'` permite a un usuario enviar `{"is_deleted": false}` para restaurar registros borrados, o `{"tecnico": <id_ajeno>}` para reasignar datos de otros técnicos.
+- **Solución:** Declarar `fields` explícitamente y marcar como `read_only_fields` los campos sensibles (`id`, `QR`, `tecnico`, `is_deleted`) para que no puedan sobrescribirse por entrada del cliente.
+```python
+# ❌ Vulnerable
+class NecropsiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Necropsia
+        fields = '__all__'
+
+# ✅ Seguro
+class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Necropsia
+        fields = ['id_necropsia', 'necropsia', 'tipo_necropsia', 'fecha',
+                  'descripcion', 'caracteristicas', 'observaciones', 'organo',
+                  'qr_necropsia', 'tecnico', 'volante_peticion_nombre', 'volante_peticion_tipo']
+        read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
+
+class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+    class Meta:
+        model = MuestraNecropsia
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+                  'qr_muestra', 'qr_imagen', 'examen_interno_cadaver',
+                  'tecnica_apertura', 'datos_relevantes_region', 'necropsia', 'is_deleted']
+        read_only_fields = ['id_muestra', 'qr_muestra', 'is_deleted']
+```
+
+---
+
+### SEC-6. DEBUG=True por defecto — MEDIA HECHO
+>>>>>>> Stashed changes
 - **Archivo:** `core/settings.py`
 - **Problema:** No existe `STATIC_ROOT`. Con `DEBUG=False`, Django deja de servir CSS/JS y la interfaz queda completamente rota. `collectstatic` falla.
 - **Solución:**
