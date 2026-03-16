@@ -1040,7 +1040,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
       btndetalle.className =
         "d-inline-block tubo__icon fa-solid fa-eye tubo__icon--infotubo";
       btndetalle.dataset.id = tubo.id_muestra;
-      btndetalle.title = "Detalle Análisis";
+      btndetalle.title = "Detalle Muestra";
 
       let btnCont = document.createElement("td");
       btnCont.appendChild(btndetalle);
@@ -1268,14 +1268,14 @@ const imprimirMuestras = (respuesta) => {
         "d-inline-block tubo__icon fa-solid fa-file-pen tubo__icon--infotubo me-2";
       btneditar.dataset.id = muestra.id_muestra;
       btneditar.dataset.action = "edit";
-      btneditar.title = "Modificar análisis";
+      btneditar.title = "Modificar muestra";
 
       let btneliminar = document.createElement("I");
       btneliminar.className =
         "d-inline-block tubo__icon fa-solid fa-trash-can text-danger";
       btneliminar.dataset.id = muestra.id_muestra;
       btneliminar.dataset.action = "delete";
-      btneliminar.title = "Eliminar análisis";
+      btneliminar.title = "Eliminar muestra";
 
       btn.appendChild(btndetalle);
       btn.appendChild(btneditar);
@@ -1291,7 +1291,7 @@ const imprimirMuestras = (respuesta) => {
   } else {
     let tr = document.createElement("span");
     tr.classList.add("fw-bold", "text-danger", "text-opacity-50");
-    tr.textContent = "No se ha encontrado ningún análisis";
+    tr.textContent = "No se ha encontrado ninguna muestra";
     fragmento.appendChild(tr);
   }
   muestras.appendChild(fragmento);
@@ -1935,7 +1935,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnborrarmuestra) {
     btnborrarmuestra.addEventListener("click", () => {
-      if (confirm("¿Estás seguro de eliminar este análisis?")) {
+      if (confirm("¿Estás seguro de eliminar esta muestra?")) {
         borrarMuestra();
       }
     });
@@ -2008,7 +2008,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (action === "delete") {
-      if (confirm("¿Estás seguro de eliminar este análisis?")) {
+      if (confirm("¿Estás seguro de eliminar esta muestra?")) {
         await borrarMuestra();
       }
     }
