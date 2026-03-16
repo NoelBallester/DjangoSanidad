@@ -295,6 +295,7 @@ class MuestraCitologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['fecha'].required = False
         self.fields['tincion'].choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
@@ -400,6 +401,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['fecha'].required = False
         tincion_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
@@ -537,6 +539,7 @@ class MuestraHematologiaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['fecha'].required = False
         self.fields['tincion'].choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
