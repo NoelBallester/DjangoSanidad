@@ -243,7 +243,7 @@
                         <!-- Fila 1: Detalle y Técnico -->
                         <div class="tubo__info-row mb-3">
                             <div class="tubo__info-field">
-                                <label class="blue__color--negrita">Detalle muestra:</label>
+                                <label class="blue__color--negrita">Aditivos añadidos:</label>
                                 <span id="tubo__descripcionMain" class="blue__color tubo__text"></span>
                             </div>
                             <div class="tubo__info-field">
@@ -276,7 +276,7 @@
 
                         <!-- Observaciones -->
                         <div class="tubo__info-field">
-                            <label class="blue__color--negrita">Aditivos utilizados:</label>
+                            <label class="blue__color--negrita">Observaciones:</label>
                             <p id="tubo__observacionesMain" class="blue__color tubo__text m-0"></p>
                         </div>
                     </section>
@@ -289,13 +289,13 @@
             <!-- Tubos -->
             <div id="sectionTubos" class="container__tubo m-auto w-100 p-2">
                 <div class="title d-flex align-items-center justify-content-between">
-                    <h2 class="tubo__title m-0">Análisis</h2>
+                    <h2 class="tubo__title m-0">Muestras Procesadas</h2>
                     <div class="d-flex align-items-center gap-2">
                         <button id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3" type="button"
                             style="border-radius: 20px;">
                             <i class="fa-solid fa-notes-medical me-1"></i> Informe
                         </button>
-                        <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nuevo Análisis"
+                        <button id="btnformnuevaMuestra" type="button" class="btn icono__efect"><i title="Nueva Muestra"
                                 class="fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
                     </div>
@@ -307,7 +307,7 @@
                             <tr>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Descripción</th>
-                                <th scope="col">Analíticas</th>
+                                <th scope="col">Muestras</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -424,13 +424,13 @@
             </div>
         </section>
 
-        <!-- Modal Nueva Análisis -->
+        <!-- Modal Nueva Muestra -->
         <section class="mimodal" id="modalnuevaMuestra">
 
             <form class="row g-3 miform" id="nuevaMuestra" enctype="multipart/form-data">
 
                 <div class="form__header">
-                    <h2 class="tubo__title">Nuevo Análisis</h2>
+                    <h2 class="tubo__title">Nueva Muestra</h2>
                     <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2" id="btnformcerrarnuevaMuestra"></i>
                 </div>
 
@@ -470,19 +470,19 @@
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Crear Análisis</button>
+                    <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
                 </div>
 
             </form>
         </section>
 
-        <!-- Modal Modificar Análisis -->
+        <!-- Modal Modificar Muestra -->
         <section class="mimodal front" id="modalmodificarAnalysis">
 
             <form class="row g-3 miform" id="modificarAnalysisForm">
 
                 <div class="form__header">
-                    <h2 class="tubo__title">Modificar Análisis</h2>
+                    <h2 class="tubo__title">Modificar Muestra</h2>
                     <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2"
                         id="btnformcerrarmodificarMuestra"></i>
                 </div>
@@ -517,18 +517,18 @@
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit">Modificar Análisis</button>
+                    <button class="btn btn__modal blue__color" type="submit">Modificar Muestra</button>
                 </div>
 
             </form>
         </section>
 
-        <!-- Modal Detalle Análisis/Muestra -->
+        <!-- Modal Detalle Muestra -->
         <section class="mimodal" id="modaldetalleTubo">
 
             <section class="detalletubo">
                 <div class="form__header">
-                    <h2 class="tubo__title">Detalle Análisis</h2>
+                    <h2 class="tubo__title">Detalle Muestra</h2>
                     <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2" id="btncerrardetalleMuestra"></i>
                 </div>
                 <hr>
@@ -537,17 +537,17 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="d-flex align-items-start">
                             <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal" style="cursor: pointer;">
-                                <i title="Imprimir QR Análisis" class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
+                                <i title="Imprimir QR Muestra" class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
                             </div>
                             <div id="btnborrarmuestra" style="cursor: pointer;">
-                                <i title="Borrar Análisis" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                                <i title="Borrar Muestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
                             </div>
                             <div id="btnformmodificarMuestra" style="cursor: pointer;">
-                                <i title="Modificar Análisis" class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
+                                <i title="Modificar Muestra" class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
                             </div>
                         </div>
                         <div>
-                            <i title="Borrar Imagen Análisis" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                            <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
                         </div>
                     </div>
 
@@ -597,7 +597,7 @@
                 </div>
 
                 <div class="col-md-12 mt-2">
-                    <label for="inputDescripcion" class="form-label blue__color">Detalle Muestra</label>
+                    <label for="inputDescripcion" class="form-label blue__color">Aditivos añadidos</label>
                     <input class="form-control blue__color" id="inputDescripcion" required>
                 </div>
 
@@ -688,7 +688,12 @@
                 <hr>
 
                 <div class="col-md-12 mt-0">
-                    <label for="inputDescripcionUpdate" class="form-label blue__color">Detalle Muestra</label>
+                    <label for="inputTuboUpdate" class="form-label blue__color">Número de Muestra</label>
+                    <input class="form-control blue__color" id="inputTuboUpdate">
+                </div>
+
+                <div class="col-md-12 mt-2">
+                    <label for="inputDescripcionUpdate" class="form-label blue__color">Aditivos añadidos</label>
                     <input class="form-control blue__color" id="inputDescripcionUpdate" required>
                 </div>
 
@@ -698,12 +703,7 @@
                         id="inputClinicaUpdate">
                 </div>
 
-                <div class="col-md-12 mt-3">
-                    <label for="inputTuboUpdate" class="form-label blue__color">Número Tubo</label>
-                    <input class="form-control blue__color" id="inputTuboUpdate">
-                </div>
-
-                <div class="row col-md-12 mt-3">
+                <div class="row col-md-12">
                     <div class="col-md-6">
                         <label for="inputFechaUpdate" class="form-label blue__color">Fecha</label>
                         <input type="date" class="form-control blue__color" id="inputFechaUpdate" required>
@@ -729,7 +729,7 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputCaracteristicasUpdate" class="form-label blue__color">Características</label>
+                    <label for="inputCaracteristicasUpdate" class="form-label blue__color">Descripción Macroscópica</label>
 
                     <textarea class="form-control blue__color textarea__text" id="inputCaracteristicasUpdate"
                         required></textarea>

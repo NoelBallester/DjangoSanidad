@@ -22,7 +22,7 @@ Hematoxilina para abajo hay que quitarlo porque son tinciones. HECHO
 Cambiar "Analisis" por "Tipo de análisis" HECHO
 Añadir "perfil hepático, perfil renal, perfil lipídico, glucosa, análisis de heces, raspados, fluidos biológicos, esputos, analisis de sangre, ionograma, gasometría, analisis inmunológicos, análisis citológico, resultado biopsias, improntas, otros."  HECHO
 
-BIOQUIMICA:     
-Detalle de Muestra = Aditivos. 
+BIOQUIMICA: 
+Detalle de Muestra = Aditivos. HECHO
 Descripcion (tabla donde se ven bioquimicos).
 CAMBIAR ANALISIS POR MUESTRAS PARA TODO LO DE LABORATORIO 
