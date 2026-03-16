@@ -593,6 +593,34 @@ python manage.py squashmigrations api 0001 0027
 
 ---
 
+### OPS-4 — Validación de integridad de imágenes en base de datos
+- **Nuevo archivo:** `api/management/commands/verificar_imagenes.py`
+- **Problema:** Las imágenes y PDFs se almacenan como `BinaryField` en la BD. No hay ningún mecanismo que detecte registros con datos corruptos (cabeceras de fichero inválidas, campos vacíos inesperados, truncados por error de escritura).
+- **Solución:** Comando de gestión que recorra todos los modelos con `BinaryField` (`Imagen*`, `volante_peticion`, `informe_imagen`) y verifique los magic bytes de cada fichero:
+```python
+MAGIC_BYTES = {
+    'jpeg': b'\xff\xd8\xff',
+    'png':  b'\x89PNG',
+    'pdf':  b'%PDF',
+}
+
+def check_bytes(data, nombre_campo, obj_id, model_name):
+    if not data:
+        return  # campo vacío — puede ser válido (nullable)
+    raw = bytes(data[:8])
+    if not any(raw.startswith(m) for m in MAGIC_BYTES.values()):
+        print(f"[CORRUPTO] {model_name} id={obj_id} campo={nombre_campo} cabecera={raw.hex()}")
+```
+- **Uso:**
+```bash
+python manage.py verificar_imagenes            # muestra registros corruptos
+python manage.py verificar_imagenes --modelo Cassette  # filtra por modelo
+python manage.py verificar_imagenes --csv reporte.csv  # exporta resultados
+```
+- **Cuándo ejecutar:** Tras migraciones masivas, importaciones de datos legacy o restauraciones de backup.
+
+---
+
 ### OPS-3 — Cobertura de tests al 80%
 - **Herramienta:** `coverage.py`
 - Tests a añadir: permisos por rol, soft delete end-to-end, validación de imágenes (magic bytes, tamaño), IDOR en `proxy_file`.
@@ -616,7 +644,7 @@ coverage html
 | 🟡 Rendimiento | PERF-3, PERF-5, PERF-2, PERF-4, PERF-1 | Escala con el volumen de datos |
 | 🟡 Calidad | COD-2, COD-1, COD-3, COD-4 | Deuda técnica |
 | ⚪ Funcionalidades | FUNC-1..8 | Valor añadido |
-| ⚪ Operación | OPS-1..3 | Mantenibilidad |
+| ⚪ Operación | OPS-1..4 | Mantenibilidad |
 
 **Verificado el 16/03/2026 contra el código fuente. Items eliminados por estar implementados:**
 `SEC-4` (serializers con campos explícitos ✅) · `SEC-5` (whitelist `_validar_columna_fk` ✅) · `SEC-10` (get_by_mail restringido a is_staff ✅) · `SEC-12` web (logger.exception + mensaje genérico ✅) · `CORS` (CORS_ALLOW_ALL_ORIGINS=False hardcodeado ✅) · `COD-5` (@require_POST en vistas de usuario ✅)
