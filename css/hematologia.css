@@ -374,12 +374,12 @@ td {
     max-width: 550px;
     border: 2px solid #dee2e6;
     border-radius: 0.5rem;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
     background-color: #ffffff;
     padding: 1rem 0.5rem;
+    margin: 1.5rem auto;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
 }
 
 .detallemuestra {
@@ -396,14 +396,16 @@ td {
     left: 0;
     opacity: 0;
     visibility: hidden;
-    z-index: 100;
+    z-index: 1100;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
+    overflow-y: auto;
 }
 
 .front {
-    z-index: 200;
+    z-index: 1110;
 }
 
 .mimodal.open {
