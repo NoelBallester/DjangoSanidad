@@ -645,7 +645,7 @@ const crearHematologia = async (event) => {
     caracteristicas: inputCaracteristicas ? inputCaracteristicas.value : "",
     observaciones: inputObservaciones ? inputObservaciones.value : "",
     organo: inputSelect ? inputSelect.value : "",
-    informacion_clinica: "",
+    informacion_clinica: inputClinica ? inputClinica.value : "",
     descripcion_microscopica: inputMicroscopia ? inputMicroscopia.value : "",
     diagnostico_final: inputDiagnostico ? inputDiagnostico.value : "",
     patologo_responsable: inputPatologo ? inputPatologo.value : "",
