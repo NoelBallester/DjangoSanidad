@@ -17,11 +17,11 @@ Corregir "Validación de la calidad de la muestra" por "Tinción".  HECHO
 Falta "descripción microscópica" y "Aproximación diagnóstica". HECHO 
 
 INFORMES:
-Hematoxilina para abajo hay que quitarlo porque son tinciones. 
-Cambiar "Analisis" por "Tipo de análisis"
-Añadir "perfil hepático, perfil renal, perfil lipídico, glucosa, análisis de heces, raspados, fluidos biológicos, esputos, analisis de sangre, ionograma, gasometría, analisis inmunológicos, análisis citológico, resultado biopsias, improntas, otros."  
+Hematoxilina para abajo hay que quitarlo porque son tinciones. HECHO
+Cambiar "Analisis" por "Tipo de análisis" HECHO
+Añadir "perfil hepático, perfil renal, perfil lipídico, glucosa, análisis de heces, raspados, fluidos biológicos, esputos, analisis de sangre, ionograma, gasometría, analisis inmunológicos, análisis citológico, resultado biopsias, improntas, otros."  HECHO
 
-BIOQUIMICA: 
+BIOQUIMICA:     
 Detalle de Muestra = Aditivos. 
 Descripcion (tabla donde se ven bioquimicos).
 CAMBIAR ANALISIS POR MUESTRAS PARA TODO LO DE LABORATORIO 

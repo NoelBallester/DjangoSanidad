@@ -454,8 +454,8 @@ class InformeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['informe_tincion'].choices = _catalog_simple_choices(
-            CatalogoOpcion.TIPO_TINCION,
-            'Seleccionar Validación',
+            CatalogoOpcion.TIPO_ANALISIS,
+            'Seleccionar tipo de análisis',
         )
 
     def clean_informe_imagen(self):
