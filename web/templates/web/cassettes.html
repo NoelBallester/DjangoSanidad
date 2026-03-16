@@ -442,7 +442,7 @@
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
+                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
                                             title="Modificar">
                                         <i class="fa-solid fa-file-pen blue__color--negrita"></i>
                                     </button>
@@ -630,7 +630,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" class="form-control" required>
+                    <input type="date" name="fecha" class="form-control">
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>
@@ -682,7 +682,7 @@
                                 <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div style="cursor:pointer;"
-                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
+                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
                                 <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
@@ -769,7 +769,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control" required>
+                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control">
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Validación de la calidad de la muestra</label>

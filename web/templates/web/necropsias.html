@@ -635,7 +635,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" class="form-control blue__color" required>
+                    <input type="date" name="fecha" class="form-control blue__color">
                 </div>
                 <input type="hidden" name="tincion" value="Otros">
                 <div class="col-md-12 mt-3">
@@ -792,7 +792,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required
+                    <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color"
                         value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.fecha|date:'Y-m-d' }}{% endif %}">
                 </div>
                 <input type="hidden" name="tincion" value="Otros">
