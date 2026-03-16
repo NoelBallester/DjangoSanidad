@@ -626,11 +626,15 @@
                     <input type="text" name="tecnica_apertura" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Datos relevantes segun su region</label>
+                    <label class="form-label blue__color">Datos relevantes según región / Descripción macroscópica</label>
                     <textarea name="datos_relevantes_region" class="form-control blue__color" required></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Descripcion macroscopica</label>
+                    <label class="form-label blue__color">Toma de muestras</label>
+                    <textarea name="toma_muestras" class="form-control blue__color"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Detalles macroscopicos de la muestra</label>
                     <input type="text" name="descripcion" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12">
@@ -643,7 +647,7 @@
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Informe forense / Informe de autopsia</label>
+                    <label class="form-label blue__color">Volante de petición</label>
                     <input type="file" name="imagen" accept="*/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
@@ -704,6 +708,9 @@
                             </li>
                             <li class="list-group-item blue__color--negrita">Datos relevantes segun su region:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.datos_relevantes_region|default:'-' }}</p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Toma de muestras:
+                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.toma_muestras|default:'-' }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Descripcion macroscopica:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.descripcion|default:'-' }}</p>
@@ -784,6 +791,10 @@
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Datos relevantes segun su region</label>
                     <textarea name="datos_relevantes_region" id="editMuestraDatosRegion" class="form-control blue__color" required>{% if selected_muestra_item %}{{ selected_muestra_item.muestra.datos_relevantes_region|default:'' }}{% endif %}</textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Toma de muestras</label>
+                    <textarea name="toma_muestras" id="editMuestraTomaMuestras" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.toma_muestras|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Descripcion macroscopica</label>
@@ -883,7 +894,7 @@
                         id="btnformcerrarnuevaNecropsia" data-close-modal="modalnuevaNecropsia"></i>
                 </div>
                 <hr class="m-0">
-                {% include 'web/_necropsia_fields.html' %}
+                {% include 'web/_necropsia_fields.html' with hide_creation_only_fields=True %}
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Crear Autopsia</button>
                 </div>

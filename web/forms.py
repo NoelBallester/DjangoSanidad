@@ -389,6 +389,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
             'examen_interno_cadaver',
             'tecnica_apertura',
             'datos_relevantes_region',
+            'toma_muestras',
             'tincion',
             'observaciones',
         ]
@@ -396,6 +397,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'examen_interno_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'datos_relevantes_region': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+            'toma_muestras': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
         }
 
@@ -417,6 +419,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
                 'fecha',
                 'examen_interno_cadaver',
                 'datos_relevantes_region',
+                'toma_muestras',
                 'observaciones',
                 'tincion',
             ):

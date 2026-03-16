@@ -306,6 +306,7 @@ class MuestraNecropsia(MuestraBase):
     examen_interno_cadaver = models.TextField(null=True, blank=True)
     tecnica_apertura = models.CharField(max_length=255, null=True, blank=True)
     datos_relevantes_region = models.TextField(null=True, blank=True)
+    toma_muestras = models.TextField(null=True, blank=True)
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     necropsia = models.ForeignKey(Necropsia, on_delete=models.CASCADE, db_column='necropsia_id')
 
