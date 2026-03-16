@@ -114,6 +114,16 @@
         >{% if edit %}{{ h.observaciones }}{% endif %}</textarea>
 </div>
 <div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Información clínica</label>
+    <textarea name="informacion_clinica" class="form-control blue__color textarea__text"
+        >{% if edit %}{{ h.informacion_clinica }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
+    <label class="form-label blue__color">Descripción microscópica</label>
+    <textarea name="descripcion_microscopica" class="form-control blue__color textarea__text"
+        >{% if edit %}{{ h.descripcion_microscopica }}{% endif %}</textarea>
+</div>
+<div class="col-md-12 mt-3">
     <label class="form-label blue__color">Volante de petición (archivo)</label>
     <input type="file" name="volante_peticion" class="form-control blue__color" 
         accept="*/*">

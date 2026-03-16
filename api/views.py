@@ -37,9 +37,9 @@ FILE_PROXY_MODELS = {
     'imagenmicrobiologia': (ImagenMicrobiologia, {'imagen'}),
     'citologia': (Citologia, {'volante_peticion', 'informe_imagen'}),
     'cassette': (Cassette, {'volante_peticion', 'informe_imagen'}),
-    'necropsia': (Necropsia, {'volante_peticion'}),
+    'necropsia': (Necropsia, {'volante_peticion', 'informe_imagen'}),
     'tubo': (Tubo, {'informe_imagen', 'volante_peticion'}),
-    'hematologia': (Hematologia, {'informe_imagen'}),
+    'hematologia': (Hematologia, {'informe_imagen', 'volante_peticion'}),
     'microbiologia': (Microbiologia, {'informe_imagen', 'volante_peticion'}),
     'informeresultado': (InformeResultado, {'imagen'}),
 }
@@ -727,7 +727,12 @@ class MuestraTuboViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
                 return Response({'error': _extract_validation_error_message(exc)}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            import logging
+            logger = logging.getLogger("django")
+            logger.error(f"DEBUG_ERR: {serializer.errors}")
+            logger.error(f"DEBUG_DATA: {dict(data)}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         muestra = serializer.save()
         
         # Si hay imagen, crear el registro en ImagenTubo con datos binarios

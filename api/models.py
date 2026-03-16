@@ -284,7 +284,7 @@ class ImagenCitologia(ImagenBase):
 
 # ─── Necropsia ───────────────────────────────────────────────────────────────
 
-class Necropsia(RegistroBase):
+class Necropsia(RegistroConInforme):
     id_necropsia = models.AutoField(primary_key=True, db_column='id')
     necropsia = models.CharField(max_length=50)
     tipo_necropsia = models.CharField(max_length=255)
