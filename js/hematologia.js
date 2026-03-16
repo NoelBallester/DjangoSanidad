@@ -332,6 +332,52 @@ window.verInformeHematologia = (url) => {
   window.open(url, "_blank", "noopener");
 };
 
+window.verInfoInformeHematologia = async (informeId) => {
+  if (!informeId) return;
+  try {
+    const res = await fetch(`/api/informesresultado/${informeId}/`);
+    if (!res.ok) throw new Error("No se pudo cargar la informacion del informe");
+    const informe = await res.json();
+    const host = informesListaHematologia?.closest('.informe__scroll');
+    if (!host) return;
+
+    let panel = document.getElementById('infoInformePanelHematologia');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'infoInformePanelHematologia';
+      panel.className = 'mb-3 p-3 rounded';
+      panel.style.background = 'var(--bg-light)';
+      panel.style.border = '1px solid var(--border-color)';
+      panel.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="Muestras__title m-0">Detalle del informe</h3>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="cerrarInfoInformeHematologia">Cerrar</button>
+        </div>
+        <div class="blue__color"><strong>Fecha:</strong> <span data-field="fecha">-</span></div>
+        <div class="blue__color mt-2"><strong>Descripcion:</strong> <span data-field="descripcion">-</span></div>
+        <div class="blue__color mt-2"><strong>Tincion:</strong> <span data-field="tincion">-</span></div>
+        <div class="blue__color mt-2"><strong>Observaciones:</strong></div>
+        <div class="blue__color mt-1" data-field="observaciones">-</div>
+      `;
+      const tableWrap = informesListaHematologia.closest('.table__scroll');
+      host.insertBefore(panel, tableWrap);
+      panel.querySelector('#cerrarInfoInformeHematologia').addEventListener('click', () => {
+        panel.classList.add('d-none');
+      });
+    }
+
+    panel.querySelector('[data-field="fecha"]').textContent = informe.fecha ? formatFecha(informe.fecha) : 'Sin fecha';
+    panel.querySelector('[data-field="descripcion"]').textContent = informe.descripcion || 'Sin descripcion';
+    panel.querySelector('[data-field="tincion"]').textContent = informe.tincion || 'Sin resultado';
+    panel.querySelector('[data-field="observaciones"]').textContent = informe.observaciones || 'Sin observaciones';
+    panel.classList.remove('d-none');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (error) {
+    console.error(error);
+    mostrarEstadoInforme("No se pudo cargar la informacion del informe.", "danger");
+  }
+};
+
 window.editarInformeHematologia = async (informeId) => {
   const targetId = currentHematologiaId || hematologiaId;
   if (!targetId || !informeId) return;
@@ -454,6 +500,7 @@ const imprimirInformesHematologia = (informes) => {
     const tdAcciones = document.createElement("td");
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
+      <i class="fa-solid fa-circle-info Muestras__icon Muestras__icon--infoMuestras me-2" title="Ver datos del formulario" data-action="info" data-id="${informe.id_informe}"></i>
       <i class="fa-solid fa-file-import Muestras__icon Muestras__icon--infoMuestras me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeHematologia('${urlInforme || ''}')"></i>
       <i class="fa-solid fa-file-pen Muestras__icon Muestras__icon--infoMuestras me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeHematologia('${informe.id_informe}')"></i>
       <i class="fa-solid fa-trash-can Muestras__icon Muestras__icon--infoMuestras" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeHematologia('${informe.id_informe}')"></i>
@@ -1840,7 +1887,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
-      if (!currentHematologiaId || !informeId) return;
+      if (!informeId) return;
+
+      if (action === "info") {
+        event.preventDefault();
+        await window.verInfoInformeHematologia(informeId);
+        return;
+      }
+
+      if (!currentHematologiaId) return;
 
       const informes = await cargarInformesHematologia(currentHematologiaId);
       const informe = informes.find((item) => String(item.id_informe) === String(informeId));

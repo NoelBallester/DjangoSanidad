@@ -260,6 +260,48 @@
   border-color: var(--border-light) !important;
 }
 
+/* --- Inline Report Info Panel --- */
+.informe-info-panel {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.informe-info-panel p {
+  color: inherit;
+}
+
+.informe-info-panel .text-muted {
+  color: #64748b !important;
+}
+
+:root.dark-theme .informe-info-panel {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: var(--border-medium) !important;
+  color: var(--text-light) !important;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+}
+
+:root.dark-theme .informe-info-panel p {
+  color: var(--text-light) !important;
+}
+
+:root.dark-theme .informe-info-panel .text-muted {
+  color: var(--text-muted) !important;
+}
+
+:root.dark-theme .informe-info-panel .btn-outline-secondary {
+  color: var(--text-light) !important;
+  border-color: var(--border-medium) !important;
+  background: transparent !important;
+}
+
+:root.dark-theme .informe-info-panel .btn-outline-secondary:hover {
+  background: rgba(96, 165, 250, 0.12) !important;
+  border-color: rgba(96, 165, 250, 0.45) !important;
+}
+
 /* --- Links --- */
 :root.dark-theme a {
   color: #60A5FA;

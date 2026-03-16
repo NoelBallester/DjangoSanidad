@@ -20,13 +20,11 @@
 
 ## 1. 🔴 Bloqueantes para producción
 
-<<<<<<< Updated upstream
 Sin estos puntos la aplicación no funciona con `DEBUG=False` en Ubuntu Server.
 
 ---
 
 ### DEP-1 — Sin `STATIC_ROOT` ni `collectstatic`
-=======
 ### 15. Sin borrado suave (soft delete) HECHO
 - **Problema:** Al borrar una muestra se eliminan permanentemente sus imágenes e informes. Sin trazabilidad ni recuperación.
 - **Solución:** Campo `is_deleted = BooleanField(default=False)` con manager personalizado.
@@ -194,7 +192,6 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
 ---
 
 ### SEC-6. DEBUG=True por defecto — MEDIA HECHO
->>>>>>> Stashed changes
 - **Archivo:** `core/settings.py`
 - **Problema:** No existe `STATIC_ROOT`. Con `DEBUG=False`, Django deja de servir CSS/JS y la interfaz queda completamente rota. `collectstatic` falla.
 - **Solución:**
