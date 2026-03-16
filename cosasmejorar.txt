@@ -1,11 +1,11 @@
 NECROPSIAS. 
 EN CREAR NECROPSIAS.
-Quitar descripcion microscopica, informacion clinica y diagnostico probable. 
+Quitar descripcion microscopica, informacion clinica y diagnostico probable. HECHO
 EN CREAR MUESTRAS DE NECROPSIAS
 Falta poner tildes en NECROPSIAS.
-Informe de autopsias = Detalles macroscopicos de la muestra. 
-Datos relevantes según región / descripción macroscopica. 
-Crear apartado que sea "Toma de muestras", texto.
+Informe de autopsias = Detalles macroscopicos de la muestra. HECHO
+Datos relevantes según región / descripción macroscopica. HECHO
+Crear apartado que sea "Toma de muestras", texto. HECHO
 
 CITOLOGIA: 
 Detalle paciente en la tabla que se ven las cosas cambiar por tipo de citologia. HECHO
@@ -17,9 +17,9 @@ Corregir "Validación de la calidad de la muestra" por "Tinción".  HECHO
 Falta "descripción microscópica" y "Aproximación diagnóstica". HECHO 
 
 INFORMES:
-Hematoxilina para abajo hay que quitarlo porque son tinciones. 
-Cambiar "Analisis" por "Tipo de análisis"
-Añadir "perfil hepático, perfil renal, perfil lipídico, glucosa, análisis de heces, raspados, fluidos biológicos, esputos, analisis de sangre, ionograma, gasometría, analisis inmunológicos, análisis citológico, resultado biopsias, improntas, otros."  
+Hematoxilina para abajo hay que quitarlo porque son tinciones. HECHO
+Cambiar "Analisis" por "Tipo de análisis" HECHO
+Añadir "perfil hepático, perfil renal, perfil lipídico, glucosa, análisis de heces, raspados, fluidos biológicos, esputos, analisis de sangre, ionograma, gasometría, analisis inmunológicos, análisis citológico, resultado biopsias, improntas, otros."  HECHO
 
 BIOQUIMICA: 
 Detalle de Muestra = Aditivos. HECHO
