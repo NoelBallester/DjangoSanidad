@@ -688,6 +688,11 @@ const mostrarEstadoSinSeleccion = () => {
 
   ocultarPanelNuevoInformeMicrobiologia();
 
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = true;
+    btnNuevoInforme.title = "Selecciona una muestra para crear un informe";
+  }
+
   if (informesListaMicrobiologia) {
     informesListaMicrobiologia.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
   }
@@ -1113,6 +1118,10 @@ const imprimirDataMicrobiologia = (respuesta) => {
   microbiologiaInformeTincion.value = respuesta.informe_tincion || "";
   microbiologiaInformeObservaciones.value = respuesta.informe_observaciones || "";
   currentMicrobiologiaId = respuesta.id_muestra;
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = false;
+    btnNuevoInforme.removeAttribute("title");
+  }
   actualizarContextoInforme();
   refrescarInformesMicrobiologia(currentMicrobiologiaId);
   console.log("imprimirDataMicrobiologia - currentMicrobiologiaId asignado como:", currentMicrobiologiaId, "respuesta completa:", respuesta);
@@ -1727,6 +1736,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
+      if (!(currentMicrobiologiaId || microbiologiaId)) {
+        mostrarEstadoInforme("Selecciona una muestra antes de crear un informe.", "warning");
+        return;
+      }
       mostrarPanelNuevoInformeMicrobiologia(true);
     });
   }

@@ -691,6 +691,11 @@ const mostrarEstadoSinSeleccion = () => {
 
   ocultarPanelNuevoInformeTubo();
 
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = true;
+    btnNuevoInforme.title = "Selecciona una muestra para crear un informe";
+  }
+
   if (informesListaTubo) {
     informesListaTubo.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
   }
@@ -1116,6 +1121,10 @@ const imprimirDataTubo = (respuesta) => {
   tuboInformeTincion.value = respuesta.informe_tincion || "";
   tuboInformeObservaciones.value = respuesta.informe_observaciones || "";
   currentTuboId = respuesta.id_muestra;
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = false;
+    btnNuevoInforme.removeAttribute("title");
+  }
   actualizarContextoInforme();
   refrescarInformesTubo(currentTuboId);
   console.log("imprimirDataTubo - currentTuboId asignado como:", currentTuboId, "respuesta completa:", respuesta);
@@ -1729,6 +1738,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
+      if (!(currentTuboId || tuboId)) {
+        mostrarEstadoInforme("Selecciona una muestra antes de crear un informe.", "warning");
+        return;
+      }
       mostrarPanelNuevoInformeTubo(true);
     });
   }

@@ -355,7 +355,7 @@ window.verInfoInformeHematologia = async (informeId) => {
         </div>
         <div class="blue__color"><strong>Fecha:</strong> <span data-field="fecha">-</span></div>
         <div class="blue__color mt-2"><strong>Descripcion:</strong> <span data-field="descripcion">-</span></div>
-        <div class="blue__color mt-2"><strong>Tincion:</strong> <span data-field="tincion">-</span></div>
+        <div class="blue__color mt-2"><strong>Tipo de analisis:</strong> <span data-field="tincion">-</span></div>
         <div class="blue__color mt-2"><strong>Observaciones:</strong></div>
         <div class="blue__color mt-1" data-field="observaciones">-</div>
       `;
@@ -563,6 +563,10 @@ const ocultarPanelNuevoInformeHematologia = () => {
   actualizarEtiquetaBotonInforme();
   modalNuevoInforme.classList.add("d-none");
   modalNuevoInforme.classList.remove("d-flex");
+};
+
+const obtenerHematologiaSeleccionadaParaInforme = () => {
+  return currentHematologiaId || hematologiaId;
 };
 
 // ============================================================
@@ -879,6 +883,10 @@ const imprimirDetalleHematologia = (h) => {
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = h.informe_observaciones || "";
 
   currentHematologiaId = h.id_hematologia;
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = false;
+    btnNuevoInforme.removeAttribute("title");
+  }
   actualizarContextoInformeHematologia(h.hematologia || "", h.descripcion || "");
   limpiarEstadoInforme();
   refrescarInformesHematologia(currentHematologiaId);
@@ -913,6 +921,10 @@ const limpiarDetalleHematologia = () => {
   if (muestrasInformeObservaciones) muestrasInformeObservaciones.value = "";
   if (muestrasInformeImagen) muestrasInformeImagen.value = "";
   ocultarPanelNuevoInformeHematologia();
+  if (btnNuevoInforme) {
+    btnNuevoInforme.disabled = true;
+    btnNuevoInforme.title = "Selecciona una muestra para crear un informe";
+  }
   actualizarContextoInformeHematologia();
   limpiarEstadoInforme();
   imprimirInformesHematologia([]);
@@ -1597,6 +1609,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
+      if (!obtenerHematologiaSeleccionadaParaInforme()) {
+        mostrarEstadoInforme("Selecciona una muestra antes de crear un informe.", "warning");
+        return;
+      }
       mostrarPanelNuevoInformeHematologia(true);
     });
   }
