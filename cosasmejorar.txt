@@ -5,7 +5,6 @@ Botón de volver en laboratorio cambiarlo porque te lleva a anatomia patologica 
 
 CITOLOGIÍAS
 En citologias en la pantalla == Registro de Citologías.
-Ver pdfs en citologias y supongo que lo demás.
 Hacer que el nombre de lo que se haya creado esté debajo en detalles. 
 
 INFORMES.
