@@ -322,7 +322,7 @@
                             <tr>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Aditivos</th>
-                                <th scope="col">Analíticas</th>
+                                <th scope="col">Tipo de Tinción</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -393,14 +393,20 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="microbiologia__informe_tincion"
-                                        class="blue__color--negrita d-block">Muestras</label>
+                                        class="blue__color--negrita d-block">Tipo de Tinción</label>
                                     <select id="microbiologia__informe_tincion" class="form-select blue__color bg-light">
-                                        <option selected disabled value="">Resultados</option>
+                                        <option selected disabled value="">Seleccionar Tinción</option>
                                         <option>Hematoxilina Eosina (HE)</option>
                                         <option>Giemsa</option>
                                         <option>Gram</option>
                                         <option>Azul de Metileno</option>
                                         <option>Papanicolau</option>
+                                        <option>Wright</option>
+                                        <option>Ziehl-Neelsen</option>
+                                        <option>Tricrómico</option>
+                                        <option>Orceína</option>
+                                        <option>P.A.S</option>
+                                        <option>Otros</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -460,14 +466,20 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectTincionMuestra" class="form-label blue__color">Tipo</label>
+                    <label for="selectTincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
                     <select class="form-select blue__color" id="selectTincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Tipo</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
                         <option>Azul de Metileno</option>
                         <option>Papanicolau</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
+                        <option>Tricrómico</option>
+                        <option>Orceína</option>
+                        <option>P.A.S</option>
+                        <option>Otros</option>
                     </select>
                 </div>
 
@@ -514,14 +526,20 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo</label>
+                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
                     <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Tipo</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
                         <option>Azul de Metileno</option>
                         <option>Papanicolau</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
+                        <option>Tricrómico</option>
+                        <option>Orceína</option>
+                        <option>P.A.S</option>
+                        <option>Otros</option>
                     </select>
                 </div>
 
@@ -575,7 +593,7 @@
                             <li class="list-group-item blue__color--negrita">Fecha:
                                 <p id="muestra__fecha" class="blue__color microbiologia__text"></p>
                             </li>
-                            <li class="list-group-item blue__color--negrita">Tipo de muestra:
+                            <li class="list-group-item blue__color--negrita">Tipo de Tinción:
                                 <p id="muestra__tincion" class="blue__color microbiologia__text"></p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Diagnóstico probable:

@@ -1369,7 +1369,8 @@ def usuario_create(request):
         email = (request.POST.get('email') or '').strip()
         centro = (request.POST.get('centro') or '').strip() or None
         rol = _rol_valido(request.POST.get('rol'))
-        is_staff = (request.POST.get('is_staff') == 'on')
+        # Requisito funcional: Profesor = Administrador.
+        is_staff = (rol == Tecnico.ROL_PROFESOR)
         password = request.POST.get('password') or ''
 
         if not username:
@@ -1423,7 +1424,8 @@ def usuario_update(request, pk):
         email = (request.POST.get('email') or '').strip()
         centro = (request.POST.get('centro') or '').strip() or None
         rol = _rol_valido(request.POST.get('rol'))
-        is_staff = (request.POST.get('is_staff') == 'on')
+        # Requisito funcional: Profesor = Administrador.
+        is_staff = (rol == Tecnico.ROL_PROFESOR)
         password = request.POST.get('password') or ''
 
         # Compatibilidad legacy: permitir update sin username.
