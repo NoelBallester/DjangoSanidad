@@ -1,7 +1,7 @@
 USUARIOS
 Administrador = Profesor cambiar cuando crear usuarios. 
 
-Botón de volver en laboratorio cambiarlo porque te lleva a anatomia patologica broski. 
+Botón de volver en laboratorio cambiarlo porque te lleva a anatomia patologica broski. HECHO  
 
 CITOLOGIÍAS
 En citologias en la pantalla == Registro de Citologías.
@@ -23,10 +23,10 @@ Cambiar en la tabla donde se ven las muestras1 "Descripción" por "Aditivos."
 Cuando creas una muestra procesada tienes que poner en "Tipo" tiene que ser "Tinción", tiene que ser así en todos MENOS EN NECROPSIAS. 
 Añadir tinciones. 
 
-HEMATOLOGIA
+HEMATOLOGIA HECHO
 Cambiar detalle de muestra = Aditivos, tanto en la tabla donde salen las muestras1 como cuando las creas etc... hECHO
 QUITAR DUPLICADO EN DETALLES DE HEMATOLOGIA SALE DOS VECES TIPO DE MUESTRA. HECHo
-En muestras procesadas cambiar lo de tipo de muestra por tinciones (más añadir las tinciones xd).
+En muestras procesadas cambiar lo de tipo de muestra por tinciones (más añadir las tinciones xd). HECHO
 
 MICROBIOLOGIA
 DETALLE DE MUESTRA ==== Aditivos
