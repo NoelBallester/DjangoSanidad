@@ -1408,7 +1408,12 @@
         (function () {
             const params = new URLSearchParams(window.location.search);
             const muestraId = params.get('muestra');
+            const modal = params.get('modal');
+            
             if (!muestraId) return;
+            // Evitar que se abra el detalle si estamos editando para que no haya solapamiento
+            if (modal === 'editar_muestra') return;
+
             const row = document.getElementById(`muestra-row-${muestraId}`);
             if (!row) return;
             row.classList.add('table-active');
@@ -1452,7 +1457,7 @@
                 abrirEditarMuestra(
                     {{ selected_muestra_item.muestra.pk }},
                     '{{ selected_muestra_item.muestra.descripcion|escapejs }}',
-                    '{{ selected_muestra_item.muestra.fecha }}',
+                    '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}',
                     '{{ selected_muestra_item.muestra.examen_interno_cadaver|default:''|escapejs }}',
                     '{{ selected_muestra_item.muestra.tecnica_apertura|default:''|escapejs }}',
                     '{{ selected_muestra_item.muestra.datos_relevantes_region|default:''|escapejs }}',
