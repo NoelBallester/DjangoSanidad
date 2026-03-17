@@ -200,7 +200,7 @@
               <tr>
                 <th scope="row">Muestra</th>
                 <th scope="row">Fecha</th>
-                <th scope="row">Detalle de Muestra</th>
+                <th scope="row">Aditivos</th>
                 <th scope="row">Tipo de Muestra</th>
                 <th data-sortable="false"></th>
               </tr>
@@ -240,15 +240,12 @@
 
           <section class="list-group list-group-flush mt-3">
             <div class="d-flex px-3 justify-content-between">
-              <li class="blue__color--negrita"> Detalle muestra: <span id="Muestras__descripcion"
+              <li class="blue__color--negrita"> Aditivos: <span id="Muestras__descripcion"
                   class="blue__color Muestras__text">
                 </span>
               </li>
               <li class="blue__color--negrita"> Ténico ID: <span id="Muestras__tecnico_id"
                   class="blue__color Muestras__text">
-                </span>
-              </li>
-              <li class="blue__color--negrita"> Tipo: <span id="Muestras__tipo" class="blue__color Muestras__text">
                 </span>
               </li>
             </div>
@@ -305,7 +302,7 @@
               <tr>
                 <th scope="row">Fecha</th>
                 <th scope="row">Descripción</th>
-                <th scope="row">Tipo de Muestra</th>
+                <th scope="row">Tipo de Tinción</th>
                 <th> </th>
               </tr>
             </thead>
@@ -442,19 +439,18 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="selectTincionMuestra" class="form-label blue__color">Tipo de muestra</label>
+          <label for="selectTincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
           <select class="form-select blue__color" id="selectTincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tipo de Muestra</option>
-            <option>Orina</option>
-            <option>Sangre Anticoagulada</option>
-            <option>Plasma</option>
-            <option>Suero</option>
-            <option>Esputos</option>
-            <option>Exudados</option>
-            <option>Heces</option>
-            <option>Raspados</option>
-            <option>Uñas</option>
-            <option>Fluidos Biológicos</option>
+            <option selected disabled value="">Seleccionar Tinción</option>
+            <option>Hematoxilina Eosina (HE)</option>
+            <option>Giemsa</option>
+            <option>Gram</option>
+            <option>Azul de Metileno</option>
+            <option>Papanicolau</option>
+            <option>Zienhl-Neelsen</option>
+            <option>Tricrómico</option>
+            <option>Orceína</option>
+            <option>P.A.S</option>
             <option>Otros</option>
 
           </select>
@@ -502,19 +498,18 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de Muestra</label>
+          <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
           <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-            <option selected disabled value="">Seleccionar Tipo de Muestra</option>
-            <option>Orina</option>
-            <option>Sangre Anticoagulada</option>
-            <option>Plasma</option>
-            <option>Suero</option>
-            <option>Esputos</option>
-            <option>Exudados</option>
-            <option>Heces</option>
-            <option>Raspados</option>
-            <option>Uñas</option>
-            <option>Fluidos Biológicos</option>
+            <option selected disabled value="">Seleccionar Tinción</option>
+            <option>Hematoxilina Eosina (HE)</option>
+            <option>Giemsa</option>
+            <option>Gram</option>
+            <option>Azul de Metileno</option>
+            <option>Papanicolau</option>
+            <option>Zienhl-Neelsen</option>
+            <option>Tricrómico</option>
+            <option>Orceína</option>
+            <option>P.A.S</option>
             <option>Otros</option>
           </select>
         </div>
@@ -579,7 +574,7 @@
                 </p>
               </li>
 
-              <li class="list-group-item blue__color--negrita">Tipo de muestra: <p id="muestra__tincion"
+              <li class="list-group-item blue__color--negrita">Tipo de Tinción: <p id="muestra__tincion"
                   class="blue__color Muestras__text">
                 </p>
               </li>
@@ -623,7 +618,7 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDescripcion" class="form-label blue__color">Detalle Muestra</label>
+          <label for="inputDescripcion" class="form-label blue__color">Aditivos</label>
           <input class="form-control blue__color" id="inputDescripcion" required>
         </div>
 
@@ -706,7 +701,7 @@
         </div>
 
         <div class="col-md-12 mt-3">
-          <label for="inputDescripcionUpdate" class="form-label blue__color">Detalle Muestra</label>
+          <label for="inputDescripcionUpdate" class="form-label blue__color">Aditivos</label>
           <input class="form-control blue__color" id="inputDescripcionUpdate" required>
         </div>
 

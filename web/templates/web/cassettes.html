@@ -417,8 +417,8 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Validación de la calidad de la muestra</th>
+                                <th>Número de Bloques</th>
+                                <th>Tipo de Tinción</th>
                                 <th>Observaciones</th>
                                 <th>Acciones</th>
                             </tr>
@@ -428,7 +428,7 @@
                             <tr id="muestra-row-{{ item.muestra.pk }}"
                                 class="{% if request.GET.muestra == item.muestra.pk|stringformat:'s' %}table-active{% endif %}">
                                 <td>{{ item.muestra.fecha }}</td>
-                                <td>{{ item.muestra.descripcion }}</td>
+                                <td>{{ item.muestra.numero_bloque }}</td>
                                 <td>{{ item.muestra.tincion }}</td>
                                 <td>{{ item.muestra.observaciones|truncatechars:40 }}</td>
                                 <td class="text-end" style="white-space:nowrap">
@@ -625,17 +625,21 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
-                    <input type="text" name="descripcion" class="form-control" required>
+                    <label class="form-label blue__color">Número de Bloque</label>
+                    <input type="text" name="numero_bloque" class="form-control" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label blue__color">Descripción Macroscópica</label>
+                    <textarea name="descripcion_macroscopica" class="form-control" required></textarea>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
                     <input type="date" name="fecha" class="form-control">
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label class="form-label blue__color">Tipo de Tinción</label>
                     <select name="tincion" class="form-select" required>
-                        <option selected disabled value="">Seleccionar Validación</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -696,7 +700,7 @@
                             <li class="list-group-item blue__color--negrita">Fecha:
                                 <p class="cassette__text">{{ selected_muestra_item.muestra.fecha }}</p>
                             </li>
-                            <li class="list-group-item blue__color--negrita">Validación de la calidad de la muestra:
+                            <li class="list-group-item blue__color--negrita">Tipo de Tinción:
                                 <p class="cassette__text">{{ selected_muestra_item.muestra.tincion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
@@ -772,9 +776,9 @@
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control">
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label class="form-label blue__color">Tipo de Tinción</label>
                     <select name="tincion" id="editMuestraTincion" class="form-select" required>
-                        <option value="">Seleccionar Validación</option>
+                        <option value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>

@@ -12,23 +12,23 @@ Informe = Informe de resultados.
 Añadir "perfil hepatico, perfil renal".
 FALTAN EN ALGUNOS INFORMES DE MODULOS DIFERENTES COSAS. EN EL DE HEMATOLOGIA FALTA UN MONTÓN.
 
-BIOSPIAS.
+BIOSPIAS. hECHO
 En biospsias en la tabla donde salen la informacion
 Crear muestra de cassetes en vez de "validacion de la calidad de la muestra" = Tipo de Tinción
 Añadir campo "Descripción Macroscopica".
 Añadir container "número de bloque" 
 
-BIOQUIMICA
+BIOQUIMICA HECHo
 Cambiar en la tabla donde se ven las muestras1 "Descripción" por "Aditivos." 
 Cuando creas una muestra procesada tienes que poner en "Tipo" tiene que ser "Tinción", tiene que ser así en todos MENOS EN NECROPSIAS. 
 Añadir tinciones. 
 
 HEMATOLOGIA
-Cambiar detalle de muestra = Aditivos, tanto en la tabla donde salen las muestras1 como cuando las creas etc... 
-QUITAR DUPLICADO EN DETALLES DE HEMATOLOGIA SALE DOS VECES TIPO DE MUESTRA. 
+Cambiar detalle de muestra = Aditivos, tanto en la tabla donde salen las muestras1 como cuando las creas etc... hECHO
+QUITAR DUPLICADO EN DETALLES DE HEMATOLOGIA SALE DOS VECES TIPO DE MUESTRA. HECHo
 En muestras procesadas cambiar lo de tipo de muestra por tinciones (más añadir las tinciones xd).
 
 MICROBIOLOGIA
 DETALLE DE MUESTRA ==== Aditivos
-Muestra procesada, "tipo" = "tipo de tincion tincion"
+Muestra procesada, "tipo" = "tipo de tincion"
 Informe de MICROBIOLOGIA: Muestras = Tipo de analisis. 

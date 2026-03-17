@@ -51,7 +51,6 @@ const nuevoInformePanel = document.getElementById("nuevoInformePanel");
 // Campos detalle hematología principal
 const muestrasNumDisplay = document.getElementById("Muestras__Muestras");
 const muestrasDescripcion = document.getElementById("Muestras__descripcion");
-const muestrasTipo = document.getElementById("Muestras__tipo");
 const muestrasOrgano = document.getElementById("Muestras__organo");
 const muestrasFecha = document.getElementById("Muestras__fecha");
 const muestrasTecnicoId = document.getElementById("Muestras__tecnico_id");
@@ -823,7 +822,7 @@ const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
       const btndetalle = document.createElement("I");
       btndetalle.className = "d-inline-block fa-solid fa-eye Muestras__icon Muestras__icon--infoMuestras";
       btndetalle.dataset.id = h.id_hematologia;
-      btndetalle.title = "Detalle Muestra";
+      btndetalle.title = "Ver Aditivos";
 
       const tdBtn = document.createElement("td");
       tdBtn.appendChild(btndetalle);
@@ -870,7 +869,6 @@ const detalleHematologia = async (event) => {
 const imprimirDetalleHematologia = (h) => {
   if (muestrasNumDisplay) muestrasNumDisplay.textContent = h.hematologia || "";
   if (muestrasDescripcion) muestrasDescripcion.textContent = h.descripcion || "";
-  if (muestrasTipo) muestrasTipo.textContent = h.organo || "";
   if (muestrasOrgano) muestrasOrgano.textContent = h.organo || "";
   if (muestrasFecha) muestrasFecha.textContent = formatFecha(h.fecha);
   if (muestrasTecnicoId) muestrasTecnicoId.textContent = h.tecnico || "—";
@@ -912,7 +910,6 @@ const imprimirDetalleHematologia = (h) => {
 const limpiarDetalleHematologia = () => {
   if (muestrasNumDisplay) muestrasNumDisplay.textContent = "";
   if (muestrasDescripcion) muestrasDescripcion.textContent = "";
-  if (muestrasTipo) muestrasTipo.textContent = "";
   if (muestrasOrgano) muestrasOrgano.textContent = "";
   if (muestrasFecha) muestrasFecha.textContent = "";
   if (muestrasTecnicoId) muestrasTecnicoId.textContent = "";

@@ -388,7 +388,7 @@
                         <thead>
                             <tr>
                                 <th scope="row">Fecha</th>
-                                <th scope="row">Descripción</th>
+                                <th scope="row">Número de Bloques</th>
                                 <th scope="row">Validación de la calidad de la muestra</th>
                                 <th> </th>
                             </tr>
@@ -474,8 +474,13 @@
                 <hr>
 
                 <div class="col-md-12">
-                    <label for="inputdescripcionMuestra" class="form-label blue__color">Descripcion</label>
-                    <input type="text" class="form-control blue__color" id="inputdescripcionMuestra" required>
+                    <label for="inputNumeroBloque" class="form-label blue__color">Número de Bloque</label>
+                    <input type="text" class="form-control blue__color" id="inputNumeroBloque" required>
+                </div>
+
+                <div class="col-md-12">
+                    <label for="inputDescripcionMacroscopica" class="form-label blue__color">Descripción Macroscópica</label>
+                    <textarea class="form-control blue__color" id="inputDescripcionMacroscopica" required></textarea>
                 </div>
 
                 <div class="col-md-12">
@@ -484,9 +489,9 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectTincionMuestra" class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label for="selectTincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
                     <select class="form-select blue__color" id="selectTincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Validación</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -545,9 +550,9 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label for="selectmodificartincionMuestra" class="form-label blue__color">Tipo de Tinción</label>
                     <select class="form-select blue__color" id="selectmodificartincionMuestra" required>
-                        <option selected disabled value="">Seleccionar Validación</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
                         <option>Giemsa</option>
                         <option>Gram</option>
@@ -615,7 +620,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="blue__color--negrita">Validación de la calidad de la muestra:</label>
+                        <label class="blue__color--negrita">Tipo de Tinción:</label>
                         <p id="muestra__tincion" class="blue__color"></p>
                     </div>
 

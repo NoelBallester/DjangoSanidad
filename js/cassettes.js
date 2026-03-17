@@ -141,15 +141,14 @@ const btnformcerrarnuevaMuestra = document.getElementById(
 const modalnuevaMuestra = document.getElementById("modalnuevaMuestra");
 
 // Nueva Muestra
-const inputdescripcionMuestra = document.getElementById(
-  "inputdescripcionMuestra"
-);
 const inputFechaMuestra = document.getElementById("inputFechaMuestra");
 const selectTincionMuestra = document.getElementById("selectTincionMuestra");
 const inputObservacionesMuestra = document.getElementById(
   "inputObservacionesMuestra"
 );
 const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
+const inputNumeroBloque = document.getElementById("inputNumeroBloque");
+const inputDescripcionMacroscopica = document.getElementById("inputDescripcionMacroscopica");
 
 // Detalle Muestra
 const muestra__descripcion = document.getElementById("muestra__descripcion");
@@ -686,7 +685,8 @@ const crearMuestra = async (event) => {
   event.preventDefault();
 
   let newMuestra = new FormData();
-  newMuestra.append("descripcion", inputdescripcionMuestra.value);
+  newMuestra.append("numero_bloque", inputNumeroBloque.value);
+  newMuestra.append("descripcion_macroscopica", inputDescripcionMacroscopica.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
   newMuestra.append("tincion", selectTincionMuestra.value);
@@ -716,7 +716,8 @@ const crearMuestra = async (event) => {
 };
 
 const limpiarModalMuestra = () => {
-  inputdescripcionMuestra.value = "";
+  inputNumeroBloque.value = "";
+  inputDescripcionMacroscopica.value = "";
   inputFechaMuestra.value = "";
   inputObservacionesMuestra.value = "";
   selectTincionMuestra.value = "";
@@ -793,8 +794,8 @@ const imprimirMuestras = (respuesta) => {
 
       tr.classList.add("table__row");
       let descripcion = document.createElement("td");
-      descripcion.textContent = muestra.descripcion.substring(0, 80);
-      descripcion.title = muestra.descripcion;
+      descripcion.textContent = muestra.numero_bloque || "-";
+      descripcion.title = muestra.numero_bloque || "";
 
       let fecha = document.createElement("td");
       nuevafecha = muestra.fecha;
