@@ -90,7 +90,7 @@ class MuestraSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Muestra
-        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'cassette']
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'cassette', 'numero_bloque', 'descripcion_macroscopica']
 
 class ImagenSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
     imagen_url = serializers.SerializerMethodField()

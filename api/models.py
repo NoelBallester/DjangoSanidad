@@ -232,6 +232,8 @@ class Cassette(RegistroConInforme):
 class Muestra(MuestraBase):
     id_muestra = models.AutoField(primary_key=True)
     cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE)
+    numero_bloque = models.CharField(max_length=100, null=True, blank=True)
+    descripcion_macroscopica = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'muestras'
