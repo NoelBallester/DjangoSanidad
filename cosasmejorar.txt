@@ -3,7 +3,7 @@ Administrador = Profesor cambiar cuando crear usuarios.
 
 Botón de volver en laboratorio cambiarlo porque te lleva a anatomia patologica broski. HECHO  
 
-CITOLOGIÍAS
+CITOLOGIÍAS HECHO
 En citologias en la pantalla == Registro de Citologías.
 Hacer que el nombre de lo que se haya creado esté debajo en detalles. 
 
@@ -30,6 +30,35 @@ QUITAR DUPLICADO EN DETALLES DE HEMATOLOGIA SALE DOS VECES TIPO DE MUESTRA. HECH
 En muestras procesadas cambiar lo de tipo de muestra por tinciones (más añadir las tinciones xd). HECHO
 
 MICROBIOLOGIA
+<<<<<<< HEAD
+DETALLE DE MUESTRA ==== Aditivos
+Muestra procesada, "tipo" = "tipo de tincion"
+Informe de MICROBIOLOGIA: Muestras = Tipo de analisis. 
+
+NECROPSIAS
+En informe el tipo de analisis hay que ponerlo tipo texto
+
+
+Tipos de análisis
+- Perfil Hepático
+- Perfil renal
+- Perfil Lipídico
+- Glucosa
+- Análisis de Heces
+- Análisis Inmunológico
+- Ionograma
+- Gasometría
+- Análisis de Sangre
+- Esputos
+- Fluidos Biológicos
+- Raspados
+- Análisis Citológico
+- Resultados biospsias
+- Improntas
+- Aspirados
+- Otros
+=======
 DETALLE DE MUESTRA ==== Aditivos HECHO
 Muestra procesada, "tipo" = "tipo de tincion" HECHO
 
+>>>>>>> 776740f17a62472b21341ed620524f20b5d62f95

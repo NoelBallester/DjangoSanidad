@@ -167,6 +167,27 @@ DEFAULT_CITOLOGIA_SAMPLE_TYPES = [
     'otros',
 ]
 
+# Tipos de analisis unificados para todos los informes.
+DEFAULT_INFORME_ANALYSIS_TYPES = [
+    'Perfil Hepático',
+    'Perfil renal',
+    'Perfil Lipídico',
+    'Glucosa',
+    'Análisis de Heces',
+    'Análisis Inmunológico',
+    'Ionograma',
+    'Gasometría',
+    'Análisis de Sangre',
+    'Esputos',
+    'Fluidos Biológicos',
+    'Raspados',
+    'Análisis Citológico',
+    'Resultados biospsias',
+    'Improntas',
+    'Aspirados',
+    'Otros',
+]
+
 
 def _validate_uploaded_file(uploaded_file, allowed_extensions, allowed_content_types, field_label):
     if not uploaded_file:
@@ -508,10 +529,12 @@ class InformeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['informe_tincion'].choices = _catalog_simple_choices(
-            CatalogoOpcion.TIPO_ANALISIS,
-            'Seleccionar tipo de análisis',
-        )
+        # Mantener exactamente las opciones visibles del informe de Citologias
+        # en todos los modulos de informes de resultados.
+        self.fields['informe_tincion'].choices = [
+            ('', 'Seleccionar Análisis'),
+            *[(value, value) for value in DEFAULT_INFORME_ANALYSIS_TYPES],
+        ]
 
     def clean_informe_imagen(self):
         return _validate_uploaded_file(
