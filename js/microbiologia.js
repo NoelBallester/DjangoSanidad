@@ -49,6 +49,9 @@ const microbiologiaCaracteristicas = document.getElementById(
 const microbiologiaObservaciones = document.getElementById(
   "microbiologia__observacionesMain"
 );
+const microbiologiaDiagnostico = document.getElementById(
+  "microbiologia__diagnosticoMain"
+);
 let microbiologiaInformeDescripcion = null;
 let microbiologiaInformeFecha = null;
 let microbiologiaInformeTincion = null;
@@ -666,6 +669,7 @@ const mostrarEstadoSinSeleccion = () => {
   microbiologiaFecha.textContent = "";
   microbiologiaCaracteristicas.textContent = "";
   microbiologiaObservaciones.textContent = "";
+  if (microbiologiaDiagnostico) microbiologiaDiagnostico.textContent = "";
 
   if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
@@ -1110,8 +1114,11 @@ const imprimirDataMicrobiologia = (respuesta) => {
     microbiologiaFecha.textContent = "";
   }
 
-  microbiologiaCaracteristicas.textContent = respuesta.caracteristicas;
-  microbiologiaObservaciones.textContent = respuesta.observaciones;
+  microbiologiaCaracteristicas.textContent = respuesta.caracteristicas || "";
+  microbiologiaObservaciones.textContent = respuesta.observaciones || "";
+  if (microbiologiaDiagnostico) {
+    microbiologiaDiagnostico.textContent = respuesta.diagnostico_final || "";
+  }
 
   microbiologiaInformeDescripcion.value = respuesta.informe_descripcion || "";
   microbiologiaInformeFecha.value = respuesta.informe_fecha || "";

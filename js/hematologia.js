@@ -57,6 +57,7 @@ const muestrasFecha = document.getElementById("Muestras__fecha");
 const muestrasTecnicoId = document.getElementById("Muestras__tecnico_id");
 const muestrasCaracteristicas = document.getElementById("Muestras__caracteristicas");
 const muestrasObservaciones = document.getElementById("Muestras__observaciones");
+const muestrasDiagnostico = document.getElementById("Muestras__diagnostico");
 
 // Botones de acción en detalle principal
 const btnEliminarHematologia = document.getElementById("btnEliminarHematologia");
@@ -875,6 +876,9 @@ const imprimirDetalleHematologia = (h) => {
   if (muestrasTecnicoId) muestrasTecnicoId.textContent = h.tecnico || "—";
   if (muestrasCaracteristicas) muestrasCaracteristicas.textContent = h.caracteristicas || "";
   if (muestrasObservaciones) muestrasObservaciones.textContent = h.observaciones || "";
+  if (muestrasDiagnostico) {
+    muestrasDiagnostico.textContent = h.diagnostico_final || "";
+  }
 
   // Rellenar campos del informe
   if (muestrasInformeDescripcion) muestrasInformeDescripcion.value = h.informe_descripcion || "";
