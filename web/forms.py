@@ -22,7 +22,9 @@ def _simple_choices_from_values(empty_label, values):
         if value in seen:
             continue
         seen.add(value)
-        options.append((value, value))
+        # Ponemos la primera letra en mayúscula para que se vea mejor en la UI
+        label = value.capitalize() if isinstance(value, str) else value
+        options.append((value, label))
     return options
 
 

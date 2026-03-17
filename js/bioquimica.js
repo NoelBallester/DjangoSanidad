@@ -495,19 +495,20 @@ const modificarTuboUpdate = async (event) => {
     return;
   }
 
-  const data = {
-    tubo: inputTuboUpdate.value,
-    fecha: inputFechaUpdate.value,
-    descripcion: inputDescripcionUpdate.value,
-    caracteristicas: inputCaracteristicasUpdate.value,
-    observaciones: inputObservacionesUpdate.value,
-    organo: inputSelectUpdate.value,
-    informacion_clinica: inputClinicaUpdate.value,
-    descripcion_microscopica: inputMicroscopiaUpdate.value,
-    diagnostico_final: inputDiagnosticoUpdate.value,
-    patologo_responsable: inputPatologoUpdate.value,
-    tecnico: tecnicoId,
-  };
+  const data = {};
+  if (inputFechaUpdate.value) data.fecha = inputFechaUpdate.value;
+  if (inputTuboUpdate.value) data.muestra = inputTuboUpdate.value;
+  if (inputSelectUpdate.value) data.organo = inputSelectUpdate.value;
+  if (inputDescripcionUpdate.value) data.descripcion = inputDescripcionUpdate.value;
+  if (inputCaracteristicasUpdate.value) data.caracteristicas = inputCaracteristicasUpdate.value;
+  if (inputObservacionesUpdate.value) data.observaciones = inputObservacionesUpdate.value;
+  if (inputClinicaUpdate.value) data.informacion_clinica = inputClinicaUpdate.value;
+  if (inputMicroscopiaUpdate.value) data.descripcion_microscopica = inputMicroscopiaUpdate.value;
+  if (inputDiagnosticoUpdate.value) data.diagnostico_final = inputDiagnosticoUpdate.value;
+  if (inputPatologoUpdate.value) data.patologo_responsable = inputPatologoUpdate.value;
+  // Assuming qr_tubo is a new field and inputQRUpdate exists
+  if (typeof inputQRUpdate !== 'undefined' && inputQRUpdate.value) data.qr_tubo = inputQRUpdate.value;
+  data.tecnico = tecnicoId;
 
   await fetch(`/api/tubos/${tuboId}/`, {
     method: "PATCH",
@@ -517,14 +518,16 @@ const modificarTuboUpdate = async (event) => {
     },
     body: JSON.stringify(data),
   })
-    .then((response) => {
+    .then(async (response) => {
       if (response.ok) {
         console.log("Muestra actualizada");
         modalupdateTubo.classList.remove("showmodal");
         // En vez de recargar la página, actualizamos los datos
         actualizarVistaYLista(tuboId);
       } else {
-        alert("Error al actualizar el análisis");
+        const errorData = await response.json().catch(() => ({}));
+        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
+        alert("Error al actualizar el análisis: " + mensaje);
       }
     })
     .catch((error) => {
@@ -569,43 +572,48 @@ const cargarMuestraUpdateModal = async (event) => {
 const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
-  const data = {
-    fecha: inputmodificarfechaMuestra.value,
-    descripcion: inputmodificardescripcionMuestra.value,
-    observaciones: inputmodificarobservacionesMuestra.value,
-    tincion: selectmodificartincionMuestra.value,
-    tubo: tuboId
-  };
+  const data = {};
+  if (inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
+  if (inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
+  if (inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
+  data.tubo = tuboId; // El tubo padre sigue siendo necesario o al menos no molesta
 
   await fetch(`/api/muestrastubo/${muestraId}/`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
     },
     body: JSON.stringify(data),
   })
-    .then(async () => {
-      // Actualizamos los datos del detalle del análisis
-      muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
-      let newfecha = inputmodificarfechaMuestra.value;
-      muestra__fecha.textContent =
-        newfecha.substring(8) +
-        "-" +
-        newfecha.substring(5, 7) +
-        "-" +
-        newfecha.substring(0, 4);
+    .then(async (response) => {
+      if (response.ok) {
+        // Actualizamos los datos del detalle del análisis
+        muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
+        let newfecha = inputmodificarfechaMuestra.value;
+        muestra__fecha.textContent =
+          newfecha.substring(8) +
+          "-" +
+          newfecha.substring(5, 7) +
+          "-" +
+          newfecha.substring(0, 4);
 
-      muestra__observaciones.textContent =
-        inputmodificarobservacionesMuestra.value;
-      muestra__tincion.textContent = selectmodificartincionMuestra.value;
+        muestra__observaciones.textContent =
+          inputmodificarobservacionesMuestra.value;
+        muestra__tincion.textContent = selectmodificartincionMuestra.value;
 
-      // Mostramos los análisis para que se actualicen
-      let respuesta = await cargarMuestras(tuboId);
-      imprimirMuestras(respuesta);
+        // Mostramos los análisis para que se actualicen
+        let respuesta = await cargarMuestras(tuboId);
+        imprimirMuestras(respuesta);
 
-      modalmodificarMuestra.classList.remove("showmodal");
-      modalmodificarMuestra.classList.add("hidemodal");
+        modalmodificarMuestra.classList.remove("showmodal");
+        modalmodificarMuestra.classList.add("hidemodal");
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
+        alert("Error al actualizar la muestra: " + mensaje);
+      }
     })
 };
 
@@ -1644,9 +1652,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   mostrarEstadoSinSeleccion();
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
-  inputFecha.setAttribute("min", fechaActual);
-  inputFechaUpdate.setAttribute("min", fechaActual);
-  inputFechaMuestra.setAttribute("min", fechaActual);
+  // Se elimina la restricción de fecha mínima para permitir fechas pasadas
+  // inputFecha.setAttribute("min", fechaActual);
+  // inputFechaUpdate.setAttribute("min", fechaActual);
+  // inputFechaMuestra.setAttribute("min", fechaActual);
 
   // Toggle section views
   const sectionTubosTable = document.getElementById("sectionTubos");

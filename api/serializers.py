@@ -212,7 +212,9 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
     # Aliases para compatibilidad con el frontend de PHPSanidad
     id_muestra = serializers.IntegerField(source='id_tubo', read_only=True)
     muestra = serializers.CharField(source='tubo', required=False)
-    tipo_muestra = serializers.CharField(source='organo', required=False)
+    tipo_muestra = serializers.CharField(source='organo', required=False, allow_blank=True)
+    organo = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     
     class Meta:
         model = Tubo
@@ -237,6 +239,7 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
 class MuestraTuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     tincion = serializers.CharField(required=False, allow_blank=True)
     qr_muestra = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 
