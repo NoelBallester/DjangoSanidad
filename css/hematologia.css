@@ -720,6 +720,44 @@ body {
     padding: 2.5rem !important;
 }
 
+/* Improve readability inside detail and edit/create modals */
+#detalleHematologiaSection .blue__color--negrita,
+.detallemuestra .blue__color--negrita {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+#detalleHematologiaSection .blue__color,
+.detallemuestra .blue__color {
+    color: #1d4ed8 !important;
+}
+
+.miform .form-control,
+.miform .form-select {
+    background-color: #ffffff !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+}
+
+.miform .form-control::placeholder,
+.miform textarea::placeholder {
+    color: #64748b !important;
+}
+
+.miform input[type="file"] {
+    color: #0f172a !important;
+}
+
+.miform input[type="file"]::file-selector-button {
+    border: 1px solid #64748b;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    margin-right: 0.75rem;
+    cursor: pointer;
+}
+
 .Muestras__icon,
 .muestra__icon {
     color: var(--primary) !important;
@@ -940,6 +978,29 @@ html.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indica
     background-color: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.2) !important;
     color: #f8fafc !important;
+}
+
+:root.dark-theme .miform .form-control,
+:root.dark-theme .miform .form-select {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #f8fafc !important;
+}
+
+:root.dark-theme #detalleHematologiaSection .blue__color--negrita,
+:root.dark-theme .detallemuestra .blue__color--negrita {
+    color: #e2e8f0 !important;
+}
+
+:root.dark-theme #detalleHematologiaSection .blue__color,
+:root.dark-theme .detallemuestra .blue__color {
+    color: #93c5fd !important;
+}
+
+:root.dark-theme .miform input[type="file"]::file-selector-button {
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: #334155;
+    color: #e2e8f0;
 }
 
 :root.dark-theme .form-control:focus,
