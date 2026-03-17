@@ -38,7 +38,7 @@
             display: block !important;
         }
     </style>
-    <title>Citologías</title>
+    <title>Registro De Citología</title>
 </head>
 
 <body id="body">
@@ -272,7 +272,7 @@
             <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
                 <div class="title d-flex">
                     <div class="col-10 ps-5">
-                        <h2 class="cassette__title">Citologías</h2>
+                        <h2 class="cassette__title">Registro De Citología</h2>
                     </div>
                     <div class="col-2 d-flex justify-content-end align-items-center gap-2">
                         <button type="button" class="btn m-0 p-0 icono__efect" id="btnformnuevacitologia" data-open-modal="modalnuevaCitologia">
@@ -342,6 +342,11 @@
                                 <i title="Ver QR" class="fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="px-3 mt-2">
+                        <span class="blue__color--negrita">Nombre: </span>
+                        <span class="cassette__text">{{ selected.citologia|default:selected.descripcion|default:"-" }}</span>
                     </div>
 
                     <section class="list-group list-group-flush mt-3">

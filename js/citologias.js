@@ -66,6 +66,7 @@ const nuevaCitologia = document.getElementById("nuevaCitologia");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
 
 const citologiaDescripcion = document.getElementById("citologia__descripcion");
+const citologiaNombre = document.getElementById("citologia__nombre");
 const citologiaOrgano = document.getElementById("citologia__organo");
 const citologiaCitologia = document.getElementById("citologia__citologia");
 const citologiaTipo = document.getElementById("citologia__tipo");
@@ -589,6 +590,9 @@ const detalleCitologia = async (event) => {
 // Muestra el detalle de una citología
 const imprimirDetalleCitologia = (respuesta) => {
   citologiaDescripcion.textContent = respuesta.descripcion.substring(0, 50);
+  if (citologiaNombre) {
+    citologiaNombre.textContent = respuesta.citologia || respuesta.descripcion || "-";
+  }
   citologiaOrgano.textContent = respuesta.organo;
   citologiaCitologia.textContent = respuesta.citologia;
   citologiaTipo.textContent = respuesta.tipo_citologia;
