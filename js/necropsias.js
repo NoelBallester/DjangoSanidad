@@ -1409,12 +1409,18 @@ if (btnaniadirimagenmuestra) {
   btnaniadirimagenmuestra.addEventListener("click", aniadirImagenMuestra);
 }
 
+let informeGuardando = false;
+
 // Guardar solo el informe de resultados
 const guardarInformeMedico = async () => {
+  if (informeGuardando) return;
   if (!currentNecropsiaId) {
     alert("Por favor, selecciona una necropsia primero.");
     return;
   }
+
+  informeGuardando = true;
+  if (btnGuardarInforme) btnGuardarInforme.disabled = true;
 
   const datosReporte = {
     accion: "actualizarInformeMedico",
@@ -1426,16 +1432,23 @@ const guardarInformeMedico = async () => {
     imagen: necropsiaInformeImagen.files.length > 0 ? "" : "", // Basic fallback
   };
 
-  if (necropsiaInformeImagen.files.length > 0) {
-    const imgReader = new FileReader();
-    imgReader.readAsDataURL(necropsiaInformeImagen.files[0]);
-    imgReader.onload = async function () {
-      datosReporte.imagen = imgReader.result.split(',')[1]; // Get base64
-      guardarDatosReporteNecropsia(datosReporte);
-    };
-    return;
+  try {
+    if (necropsiaInformeImagen.files.length > 0) {
+      datosReporte.imagen = await new Promise((resolve, reject) => {
+        const imgReader = new FileReader();
+        imgReader.onload = () => resolve((imgReader.result || "").split(",")[1] || "");
+        imgReader.onerror = () => reject(new Error("Error al leer la imagen del informe"));
+        imgReader.readAsDataURL(necropsiaInformeImagen.files[0]);
+      });
+    }
+    await guardarDatosReporteNecropsia(datosReporte);
+  } catch (error) {
+    console.error("Error al preparar el informe:", error);
+    alert("Error al preparar el informe de resultados.");
+  } finally {
+    informeGuardando = false;
+    if (btnGuardarInforme) btnGuardarInforme.disabled = false;
   }
-  guardarDatosReporteNecropsia(datosReporte);
 };
 
 const guardarDatosReporteNecropsia = async (datosReporte) => {
@@ -1446,7 +1459,9 @@ const guardarDatosReporteNecropsia = async (datosReporte) => {
       body: JSON.stringify(datosReporte),
     });
 
-    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
     alert("Informe actualizado correctamente");
   } catch (error) {
     console.error("Error al guardar el informe:", error);

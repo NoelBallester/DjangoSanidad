@@ -1422,12 +1422,18 @@ if (btnaniadirimagenmuestra) {
   btnaniadirimagenmuestra.addEventListener("click", aniadirImagenMuestra);
 }
 
+let informeGuardando = false;
+
 // Guardar solo el informe de resultados
 const guardarInformeMedico = async () => {
+  if (informeGuardando) return;
   if (!currentCassetteId) {
     alert("Por favor, selecciona un cassette primero.");
     return;
   }
+
+  informeGuardando = true;
+  if (btnGuardarInforme) btnGuardarInforme.disabled = true;
 
   const datosReporte = {
     informe_descripcion: cassetteInformeDescripcion.value,
@@ -1436,16 +1442,23 @@ const guardarInformeMedico = async () => {
     informe_observaciones: cassetteInformeObservaciones.value,
   };
 
-  if (cassetteInformeImagen.files.length > 0) {
-    const imgReader = new FileReader();
-    imgReader.readAsDataURL(cassetteInformeImagen.files[0]);
-    imgReader.onload = async function () {
-      datosReporte.informe_imagen = imgReader.result; // base64 with data: prefix
-      guardarDatosReporteCassette(datosReporte);
-    };
-    return;
+  try {
+    if (cassetteInformeImagen.files.length > 0) {
+      datosReporte.informe_imagen = await new Promise((resolve, reject) => {
+        const imgReader = new FileReader();
+        imgReader.onload = () => resolve(imgReader.result || "");
+        imgReader.onerror = () => reject(new Error("Error al leer la imagen del informe"));
+        imgReader.readAsDataURL(cassetteInformeImagen.files[0]);
+      });
+    }
+    await guardarDatosReporteCassette(datosReporte);
+  } catch (error) {
+    console.error("Error al preparar el informe:", error);
+    alert("Error al preparar el informe de resultados.");
+  } finally {
+    informeGuardando = false;
+    if (btnGuardarInforme) btnGuardarInforme.disabled = false;
   }
-  guardarDatosReporteCassette(datosReporte);
 };
 
 const guardarDatosReporteCassette = async (datosReporte) => {
@@ -1456,6 +1469,9 @@ const guardarDatosReporteCassette = async (datosReporte) => {
       body: JSON.stringify(datosReporte),
     });
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
     const data = await res.json();
     alert(data); // "Informe actualizado correctamente"
   } catch (error) {
