@@ -50,6 +50,9 @@ const tuboCaracteristicas = document.getElementById(
 const tuboObservaciones = document.getElementById(
   "tubo__observacionesMain"
 );
+const tuboDiagnostico = document.getElementById(
+  "tubo__diagnosticoMain"
+);
 
 // Variables que se asignarán en DOMContentLoaded
 let tuboInformeDescripcion = null;
@@ -1121,8 +1124,11 @@ const imprimirDataTubo = (respuesta) => {
     tuboFecha.textContent = "";
   }
 
-  tuboCaracteristicas.textContent = respuesta.caracteristicas;
-  tuboObservaciones.textContent = respuesta.observaciones;
+  tuboCaracteristicas.textContent = respuesta.caracteristicas || "";
+  tuboObservaciones.textContent = respuesta.observaciones || "";
+  if (tuboDiagnostico) {
+    tuboDiagnostico.textContent = respuesta.diagnostico_final || "";
+  }
 
   tuboInformeDescripcion.value = respuesta.informe_descripcion || "";
   tuboInformeFecha.value = respuesta.informe_fecha || "";
