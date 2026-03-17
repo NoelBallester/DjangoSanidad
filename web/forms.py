@@ -137,6 +137,35 @@ IMAGE_ALLOWED_CONTENT_TYPES = {
 }
 
 
+# Valores soportados para tipo de muestra en citologia.
+# Se incluyen variantes legacy y nuevas para compatibilidad entre UI y catalogo.
+DEFAULT_CITOLOGIA_SAMPLE_TYPES = [
+    'Improntas',
+    'Punción-aspiración',
+    'Esputo',
+    'Líquido pleural',
+    'Líquido ascítico',
+    'Líquido pericárdico',
+    'Saliva',
+    'Contenido quístico',
+    'Raspados',
+    'Orina',
+    'Cepillado',
+    'Citología respiratoria (BAS y BAL)',
+    'Secreción mamaria',
+    'Muestra vulvar',
+    'Muestra endometrial',
+    'PAAF',
+    'P.A.A.F',
+    'Liquido sinovial',
+    'Líquido Sinovial',
+    'Muestra cervico-vaginal',
+    'Muestra Cervico-Vaginal',
+    'Otros',
+    'otros',
+]
+
+
 def _validate_uploaded_file(uploaded_file, allowed_extensions, allowed_content_types, field_label):
     if not uploaded_file:
         return uploaded_file
@@ -223,10 +252,24 @@ class CitologiaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organo'].choices = _catalog_organo_choices()
-        self.fields['tipo_citologia'].choices = _catalog_simple_choices(
+        tipo_citologia_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_CITOLOGIA,
             'Tipo de muestra',
         )
+
+        for value in DEFAULT_CITOLOGIA_SAMPLE_TYPES:
+            tipo_citologia_choices = _append_choice_if_missing(tipo_citologia_choices, value)
+
+        # Si llega una variante no catalogada en POST o en instancia legacy,
+        # se mantiene en las choices para evitar errores de validacion.
+        data_value = None
+        if hasattr(self, 'data') and self.data:
+            data_value = self.data.get(self.add_prefix('tipo_citologia'))
+        instance_value = getattr(self.instance, 'tipo_citologia', None) if self.instance else None
+        tipo_citologia_choices = _append_choice_if_missing(tipo_citologia_choices, data_value)
+        tipo_citologia_choices = _append_choice_if_missing(tipo_citologia_choices, instance_value)
+
+        self.fields['tipo_citologia'].choices = tipo_citologia_choices
         for name, field in self.fields.items():
             if name not in ('fecha', 'caracteristicas', 'observaciones', 'organo', 'tipo_citologia'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
