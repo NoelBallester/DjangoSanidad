@@ -11,6 +11,7 @@ INFORMES.
 Informe = Informe de resultados.
 Añadir "perfil hepatico, perfil renal".
 FALTAN EN ALGUNOS INFORMES DE MODULOS DIFERENTES COSAS. EN EL DE HEMATOLOGIA FALTA UN MONTÓN.
+Informe de MICROBIOLOGIA: Muestras = Tipo de analisis. 
 
 BIOSPIAS. hECHO
 En biospsias en la tabla donde salen la informacion
@@ -29,6 +30,6 @@ QUITAR DUPLICADO EN DETALLES DE HEMATOLOGIA SALE DOS VECES TIPO DE MUESTRA. HECH
 En muestras procesadas cambiar lo de tipo de muestra por tinciones (más añadir las tinciones xd). HECHO
 
 MICROBIOLOGIA
-DETALLE DE MUESTRA ==== Aditivos
-Muestra procesada, "tipo" = "tipo de tincion"
-Informe de MICROBIOLOGIA: Muestras = Tipo de analisis. 
+DETALLE DE MUESTRA ==== Aditivos HECHO
+Muestra procesada, "tipo" = "tipo de tincion" HECHO
+
