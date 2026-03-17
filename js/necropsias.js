@@ -607,8 +607,8 @@ const imprimirDetalleNecropsia = (respuesta) => {
   currentNecropsiaId = respuesta.id_necropsia;
   muestraId = null;
   if (btnToggleInforme) {
-    btnToggleInforme.disabled = true;
-    btnToggleInforme.title = "Selecciona una muestra para crear o ver informe";
+    btnToggleInforme.disabled = false;
+    btnToggleInforme.removeAttribute("title");
   }
 
   // Le paso la imagen al visor de imagenes
@@ -821,8 +821,13 @@ const imprimirMuestras = (respuesta) => {
   if (!respuesta || respuesta.length === 0) {
     muestraId = null;
     if (btnToggleInforme) {
-      btnToggleInforme.disabled = true;
-      btnToggleInforme.title = "Selecciona una muestra para crear o ver informe";
+      // El informe depende de la necropsia seleccionada, no de tener muestras.
+      btnToggleInforme.disabled = !currentNecropsiaId;
+      if (currentNecropsiaId) {
+        btnToggleInforme.removeAttribute("title");
+      } else {
+        btnToggleInforme.title = "Selecciona una necropsia para crear o ver informe";
+      }
     }
   }
 
@@ -1429,11 +1434,11 @@ const guardarInformeMedico = async () => {
     fecha: necropsiaInformeFecha.value,
     tincion: necropsiaInformeTincion.value,
     observaciones: necropsiaInformeObservaciones.value,
-    imagen: necropsiaInformeImagen.files.length > 0 ? "" : "", // Basic fallback
+    imagen: necropsiaInformeImagen?.files?.length > 0 ? "" : "", // Basic fallback
   };
 
   try {
-    if (necropsiaInformeImagen.files.length > 0) {
+    if (necropsiaInformeImagen?.files?.length > 0) {
       datosReporte.imagen = await new Promise((resolve, reject) => {
         const imgReader = new FileReader();
         imgReader.onload = () => resolve((imgReader.result || "").split(",")[1] || "");
@@ -1481,13 +1486,13 @@ const btnToggleMuestras = document.getElementById("btnToggleMuestras");
 
 if (btnToggleInforme) {
   btnToggleInforme.disabled = true;
-  btnToggleInforme.title = "Selecciona una muestra para crear o ver informe";
+  btnToggleInforme.title = "Selecciona una necropsia para crear o ver informe";
 }
 
 if (btnToggleInforme && sectionMuestras && sectionInforme) {
   btnToggleInforme.addEventListener("click", () => {
-    if (!muestraId) {
-      mostrarAvisoToast("No hay seleccionada una muestra.", "warning");
+    if (!currentNecropsiaId) {
+      mostrarAvisoToast("No hay seleccionada una necropsia.", "warning");
       return;
     }
     sectionMuestras.classList.add("d-none");
