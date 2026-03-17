@@ -602,7 +602,7 @@
                 <!--   <form class="row g-3 miform" id="nuevoMicrobiologia" enctype="multipart/form-data"> -->
 
                 <div class="form__header">
-                    <h2 class="microbiologia__title m-0">Nuevo Microbiología</h2>
+                    <h2 class="microbiologia__title m-0">Nueva Muestra</h2>
                     <i class="fa-solid fa-circle-xmark microbiologia__icon microbiologia__icon--infomicrobiologia fs-2"
                         id="btnformcerrarnuevoMicrobiologia"></i>
                 </div>
@@ -699,13 +699,18 @@
                 <!--  <form class="row g-3 miform" id="modificarMicrobiologia" enctype="multipart/form-data"> -->
 
                 <div class="form__header">
-                    <h2 class="microbiologia__title">Modificar Microbiología</h2>
+                    <h2 class="microbiologia__title">Modificar Muestra</h2>
                     <i class="fa-solid fa-circle-xmark microbiologia__icon microbiologia__icon--infomicrobiologia fs-2"
                         id="btnformcerrarmodificarMicrobiologia"></i>
                 </div>
                 <hr>
 
-                <div class="col-md-12 mt-0">
+                <div class="col-md-12 mt-4">
+                    <label for="inputMicrobiologiaUpdate" class="form-label blue__color">Número Microbiología</label>
+                    <input class="form-control blue__color" id="inputMicrobiologiaUpdate">
+                </div>
+
+                <div class="col-md-12 mt-2">
                     <label for="inputDescripcionUpdate" class="form-label blue__color">Aditivo añadido</label>
                     <input class="form-control blue__color" id="inputDescripcionUpdate" required>
                 </div>
@@ -714,11 +719,6 @@
                     <label for="inputClinicaUpdate" class="form-label blue__color">Volante de petición (archivo)</label>
                     <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputClinicaUpdate">
-                </div>
-
-                <div class="col-md-12 mt-3">
-                    <label for="inputMicrobiologiaUpdate" class="form-label blue__color">Número Microbiología</label>
-                    <input class="form-control blue__color" id="inputMicrobiologiaUpdate">
                 </div>
 
                 <div class="row col-md-12 mt-3">
