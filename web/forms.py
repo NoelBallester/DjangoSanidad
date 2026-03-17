@@ -172,6 +172,10 @@ def _validate_uploaded_file(uploaded_file, allowed_extensions, allowed_content_t
     if not uploaded_file:
         return uploaded_file
 
+    # bytes/memoryview = existing stored binary value (no new file uploaded) — skip validation
+    if isinstance(uploaded_file, (bytes, memoryview)):
+        return uploaded_file
+
     file_name = (uploaded_file.name or '').lower()
     extension = '.' + file_name.rsplit('.', 1)[-1] if '.' in file_name else ''
     if extension not in allowed_extensions:

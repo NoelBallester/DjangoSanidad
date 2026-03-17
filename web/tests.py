@@ -573,11 +573,11 @@ class CitologiaCRUDTests(TestCase):
         self.client.post(reverse('citologia_create'), datos)
         self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
 
-    def test_crear_citologia_tipo_invalido_no_crea(self):
-        """Un tipo que no existe en TIPOS_CITOLOGIA debe rechazarse."""
+    def test_crear_citologia_tipo_desconocido_se_acepta(self):
+        """Un tipo libre (no en catálogo) se acepta para compatibilidad con registros legacy."""
         datos = {**self.DATOS_VALIDOS, 'tipo_citologia': 'Exfoliativa'}
         self.client.post(reverse('citologia_create'), datos)
-        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+        self.assertTrue(Citologia.objects.filter(citologia='CIT001').exists())
 
     def test_crear_citologia_sin_sesion_redirige_login(self):
         self.client.logout()
@@ -596,16 +596,17 @@ class CitologiaCRUDTests(TestCase):
         c.refresh_from_db()
         self.assertEqual(c.descripcion, 'Desc actualizada')
 
-    def test_editar_citologia_tipo_invalido_no_modifica(self):
+    def test_editar_citologia_tipo_desconocido_modifica(self):
+        """Un tipo libre se acepta también en edición (compatibilidad legacy)."""
         c = make_citologia(self.tecnico, 1)
-        desc_original = c.descripcion
         self.client.post(reverse('citologia_update', args=[c.pk]), {
             'citologia': c.citologia, 'tipo_citologia': 'TipoFalso',
             'fecha': c.fecha, 'descripcion': 'Desc cambiada',
             'caracteristicas': c.caracteristicas, 'organo': c.organo,
         })
         c.refresh_from_db()
-        self.assertEqual(c.descripcion, desc_original)
+        self.assertEqual(c.descripcion, 'Desc cambiada')
+        self.assertEqual(c.tipo_citologia, 'TipoFalso')
 
     def test_eliminar_citologia(self):
         c = make_citologia(self.tecnico, 1)
@@ -1221,7 +1222,7 @@ class InformeCassetteTests(TestCase):
         self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
             'informe_descripcion': 'Resultado positivo',
             'informe_fecha': '2024-06-01',
-            'informe_tincion': 'Hematoxilina Eosina (HE)',
+            'informe_tincion': '',
             'informe_observaciones': 'Sin anomalías',
         })
         self.assertTrue(informe_qs_for(self.cassette).exists())
@@ -1296,7 +1297,7 @@ class InformeCitologiaTests(TestCase):
         self.client.post(reverse('citologia_informe', args=[self.citologia.pk]), {
             'informe_descripcion': 'Resultado cit',
             'informe_fecha': '2024-06-01',
-            'informe_tincion': 'Papanicolau',
+            'informe_tincion': '',
             'informe_observaciones': '',
         })
         self.assertTrue(informe_qs_for(self.citologia).exists())

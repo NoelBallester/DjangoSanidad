@@ -62,8 +62,9 @@ class TecnicoSerializer(serializers.ModelSerializer):
         model = Tecnico
         fields = ['id_tecnico', 'nombre', 'apellidos', 'email', 'centro']
 
-class CassetteSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+class CassetteSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_casette'
+    volante_peticion_url = serializers.SerializerMethodField()
 
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
@@ -150,8 +151,9 @@ class ImagenCitologiaSerializer(FileUrlSerializerMixin, serializers.ModelSeriali
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+class NecropsiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_necropsia'
+    volante_peticion_url = serializers.SerializerMethodField()
 
     def validate_tipo_necropsia(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_AUTOPSIA, value, 'Tipo de necropsia')
