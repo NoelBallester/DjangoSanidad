@@ -900,9 +900,9 @@ const imprimirInformesTubo = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-circle-info tubo__icon tubo__icon--infotubo me-2" title="Ver datos del formulario" data-action="info" data-id="${informe.id_informe}"></i>
-      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}" onclick="window.verInformeBioquimica('${urlInforme || ''}')"></i>
-      <i class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}" onclick="window.editarInformeBioquimica('${informe.id_informe}')"></i>
-      <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}" onclick="window.eliminarInformeBioquimica('${informe.id_informe}')"></i>
+      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}"></i>
+      <i class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}"></i>
+      <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
     `;
 
     tr.appendChild(tdFecha);
@@ -2184,7 +2184,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     informesListaTubo.addEventListener("click", async (event) => {
       const target = event.target.closest("i[data-action]");
       if (!target) return;
-      if (target.hasAttribute("onclick")) return;
       const action = target.dataset.action;
       const informeId = target.dataset.id;
       if (!informeId) return;
@@ -2202,6 +2201,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!informe) return;
 
       if (action === "cargar") {
+        informeEditandoId = String(informe.id_informe);
+        actualizarEtiquetaBotonInforme();
         cargarInformeEnFormularioTubo(informe);
         mostrarPanelNuevoInformeTubo(false);
       }
@@ -2224,77 +2225,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
-
-// Fallback robusto para evitar bloqueos por listeners rotos en la pagina.
-document.addEventListener("click", (event) => {
-  const iconoVer = event.target.closest("#informes_lista_tubo i[data-action='ver']");
-  if (!iconoVer) return;
-  const url = iconoVer.dataset.url;
-  if (!url) {
-    mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
-    return;
-  }
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
-  window.open(url, "_blank", "noopener");
-}, true);
-
-document.addEventListener("click", async (event) => {
-  const btn = event.target.closest("#btnGuardarInforme");
-  if (!btn || event.defaultPrevented) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
-  const targetId = currentTuboId || tuboId;
-  if (!targetId) {
-    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
-    return;
-  }
-
-  const descripcion = document.getElementById("tubo__informe_descripcion")?.value || "";
-  const fecha = document.getElementById("tubo__informe_fecha")?.value || "";
-  const tincion = document.getElementById("tubo__informe_tincion")?.value || "";
-  const observaciones = document.getElementById("tubo__informe_observaciones")?.value || "";
-  const inputFile = document.getElementById("tubo__informe_imagen");
-
-  const payload = { descripcion, fecha, tincion, observaciones, tubo: targetId };
-
-  if (inputFile && inputFile.files && inputFile.files[0]) {
-    payload.imagen = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result || "");
-      reader.onerror = () => reject(new Error("Error al leer el archivo"));
-      reader.readAsDataURL(inputFile.files[0]);
-    });
-  }
-
-  try {
-    mostrarEstadoInforme("Guardando informe...", "info");
-    cambiarEstadoBotonGuardar(true);
-    const res = await fetch("/api/informesresultado/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "No se pudo guardar el informe");
-    }
-
-    mostrarEstadoInforme("Informe guardado correctamente.", "success");
-    if (inputFile) inputFile.value = "";
-    ocultarPanelNuevoInformeTubo();
-    await refrescarInformesTubo(targetId);
-  } catch (error) {
-    console.error(error);
-    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
-  } finally {
-    cambiarEstadoBotonGuardar(false);
-  }
-}, true);
