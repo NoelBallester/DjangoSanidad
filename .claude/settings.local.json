@@ -30,7 +30,10 @@
       "Bash(grep -rn \"{% empty %}\" /home/jl/Escritorio/PYTHON-SANIDAD/DjangoSanidad/web/templates/web/*.html | head -20)",
       "Bash(find /home/jl/Escritorio/PYTHON-SANIDAD/DjangoSanidad/web/templates -name \"*.html\" | xargs basename -a | sort | uniq)",
       "Bash(grep -r \"{% include\\\\|{% for\\\\|empty\" /home/jl/Escritorio/PYTHON-SANIDAD/DjangoSanidad/web/templates/web/*.html | grep -E \"empty|include\" | head -20)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cd:*)"
     ]
   }
 }

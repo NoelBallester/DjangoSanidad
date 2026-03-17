@@ -45,7 +45,11 @@ urlpatterns = [
     re_path(r'^css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),
     re_path(r'^js/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'js')}),
     re_path(r'^assets/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'assets')}),
+    # Alias /static/css|js|assets → mismas carpetas (necesario en producción DEBUG=False)
+    re_path(r'^static/css/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'css')}),
+    re_path(r'^static/js/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'js')}),
+    re_path(r'^static/assets/(?P<path>.*)$', serve_static, {'document_root': os.path.join(settings.BASE_DIR, 'assets')}),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Servir media siempre (app standalone/portable local)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
