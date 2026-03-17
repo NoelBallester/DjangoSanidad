@@ -62,8 +62,9 @@ class TecnicoSerializer(serializers.ModelSerializer):
         model = Tecnico
         fields = ['id_tecnico', 'nombre', 'apellidos', 'email', 'centro']
 
-class CassetteSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+class CassetteSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_casette'
+    volante_peticion_url = serializers.SerializerMethodField()
 
     def validate_organo(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_ORGANO, value, 'Organo')
@@ -150,8 +151,9 @@ class ImagenCitologiaSerializer(FileUrlSerializerMixin, serializers.ModelSeriali
     def get_imagen_url(self, obj):
         return self._file_url(obj, 'imagen')
 
-class NecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSerializer):
+class NecropsiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     qr_field = 'qr_necropsia'
+    volante_peticion_url = serializers.SerializerMethodField()
 
     def validate_tipo_necropsia(self, value):
         return _validar_catalogo(CatalogoOpcion.TIPO_AUTOPSIA, value, 'Tipo de necropsia')
@@ -212,7 +214,9 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
     # Aliases para compatibilidad con el frontend de PHPSanidad
     id_muestra = serializers.IntegerField(source='id_tubo', read_only=True)
     muestra = serializers.CharField(source='tubo', required=False)
-    tipo_muestra = serializers.CharField(source='organo', required=False)
+    tipo_muestra = serializers.CharField(source='organo', required=False, allow_blank=True)
+    organo = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     
     class Meta:
         model = Tubo
@@ -237,6 +241,7 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
 class MuestraTuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     tincion = serializers.CharField(required=False, allow_blank=True)
     qr_muestra = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 

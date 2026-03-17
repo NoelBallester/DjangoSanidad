@@ -1160,9 +1160,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   imprimirNecropsias(respuesta);
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
-  inputFecha.setAttribute("min", fechaActual);
-  inputFechaUpdate.setAttribute("min", fechaActual);
-  inputFechaMuestra.setAttribute("min", fechaActual);
+  // Se elimina la restricción de fecha mínima para permitir fechas pasadas
+  // inputFecha.setAttribute("min", fechaActual);
+  // inputFechaUpdate.setAttribute("min", fechaActual);
+  // inputFechaMuestra.setAttribute("min", fechaActual);
 });
 
 // Consulta por Organo
