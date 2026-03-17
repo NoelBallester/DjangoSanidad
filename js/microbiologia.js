@@ -808,27 +808,27 @@ window.guardarInformeMicrobiologia = async () => {
     return;
   }
   if (informeGuardando) return;
-
-  const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
-  const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
-  const tincion = document.getElementById("microbiologia__informe_tincion")?.value || "";
-  const observaciones = document.getElementById("microbiologia__informe_observaciones")?.value || "";
-  const inputFile = document.getElementById("microbiologia__informe_imagen");
-  const payload = { descripcion, fecha, tincion, observaciones, microbiologia: targetId };
-
-  if (inputFile && inputFile.files && inputFile.files[0]) {
-    payload.imagen = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result || "");
-      reader.onerror = () => reject(new Error("Error al leer el archivo"));
-      reader.readAsDataURL(inputFile.files[0]);
-    });
-  }
+  informeGuardando = true;
+  cambiarEstadoBotonGuardar(true);
 
   try {
-    informeGuardando = true;
     mostrarEstadoInforme("Guardando informe...", "info");
-    cambiarEstadoBotonGuardar(true);
+    const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
+    const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
+    const tincion = document.getElementById("microbiologia__informe_tincion")?.value || "";
+    const observaciones = document.getElementById("microbiologia__informe_observaciones")?.value || "";
+    const inputFile = document.getElementById("microbiologia__informe_imagen");
+    const payload = { descripcion, fecha, tincion, observaciones, microbiologia: targetId };
+
+    if (inputFile && inputFile.files && inputFile.files[0]) {
+      payload.imagen = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result || "");
+        reader.onerror = () => reject(new Error("Error al leer el archivo"));
+        reader.readAsDataURL(inputFile.files[0]);
+      });
+    }
+
     const isEdit = Boolean(informeEditandoId);
     const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
     const res = await fetch(endpoint, {
