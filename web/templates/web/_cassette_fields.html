@@ -1,12 +1,12 @@
 {% load static %}
 {% with c=selected %}
 <div class="col-md-12 mt-4">
-    <label class="form-label">Número Cassette</label>
+    <label class="form-label">Nº Biopsia</label>
     <input type="text" name="cassette" class="form-control"
         value="{% if edit %}{{ c.cassette }}{% endif %}" required>
 </div>
 <div class="col-md-12 mt-3">
-    <label class="form-label">Detalle Biopsia / Número de bloques asociados</label>
+    <label class="form-label">Nº Cassette / Bloque Asociado</label>
     <textarea name="descripcion" class="form-control textarea__text"
         required>{% if edit %}{{ c.descripcion }}{% endif %}</textarea>
 </div>

@@ -425,7 +425,7 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Descripción</th>
+                                <th>Validación muestra</th>
                                 <th>Tipo de Tinción</th>
                                 <th>Observaciones</th>
                                 <th>Acciones</th>
@@ -634,7 +634,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label class="form-label blue__color">Validación muestra</label>
                     <input type="text" name="descripcion" class="form-control" required>
                 </div>
                 <div class="col-md-12">
@@ -655,6 +655,7 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
@@ -671,7 +672,7 @@
                     <textarea name="aproximacion_diagnostica" class="form-control textarea__text"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Volante de petición (archivo)</label>
+                    <label class="form-label blue__color">Adjuntar Imagen</label>
                     <input type="file" name="imagen" accept="*/*" class="form-control">
                 </div>
                 <div class="col-12">
@@ -707,7 +708,7 @@
 
                     <section class="row mt-3">
                         <div class="col-4 border-end text-center">
-                            <li class="list-group-item blue__color--negrita">Descripción:
+                            <li class="list-group-item blue__color--negrita">Validación muestra:
                                 <p class="muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Fecha:
@@ -780,7 +781,7 @@
                 </div>
                 <hr>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <label class="form-label blue__color">Validación muestra</label>
                     <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control"
                         required>
                 </div>
@@ -802,6 +803,7 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>

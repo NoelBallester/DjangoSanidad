@@ -48,7 +48,7 @@
     <link rel="stylesheet" href="./css/sortable.css" />
     <link rel="stylesheet" href="./css/cassettes.css">
 
-    <title>Cassettes</title>
+    <title>Registro Biopsias</title>
 </head>
 
 <body id="body">
@@ -115,7 +115,7 @@
                     <div style="min-width: 140px;">
                         <select class="form-select border__color unified-filter-height" id="numCassette"
                             style="font-size: 0.85rem;">
-                            <option selected disabled>Nº Cassette</option>
+                            <option selected disabled>Nº Biopsia</option>
                         </select>
                     </div>
 
@@ -245,12 +245,12 @@
 
     <!-- Alert mensajes borrar y modificar cassettes -->
     <div class="alert text-center ocultar" role="alert" id="alertfecha">
-        <span class="fs-3" id="alertfecha_text"> Seleccione un Cassete</span>
+        <span class="fs-3" id="alertfecha_text"> Seleccione una Biopsia</span>
     </div>
 
     <!-- Alert rango fechas -->
     <div class="alert alert-danger text-center ocultar" role="alert" id="alertcassette">
-        <span class=" fs-4"> Seleccione un Cassette</span>
+        <span class=" fs-4"> Seleccione una Biopsia</span>
     </div>
 
     <main class="container-fluid pt-3 px-5">
@@ -260,17 +260,17 @@
             <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
                 <div class="title d-flex">
                     <div class="col-10 ps-5">
-                        <h2 class="cassette__title">Cassettes</h2>
+                        <h2 class="cassette__title">Registro Biopsias</h2>
                     </div>
                     <div class="col-2 justify-content-end">
                         <button type="button" class="btn m-0 p-0  icono__efect" id="btnformnuevocassette"><i
-                                title="Nuevo Cassette"
+                                title="Nueva Biopsia"
                                 class=" m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
 
                         <button type="button" class="btn m-0 p-0 icono__efect" id="todosCassettes">
                             <i class="bi bi-files blue__color--negrita fs-5 m-0 p-0"
-                                title="Mostrar todos los Cassette"></i>
+                                title="Mostrar todas las Biopsias"></i>
                         </button>
 
                         <!--    <button type="button" class="btn m-0 p-0 icono__efect">
@@ -283,9 +283,9 @@
                     <table class="table sortable-theme-finder" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="row">Cassette</th>
+                                <th scope="row">Biopsia</th>
                                 <th scope="row">Fecha</th>
-                                <th scope="row">Detalle Biopsia</th>
+                                <th scope="row">Nº Cassette / Bloque Asociado</th>
                                 <th scope="row">Órgano</th>
                                 <th data-sortable="false"></th>
                             </tr>
@@ -297,11 +297,11 @@
                 </div>
             </div>
 
-            <!-- Detalle Cassette -->
+            <!-- Detalle Biopsia -->
             <section class="cassette col-12 col-lg-5" id="cassette">
                 <div class="p-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center">
-                        <h2 class="cassette__title text-center">Detalle Cassette: </h2>
+                        <h2 class="cassette__title text-center">Detalle Biopsia: </h2>
                         <div class="d-flex pt-2 align-items-start">
 
                             <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrCassetteModal">
@@ -310,7 +310,7 @@
                             </div>
 
                             <div data-bs-toggle="modal" data-bs-target="#eliminarCassetteModal">
-                                <i title="Borrar Cassette"
+                                <i title="Borrar Biopsia"
                                     class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
 
@@ -320,7 +320,7 @@
               </div> -->
 
                             <div id="btnformmodificarcassette">
-                                <i title="Modificar Cassette"
+                                <i title="Modificar Biopsia"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
@@ -444,6 +444,7 @@
                                 <option>Resultados Biopsias</option>
                                 <option>Improntas</option>
                                 <option>Aspirados</option>
+                                <option>Biología Molecular</option>
                                 <option>Otros</option>
                             </select>
                         </div>
@@ -507,10 +508,12 @@
                         <option>Gram</option>
                         <option>Azul de Metileno</option>
                         <option>Papanicolau</option>
-                        <option>Zienhl-Neelsen</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
 
                     </select>
@@ -522,7 +525,7 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputImagenesMuestra" class="form-label blue__color">Volante de petición (archivo)</label>
+                    <label for="inputImagenesMuestra" class="form-label blue__color">Adjuntar Imagen</label>
                     <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputImagenesMuestra">
                 </div>
@@ -568,10 +571,12 @@
                         <option>Gram</option>
                         <option>Azul de Metileno</option>
                         <option>Papanicolau</option>
-                        <option>Zienhl-Neelsen</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
@@ -666,25 +671,25 @@
 
         </section>
 
-        <!-- Modal Nuevo Cassette-->
+        <!-- Modal Nueva Biopsia-->
         <section class="mimodal" id="modalnuevoCassette">
             <form class="row g-3 miform" id="nuevoCassette">
                 <!--   <form class="row g-3 miform" id="nuevoCassette" enctype="multipart/form-data"> -->
 
                 <div class="form__header">
-                    <h2 class="cassette__title m-0">Nuevo Cassette</h2>
+                    <h2 class="cassette__title m-0">Nueva Biopsia</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarnuevoCassette"></i>
                 </div>
                 <hr class="m-0">
 
                 <div class="col-md-12 mt-4">
-                    <label for="inputCassette" class="form-label blue__color">Número Cassette</label>
+                    <label for="inputCassette" class="form-label blue__color">Nº Biopsia</label>
                     <input class="form-control blue__color" id="inputCassette" required>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputDescripcion" class="form-label blue__color">Detalle Biopsia / Número de bloques asociados</label>
+                    <label for="inputDescripcion" class="form-label blue__color">Nº Cassette / Bloque Asociado</label>
                     <input class="form-control blue__color" id="inputDescripcion" required>
                 </div>
 
@@ -809,32 +814,32 @@
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal blue__color" type="submit"> Crear Cassette</button>
+                    <button class="btn btn__modal blue__color" type="submit"> Crear Biopsia</button>
                 </div>
 
             </form>
         </section>
 
-        <!-- Modal Modificar Cassette-->
+        <!-- Modal Modificar Biopsia-->
         <section class="mimodal" id="modalupdateCassette">
             <form class="row g-3 miform" id="modificarCassette">
 
                 <!--  <form class="row g-3 miform" id="modificarCassette" enctype="multipart/form-data"> -->
 
                 <div class="form__header">
-                    <h2 class="cassette__title">Modificar Cassette</h2>
+                    <h2 class="cassette__title">Modificar Biopsia</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarmodificarCassette"></i>
                 </div>
                 <hr>
 
                 <div class="col-md-12 mt-0">
-                    <label for="inputCassetteUpdate" class="form-label blue__color">Número Cassette</label>
+                    <label for="inputCassetteUpdate" class="form-label blue__color">Número Biopsia</label>
                     <input class="form-control blue__color" id="inputCassetteUpdate" required>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputDescripcionUpdate" class="form-label blue__color">Detalle Biopsia / Número de bloques asociados</label>
+                    <label for="inputDescripcionUpdate" class="form-label blue__color">Nº Cassette / Bloque Asociado</label>
                     <input class="form-control blue__color" id="inputDescripcionUpdate" required>
                 </div>
 
@@ -952,7 +957,7 @@
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn__modal" type="submit"> Modificar Cassette</button>
+                    <button class="btn btn__modal" type="submit"> Modificar Biopsia</button>
                 </div>
             </form>
         </section>
@@ -968,7 +973,7 @@
                     </div>
 
                     <div class="modal-body text-center fs-4">
-                        <p>Puede escanear el código QR de un Cassette o de una Muestra</p>
+                        <p>Puede escanear el código QR de una Biopsia o de una Muestra</p>
 
                         <input type="text" value="qr" id="input__consultarqr">
                         <!--  <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
@@ -1001,19 +1006,19 @@
             </div>
         </section>
 
-        <!-- Modal Imprimir QR Cassette-->
+        <!-- Modal Imprimir QR Biopsia-->
         <section class="modal fade" id="qrCassetteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Impresión QR Cassette</h5>
+                        <h5 class="modal-title">Impresión QR Biopsia</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body text-center fs-4">
-                        <p>Impresión QR Cassette</p>
-                        <img src="" alt="Imprimir Cassette" id="imgcassette__qr">
+                        <p>Impresión QR Biopsia</p>
+                        <img src="" alt="Imprimir Biopsia" id="imgcassette__qr">
                         <input type="text" value="qr" id="inputcassette__qr">
                         <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqr"
                             data-bs-dismiss="modal">Imprimir</button>
@@ -1023,13 +1028,13 @@
             </div>
         </section>
 
-        <!-- Modal Mostrar Imagen Cassette -->
+        <!-- Modal Mostrar Imagen Biopsia -->
         <section class="modal fade" id="imagenCassetteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Imagen Cassette</h5>
+                        <h5 class="modal-title">Imagen Biopsia</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
@@ -1041,19 +1046,19 @@
             </div>
         </section>
 
-        <!-- Modal Confirmación Borrado Cassette -->
+        <!-- Modal Confirmación Borrado Biopsia -->
         <section class="modal fade" id="eliminarCassetteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Eliminar Cassette</h5>
+                        <h5 class="modal-title">Eliminar Biopsia</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body text-center fs-4">
-                        <p>Desea Eliminar el Cassette.</p>
-                        <p>Al eliminar el cassete se eliminarán también todas sus muestras.</p>
+                        <p>Desea Eliminar la Biopsia.</p>
+                        <p>Al eliminar la biopsia se eliminarán también todas sus muestras.</p>
                         <button type="button" class="btn btn__modal mt-3" id="btnborrar"
                             data-bs-dismiss="modal">Eliminar</button>
                     </div>

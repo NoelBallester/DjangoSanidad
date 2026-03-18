@@ -163,6 +163,7 @@ DEFAULT_CITOLOGIA_SAMPLE_TYPES = [
     'Líquido Sinovial',
     'Muestra cervico-vaginal',
     'Muestra Cervico-Vaginal',
+    'Biología Molecular',
     'Otros',
     'otros',
 ]
@@ -185,6 +186,7 @@ DEFAULT_INFORME_ANALYSIS_TYPES = [
     'Resultados Biopsias',
     'Improntas',
     'Aspirados',
+    'Biología Molecular',
     'Otros',
 ]
 
@@ -333,10 +335,11 @@ class MuestraForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['tincion'].choices = _catalog_simple_choices(
+        tincion_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
+        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -368,10 +371,11 @@ class MuestraCitologiaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['fecha'].required = False
-        self.fields['tincion'].choices = _catalog_simple_choices(
+        tincion_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
+        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -485,6 +489,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
+        tincion_choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
         current_tincion = (
             self.data.get(self.add_prefix('tincion'))
             or self.initial.get('tincion')
@@ -646,10 +651,11 @@ class MuestraHematologiaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['fecha'].required = False
-        self.fields['tincion'].choices = _catalog_simple_choices(
+        tincion_choices = _catalog_simple_choices(
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
+        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')

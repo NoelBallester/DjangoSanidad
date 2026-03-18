@@ -56,9 +56,20 @@ Tipos de análisis
 - Resultados biospsias
 - Improntas
 - Aspirados
+- Biología Molecular
 - Otros
 =======
 DETALLE DE MUESTRA ==== Aditivos HECHO
 Muestra procesada, "tipo" = "tipo de tincion" HECHO
 
 >>>>>>> 776740f17a62472b21341ed620524f20b5d62f95
+
+Nueva BIOSPIAS
+Numero CAssette = Nº Biopsia 
+Detalle Biopsia / Bloque Asociado = Nº Cassette / Bloque Asociado
+
+En tipo de muestra y en tipo de analisis, hay que añadir Biología Molecular en todas las páginas.
+
+En muestras de citologías y hematologia hay que cambiar donde pone descripcion y poner validación muestra
+
+En muestras de todo menos necropsias en vez de volante de petición tiene que poner "Adjuntar Imagen"

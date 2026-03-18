@@ -37,7 +37,7 @@
             display: block !important;
         }
     </style>
-    <title>Cassettes</title>
+    <title>Registro Biopsias</title>
 </head>
 
 <body id="body">
@@ -115,11 +115,11 @@
                     <div class="col p-0"></div>
 
                     <div class="col-auto d-flex align-items-center justify-content-center gap-2 p-0">
-                        <!-- Nº Cassette -->
+                        <!-- Nº Biopsia -->
                         <div style="min-width: 140px;">
                             <select name="numero" class="form-select border__color unified-filter-height"
                                 style="font-size:0.85rem;" onchange="this.form.submit()">
-                                <option value="" {% if not filtros.numero %}selected{% endif %}>Nº Cassette</option>
+                                <option value="" {% if not filtros.numero %}selected{% endif %}>Nº Biopsia</option>
                                 {% for num in todos_numeros %}
                                 <option value="{{ num }}" {% if filtros.numero == num %}selected{% endif %}>{{ num }}</option>
                                 {% endfor %}
@@ -271,16 +271,16 @@
             <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
                 <div class="title d-flex">
                     <div class="col-10 ps-5">
-                        <h2 class="cassette__title">Cassettes</h2>
+                        <h2 class="cassette__title">Registro Biopsias</h2>
                     </div>
                     <div class="col-2 d-flex justify-content-end align-items-center gap-2">
                         <button type="button" class="btn m-0 p-0 icono__efect" id="btnformnuevocassette">
-                            <i title="Nuevo Cassette"
+                            <i title="Nueva Biopsia"
                                 class="m-0 p-0 fa-solid fa-file-circle-plus blue__color--negrita fs-5"></i>
                         </button>
                         <a href="{% url 'cassettes' %}?organo=*" class="btn m-0 p-0 icono__efect">
                             <i class="bi bi-files blue__color--negrita fs-5 m-0 p-0"
-                                title="Mostrar todos los Cassettes"></i>
+                                title="Mostrar todas las Biopsias"></i>
                         </a>
                     </div>
                 </div>
@@ -289,9 +289,9 @@
                     <table class="table sortable-theme-finder" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="col">Cassette</th>
+                                <th scope="col">Biopsia</th>
                                 <th scope="col">Fecha</th>
-                                <th scope="col">Detalle Biopsia</th>
+                                <th scope="col">Nº Cassette / Bloque Asociado</th>
                                 <th scope="col">Órgano</th>
                                 <th data-sortable="false"></th>
                             </tr>
@@ -311,7 +311,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">No hay cassettes.</td>
+                                <td colspan="5" class="text-center text-muted py-4">No hay biopsias.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -324,14 +324,14 @@
                 {% if selected %}
                 <div class="p-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center">
-                        <h2 class="cassette__title text-center">Detalle Cassette:</h2>
+                        <h2 class="cassette__title text-center">Detalle Biopsia:</h2>
                         <div class="d-flex pt-2 align-items-start">
                             <div data-bs-toggle="modal" data-bs-target="#eliminarCassetteModal" style="cursor:pointer">
-                                <i title="Borrar Cassette"
+                                <i title="Borrar Biopsia"
                                     class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div id="btnformmodificarcassette" style="cursor:pointer">
-                                <i title="Modificar Cassette"
+                                <i title="Modificar Biopsia"
                                     class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div id="btnVerQR" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#qrCassetteModal">
@@ -347,7 +347,7 @@
 
                     <section class="list-group list-group-flush mt-3">
                         <div class="d-flex px-3 justify-content-between">
-                            <li class="blue__color--negrita">Detalle Biopsia / Número de bloques asociados:
+                            <li class="blue__color--negrita">Nº Cassette / Bloque Asociado:
                                 <span class="cassette__text">{{ selected.descripcion }}</span>
                             </li>
                             <li class="blue__color--negrita">Técnico ID:
@@ -391,7 +391,7 @@
                 {% else %}
                 <div class="p-4 text-center" style="margin-top:4rem;">
                     <i class="fa-regular fa-hand-pointer blue__color fs-1 d-block mb-3"></i>
-                    <p class="blue__color--negrita">Selecciona un cassette de la tabla para ver el detalle.</p>
+                    <p class="blue__color--negrita">Selecciona una biopsia de la tabla para ver el detalle.</p>
                 </div>
                 {% endif %}
             </section>
@@ -654,6 +654,7 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
@@ -662,7 +663,7 @@
                     <textarea name="observaciones" class="form-control"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Volante de petición (archivo)</label>
+                    <label class="form-label blue__color">Adjuntar Imagen</label>
                     <input type="file" name="imagen" accept="*/*" class="form-control">
                 </div>
                 <div class="col-12">
@@ -793,6 +794,7 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
+                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
@@ -812,14 +814,14 @@
             <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}">
                 {% csrf_token %}
                 <div class="form__header">
-                    <h2 class="cassette__title m-0">Nuevo Cassette</h2>
+                    <h2 class="cassette__title m-0">Nueva Biopsia</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarnuevoCassette"></i>
                 </div>
                 <hr class="m-0">
                 {% include 'web/_cassette_fields.html' %}
                 <div class="col-12">
-                    <button class="btn btn__modal" type="submit">Crear Cassette</button>
+                    <button class="btn btn__modal" type="submit">Crear Biopsia</button>
                 </div>
             </form>
         </section>
@@ -829,7 +831,7 @@
             <form class="row g-3 miform" method="post" action="{% url 'cassette_update' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
-                    <h2 class="cassette__title">Modificar Cassette</h2>
+                    <h2 class="cassette__title">Modificar Biopsia</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarmodificarCassette"></i>
                 </div>
@@ -838,7 +840,7 @@
                 {% include 'web/_cassette_fields.html' with edit=True %}
                 {% endwith %}
                 <div class="col-12">
-                    <button class="btn btn__modal" type="submit">Modificar Cassette</button>
+                    <button class="btn btn__modal" type="submit">Modificar Biopsia</button>
                 </div>
             </form>
         </section>
@@ -851,7 +853,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body text-center fs-5 blue__color">
-                        <p>¿Desea eliminar el cassette <strong>{{ selected.cassette }}</strong>?</p>
+                        <p>¿Desea eliminar la biopsia <strong>{{ selected.cassette }}</strong>?</p>
                         <p class="text-muted" style="font-size:.9rem;">
                             Se eliminarán también todas sus muestras e imágenes.
                         </p>
@@ -895,14 +897,14 @@
             <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}">
                 {% csrf_token %}
                 <div class="form__header">
-                    <h2 class="cassette__title m-0">Nuevo Cassette</h2>
+                    <h2 class="cassette__title m-0">Nueva Biopsia</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarnuevoCassette"></i>
                 </div>
                 <hr class="m-0">
                 {% include 'web/_cassette_fields.html' %}
                 <div class="col-12">
-                    <button class="btn btn__modal" type="submit">Crear Cassette</button>
+                    <button class="btn btn__modal" type="submit">Crear Biopsia</button>
                 </div>
             </form>
         </section>
@@ -911,12 +913,12 @@
     </main>
 
     {% if selected %}
-    <!-- Modal QR Cassette -->
+    <!-- Modal QR Biopsia -->
     <div class="modal fade" id="qrCassetteModal" tabindex="-1" aria-labelledby="qrCassetteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="qrCassetteModalLabel">QR — Cassette {{ selected.cassette }}</h5>
+                    <h5 class="modal-title" id="qrCassetteModalLabel">QR — Biopsia {{ selected.cassette }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body d-flex flex-column align-items-center gap-3">
@@ -980,7 +982,7 @@
                         <input type="text" id="manualQrInput" class="form-control" placeholder="Pega o escribe el código QR">
                         <button type="button" class="btn btn-outline-primary" id="manualQrBtn">Ir</button>
                     </div>
-                    <small class="text-muted d-block mt-2">Al escanear, se abrirá automáticamente el detalle de la muestra/cassette/citología.</small>
+                    <small class="text-muted d-block mt-2">Al escanear, se abrirá automáticamente el detalle de la muestra/biopsia/citología.</small>
                 </div>
             </div>
         </div>
@@ -1307,7 +1309,7 @@
         }
 
         function imprimirQR(modalId) {
-            printQrPayload(qrCassetteValue, 'Cassette {{ selected.cassette|escapejs }}', modalId || 'qrCassetteModal');
+            printQrPayload(qrCassetteValue, 'Biopsia {{ selected.cassette|escapejs }}', modalId || 'qrCassetteModal');
         }
 
         let muestraQrActual = '';
