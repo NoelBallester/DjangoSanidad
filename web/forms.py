@@ -182,7 +182,7 @@ DEFAULT_INFORME_ANALYSIS_TYPES = [
     'Fluidos Biológicos',
     'Raspados',
     'Análisis Citológico',
-    'Resultados biospsias',
+    'Resultados Biopsias',
     'Improntas',
     'Aspirados',
     'Otros',
@@ -535,6 +535,29 @@ class InformeForm(forms.Form):
             ('', 'Seleccionar Análisis'),
             *[(value, value) for value in DEFAULT_INFORME_ANALYSIS_TYPES],
         ]
+
+    def clean_informe_imagen(self):
+        return _validate_uploaded_file(
+            self.cleaned_data.get('informe_imagen'),
+            DOC_ALLOWED_EXTENSIONS,
+            DOC_ALLOWED_CONTENT_TYPES,
+            'Informe',
+        )
+
+
+class NecropsiaInformeForm(forms.Form):
+    informe_descripcion = forms.CharField(required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
+    informe_fecha = forms.DateField(required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color bg-light'}))
+    # En necropsias el tipo de analisis debe ser texto libre.
+    informe_tincion = forms.CharField(required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control blue__color bg-light'}))
+    informe_observaciones = forms.CharField(required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control blue__color bg-light'}))
+    informe_imagen = forms.FileField(required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control blue__color bg-light',
+                                      'accept': '.pdf,.doc,.docx,.odt,.jpg,.jpeg,.png,.gif'}))
 
     def clean_informe_imagen(self):
         return _validate_uploaded_file(

@@ -236,6 +236,59 @@ let imageId = null;
 
 const files = document.getElementById("files");
 
+const configurarEventosInformesMicrobiologia = () => {
+  if (!informesListaMicrobiologia) return;
+  if (informesListaMicrobiologia.dataset.informeEventsBound === "1") return;
+  informesListaMicrobiologia.dataset.informeEventsBound = "1";
+
+  informesListaMicrobiologia.addEventListener("click", async (event) => {
+    const target = event.target.closest("i[data-action]");
+    if (!target) return;
+    const action = target.dataset.action;
+    const informeId = target.dataset.id;
+    if (!informeId) return;
+
+    if (action === "info") {
+      event.preventDefault();
+      await window.verInfoInformeMicrobiologia?.(informeId);
+      return;
+    }
+
+    if (!currentMicrobiologiaId) return;
+
+    const informes = await cargarInformesMicrobiologia(currentMicrobiologiaId);
+    const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+    if (!informe) return;
+
+    if (action === "cargar") {
+      informeEditandoId = String(informe.id_informe);
+      actualizarEtiquetaBotonInforme();
+      cargarInformeEnFormularioMicrobiologia(informe);
+      mostrarPanelNuevoInformeMicrobiologia(false);
+      return;
+    }
+
+    if (action === "ver") {
+      const urlInforme = obtenerUrlInformeMicrobiologia(informe);
+      if (!urlInforme) {
+        mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+        return;
+      }
+      window.open(urlInforme, "_blank", "noopener");
+      return;
+    }
+
+    if (action === "eliminar") {
+      if (!confirm("¿Eliminar este informe?")) return;
+      await borrarInformeMicrobiologia(informeId);
+      mostrarEstadoInforme("Informe eliminado correctamente.", "success");
+      await refrescarInformesMicrobiologia(currentMicrobiologiaId);
+    }
+  });
+};
+
+configurarEventosInformesMicrobiologia();
+
 const buildResolverUrl = (code) => {
   if (!code) return "";
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
@@ -1642,15 +1695,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     imagen: microbiologiaInformeImagen ? "SÍ" : "NO"
   });
 
-  body.style.display = "block";
-  const respuesta = await cargarMicrobiologiasIndex();
-  imprimirMicrobiologias(respuesta);
+  if (body) body.style.display = "block";
+  try {
+    const respuesta = await cargarMicrobiologiasIndex();
+    imprimirMicrobiologias(respuesta);
+  } catch (error) {
+    console.error("Error cargando microbiologia al iniciar:", error);
+    mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
+  }
   mostrarEstadoSinSeleccion();
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
-  inputFecha.setAttribute("min", fechaActual);
-  inputFechaUpdate.setAttribute("min", fechaActual);
-  inputFechaMuestra.setAttribute("min", fechaActual);
+  if (inputFecha) inputFecha.setAttribute("min", fechaActual);
+  if (inputFechaUpdate) inputFechaUpdate.setAttribute("min", fechaActual);
+  if (inputFechaMuestra) inputFechaMuestra.setAttribute("min", fechaActual);
 
   // Toggle section views
   const sectionMicrobiologiasTable = document.getElementById("sectionMicrobiologias");
@@ -2207,48 +2265,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("=== ERROR: btnGuardarInforme NO ENCONTRADO ===");
   }
 
-  if (informesListaMicrobiologia) {
-    informesListaMicrobiologia.addEventListener("click", async (event) => {
-      const target = event.target.closest("i[data-action]");
-      if (!target) return;
-      const action = target.dataset.action;
-      const informeId = target.dataset.id;
-      if (!informeId) return;
-
-      if (action === "info") {
-        event.preventDefault();
-        await window.verInfoInformeMicrobiologia(informeId);
-        return;
-      }
-
-      if (!currentMicrobiologiaId) return;
-
-      const informes = await cargarInformesMicrobiologia(currentMicrobiologiaId);
-      const informe = informes.find((item) => String(item.id_informe) === String(informeId));
-      if (!informe) return;
-
-      if (action === "cargar") {
-        informeEditandoId = String(informe.id_informe);
-        actualizarEtiquetaBotonInforme();
-        cargarInformeEnFormularioMicrobiologia(informe);
-        mostrarPanelNuevoInformeMicrobiologia(false);
-      }
-
-      if (action === "ver") {
-        const urlInforme = obtenerUrlInformeMicrobiologia(informe);
-        if (!urlInforme) {
-          mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
-          return;
-        }
-        window.open(urlInforme, "_blank", "noopener");
-      }
-
-      if (action === "eliminar") {
-        if (!confirm("¿Eliminar este informe?")) return;
-        await borrarInformeMicrobiologia(informeId);
-        mostrarEstadoInforme("Informe eliminado correctamente.", "success");
-        await refrescarInformesMicrobiologia(currentMicrobiologiaId);
-      }
-    });
-  }
+  configurarEventosInformesMicrobiologia();
 });

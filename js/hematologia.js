@@ -355,7 +355,7 @@ window.verInfoInformeHematologia = async (informeId) => {
         </div>
         <div class="blue__color"><strong>Fecha:</strong> <span data-field="fecha">-</span></div>
         <div class="blue__color mt-2"><strong>Descripcion:</strong> <span data-field="descripcion">-</span></div>
-        <div class="blue__color mt-2"><strong>Tipo de analisis:</strong> <span data-field="tincion">-</span></div>
+        <div class="blue__color mt-2"><strong>Tipo De Análisis:</strong> <span data-field="tincion">-</span></div>
         <div class="blue__color mt-2"><strong>Observaciones:</strong></div>
         <div class="blue__color mt-1" data-field="observaciones">-</div>
       `;

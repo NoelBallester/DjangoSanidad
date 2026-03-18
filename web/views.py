@@ -21,7 +21,7 @@ import re
 
 from api.models import Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tecnico, Hematologia, MuestraHematologia, ImagenHematologia, InformeResultado, Tubo, MuestraTubo, Microbiologia, MuestraMicrobiologia
 from django.contrib.auth.hashers import make_password
-from .forms import (CassetteForm, MuestraForm, InformeForm, ImagenForm,
+from .forms import (CassetteForm, MuestraForm, InformeForm, NecropsiaInformeForm, ImagenForm,
                     CitologiaForm, MuestraCitologiaForm, ImagenCitologiaForm,
                     NecropsiaForm, MuestraNecropsiaForm, ImagenNecropsiaForm,
                     HematologiaForm, MuestraHematologiaForm, ImagenHematologiaForm,
@@ -420,10 +420,10 @@ def cassette_delete(request, pk):
     return redirect('cassettes')
 
 
-def _guardar_informe(request, pk, modelo, fk_campo, redirect_name):
+def _guardar_informe(request, pk, modelo, fk_campo, redirect_name, form_class=InformeForm):
     registro = get_object_or_404(modelo, pk=pk)
 
-    form = InformeForm(request.POST, request.FILES)
+    form = form_class(request.POST, request.FILES)
     if form.is_valid():
         informe_id = request.POST.get('informe_id', '').strip()
         if _informes_genericos_disponibles():
@@ -1015,7 +1015,7 @@ def necropsia_list(request):
         'necropsia_form':        NecropsiaForm(instance=selected) if selected else NecropsiaForm(),
         'nueva_necropsia_form':  NecropsiaForm(),
         'muestra_form':          MuestraNecropsiaForm(),
-        'informe_form': InformeForm(initial=informe_initial) if selected else None,
+        'informe_form': NecropsiaInformeForm(initial=informe_initial) if selected else None,
         'informes_resultado': informes_resultado,
         'informe_activo': informe_activo,
         'informe_imagen_base64': informe_imagen_base64,
@@ -1077,7 +1077,14 @@ def necropsia_delete(request, pk):
 @login_required
 @require_POST
 def necropsia_informe(request, pk):
-    return _guardar_informe(request, pk, Necropsia, 'necropsia', 'necropsias')
+    return _guardar_informe(
+        request,
+        pk,
+        Necropsia,
+        'necropsia',
+        'necropsias',
+        form_class=NecropsiaInformeForm,
+    )
 
 
 @login_required

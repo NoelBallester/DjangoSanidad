@@ -239,6 +239,59 @@ let imageId = null;
 
 const files = document.getElementById("files");
 
+const configurarEventosInformesTubo = () => {
+  if (!informesListaTubo) return;
+  if (informesListaTubo.dataset.informeEventsBound === "1") return;
+  informesListaTubo.dataset.informeEventsBound = "1";
+
+  informesListaTubo.addEventListener("click", async (event) => {
+    const target = event.target.closest("i[data-action]");
+    if (!target) return;
+    const action = target.dataset.action;
+    const informeId = target.dataset.id;
+    if (!informeId) return;
+
+    if (action === "info") {
+      event.preventDefault();
+      await window.verInfoInformeBioquimica?.(informeId);
+      return;
+    }
+
+    if (!currentTuboId) return;
+
+    const informes = await cargarInformesTubo(currentTuboId);
+    const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+    if (!informe) return;
+
+    if (action === "cargar") {
+      informeEditandoId = String(informe.id_informe);
+      actualizarEtiquetaBotonInforme();
+      cargarInformeEnFormularioTubo(informe);
+      mostrarPanelNuevoInformeTubo(false);
+      return;
+    }
+
+    if (action === "ver") {
+      const urlInforme = obtenerUrlInformeTubo(informe);
+      if (!urlInforme) {
+        mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+        return;
+      }
+      window.open(urlInforme, "_blank", "noopener");
+      return;
+    }
+
+    if (action === "eliminar") {
+      if (!confirm("¿Eliminar este informe?")) return;
+      await borrarInformeTubo(informeId);
+      mostrarEstadoInforme("Informe eliminado correctamente.", "success");
+      await refrescarInformesTubo(currentTuboId);
+    }
+  });
+};
+
+configurarEventosInformesTubo();
+
 const buildResolverUrl = (code) => {
   if (!code) return "";
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
@@ -1652,9 +1705,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     imagen: tuboInformeImagen ? "SÍ" : "NO"
   });
   
-  body.style.display = "block";
-  const respuesta = await cargarTubosIndex();
-  imprimirTubos(respuesta);
+  if (body) body.style.display = "block";
+  try {
+    const respuesta = await cargarTubosIndex();
+    imprimirTubos(respuesta);
+  } catch (error) {
+    console.error("Error cargando bioquimica al iniciar:", error);
+    mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
+  }
   mostrarEstadoSinSeleccion();
   let fechaActual = new Date().toISOString().split("T")[0];
   // Para que no se pueda seleccionar una fecha anterior a la actual
@@ -2195,48 +2253,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("=== ERROR: btnGuardarInforme NO ENCONTRADO ===");
   }
 
-  if (informesListaTubo) {
-    informesListaTubo.addEventListener("click", async (event) => {
-      const target = event.target.closest("i[data-action]");
-      if (!target) return;
-      const action = target.dataset.action;
-      const informeId = target.dataset.id;
-      if (!informeId) return;
-
-      if (action === "info") {
-        event.preventDefault();
-        await window.verInfoInformeBioquimica(informeId);
-        return;
-      }
-
-      if (!currentTuboId) return;
-
-      const informes = await cargarInformesTubo(currentTuboId);
-      const informe = informes.find((item) => String(item.id_informe) === String(informeId));
-      if (!informe) return;
-
-      if (action === "cargar") {
-        informeEditandoId = String(informe.id_informe);
-        actualizarEtiquetaBotonInforme();
-        cargarInformeEnFormularioTubo(informe);
-        mostrarPanelNuevoInformeTubo(false);
-      }
-
-      if (action === "ver") {
-        const urlInforme = obtenerUrlInformeTubo(informe);
-        if (!urlInforme) {
-          mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
-          return;
-        }
-        window.open(urlInforme, "_blank", "noopener");
-      }
-
-      if (action === "eliminar") {
-        if (!confirm("¿Eliminar este informe?")) return;
-        await borrarInformeTubo(informeId);
-        mostrarEstadoInforme("Informe eliminado correctamente.", "success");
-        await refrescarInformesTubo(currentTuboId);
-      }
-    });
-  }
+  configurarEventosInformesTubo();
 });
