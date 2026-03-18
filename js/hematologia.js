@@ -162,6 +162,7 @@ const muestra__tincion = document.getElementById("muestra__tincion");
 const muestra__img = document.getElementById("muestra__img");
 const visor__img = document.getElementById("visor__img");
 const btnborrarimagenmuestra = document.getElementById("btnborrarimagenmuestra");
+const btnaniadirimagenmuestra = document.getElementById("btnaniadirimagenmuestra");
 const qrMuestraModal = document.getElementById("qrMuestraModal");
 
 // QR Consulta
@@ -1230,19 +1231,63 @@ const mostrarImagenesSubMuestra = async (muestraId_val) => {
       const newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
       newimg.src = imagen.imagen_url || (imagen.imagen_base64 ? `data:image/jpeg;base64,${imagen.imagen_base64}` : "");
-      newimg.classList.add("muestra__img");
+      newimg.classList.add("muestra__img", "rounded");
+      newimg.style.height = "70px";
+      newimg.style.objectFit = "cover";
+      newimg.style.cursor = "pointer";
 
       if (index === 0) {
         if (visor__img) visor__img.src = newimg.src;
         imageId = newimg.id;
       }
 
-      const newdiv = document.createElement("DIV");
-      newdiv.classList.add("container__muestraimg", "border", "m-1");
-      newdiv.appendChild(newimg);
-      muestra__img.appendChild(newdiv);
+      const container = document.createElement("DIV");
+      container.classList.add("position-relative", "m-1");
+      container.style.display = "inline-block";
+
+      // Botón borrar individual (X)
+      const btnDelete = document.createElement("BUTTON");
+      btnDelete.innerHTML = '<i class="fa-solid fa-circle-xmark text-danger" style="font-size:.8rem;"></i>';
+      btnDelete.className = "btn btn-sm position-absolute top-0 end-0 p-0";
+      btnDelete.style.background = "rgba(255,255,255,.85)";
+      btnDelete.style.borderRadius = "50%";
+      btnDelete.style.width = "20px";
+      btnDelete.style.height = "20px";
+      btnDelete.style.lineHeight = "1";
+      btnDelete.title = "Eliminar imagen";
+      
+      btnDelete.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm("¿Eliminar esta imagen?")) {
+          imageId = imagen.id_imagen;
+          borrarImagenSubMuestra();
+        }
+      };
+
+      newimg.onclick = () => {
+        if (visor__img) visor__img.src = newimg.src;
+        imageId = newimg.id;
+      };
+
+      container.appendChild(newimg);
+      container.appendChild(btnDelete);
+      muestra__img.appendChild(container);
     });
   }
+
+  // Botón "+" al final de la galería (siempre visible como caja/placeholder)
+  const btnAdd = document.createElement("DIV");
+  btnAdd.innerHTML = '<i class="fa-solid fa-plus fs-4"></i>';
+  btnAdd.className = "d-flex align-items-center justify-content-center m-1 rounded border border-2 border-dashed";
+  btnAdd.style.height = "70px";
+  btnAdd.style.width = "70px";
+  btnAdd.style.cursor = "pointer";
+  btnAdd.style.backgroundColor = "rgba(0,0,0,0.03)";
+  btnAdd.style.color = "var(--blue-color, #0d6efd)";
+  btnAdd.style.borderStyle = "dashed !important";
+  btnAdd.title = "Añadir imagen";
+  btnAdd.onclick = () => aniadirImagenSubMuestra();
+  muestra__img.appendChild(btnAdd);
 };
 
 const aniadirImagenSubMuestra = async () => {
@@ -1850,6 +1895,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ---- Imágenes sub-muestra ----
   if (btnborrarimagenmuestra) {
     btnborrarimagenmuestra.addEventListener("click", borrarImagenSubMuestra);
+  }
+
+  if (btnaniadirimagenmuestra) {
+    btnaniadirimagenmuestra.addEventListener("click", aniadirImagenSubMuestra);
   }
 
   if (muestra__img) {
