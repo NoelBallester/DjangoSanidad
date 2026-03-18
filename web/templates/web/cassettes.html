@@ -325,7 +325,6 @@
                 <div class="p-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center">
                         <h2 class="cassette__title text-center">Detalle Cassette:</h2>
-                        <span class="cassette__num">{{ selected.cassette }}</span>
                         <div class="d-flex pt-2 align-items-start">
                             <div data-bs-toggle="modal" data-bs-target="#eliminarCassetteModal" style="cursor:pointer">
                                 <i title="Borrar Cassette"
@@ -339,6 +338,11 @@
                                 <i title="Ver QR" class="fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="px-3 mt-2">
+                        <span class="blue__color--negrita">Número de biopsia: </span>
+                        <span class="cassette__text">{{ selected.cassette|default:"-" }}</span>
                     </div>
 
                     <section class="list-group list-group-flush mt-3">
