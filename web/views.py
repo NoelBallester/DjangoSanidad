@@ -125,8 +125,9 @@ def _guardar_volante_peticion(archivo, instancia):
     """Guarda un archivo de volante de petición en la base de datos"""
     if not archivo:
         return
-    
-    instancia.volante_peticion = archivo.read()
+
+    # Para FileField hay que guardar el archivo, no bytes crudos.
+    instancia.volante_peticion.save(archivo.name, archivo, save=False)
     instancia.volante_peticion_nombre = archivo.name
     # No se almacena el Content-Type declarado por el cliente (SEC-16).
     # El tipo real se detecta por magic bytes al servir el archivo.
@@ -1514,7 +1515,29 @@ def usuario_bulk_delete(request):
 def _descargar_volante(instancia):
     if not instancia.volante_peticion:
         return HttpResponse('No hay archivo disponible', status=404)
-    content = bytes(instancia.volante_peticion)
+
+    field = instancia.volante_peticion
+    content = b''
+
+    # Compatibilidad defensiva por si existe algun registro legacy en bytes.
+    if isinstance(field, (bytes, bytearray, memoryview)):
+        content = bytes(field)
+    else:
+        try:
+            if hasattr(field, 'open'):
+                field.open('rb')
+            if hasattr(field, 'read'):
+                content = field.read() or b''
+        finally:
+            if hasattr(field, 'close'):
+                try:
+                    field.close()
+                except Exception:
+                    pass
+
+    if not content:
+        return HttpResponse('No hay archivo disponible', status=404)
+
     content_type = _detectar_tipo_volante(content)
     response = HttpResponse(content, content_type=content_type)
     # Evita que el navegador intente reinterpretar como HTML/JS un binario servido.
