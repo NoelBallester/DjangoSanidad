@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.test import RequestFactory
+from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.utils import OperationalError
 from unittest.mock import patch
+import os
 
 from api.models import (
     Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia,
@@ -277,6 +279,30 @@ class ImageHelperTests(TestCase):
         self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), 'image/png')
         self.assertTrue(_imagen_bytes_a_base64(PNG_BYTES))
 
+    def test_imagen_se_guarda_en_media_y_bd_guarda_ruta(self):
+        cassette = make_cassette(100)
+        muestra = Muestra.objects.create(
+            cassette=cassette,
+            descripcion='Muestra persistencia',
+            fecha='2024-01-01',
+            observaciones='obs',
+            tincion='Otros',
+            qr_muestra='QR-TEST-STORAGE',
+        )
+        imagen = Imagen.objects.create(muestra=muestra, imagen=PNG_BYTES)
+        imagen.refresh_from_db()
+
+        self.assertTrue(imagen.imagen.name)
+        self.assertTrue(imagen.imagen.name.startswith('imagenes/'))
+        self.assertTrue(imagen.imagen.path.startswith(str(settings.MEDIA_ROOT)))
+        self.assertTrue(os.path.exists(imagen.imagen.path))
+
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT imagen FROM imagenes WHERE id_imagen = %s', [imagen.pk])
+            valor_bd = cursor.fetchone()[0]
+        self.assertIsInstance(valor_bd, str)
+        self.assertEqual(valor_bd, imagen.imagen.name)
+
 
 class ErrorViewTests(TestCase):
 
@@ -332,6 +358,25 @@ class VolanteSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/octet-stream')
         self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+
+    def test_volante_se_guarda_en_media_y_bd_guarda_ruta(self):
+        cassette = make_cassette(702)
+        cassette.volante_peticion = b'%PDF-1.4\n%stored-file\n'
+        cassette.volante_peticion_nombre = 'volante_file.pdf'
+        cassette.volante_peticion_tipo = 'application/pdf'
+        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+        cassette.refresh_from_db()
+
+        self.assertTrue(cassette.volante_peticion.name)
+        self.assertTrue(cassette.volante_peticion.name.startswith('volantes/'))
+        self.assertTrue(cassette.volante_peticion.path.startswith(str(settings.MEDIA_ROOT)))
+        self.assertTrue(os.path.exists(cassette.volante_peticion.path))
+
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT volante_peticion FROM cassettes WHERE id_casette = %s', [cassette.pk])
+            valor_bd = cursor.fetchone()[0]
+        self.assertIsInstance(valor_bd, str)
+        self.assertEqual(valor_bd, cassette.volante_peticion.name)
 
 
 class MuestrasSinImagenTemplateTests(TestCase):

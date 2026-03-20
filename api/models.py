@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
 import os
 from uuid import uuid4
 
@@ -56,6 +57,39 @@ def upload_informe_resultado(instance, filename):
     """Guarda imágenes de informes de resultado"""
     ext = os.path.splitext(filename)[1]
     return f'informes_resultado/{uuid4().hex}{ext}'
+
+
+def _extension_imagen_desde_bytes(content):
+    if content.startswith(b'\xff\xd8\xff'):
+        return '.jpg'
+    if content.startswith(b'\x89PNG\r\n\x1a\n'):
+        return '.png'
+    if content.startswith((b'GIF87a', b'GIF89a')):
+        return '.gif'
+    if content.startswith(b'BM'):
+        return '.bmp'
+    if content.startswith(b'RIFF') and content[8:12] == b'WEBP':
+        return '.webp'
+    return '.bin'
+
+
+def _coerce_filefield_bytes(instance, field_name, default_ext='.bin'):
+    raw = getattr(instance, field_name, None)
+    if isinstance(raw, memoryview):
+        raw = raw.tobytes()
+    elif isinstance(raw, bytearray):
+        raw = bytes(raw)
+
+    if not isinstance(raw, bytes):
+        return
+
+    if not raw:
+        setattr(instance, field_name, None)
+        return
+
+    filename = f'legacy_{uuid4().hex}{default_ext}'
+    setattr(instance, field_name, None)
+    getattr(instance, field_name).save(filename, ContentFile(raw), save=False)
 
 
 class SoftDeleteQuerySet(models.QuerySet):
@@ -211,6 +245,10 @@ class DetalleBase(models.Model):
     volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
     volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        _coerce_filefield_bytes(self, 'volante_peticion', default_ext='.bin')
+        super().save(*args, **kwargs)
+
     class Meta:
         abstract = True
 
@@ -240,6 +278,16 @@ class RegistroConInforme(RegistroBase):
     informe_observaciones = models.TextField(null=True, blank=True)
     informe_imagen = models.ImageField(upload_to=upload_informe_imagen, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        raw = getattr(self, 'informe_imagen', None)
+        if isinstance(raw, memoryview):
+            raw = raw.tobytes()
+        elif isinstance(raw, bytearray):
+            raw = bytes(raw)
+        ext = _extension_imagen_desde_bytes(raw) if isinstance(raw, bytes) else '.bin'
+        _coerce_filefield_bytes(self, 'informe_imagen', default_ext=ext)
+        super().save(*args, **kwargs)
+
     class Meta:
         abstract = True
 
@@ -264,6 +312,16 @@ class ImagenBase(SoftDeleteModel):
     Base abstracta para todos los modelos de imagen de muestra.
     """
     imagen = models.ImageField(upload_to=upload_imagen_muestra, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        raw = getattr(self, 'imagen', None)
+        if isinstance(raw, memoryview):
+            raw = raw.tobytes()
+        elif isinstance(raw, bytearray):
+            raw = bytes(raw)
+        ext = _extension_imagen_desde_bytes(raw) if isinstance(raw, bytes) else '.bin'
+        _coerce_filefield_bytes(self, 'imagen', default_ext=ext)
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
@@ -488,6 +546,16 @@ class InformeResultado(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     creado_en = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        raw = getattr(self, 'imagen', None)
+        if isinstance(raw, memoryview):
+            raw = raw.tobytes()
+        elif isinstance(raw, bytearray):
+            raw = bytes(raw)
+        ext = _extension_imagen_desde_bytes(raw) if isinstance(raw, bytes) else '.bin'
+        _coerce_filefield_bytes(self, 'imagen', default_ext=ext)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'informesresultado'
