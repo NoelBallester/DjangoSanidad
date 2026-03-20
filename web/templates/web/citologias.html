@@ -1234,6 +1234,7 @@
             document.getElementById('editMuestraObservaciones').value = observaciones;
             const sel = document.getElementById('editMuestraTincion');
             for (let o of sel.options) { o.selected = (o.text === tincion); }
+            closeModal('modalDetalleMuestra');
             openModal('modalmodificarMuestra');
         }
 

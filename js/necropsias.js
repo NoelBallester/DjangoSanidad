@@ -721,11 +721,26 @@ const crearMuestra = async (event) => {
 
   // SI QUEREMOS GUARDAR UNA IMAGEN CON PDO NECESITAMOS UN FormData
   let newMuestra = new FormData();
-  newMuestra.append("descripcion", inputdescripcionMuestra.value);
-  newMuestra.append("fecha", inputFechaMuestra.value);
-  newMuestra.append("observaciones", inputObservacionesMuestra.value);
-  newMuestra.append("tincion", selectTincionMuestra.value);
+  
+  // Usar técnica de apertura como descripción
+  const descripcion = document.getElementById("inputTecnicaMuestra")?.value || "Muestra";
+  newMuestra.append("descripcion", descripcion);
+  newMuestra.append("fecha", document.getElementById("inputFechaMuestra")?.value || "");
+  newMuestra.append("observaciones", document.getElementById("inputObservacionesMuestra")?.value || "");
+  newMuestra.append("tincion", document.getElementById("selectTincionMuestra")?.value || "Otros");
   newMuestra.append("necropsia", necropsiaId);
+  
+  // Campos específicos de necropsia
+  newMuestra.append("tecnica_apertura", document.getElementById("inputTecnicaMuestra")?.value || "");
+  newMuestra.append("datos_relevantes_region", document.getElementById("inputDatosRelevantsMuestra")?.value || "");
+  newMuestra.append("toma_muestras", document.querySelector('textarea[name="toma_muestras"]')?.value || "");
+  newMuestra.append("prueba_complementaria", document.querySelector('textarea[name="prueba_complementaria"]')?.value || "");
+  
+  // Imagen si existe
+  const imagenInput = document.getElementById("inputImagenesMuestra");
+  if (imagenInput && imagenInput.files && imagenInput.files[0]) {
+    newMuestra.append("imagen", imagenInput.files[0]);
+  }
 
   await fetch("/api/muestrasnecropsia/", {
     method: "POST",
@@ -745,11 +760,15 @@ const crearMuestra = async (event) => {
 };
 
 const limpiarModalMuestra = () => {
-  inputdescripcionMuestra.value = "";
-  inputFechaMuestra.value = "";
-  inputObservacionesMuestra.value = "";
-  selectTincionMuestra.value = "";
-  inputImagenesMuestra.value = "";
+  document.getElementById("inputdescripcionMuestra").value = "";
+  document.getElementById("inputFechaMuestra").value = "";
+  document.getElementById("inputObservacionesMuestra").value = "";
+  document.getElementById("selectTincionMuestra").value = "Otros";
+  document.getElementById("inputImagenesMuestra").value = "";
+  document.getElementById("inputTecnicaMuestra").value = "";
+  document.getElementById("inputDatosRelevantsMuestra").value = "";
+  document.querySelector('textarea[name="toma_muestras"]').value = "";
+  document.querySelector('textarea[name="prueba_complementaria"]').value = "";
 };
 
 // Cargamos el modal datos muestra a modificar
@@ -1302,12 +1321,21 @@ btncerrardetalleMuestra.addEventListener("click", () => {
 
 nuevaMuestra.addEventListener("submit", crearMuestra);
 
+const cerrarModalDetalleSiAbierto = () => {
+  if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
+    return;
+  }
+  modaldetalleMuestra.classList.add("hidemodal");
+  modaldetalleMuestra.classList.remove("showmodal");
+};
+
 // Modificar Muestra
 btnformmodificarMuestra.addEventListener("click", () => {
   if (!necropsiaId) {
     alertnecropsia.classList.remove("ocultar");
   } else {
     cargarMuestraUpdateModal();
+    cerrarModalDetalleSiAbierto();
     if (!modalmodificarMuestra.classList.contains("showmodal")) {
       modalmodificarMuestra.classList.add("showmodal");
       modalmodificarMuestra.classList.remove("hidemodal");
@@ -1346,6 +1374,7 @@ muestras.addEventListener("click", async (event) => {
       return;
     }
     await cargarMuestraUpdateModal();
+    cerrarModalDetalleSiAbierto();
     if (!modalmodificarMuestra.classList.contains("showmodal")) {
       modalmodificarMuestra.classList.add("showmodal");
       modalmodificarMuestra.classList.remove("hidemodal");
