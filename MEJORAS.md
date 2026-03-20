@@ -824,16 +824,56 @@ Fase 1 — Modelos: BinaryField → FileField
 1.4	models.py — Citologia	qr_imagen: BinaryField → ImageField(upload_to='qr/', ...)
 1.5	models.py — InformeResultado	imagen: BinaryField → ImageField(upload_to='informes_resultado/', ...)
 Funciones upload_to dinámicas (para organizar por tipo):
+def upload_to_imagen(instance, filename):
+    # "imagenes/cassettes/img_123.jpg", "imagenes/hematologia/img_456.png"
+    model_name = instance._meta.db_table  # imagenes, imageneshematologia, etc.
+    return f'imagenes/{model_name}/{filename}'
 
+def upload_to_informe(instance, filename):
+    model_name = instance._meta.db_table
+    return f'informes/{model_name}/{filename}'
 Fase 2 — Migración de datos (lo más crítico)
 #	Tarea	Detalle
 2.1	Crear migración de esquema	python manage.py makemigrations — genera la migración que cambia los tipos de columna
 2.2	Crear data migration	python manage.py makemigrations api --empty -n migrate_binary_to_files — script que recorre cada tabla, lee los bytes, los escribe a disco y guarda la ruta relativa en el nuevo campo
 2.3	Ordenar migraciones	La data migration debe ejecutarse entre el add del nuevo campo y el remove del viejo (patrón de 3 pasos)
 Patrón de migración en 3 pasos (seguro y reversible):
-
+Paso 1: AddField — añadir campo FileField nuevo (ej: imagen_file) junto al BinaryField existente
+Paso 2: RunPython — data migration que lee BinaryField, escribe a disco, guarda ruta en FileField
+Paso 3: RemoveField — eliminar el BinaryField original y RenameField del nuevo al nombre original
 Lógica del data migration (Paso 2):
-
+def migrate_binary_to_files(apps, schema_editor):
+    """Para cada modelo con BinaryField, leer bytes → escribir a disco → guardar ruta."""
+    import os, uuid
+    from django.conf import settings
+    
+    MODELOS_IMAGEN = [
+        ('imagenes',             'imagen'),
+        ('imagenescitologia',    'imagen'),
+        ('imagenesnecropsia',    'imagen'),
+        ('imagenestubo',         'imagen'),
+        ('imageneshematologia',  'imagen'),
+        ('imagenesmicrobiologia','imagen'),
+    ]
+    # + volante_peticion en 6 tablas
+    # + informe_imagen en 6 tablas
+    # + qr_imagen en citologias
+    # + imagen en informesresultado
+    
+    for table, field in MODELOS_IMAGEN:
+        Model = apps.get_model('api', ...)
+        for obj in Model.objects.all():
+            binary_data = getattr(obj, f'{field}_old')
+            if binary_data:
+                ext = detect_extension(bytes(binary_data))
+                filename = f'{uuid.uuid4().hex}{ext}'
+                rel_path = f'imagenes/{table}/{filename}'
+                abs_path = os.path.join(settings.MEDIA_ROOT, rel_path)
+                os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+                with open(abs_path, 'wb') as f:
+                    f.write(bytes(binary_data))
+                setattr(obj, field, rel_path)
+                obj.save(update_fields=[field])
 Fase 3 — Backend: Actualizar views y serializers
 #	Archivo	Cambio
 3.1	views.py — proxy_file	Simplificar drásticamente: ya no necesita _read_file_bytes() ni detección de MIME. Con FileField, Django da .url y .path directamente. Servir con FileResponse o redirigir a la URL del fichero
@@ -870,3 +910,11 @@ RAM por listado	Carga blobs a memoria (potenciales GB)	Solo strings — resuelve
 Backup BD	Incluye todos los binarios	Solo metadata — backup separado de media
 Velocidad de queries	Lento con SELECT *	Rápido — sin .defer() necesario
 Escalabilidad	Límite ~10 GB en SQLite	Sin límite práctico en disco
+Orden de ejecución recomendado
+0. Backup BD ─────────────────────────────────── 5 min
+1. Modelos (BinaryField → FileField) ────────── los cambios de modelo
+2. Data migration (extraer bytes a disco) ────── la migración más delicada
+3. Backend (views + serializers) ─────────────── adaptar lectura/escritura
+4. Frontend (eliminar fallbacks base64) ──────── cambios menores JS
+5. Limpieza y seguridad ─────────────────────── permisos, borrado huérfanos
+6. Tests ─────────────────────────────────────── verificar todo end-to-end
