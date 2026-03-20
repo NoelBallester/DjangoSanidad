@@ -889,65 +889,45 @@
       </div>
     </section>
 
-    <!-- Modal Confirmación Borrado Citología -->
-    <section class="modal fade" id="eliminarMuestrasModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog">
+    <!-- Modal Eliminar Muestra Principal -->
+    <section class="modal fade" id="eliminarMuestrasModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title text-danger">Eliminar Hematología</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
-          <div class="modal-body text-center fs-4 blue__color">
-            <p>Desea Eliminar la Citología.</p>
-            <p>Al eliminar la citología se eliminarán también todas sus muestras.</p>
-            <button type="button" class="btn btn__modal mt-3" id="btnborrar" data-bs-dismiss="modal">Eliminar</button>
+          <div class="modal-body text-center fs-5 blue__color">
+            <p>¿Desea eliminar esta muestra de hematología?</p>
+            <p class="text-muted small">Esta acción borrará todos los análisis e imágenes asociadas.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmEliminarHematologia">Eliminar</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Modal Confirmación Borrado Muestra -->
-    <section class="modal fade" id="eliminarMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog">
-        <!-- Modal QR Muestra Principal -->
-        <div class="modal fade" id="qrMuestrasModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title blue__color">Código QR de la Muestra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body text-center">
-                <canvas id="qrCanvasMain" style="max-width: 100%;"></canvas>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn fondo" onclick="window.print()">Imprimir</button>
-              </div>
-            </div>
+    <!-- Modal Eliminar Muestra Procesada -->
+    <section class="modal fade" id="eliminarMuestraModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Eliminar Análisis</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center fs-5 blue__color">
+            <p>¿Desea eliminar esta muestra procesada?</p>
+            <p class="text-muted small">Esta acción no eliminará la muestra principal.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmEliminarSubMuestra">Eliminar</button>
           </div>
         </div>
-
-        <!-- Modal Eliminar Muestra Principal -->
-        <div class="modal fade" id="eliminarMuestrasModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title text-danger">Eliminar Hematología</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body text-center fs-5 blue__color">
-                <p>¿Desea eliminar esta muestra de hematología?</p>
-                <p class="text-muted small">Esta acción borrará todos los análisis e imágenes asociadas.</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmEliminarHematologia">Eliminar</button>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
+    </section>
 
 
         <!-- Footer -->

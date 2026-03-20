@@ -28,6 +28,7 @@ const inputUpdateCentroUser = document.getElementById("inputUpdateCentroUser");
 const btnborrar = document.getElementById("btnborrar");
 // Modal confirmación eliminar
 const confirmarEliminar = document.getElementById("confirmEliminarHematologia");
+const confirmarEliminarSubMuestra = document.getElementById("confirmEliminarSubMuestra");
 
 // Modales Hematología Principal (nueva/modificar)
 const modalnuevaMuestras = document.getElementById("modalnuevaMuestras");
@@ -601,8 +602,40 @@ const cargarHematologiasIndex = async () => {
   return await fetch("/api/hematologia/index/").then((r) => r.json());
 };
 
+const normalizarListaApi = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.results)) return payload.results;
+  return [];
+};
+
+const esRespuestaErrorApi = (payload) => {
+  return Boolean(payload && typeof payload === "object" && !Array.isArray(payload) && (payload.error || payload.detail));
+};
+
 const cargarTodasHematologias = async () => {
-  return await fetch("/api/hematologia/todos/").then((r) => r.json());
+  const payload = await fetch("/api/hematologia/todos/").then((r) => r.json());
+  let lista = normalizarListaApi(payload);
+  if (lista.length > 0) return lista;
+
+  // Fallback defensivo: en algunos entornos legacy /todos/ puede responder con error o formato inesperado.
+  if (esRespuestaErrorApi(payload) || (payload && !Array.isArray(payload) && !Array.isArray(payload.results))) {
+    try {
+      const payloadList = await fetch("/api/hematologia/").then((r) => r.json());
+      lista = normalizarListaApi(payloadList);
+      if (lista.length > 0) return lista;
+    } catch (error) {
+      console.warn("Fallback /api/hematologia/ falló", error);
+    }
+
+    try {
+      const payloadIndex = await fetch("/api/hematologia/index/").then((r) => r.json());
+      return normalizarListaApi(payloadIndex);
+    } catch (error) {
+      console.warn("Fallback /api/hematologia/index/ falló", error);
+    }
+  }
+
+  return lista;
 };
 
 const cargarHematologia = async (id) => {
@@ -784,6 +817,7 @@ const modificarHematologiaUpdate = async (event) => {
 // ============================================================
 
 const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
+  const lista = normalizarListaApi(respuesta);
   if (!listaMuestras) return;
   listaMuestras.innerHTML = "";
 
@@ -794,8 +828,8 @@ const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
   const fragmento = document.createDocumentFragment();
   const fragmentselect = document.createDocumentFragment();
 
-  if (respuesta && respuesta.length > 0) {
-    respuesta.forEach((h) => {
+  if (lista.length > 0) {
+    lista.forEach((h) => {
       // Para el dropdown
       if (rebuildDropdown && numMuestras) {
         const option = document.createElement("OPTION");
@@ -994,10 +1028,27 @@ const crearSubMuestra = async (event) => {
     const data = await response.json();
     console.log("Sub-muestra creada:", data);
 
+    const hematologiaSeleccionadaId = hematologiaId;
+
     cerrarModal(modalnuevaMuestra);
     limpiarFormularioSubMuestra();
 
-    const subMuestras = await cargarSubMuestras(hematologiaId);
+    // Refresca tabla principal y reselecciona para evitar estado visual desincronizado.
+    const hematologiasResp = await cargarTodasHematologias();
+    if (Array.isArray(hematologiasResp) && hematologiasResp.length > 0) {
+      imprimirHematologias(hematologiasResp, true);
+    } else {
+      console.warn("No se refrescó la tabla principal para evitar vaciarla con una respuesta inválida.", hematologiasResp);
+    }
+
+    const hematologiaSeleccionada = normalizarListaApi(hematologiasResp)
+      .find((item) => String(item.id_hematologia) === String(hematologiaSeleccionadaId));
+    if (hematologiaSeleccionada) {
+      hematologiaId = hematologiaSeleccionadaId;
+      imprimirDetalleHematologia(hematologiaSeleccionada);
+    }
+
+    const subMuestras = await cargarSubMuestras(hematologiaSeleccionadaId);
     imprimirSubMuestras(subMuestras);
     alert("Análisis creado correctamente");
   } catch (err) {
@@ -1094,13 +1145,14 @@ const borrarSubMuestra = async () => {
 // ============================================================
 
 const imprimirSubMuestras = (respuesta) => {
+  const lista = normalizarListaApi(respuesta);
   if (!listaTubos) return;
   listaTubos.innerHTML = "";
 
   const fragmento = document.createDocumentFragment();
 
-  if (respuesta && respuesta.length > 0) {
-    respuesta.forEach((m) => {
+  if (lista.length > 0) {
+    lista.forEach((m) => {
       const tr = document.createElement("tr");
       tr.classList.add("table__row");
 
@@ -1384,7 +1436,7 @@ const consultaFechaFin = async () => {
 
 const consultarHematologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/hematologia/qr/${qr}/`);
-  const lista = await response.json();
+  const lista = normalizarListaApi(await response.json());
   if (lista.length > 0) {
     imprimirHematologias(lista);
     const h = lista[0];
@@ -1803,9 +1855,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Soporte para el botón antiguo `btnborrar` que tiene data-bs-dismiss="modal"
+  // Soporte legacy: conservar sólo si el botón existe en plantillas antiguas.
   if (btnborrar) {
     btnborrar.addEventListener("click", borrarHematologia);
+  }
+
+  if (confirmarEliminarSubMuestra) {
+    confirmarEliminarSubMuestra.addEventListener("click", async () => {
+      await borrarSubMuestra();
+      const modalEliminarSub = document.getElementById("eliminarMuestraModal");
+      if (modalEliminarSub) {
+        const bsModalSub = bootstrap.Modal.getInstance(modalEliminarSub);
+        if (bsModalSub) bsModalSub.hide();
+      }
+    });
   }
 
   // ---- Nueva Sub-muestra ----
@@ -1882,16 +1945,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   if (modificarMuestra) {
     modificarMuestra.addEventListener("submit", modificarSubMuestraUpdate);
-  }
-
-  // ---- Borrar Sub-muestra ----
-  const btnBorrarSubMuestra = document.querySelector("[data-bs-target='#eliminarMuestraModal']");
-  if (btnBorrarSubMuestra) {
-    btnBorrarSubMuestra.addEventListener("click", () => {
-      if (confirm("¿Estás seguro de eliminar esta sub-muestra?")) {
-        borrarSubMuestra();
-      }
-    });
   }
 
   // ---- Imágenes sub-muestra ----
