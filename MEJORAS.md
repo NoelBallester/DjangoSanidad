@@ -800,18 +800,73 @@ coverage html
 
 ---
 
-## Resumen
+Plan: Migrar imágenes de BinaryField a FileField (disco + URLs)
+Situación actual
+19 columnas BinaryField repartidas en 13 tablas almacenan bytes crudos (JPEG, PNG, PDF) directamente en la base de datos:
 
-| Prioridad | Items | Acción |
-|-----------|-------|--------|
-| 🔴 Bloqueantes | DEP-1, DEP-3, DEP-6, HTTPS-3 | Sin esto no funciona en producción |
-| 🔴 Seguridad alta | SEC-14, SEC-20, SEC-15, HTTPS-1 | Riesgo real con usuarios autenticados |
-| 🟠 Despliegue | DEP-4, DEP-5, DEP-7, DEP-8, DEP-9, DEP-10 | Necesario antes de ir a producción |
-| 🟠 Seguridad media | SEC-17, SEC-18, SEC-19, SEC-21, SES-1, SES-2, HTTPS-4, HTTPS-5, SEC-22 | Hardening progresivo |
-| 🟡 Rendimiento | PERF-3, PERF-5, PERF-2, PERF-4, PERF-1 | Escala con el volumen de datos |
-| 🟡 Calidad | COD-2, COD-1, COD-3, COD-4 | Deuda técnica |
-| ⚪ Funcionalidades | FUNC-1..8 | Valor añadido |
-| ⚪ Operación | OPS-1..4 | Mantenibilidad |
+Clase abstracta / Modelo	Campo	Tablas afectadas
+DetalleBase	volante_peticion	cassettes, citologias, necropsias, tubos, hematologias, microbiologias
+RegistroConInforme	informe_imagen	cassettes, citologias, necropsias, tubos, hematologias, microbiologias
+ImagenBase	imagen	imagenes, imagenescitologia, imagenesnecropsia, imagenestubo, imageneshematologia, imagenesmicrobiologia
+Citologia	qr_imagen	citologias
+InformeResultado	imagen	informesresultado
+Fases de implementación
+Fase 0 — Preparación (sin tocar código de producción)
+#	Tarea	Detalle
+0.1	Backup de la BD	cp db.sqlite3 db.sqlite3.bak — punto de restauración antes de cualquier cambio
+0.2	Crear estructura de directorios en media	Subdirectorios por tipo: media/volantes/, informes, media/imagenes/cassettes/, media/imagenes/citologias/, media/imagenes/necropsias/, media/imagenes/tubos/, media/imagenes/hematologia/, media/imagenes/microbiologia/, media/qr/, media/informes_resultado/
+0.3	Verificar MEDIA_ROOT y MEDIA_URL	Ya existen en settings.py. Confirmar que MEDIA_ROOT = BASE_DIR / 'media' y MEDIA_URL = '/media/'
+Fase 1 — Modelos: BinaryField → FileField
+#	Archivo	Cambio
+1.1	models.py — DetalleBase	volante_peticion: BinaryField → FileField(upload_to='volantes/', ...). Mantener volante_peticion_nombre y volante_peticion_tipo como están
+1.2	models.py — RegistroConInforme	informe_imagen: BinaryField → ImageField(upload_to=ruta_dinámica_informe, ...) con función que genere ruta por tipo (cassette/citologia/etc.)
+1.3	models.py — ImagenBase	imagen: BinaryField → ImageField(upload_to=ruta_dinámica_imagen, ...). Cada subclase usará un subdirectorio distinto
+1.4	models.py — Citologia	qr_imagen: BinaryField → ImageField(upload_to='qr/', ...)
+1.5	models.py — InformeResultado	imagen: BinaryField → ImageField(upload_to='informes_resultado/', ...)
+Funciones upload_to dinámicas (para organizar por tipo):
 
-**Verificado el 16/03/2026 contra el código fuente. Items eliminados por estar implementados:**
-`SEC-4` (serializers con campos explícitos ✅) · `SEC-5` (whitelist `_validar_columna_fk` ✅) · `SEC-10` (get_by_mail restringido a is_staff ✅) · `SEC-12` web (logger.exception + mensaje genérico ✅) · `CORS` (CORS_ALLOW_ALL_ORIGINS=False hardcodeado ✅) · `COD-5` (@require_POST en vistas de usuario ✅)
+Fase 2 — Migración de datos (lo más crítico)
+#	Tarea	Detalle
+2.1	Crear migración de esquema	python manage.py makemigrations — genera la migración que cambia los tipos de columna
+2.2	Crear data migration	python manage.py makemigrations api --empty -n migrate_binary_to_files — script que recorre cada tabla, lee los bytes, los escribe a disco y guarda la ruta relativa en el nuevo campo
+2.3	Ordenar migraciones	La data migration debe ejecutarse entre el add del nuevo campo y el remove del viejo (patrón de 3 pasos)
+Patrón de migración en 3 pasos (seguro y reversible):
+
+Lógica del data migration (Paso 2):
+
+Fase 3 — Backend: Actualizar views y serializers
+#	Archivo	Cambio
+3.1	views.py — proxy_file	Simplificar drásticamente: ya no necesita _read_file_bytes() ni detección de MIME. Con FileField, Django da .url y .path directamente. Servir con FileResponse o redirigir a la URL del fichero
+3.2	views.py — _read_file_bytes	Eliminar o reducir a fallback mínimo para datos legacy
+3.3	views.py — _detect_content_type	Se puede simplificar usando mimetypes.guess_type() sobre el nombre de fichero
+3.4	views.py — ViewSets create()	Cambiar imagen=imagen_file.read() → imagen=imagen_file (Django FileField gestiona el guardado)
+3.5	serializers.py — FileUrlSerializerMixin	Simplificar _file_url() para devolver instance.imagen.url si el campo tiene fichero, en vez de generar URL de proxy
+3.6	views.py — uploads	Cambiar archivo.read() → asignar directamente el UploadedFile al campo. Eliminar _leer_imagen_bytes() y _imagen_bytes_a_base64()
+3.7	views.py — templates/display	Usar .url del FileField en vez de convertir a base64
+3.8	views.py — _validar_imagen_api	Mantener validación de magic bytes y tamaño — sigue siendo necesaria antes de guardar a disco
+Fase 4 — Frontend: Ajustes JavaScript (mínimos)
+El frontend ya usa URLs de proxy (/api/files/modelo/pk/campo/). Los cambios son mínimos:
+
+#	Archivo	Cambio
+4.1	Todos los JS	Si proxy_file se mantiene (recomendado para control de acceso), no hay cambios en frontend. Las URLs siguen funcionando igual
+4.2	JS con fallback base64	Eliminar los fallbacks data:image/jpeg;base64,... de cassettes.js, citologias.js, necropsias.js — ya no habrá datos base64 en las respuestas
+Fase 5 — Limpieza y seguridad
+#	Tarea	Detalle
+5.1	Proteger MEDIA_ROOT	Asegurar que media no es servido directamente por Django en producción. Mantener proxy_file como punto de acceso con control IDOR (SEC-2)
+5.2	Path traversal	Ya no aplica _read_file_bytes con rutas arbitrarias. FileField de Django escribe siempre dentro de MEDIA_ROOT
+5.3	Permisos de directorio	media con permisos 750 en Ubuntu Server — solo lectura para el proceso Django
+5.4	Borrado de ficheros huérfanos	Al hacer soft-delete, los ficheros quedan en disco. Crear management command limpiar_huerfanos que borre ficheros de registros hard-deleted
+5.5	Actualizar MEJORAS.md	Marcar PERF-3 (BinaryField en listados) como resuelto — con FileField los listados ya no cargan binarios a memoria
+Fase 6 — Tests y verificación
+#	Tarea	Detalle
+6.1	Actualizar tests existentes en tests.py y tests.py	Los tests que crean imágenes con b'bytes' deben usar SimpleUploadedFile
+6.2	Test de migración	Verificar que la data migration es reversible y no pierde datos
+6.3	Test de subida/descarga	Upload vía API → verificar fichero en disco → download vía proxy_file → verificar contenido idéntico
+6.4	Test de rendimiento	Comparar tamaño de BD antes/después. Verificar que listados ya no hacen SELECT de blobs
+Impacto esperado
+Métrica	Antes (BinaryField)	Después (FileField)
+Tamaño BD	Crece ~5-15 MB por imagen	Solo rutas de texto (~100 bytes por registro)
+RAM por listado	Carga blobs a memoria (potenciales GB)	Solo strings — resuelve PERF-3
+Backup BD	Incluye todos los binarios	Solo metadata — backup separado de media
+Velocidad de queries	Lento con SELECT *	Rápido — sin .defer() necesario
+Escalabilidad	Límite ~10 GB en SQLite	Sin límite práctico en disco
