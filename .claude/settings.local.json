@@ -42,7 +42,10 @@
       "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/project-management\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/project-management\")",
       "Bash(mkdir -p \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents\")",
       "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/design\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/engineering\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/marketing\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/product\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/project-management\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/studio-operations\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/testing\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/\")",
-      "Bash(venv/Scripts/pip install:*)"
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(/c/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/venv/Scripts/python.exe manage.py test api.tests.ImagenEndpointTests.test_por_muestra_returns_expected_serializer_shape api.tests.ImagenEndpointTests.test_proxy_serves_real_mime_for_bin_image api.tests.ApiCustomActionTests.test_informe_resultado_rechaza_base64_invalido)",
+      "Bash(/c/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/venv/Scripts/python.exe manage.py test api.tests)",
+      "Bash(git config:*)"
     ]
   }
 }

@@ -51,11 +51,57 @@ class QrUnicoValidatorMixin:
 
 
 class FileUrlSerializerMixin:
+    # Mapeo de nombre de campo de modelo a nombre de modelo en el proxy
+    _PROXY_MODEL_NAMES = {
+        'Imagen': 'imagen',
+        'ImagenCitologia': 'imagencitologia',
+        'ImagenNecropsia': 'imagennecropsia',
+        'ImagenTubo': 'imagentubo',
+        'ImagenHematologia': 'imagenhematologia',
+        'ImagenMicrobiologia': 'imagenmicrobiologia',
+        'Citologia': 'citologia',
+        'Cassette': 'cassette',
+        'Necropsia': 'necropsia',
+        'Tubo': 'tubo',
+        'Hematologia': 'hematologia',
+        'Microbiologia': 'microbiologia',
+        'InformeResultado': 'informeresultado',
+    }
+
     def _file_url(self, instance, field_name):
         archivo = getattr(instance, field_name, None)
         if not archivo:
             return None
-        # FileField retorna URL directa
+
+        # Si el valor es un BinaryField (bytes/memoryview), generar URL del proxy
+        if isinstance(archivo, (bytes, memoryview, bytearray)):
+            model_name = self._PROXY_MODEL_NAMES.get(instance.__class__.__name__)
+            if model_name:
+                pk = instance.pk
+                return reverse('api-file-proxy', kwargs={
+                    'model_name': model_name,
+                    'pk': pk,
+                    'field_name': field_name,
+                })
+            return None
+
+        # FileField/ImageField: intentar URL del proxy primero si tiene nombre/path
+        # (datos legados almacenados como path de archivo)
+        model_name = self._PROXY_MODEL_NAMES.get(instance.__class__.__name__)
+        if model_name and instance.pk:
+            field_obj = instance._meta.get_field(field_name) if hasattr(instance._meta, 'get_field') else None
+            # Comprobar si el campo es un FileField/ImageField con valor
+            try:
+                if archivo and hasattr(archivo, 'name') and archivo.name:
+                    return reverse('api-file-proxy', kwargs={
+                        'model_name': model_name,
+                        'pk': instance.pk,
+                        'field_name': field_name,
+                    })
+            except (AttributeError, ValueError):
+                pass
+
+        # Fallback: URL directa del FileField
         try:
             return archivo.url
         except (AttributeError, ValueError):
@@ -508,9 +554,16 @@ class InformeResultadoSerializer(FileUrlSerializerMixin, serializers.ModelSerial
                 try:
                     raw = base64.b64decode(encoded)
                 except (ValueError, binascii.Error):
-                    raise serializers.ValidationError({'imagen': 'Archivo base64 invalido.'})
+                    raise serializers.ValidationError({'imagen': 'La imagen no es base64 válido.'})
 
                 mutable['imagen'] = ContentFile(raw, name=f'informe_{uuid.uuid4().hex}{extension}')
+            else:
+                # Cadena sin prefijo data:... — intentar decodificar como base64 puro
+                try:
+                    raw = base64.b64decode(imagen_data, validate=True)
+                    mutable['imagen'] = ContentFile(raw, name=f'informe_{uuid.uuid4().hex}.bin')
+                except (ValueError, binascii.Error):
+                    raise serializers.ValidationError({'imagen': 'La imagen no es base64 válido.'})
 
         return super().to_internal_value(mutable)
 

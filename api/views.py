@@ -1087,7 +1087,13 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         if self._modo_generico():
             # Modo moderno: aceptar tanto multipart (archivo real) como base64 legacy.
             serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
+            try:
+                serializer.is_valid(raise_exception=True)
+            except ValidationError as exc:
+                # Normalizar errores de validación del serializer a formato {'error': '...'}
+                # para mantener consistencia con el resto de endpoints de la API.
+                msg = _extract_validation_error_message(exc)
+                return Response({'error': msg}, status=status.HTTP_400_BAD_REQUEST)
             informe = serializer.save()
             return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
 
