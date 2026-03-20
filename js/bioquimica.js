@@ -407,6 +407,12 @@ const cargarTubosIndex = async () => {
   return await fetch("/api/tubos/index/").then(data => data.json());
 };
 
+const normalizarListaApi = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.results)) return payload.results;
+  return [];
+};
+
 // Carga el detalle del tubo seleccionado
 const cargarTubo = async (tuboId) => {
   return await fetch(`/api/tubos/${tuboId}/`).then(data => data.json());
@@ -472,7 +478,8 @@ const crearTubo = async (event) => {
 };
 
 const cargarTodosTubos = async () => {
-  return await fetch("/api/tubos/todos/").then((data) => data.json());
+  const payload = await fetch("/api/tubos/todos/").then((data) => data.json());
+  return normalizarListaApi(payload);
 };
 
 const cargarPorTipo = async () => {
@@ -872,6 +879,7 @@ window.guardarInformeBioquimica = async () => {
   const targetId = currentTuboId || tuboId;
   if (!targetId) {
     mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    alert("Selecciona una muestra antes de guardar el informe.");
     return;
   }
   if (informeGuardando) return;
@@ -885,15 +893,16 @@ window.guardarInformeBioquimica = async () => {
     const tincion = document.getElementById("tubo__informe_tincion")?.value || "";
     const observaciones = document.getElementById("tubo__informe_observaciones")?.value || "";
     const inputFile = document.getElementById("tubo__informe_imagen");
-    const payload = { descripcion, fecha, tincion, observaciones, tubo: targetId };
+
+    const payload = new FormData();
+    payload.append("descripcion", descripcion);
+    payload.append("fecha", fecha);
+    payload.append("tincion", tincion);
+    payload.append("observaciones", observaciones);
+    payload.append("tubo", targetId);
 
     if (inputFile && inputFile.files && inputFile.files[0]) {
-      payload.imagen = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result || "");
-        reader.onerror = () => reject(new Error("Error al leer el archivo"));
-        reader.readAsDataURL(inputFile.files[0]);
-      });
+      payload.append("imagen", inputFile.files[0]);
     }
 
     const isEdit = Boolean(informeEditandoId);
@@ -901,14 +910,14 @@ window.guardarInformeBioquimica = async () => {
     const res = await fetch(endpoint, {
       method: isEdit ? "PATCH" : "POST",
       headers: {
-        "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
       },
-      body: JSON.stringify(payload),
+      body: payload,
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "No se pudo guardar el informe");
+      const mensaje = err.error || err.detail || JSON.stringify(err) || "No se pudo guardar el informe";
+      throw new Error(mensaje);
     }
     mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
     informeEditandoId = null;
@@ -918,7 +927,9 @@ window.guardarInformeBioquimica = async () => {
     await refrescarInformesTubo(targetId);
   } catch (error) {
     console.error(error);
-    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+    const mensaje = error.message || "Error al guardar el informe.";
+    mostrarEstadoInforme(mensaje, "danger");
+    alert(mensaje);
   } finally {
     informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
@@ -1060,6 +1071,7 @@ const cambiarEstadoBotonGuardar = (guardando) => {
 };
 
 const imprimirTubos = (respuesta, rebuildDropdown = true) => {
+  const lista = normalizarListaApi(respuesta);
   tubos.innerHTML = "";
   if (rebuildDropdown) {
     numTubo.innerHTML = "<option selected value=''>Nº Muestra</option>";
@@ -1067,8 +1079,8 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
 
   let fragmento = document.createDocumentFragment();
   let fragmentselect = document.createDocumentFragment();
-  if (respuesta.length > 0) {
-    respuesta.map((tubo) => {
+  if (lista.length > 0) {
+    lista.map((tubo) => {
       // Para cargar los números de tubo
       let option = document.createElement("OPTION");
       option.value = tubo.muestra;
@@ -1281,11 +1293,25 @@ const crearMuestra = async (event) => {
     
     const data = await response.json();
     console.log("Análisis creado exitosamente:", data);
+
+    const tuboSeleccionadoId = tuboId;
     
     modalnuevaMuestra.classList.remove("showmodal");
     modalnuevaMuestra.classList.add("hidemodal");
     limpiarModalMuestra();
-    let muestras_resp = await cargarMuestras(tuboId);
+
+    // Refresca siempre la tabla principal para evitar estado visual desincronizado.
+    const tubosResp = await cargarTodosTubos();
+    imprimirTubos(tubosResp, true);
+
+    const tuboSeleccionado = normalizarListaApi(tubosResp)
+      .find((item) => String(item.id_muestra) === String(tuboSeleccionadoId));
+    if (tuboSeleccionado) {
+      tuboId = tuboSeleccionadoId;
+      imprimirDataTubo(tuboSeleccionado);
+    }
+
+    let muestras_resp = await cargarMuestras(tuboSeleccionadoId);
     imprimirMuestras(muestras_resp);
     alert("Análisis creado correctamente");
   } catch (err) {
@@ -2155,18 +2181,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  inputtubo__qr.value = "";
-  input__consultarqr.value = "";
+  if (inputtubo__qr) inputtubo__qr.value = "";
+  if (input__consultarqr) input__consultarqr.value = "";
 
   // Lectura código QR del análisis
-  qrMuestraModal.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      consultarMuestraQR(inputmuestra__qr.value);
-      inputmuestra__qr.value = "";
-    } else {
-      inputmuestra__qr.value += event.key;
-    }
-  });
+  if (qrMuestraModal && inputmuestra__qr) {
+    qrMuestraModal.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        consultarMuestraQR(inputmuestra__qr.value);
+        inputmuestra__qr.value = "";
+      } else {
+        inputmuestra__qr.value += event.key;
+      }
+    });
+  }
 
   // Lectura código QR del análisis (ahora se maneja inline en la plantilla para mayor fiabilidad)
 

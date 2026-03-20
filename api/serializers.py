@@ -1,7 +1,11 @@
 import logging
+import base64
+import binascii
+import uuid
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.core.files.base import ContentFile
 logger = logging.getLogger(__name__)
 from .models import Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia, ImagenCitologia, Necropsia, MuestraNecropsia, ImagenNecropsia, Tubo, MuestraTubo, ImagenTubo, Hematologia, MuestraHematologia, ImagenHematologia, Microbiologia, MuestraMicrobiologia, ImagenMicrobiologia, InformeResultado, CatalogoOpcion
 
@@ -416,7 +420,7 @@ class ImagenMicrobiologiaSerializer(FileUrlSerializerMixin, serializers.ModelSer
 
 
 class InformeResultadoSerializer(FileUrlSerializerMixin, serializers.ModelSerializer):
-    imagen = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    imagen = serializers.FileField(write_only=True, required=False, allow_null=True)
     imagen_url = serializers.SerializerMethodField()
     cassette = serializers.IntegerField(write_only=True, required=False)
     citologia = serializers.IntegerField(write_only=True, required=False)
@@ -485,6 +489,30 @@ class InformeResultadoSerializer(FileUrlSerializerMixin, serializers.ModelSerial
                 raise serializers.ValidationError({field: 'Registro de destino no encontrado.'})
 
         return attrs
+
+    def to_internal_value(self, data):
+        mutable = data.copy()
+        imagen_data = mutable.get('imagen')
+
+        if isinstance(imagen_data, str):
+            if not imagen_data.strip():
+                mutable.pop('imagen', None)
+            elif imagen_data.startswith('data:') and ',' in imagen_data:
+                header, encoded = imagen_data.split(',', 1)
+                extension = '.bin'
+                if ';base64' in header and '/' in header:
+                    mime = header.split(';', 1)[0].split(':', 1)[-1]
+                    if '/' in mime:
+                        extension = f".{mime.split('/')[-1]}"
+
+                try:
+                    raw = base64.b64decode(encoded)
+                except (ValueError, binascii.Error):
+                    raise serializers.ValidationError({'imagen': 'Archivo base64 invalido.'})
+
+                mutable['imagen'] = ContentFile(raw, name=f'informe_{uuid.uuid4().hex}{extension}')
+
+        return super().to_internal_value(mutable)
 
     def create(self, validated_data):
         target = validated_data.pop('_target_object')

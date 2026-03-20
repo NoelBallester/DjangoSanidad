@@ -404,6 +404,12 @@ const cargarMicrobiologiasIndex = async () => {
   return await fetch("/api/microbiologias/index/").then(data => data.json());
 };
 
+const normalizarListaApi = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.results)) return payload.results;
+  return [];
+};
+
 // Carga el detalle del microbiologia seleccionado
 const cargarMicrobiologia = async (microbiologiaId) => {
   return await fetch(`/api/microbiologias/${microbiologiaId}/`).then(data => data.json());
@@ -469,7 +475,8 @@ const crearMicrobiologia = async (event) => {
 };
 
 const cargarTodosMicrobiologias = async () => {
-  return await fetch("/api/microbiologias/todos/").then((data) => data.json());
+  const payload = await fetch("/api/microbiologias/todos/").then((data) => data.json());
+  return normalizarListaApi(payload);
 };
 
 const cargarPorTipo = async () => {
@@ -1050,6 +1057,7 @@ const cambiarEstadoBotonGuardar = (guardando) => {
 };
 
 const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
+  const lista = normalizarListaApi(respuesta);
   microbiologias.innerHTML = "";
   if (rebuildDropdown) {
     numMicrobiologia.innerHTML = "<option selected value=''>Nº Muestra</option>";
@@ -1057,8 +1065,8 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
 
   let fragmento = document.createDocumentFragment();
   let fragmentselect = document.createDocumentFragment();
-  if (respuesta.length > 0) {
-    respuesta.map((microbiologia) => {
+  if (lista.length > 0) {
+    lista.map((microbiologia) => {
       // Para cargar los números de microbiologia
       let option = document.createElement("OPTION");
       option.value = microbiologia.muestra;
@@ -1272,10 +1280,24 @@ const crearMuestra = async (event) => {
     const data = await response.json();
     console.log("Análisis creado exitosamente:", data);
 
+    const microbiologiaSeleccionadaId = microbiologiaId;
+
     modalnuevaMuestra.classList.remove("showmodal");
     modalnuevaMuestra.classList.add("hidemodal");
     limpiarModalMuestra();
-    let muestras_resp = await cargarMuestras(microbiologiaId);
+
+    // Refresca siempre la tabla principal para evitar estado visual desincronizado.
+    const microbiologiasResp = await cargarTodosMicrobiologias();
+    imprimirMicrobiologias(microbiologiasResp, true);
+
+    const microbiologiaSeleccionada = normalizarListaApi(microbiologiasResp)
+      .find((item) => String(item.id_microbiologia) === String(microbiologiaSeleccionadaId));
+    if (microbiologiaSeleccionada) {
+      microbiologiaId = microbiologiaSeleccionadaId;
+      imprimirDataMicrobiologia(microbiologiaSeleccionada);
+    }
+
+    let muestras_resp = await cargarMuestras(microbiologiaSeleccionadaId);
     imprimirMuestras(muestras_resp);
     alert("Análisis creado correctamente");
   } catch (err) {
@@ -2001,13 +2023,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   btnborrar.addEventListener("click", borrarMicrobiologia);
 
-  qrMuestraModal.addEventListener("show.bs.modal", (event) => {
-    imgmuestra__qr.src = `data:image/svg+xml;base64,`;
-  });
+  if (qrMuestraModal && imgmuestra__qr) {
+    qrMuestraModal.addEventListener("show.bs.modal", () => {
+      imgmuestra__qr.src = `data:image/svg+xml;base64,`;
+    });
 
-  qrMuestraModal.addEventListener("show.bs.modal", (event) => {
-    imgmuestra__qr.src = `data:image/svg+xml;base64,`;
-  });
+    qrMuestraModal.addEventListener("show.bs.modal", () => {
+      imgmuestra__qr.src = `data:image/svg+xml;base64,`;
+    });
+  }
 
   // Crear Análisis
   btnformnuevaMuestra.addEventListener("click", () => {
@@ -2167,18 +2191,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  inputmicrobiologia__qr.value = "";
-  input__consultarqr.value = "";
+  if (inputmicrobiologia__qr) inputmicrobiologia__qr.value = "";
+  if (input__consultarqr) input__consultarqr.value = "";
 
   // Lectura código QR del análisis
-  qrMuestraModal.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      consultarMuestraQR(inputmuestra__qr.value);
-      inputmuestra__qr.value = "";
-    } else {
-      inputmuestra__qr.value += event.key;
-    }
-  });
+  if (qrMuestraModal && inputmuestra__qr) {
+    qrMuestraModal.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        consultarMuestraQR(inputmuestra__qr.value);
+        inputmuestra__qr.value = "";
+      } else {
+        inputmuestra__qr.value += event.key;
+      }
+    });
+  }
 
   // Lectura código QR del análisis (ahora se maneja inline en la plantilla para mayor fiabilidad)
 
