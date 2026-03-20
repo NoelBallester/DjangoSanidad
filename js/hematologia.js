@@ -80,6 +80,8 @@ const INFORME_TAB_KEY = "hematologia_active_tab";
 let currentHematologiaId = null;
 let informeEditandoId = null;
 let informeGuardando = false;
+let ultimaListaHematologias = [];
+let evitarVaciadoListaPrincipal = false;
 
 // Modales QR
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
@@ -817,7 +819,16 @@ const modificarHematologiaUpdate = async (event) => {
 // ============================================================
 
 const imprimirHematologias = (respuesta, rebuildDropdown = true) => {
-  const lista = normalizarListaApi(respuesta);
+  let lista = normalizarListaApi(respuesta);
+  if (lista.length === 0 && evitarVaciadoListaPrincipal && ultimaListaHematologias.length > 0) {
+    console.warn("Se evita vaciar la tabla principal de hematologías por respuesta vacía temporal.");
+    lista = ultimaListaHematologias;
+  }
+
+  if (lista.length > 0) {
+    ultimaListaHematologias = lista.slice();
+  }
+
   if (!listaMuestras) return;
   listaMuestras.innerHTML = "";
 
@@ -1010,6 +1021,8 @@ const crearSubMuestra = async (event) => {
   }
 
   try {
+    evitarVaciadoListaPrincipal = true;
+
     const response = await fetch("/api/muestrashematologia/", {
       method: "POST",
       headers: {
@@ -1054,6 +1067,8 @@ const crearSubMuestra = async (event) => {
   } catch (err) {
     console.error("Error en fetch:", err);
     alert("Error al crear análisis: " + err.message);
+  } finally {
+    evitarVaciadoListaPrincipal = false;
   }
 };
 
@@ -1121,6 +1136,8 @@ const borrarSubMuestra = async () => {
   if (!muestraId) return;
 
   try {
+    evitarVaciadoListaPrincipal = true;
+
     const response = await fetch(`/api/muestrashematologia/${muestraId}/`, {
       method: "DELETE",
       headers: {
@@ -1132,11 +1149,16 @@ const borrarSubMuestra = async () => {
       cerrarModal(modaldetalleMuestra);
       const subMuestras = await cargarSubMuestras(hematologiaId);
       imprimirSubMuestras(subMuestras);
+
+      const hematologiasResp = await cargarTodasHematologias();
+      imprimirHematologias(hematologiasResp, true);
     } else {
       alert("Error al eliminar el análisis");
     }
   } catch (err) {
     console.error(err);
+  } finally {
+    evitarVaciadoListaPrincipal = false;
   }
 };
 
