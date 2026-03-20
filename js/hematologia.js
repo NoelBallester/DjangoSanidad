@@ -1801,6 +1801,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (action === "edit") {
         await cargarSubMuestraUpdateModal();
+        cerrarModal(modaldetalleMuestra);
         abrirModal(modalmodificarMuestra);
         return;
       }
@@ -1825,6 +1826,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (btnformmodificarmuestra) {
     btnformmodificarmuestra.addEventListener("click", () => {
       cargarSubMuestraUpdateModal();
+      cerrarModal(modaldetalleMuestra);
       abrirModal(modalmodificarMuestra);
     });
   }

@@ -383,7 +383,7 @@
             <!-- Muestras -->
             <div id="sectionMuestras" class="container__muestra m-auto w-100 p-2 {% if request.GET.tab == 'informe' %}d-none{% endif %}">
                 <div class="title d-flex align-items-center justify-content-between">
-                    <h2 class="cassette__title m-0">Muestras</h2>
+                    <h2 class="cassette__title m-0">Examen Interno del Cadáver</h2>
                     <div class="d-flex align-items-center gap-2">
                         <a id="btnToggleInforme" class="btn btn-outline-primary fw-bold px-3"
                             href="{% url 'necropsias' %}?necropsia={{ selected.pk }}&tab=informe{% if request.GET.muestra %}&muestra={{ request.GET.muestra }}{% endif %}{% if filtros.tipo_autopsia %}&tipo_autopsia={{ filtros.tipo_autopsia }}{% endif %}{% if filtros.numero %}&numero={{ filtros.numero }}{% endif %}{% if filtros.inicio %}&inicio={{ filtros.inicio }}&fin={{ filtros.fin }}{% endif %}"
@@ -613,25 +613,21 @@
 
         <!-- ── Modal Nueva Muestra ──────────────────────────────────────────── -->
         <section class="mimodal {% if request.GET.modal == 'nueva_muestra' %}open{% endif %}" id="modalnuevaMuestra" {% if request.GET.modal == 'nueva_muestra' %}data-force-open="1"{% endif %}>
-            <form class="row g-3 miform" method="post" action="{% url 'muestra_necropsia_create' selected.pk %}" enctype="multipart/form-data">
+            <form class="row g-3 miform" id="nuevaMuestra" method="post" action="{% url 'muestra_necropsia_create' selected.pk %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
-                    <h2 class="cassette__title">Nueva Muestra</h2>
+                    <h2 class="cassette__title">Nuevo Examen Interno del Cadáver</h2>
                     <i class="fa-solid fa-circle-xmark cassette__icon cassette__icon--infocassette fs-2"
                         id="btnformcerrarnuevaMuestra"></i>
                 </div>
                 <hr>
-                <div class="col-md-12">
-                    <label class="form-label blue__color">Examen interno del cadaver</label>
-                    <textarea name="examen_interno_cadaver" class="form-control blue__color" required></textarea>
-                </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Tecnica de apertura</label>
-                    <input type="text" name="tecnica_apertura" class="form-control blue__color" required>
+                    <input type="text" name="tecnica_apertura" id="inputTecnicaMuestra" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Datos relevantes según región / Descripción macroscópica</label>
-                    <textarea name="datos_relevantes_region" class="form-control blue__color" required></textarea>
+                    <textarea name="datos_relevantes_region" id="inputDatosRelevantsMuestra" class="form-control blue__color" required></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Toma de muestras</label>
@@ -641,22 +637,19 @@
                     <label class="form-label blue__color">Prueba complementaria</label>
                     <textarea name="prueba_complementaria" class="form-control blue__color"></textarea>
                 </div>
-                <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Detalles macroscopicos de la muestra</label>
-                    <input type="text" name="descripcion" class="form-control blue__color" required>
-                </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
-                    <input type="date" name="fecha" class="form-control blue__color">
+                    <input type="date" name="fecha" id="inputFechaMuestra" class="form-control blue__color" required>
                 </div>
-                <input type="hidden" name="tincion" value="Otros">
+                <input type="hidden" name="tincion" id="selectTincionMuestra" value="Otros">
+                <input type="hidden" name="descripcion" id="inputdescripcionMuestra">
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
-                    <textarea name="observaciones" class="form-control blue__color"></textarea>
+                    <textarea name="observaciones" id="inputObservacionesMuestra" class="form-control blue__color"></textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Informe de autopsia</label>
-                    <input type="file" name="imagen" accept="*/*" class="form-control blue__color">
+                    <input type="file" name="imagen" id="inputImagenesMuestra" accept="*/*" class="form-control blue__color">
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
@@ -722,9 +715,6 @@
                             </li>
                             <li class="list-group-item blue__color--negrita">Prueba complementaria:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.prueba_complementaria|default:'-' }}</p>
-                            </li>
-                            <li class="list-group-item blue__color--negrita">Descripcion macroscopica:
-                                <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.descripcion|default:'-' }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
                                 <p class="blue__color cassette__text">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</p>
@@ -810,11 +800,6 @@
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Prueba complementaria</label>
                     <textarea name="prueba_complementaria" id="editMuestraPruebaComplementaria" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.prueba_complementaria|default:'' }}{% endif %}</textarea>
-                </div>
-                <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Descripcion macroscopica</label>
-                    <input type="text" name="descripcion" id="editMuestraDescripcion" class="form-control blue__color" required
-                        value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.descripcion|default:'' }}{% endif %}">
                 </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Fecha</label>
@@ -1248,6 +1233,7 @@
             document.getElementById('editMuestraTecnica').value = tecnicaApertura;
             document.getElementById('editMuestraDatosRegion').value = datosRegion;
             document.getElementById('editMuestraObservaciones').value = observaciones;
+            closeModal('modalDetalleMuestra');
             openModal('modalmodificarMuestra');
         }
 

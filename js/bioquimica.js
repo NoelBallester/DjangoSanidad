@@ -2022,6 +2022,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   nuevaMuestra.addEventListener("submit", crearMuestra);
 
+  const cerrarModalDetalleSiAbierto = () => {
+    if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
+      return;
+    }
+    modaldetalleMuestra.classList.add("hidemodal");
+    modaldetalleMuestra.classList.remove("showmodal");
+    setTimeout(() => {
+      modaldetalleMuestra.style.display = "none";
+    }, 300);
+  };
+
   // Modificar Análisis
   if (btnformmodificarMuestra) {
     btnformmodificarMuestra.addEventListener("click", () => {
@@ -2029,6 +2040,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         alerttubo.classList.remove("ocultar");
       } else {
         cargarMuestraUpdateModal();
+        cerrarModalDetalleSiAbierto();
         if (!modalmodificarMuestra.classList.contains("showmodal")) {
           modalmodificarMuestra.classList.add("showmodal");
           modalmodificarMuestra.classList.remove("hidemodal");
@@ -2072,6 +2084,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       await cargarMuestraUpdateModal();
+      cerrarModalDetalleSiAbierto();
       if (!modalmodificarMuestra.classList.contains("showmodal")) {
         modalmodificarMuestra.classList.add("showmodal");
         modalmodificarMuestra.classList.remove("hidemodal");

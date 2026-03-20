@@ -1310,12 +1310,21 @@ btncerrardetalleMuestra.addEventListener("click", () => {
 
 nuevaMuestra.addEventListener("submit", crearMuestra);
 
+const cerrarModalDetalleSiAbierto = () => {
+  if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
+    return;
+  }
+  modaldetalleMuestra.classList.add("hidemodal");
+  modaldetalleMuestra.classList.remove("showmodal");
+};
+
 // Modificar Muestra
 btnformmodificarMuestra.addEventListener("click", () => {
   if (!cassetteId) {
     alertcassette.classList.remove("ocultar");
   } else {
     cargarMuestraUpdateModal();
+    cerrarModalDetalleSiAbierto();
     if (!modalmodificarMuestra.classList.contains("showmodal")) {
       modalmodificarMuestra.classList.add("showmodal");
       modalmodificarMuestra.classList.remove("hidemodal");
@@ -1354,6 +1363,7 @@ muestras.addEventListener("click", async (event) => {
       return;
     }
     await cargarMuestraUpdateModal();
+    cerrarModalDetalleSiAbierto();
     if (!modalmodificarMuestra.classList.contains("showmodal")) {
       modalmodificarMuestra.classList.add("showmodal");
       modalmodificarMuestra.classList.remove("hidemodal");
