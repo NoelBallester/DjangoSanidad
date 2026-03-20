@@ -114,7 +114,9 @@ def _catalog_organo_choices():
 
 
 def _qr(prefix):
-    return prefix + ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+    """Genera un código QR seguro criptográficamente (SEC-22)."""
+    import secrets
+    return prefix + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
 
 
 MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
@@ -163,7 +165,6 @@ DEFAULT_CITOLOGIA_SAMPLE_TYPES = [
     'Líquido Sinovial',
     'Muestra cervico-vaginal',
     'Muestra Cervico-Vaginal',
-    'Biología Molecular',
     'Otros',
     'otros',
 ]
@@ -186,7 +187,6 @@ DEFAULT_INFORME_ANALYSIS_TYPES = [
     'Resultados Biopsias',
     'Improntas',
     'Aspirados',
-    'Biología Molecular',
     'Otros',
 ]
 
@@ -339,7 +339,7 @@ class MuestraForm(forms.ModelForm):
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
-        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
+        self.fields['tincion'].choices = tincion_choices
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
@@ -375,7 +375,7 @@ class MuestraCitologiaForm(forms.ModelForm):
             CatalogoOpcion.TIPO_TINCION,
             'Seleccionar Validación',
         )
-        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
+        self.fields['tincion'].choices = tincion_choices
         for name, field in self.fields.items():
             if name not in ('fecha', 'observaciones', 'tincion'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')

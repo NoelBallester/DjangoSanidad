@@ -261,7 +261,8 @@ def logout_view(request):
 @never_cache
 @login_required
 def cassette_list(request):
-    qs = Cassette.objects.order_by('-fecha')
+    # PERF-2: Agregar select_related() para ForeignKey a Tecnico
+    qs = Cassette.objects.select_related('tecnico').order_by('-fecha')
 
     organo = request.GET.get('organo', '').strip()
     numero = request.GET.get('numero', '').strip()

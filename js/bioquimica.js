@@ -1678,7 +1678,7 @@ const consultarMuestraQR = async (qr, silent = false) => {
 const cargarUserUpdateModal = async (event) => {
   let userId = sessionStorage.getItem("tecnico_id");
   const response = await fetch(
-    "modelo/tecnicos/tecnicos.php",
+    "/api/tecnicos/",
     {
       method: "POST",
       headers: {
