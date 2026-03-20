@@ -51,10 +51,10 @@ class FileUrlSerializerMixin:
         archivo = getattr(instance, field_name, None)
         if not archivo:
             return None
-
+        # FileField retorna URL directa
         try:
-            return reverse('api-file-proxy', args=[instance._meta.model_name, instance.pk, field_name])
-        except Exception:
+            return archivo.url
+        except (AttributeError, ValueError):
             return None
 
 class TecnicoSerializer(serializers.ModelSerializer):

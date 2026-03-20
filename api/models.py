@@ -2,6 +2,60 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+import os
+from uuid import uuid4
+
+
+# ─── Funciones upload_to dinámicas para organizar archivos por tipo ──────────
+
+def upload_volante(instance, filename):
+    """Guarda volantes en media/volantes/{tipo}/{uuid}.{ext}"""
+    ext = os.path.splitext(filename)[1]
+    tipo = getattr(instance, 'volante_peticion_tipo', 'sin_tipo') or 'sin_tipo'
+    return f'volantes/{tipo}/{uuid4().hex}{ext}'
+
+
+def upload_informe_imagen(instance, filename):
+    """Guarda informes de imagen por tipo de registro (cassette, citologia, etc)"""
+    ext = os.path.splitext(filename)[1]
+    model_name = instance.__class__.__name__.lower()
+    return f'informes/{model_name}/{uuid4().hex}{ext}'
+
+
+def upload_imagen_muestra(instance, filename):
+    """Guarda imágenes de muestras en carpeta del tipo de muestra"""
+    ext = os.path.splitext(filename)[1]
+    # Obtener el tipo desde la muestra o el modelo padre
+    muestra = instance.muestra if hasattr(instance, 'muestra') else None
+    if muestra:
+        model_name = muestra.__class__.__name__.lower()
+        tipo_muestra = model_name.replace('muestra', '').replace('citologia', 'citologias')
+    else:
+        model_name = instance.__class__.__name__.lower()
+        tipo_muestra = model_name.replace('imagen', '')
+    
+    tipo_map = {
+        'cassette': 'cassettes',
+        'citologia': 'citologias',
+        'necropsia': 'necropsias',
+        'tubo': 'tubos',
+        'hematologia': 'hematologia',
+        'microbiologia': 'microbiologia',
+    }
+    tipo = tipo_map.get(tipo_muestra, tipo_muestra)
+    return f'imagenes/{tipo}/{uuid4().hex}{ext}'
+
+
+def upload_qr(instance, filename):
+    """Guarda códigos QR en media/qr/"""
+    ext = os.path.splitext(filename)[1]
+    return f'qr/{uuid4().hex}{ext}'
+
+
+def upload_informe_resultado(instance, filename):
+    """Guarda imágenes de informes de resultado"""
+    ext = os.path.splitext(filename)[1]
+    return f'informes_resultado/{uuid4().hex}{ext}'
 
 
 class SoftDeleteQuerySet(models.QuerySet):
@@ -153,7 +207,7 @@ class DetalleBase(models.Model):
         blank=True,
         db_column='tecnico_id',
     )
-    volante_peticion = models.BinaryField(null=True, blank=True, editable=True)
+    volante_peticion = models.FileField(upload_to=upload_volante, null=True, blank=True)
     volante_peticion_nombre = models.CharField(max_length=255, null=True, blank=True)
     volante_peticion_tipo = models.CharField(max_length=100, null=True, blank=True)
 
@@ -184,7 +238,7 @@ class RegistroConInforme(RegistroBase):
     informe_fecha = models.DateField(null=True, blank=True)
     informe_tincion = models.CharField(max_length=255, null=True, blank=True)
     informe_observaciones = models.TextField(null=True, blank=True)
-    informe_imagen = models.BinaryField(null=True, blank=True, editable=True)
+    informe_imagen = models.ImageField(upload_to=upload_informe_imagen, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -209,7 +263,7 @@ class ImagenBase(SoftDeleteModel):
     """
     Base abstracta para todos los modelos de imagen de muestra.
     """
-    imagen = models.BinaryField(null=True, blank=True, editable=True)
+    imagen = models.ImageField(upload_to=upload_imagen_muestra, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -258,7 +312,7 @@ class Citologia(RegistroConInforme):
     citologia = models.CharField(max_length=255)
     tipo_citologia = models.CharField(max_length=255)
     qr_citologia = models.CharField(max_length=255, null=True, blank=True)
-    qr_imagen = models.BinaryField(null=True, blank=True)
+    qr_imagen = models.ImageField(upload_to=upload_qr, null=True, blank=True)
 
     def __str__(self):
         return f"Citología {self.citologia}"
@@ -429,7 +483,7 @@ class InformeResultado(models.Model):
     fecha = models.DateField(null=True, blank=True)
     tincion = models.CharField(max_length=255, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    imagen = models.BinaryField(null=True, blank=True, editable=True)
+    imagen = models.ImageField(upload_to=upload_informe_resultado, null=True, blank=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')

@@ -556,7 +556,7 @@ return prefix + ''.join(secrets.choice(string.ascii_letters + string.digits) for
 
 ---
 
-### PERF-3 — BinaryField cargado en listados
+### PERF-3 — BinaryField cargado en listados HECHO
 - **Archivos:** `web/views.py`, `api/views.py`
 - **Problema:** Los listados hacen `SELECT *`, cargando los campos `BinaryField` (volantes, imágenes) a memoria aunque solo se muestren nombres y fechas. Con 200 registros de 5-15 MB → posibles GB de RAM por petición.
 - **Solución:** `.defer()` en querysets de listado.

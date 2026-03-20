@@ -128,110 +128,17 @@ def _add_security_headers(response):
     response['X-Frame-Options'] = 'DENY'
     return response
 
-def _read_file_bytes(file_value):
-    def _safe_open_path(text):
-        """Valida que la ruta resuelta esté en MEDIA_ROOT. Devuelve el path válido o None."""
-        import pathlib
-        text = (text or '').strip()
-        if not text:
-            return None
-        
-        if os.path.isabs(text):
-            candidate = pathlib.Path(text).resolve()
-        else:
-            candidate = (settings.MEDIA_ROOT / text).resolve()
-        media_root = pathlib.Path(settings.MEDIA_ROOT).resolve()
-        
-        # Verificar que la ruta está dentro de MEDIA_ROOT para evitar path traversal
-        try:
-            candidate.relative_to(media_root)
-        except ValueError:
-            return None
-        
-        if candidate.exists() and candidate.is_file():
-            return candidate
-        return None
-    
-    def _decode_text_reference(text):
-        text = (text or '').strip()
-        if not text:
-            return b''
-
-        # Compatibilidad legacy: data URL almacenada en texto.
-        if text.startswith('data:') and ';base64,' in text:
-            try:
-                return base64.b64decode(text.split(';base64,', 1)[1], validate=True)
-            except Exception:
-                return b''
-
-        # Compatibilidad legacy: ruta de fichero relativa a MEDIA_ROOT o absoluta.
-        # SEC-20: Validar contra path traversal
-        safe_path = _safe_open_path(text)
-        if safe_path:
-            try:
-                with open(str(safe_path), 'rb') as f:
-                    return f.read()
-            except Exception:
-                pass
-
-        # Compatibilidad legacy: base64 sin prefijo data URL.
-        try:
-            return base64.b64decode(text, validate=True)
-        except Exception:
-            return b''
-
-    if not file_value:
-        return b''
-    if isinstance(file_value, memoryview):
-        raw = file_value.tobytes()
-        try:
-            maybe_text = raw.decode('utf-8')
-            resolved = _decode_text_reference(maybe_text)
-            return resolved or raw
-        except Exception:
-            return raw
-    if isinstance(file_value, (bytes, bytearray)):
-        raw = bytes(file_value)
-        # Algunos registros legacy guardan la ruta como texto dentro del BinaryField.
-        try:
-            maybe_text = raw.decode('utf-8')
-            resolved = _decode_text_reference(maybe_text)
-            return resolved or raw
-        except Exception:
-            return raw
-    if isinstance(file_value, str):
-        return _decode_text_reference(file_value)
-    try:
-        if hasattr(file_value, 'open'):
-            file_value.open('rb')
-        if hasattr(file_value, 'read'):
-            content = file_value.read()
-            if hasattr(file_value, 'seek'):
-                file_value.seek(0)
-            if content:
-                return bytes(content)
-    except Exception:
-        pass
-    return b''
 
 
 def _detect_content_type(file_value):
-    raw = _read_file_bytes(file_value)[:16]
-    if raw.startswith(b'\xff\xd8\xff'):
-        return 'image/jpeg'
-    if raw.startswith(b'\x89PNG\r\n\x1a\n'):
-        return 'image/png'
-    if raw.startswith((b'GIF87a', b'GIF89a')):
-        return 'image/gif'
-    if raw.startswith(b'BM'):
-        return 'image/bmp'
-    if raw.startswith(b'RIFF') and raw[8:12] == b'WEBP':
-        return 'image/webp'
-    if raw.startswith(b'%PDF'):
-        return 'application/pdf'
-
-    guess_name = file_value if isinstance(file_value, str) else getattr(file_value, 'name', '')
-    guessed, _ = mimetypes.guess_type(guess_name)
+    """Detecta content-type usando mimetypes basado en extension del archivo."""
+    filename = ''
+    if isinstance(file_value, str):
+        filename = file_value
+    else:
+        filename = getattr(file_value, 'name', '')
+    
+    guessed, _ = mimetypes.guess_type(filename)
     return guessed or 'application/octet-stream'
 
 
@@ -245,6 +152,7 @@ def _roles_permitidos_para_proxy(model, instance=None):
 
 @login_required
 def proxy_file(request, model_name, pk, field_name):
+    """Serve files from FileField with security checks."""
     config = FILE_PROXY_MODELS.get(model_name)
     if not config:
         raise Http404('Modelo no soportado.')
@@ -258,44 +166,27 @@ def proxy_file(request, model_name, pk, field_name):
     except model.DoesNotExist as exc:
         raise Http404('Archivo no encontrado.') from exc
 
-    # SEC-2: verificar rol del usuario según el tipo real de recurso.
+    # SEC-2: verificar rol del usuario según el tipo real de recurso
     if not request.user.is_staff:
         rol = getattr(request.user, 'rol', None)
         roles_permitidos = _roles_permitidos_para_proxy(model, instance)
         if rol not in roles_permitidos:
             raise Http404('Archivo no encontrado.')
 
-    file_value = getattr(instance, field_name, None)
-    if not file_value:
+    file_field = getattr(instance, field_name, None)
+    if not file_field or not file_field.name:
         raise Http404('Archivo no encontrado.')
 
-    content_type = _detect_content_type(file_value)
-    if isinstance(file_value, str):
-        filename = os.path.basename(file_value) or f'{model_name}-{pk}'
-    else:
-        filename = os.path.basename(getattr(file_value, 'name', '') or f'{model_name}-{pk}')
-    
-    # SEC-21: Sanitizar nombre del archivo para evitar inyecciones
+    content_type = _detect_content_type(file_field)
+    filename = os.path.basename(file_field.name or f'{model_name}-{pk}')
     safe_filename = _sanitize_filename(filename)
 
-    if isinstance(file_value, (bytes, bytearray, memoryview)):
-        response = HttpResponse(_read_file_bytes(file_value), content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
-        return _add_security_headers(response)
-
     try:
-        if hasattr(file_value, 'open'):
-            file_value.open('rb')
-        response = FileResponse(file_value, content_type=content_type)
+        response = FileResponse(file_field.open('rb'), content_type=content_type)
         response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
         return _add_security_headers(response)
-    except Exception:
-        raw = _read_file_bytes(file_value)
-        if not raw:
-            raise Http404('Archivo no encontrado.')
-        response = HttpResponse(raw, content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
-        return _add_security_headers(response)
+    except (OSError, ValueError) as exc:
+        raise Http404('Archivo no encontrado.') from exc
 
 def generar_qr(prefijo):
     """Genera un código base QR con formato: prefijo + 12 caracteres."""

@@ -974,7 +974,7 @@ const mostrarImagenesMuestra = async (muestaId) => {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = `data:image/jpeg;base64,${imagen.imagen}`;
+      newimg.src = imagen.imagen_url || `data:image/jpeg;base64,${imagen.imagen}`;
       newimg.classList.add("muestra__img", "rounded");
       newimg.style.maxWidth = "150px";
       newimg.style.maxHeight = "150px";
