@@ -1294,6 +1294,13 @@ const crearMuestra = async (event) => {
   }
 };
 
+const formatearFechaTabla = (fechaRaw) => {
+  if (!fechaRaw) return "-";
+  const fecha = String(fechaRaw);
+  if (fecha.length < 10) return fecha;
+  return `${fecha.substring(8, 10)}-${fecha.substring(5, 7)}-${fecha.substring(0, 4)}`;
+};
+
 // Imprimir análisis
 const imprimirMuestras = (respuesta) => {
   muestras.innerHTML = "";
@@ -1305,20 +1312,15 @@ const imprimirMuestras = (respuesta) => {
 
       tr.classList.add("table__row");
       let descripcion = document.createElement("td");
-      descripcion.textContent = muestra.descripcion.substring(0, 80);
-      descripcion.title = muestra.descripcion;
+      const descripcionTexto = (muestra?.descripcion || "").toString();
+      descripcion.textContent = descripcionTexto ? descripcionTexto.substring(0, 80) : "-";
+      descripcion.title = descripcionTexto;
 
       let fecha = document.createElement("td");
-      let newfecha = muestra.fecha;
-      fecha.textContent =
-        newfecha.substring(8) +
-        "-" +
-        newfecha.substring(5, 7) +
-        "-" +
-        newfecha.substring(0, 4);
+      fecha.textContent = formatearFechaTabla(muestra?.fecha);
 
       let tincion = document.createElement("td");
-      tincion.textContent = muestra.tincion;
+      tincion.textContent = muestra?.tincion || "-";
 
       let btn = document.createElement("td");
       btn.style.whiteSpace = "nowrap";
