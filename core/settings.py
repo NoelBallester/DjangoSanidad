@@ -143,7 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'Europe/Madrid')
 
@@ -156,6 +156,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     ('css', BASE_DIR / 'css'),
     ('js', BASE_DIR / 'js'),
@@ -191,6 +192,29 @@ if not CORS_ALLOWED_ORIGINS:
 AUTH_USER_MODEL = 'api.Tecnico'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ============================================================================
+# SECURITY: HTTPS & Cookie Settings
+# ============================================================================
+# Activar cuando se despliega con HTTPS (ejemplo: `DJANGO_HTTPS=true`)
+
+_HTTPS_ENABLED = os.getenv('DJANGO_HTTPS', 'false').strip().lower() == 'true'
+
+if _HTTPS_ENABLED:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = 31_536_000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Flags de seguridad en cookies (aplicables en HTTP también)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # JavaScript necesita leerla para fetch
+CSRF_COOKIE_SAMESITE = 'Lax'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)

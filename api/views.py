@@ -114,7 +114,44 @@ def _validar_imagen_api(imagen_file):
         raise ValidationError('El archivo no es una imagen valida.')
 
 
+def _sanitize_filename(filename):
+    """Sanitiza el nombre del archivo para evitar inyecciones en Content-Disposition."""
+    import re
+    # Reemplazar caracteres problemáticos con underscore
+    safe_name = re.sub(r'[^\w\s.\-]', '_', filename or 'archivo')
+    return safe_name[:255]  # Limitar longitud
+
+def _add_security_headers(response):
+    """Añade cabeceras de seguridad a respuestas de archivos médicos."""
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['X-Frame-Options'] = 'DENY'
+    return response
+
 def _read_file_bytes(file_value):
+    def _safe_open_path(text):
+        """Valida que la ruta resuelta esté en MEDIA_ROOT. Devuelve el path válido o None."""
+        import pathlib
+        text = (text or '').strip()
+        if not text:
+            return None
+        
+        if os.path.isabs(text):
+            candidate = pathlib.Path(text).resolve()
+        else:
+            candidate = (settings.MEDIA_ROOT / text).resolve()
+        media_root = pathlib.Path(settings.MEDIA_ROOT).resolve()
+        
+        # Verificar que la ruta está dentro de MEDIA_ROOT para evitar path traversal
+        try:
+            candidate.relative_to(media_root)
+        except ValueError:
+            return None
+        
+        if candidate.exists() and candidate.is_file():
+            return candidate
+        return None
+    
     def _decode_text_reference(text):
         text = (text or '').strip()
         if not text:
@@ -128,16 +165,14 @@ def _read_file_bytes(file_value):
                 return b''
 
         # Compatibilidad legacy: ruta de fichero relativa a MEDIA_ROOT o absoluta.
-        candidate_paths = [text]
-        if not os.path.isabs(text):
-            candidate_paths.append(str(settings.MEDIA_ROOT / text))
-        for path in candidate_paths:
-            if os.path.exists(path):
-                try:
-                    with open(path, 'rb') as f:
-                        return f.read()
-                except Exception:
-                    continue
+        # SEC-20: Validar contra path traversal
+        safe_path = _safe_open_path(text)
+        if safe_path:
+            try:
+                with open(str(safe_path), 'rb') as f:
+                    return f.read()
+            except Exception:
+                pass
 
         # Compatibilidad legacy: base64 sin prefijo data URL.
         try:
@@ -239,25 +274,28 @@ def proxy_file(request, model_name, pk, field_name):
         filename = os.path.basename(file_value) or f'{model_name}-{pk}'
     else:
         filename = os.path.basename(getattr(file_value, 'name', '') or f'{model_name}-{pk}')
+    
+    # SEC-21: Sanitizar nombre del archivo para evitar inyecciones
+    safe_filename = _sanitize_filename(filename)
 
     if isinstance(file_value, (bytes, bytearray, memoryview)):
         response = HttpResponse(_read_file_bytes(file_value), content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
-        return response
+        response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
+        return _add_security_headers(response)
 
     try:
         if hasattr(file_value, 'open'):
             file_value.open('rb')
         response = FileResponse(file_value, content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
-        return response
+        response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
+        return _add_security_headers(response)
     except Exception:
         raw = _read_file_bytes(file_value)
         if not raw:
             raise Http404('Archivo no encontrado.')
         response = HttpResponse(raw, content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
-        return response
+        response['Content-Disposition'] = f'inline; filename="{safe_filename}"'
+        return _add_security_headers(response)
 
 def generar_qr(prefijo):
     """Genera un código base QR con formato: prefijo + 12 caracteres."""
@@ -321,6 +359,14 @@ class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
     qr_prefix: str = None
     qr_field: str = None
 
+    def get_queryset(self):
+        """PERF-3: Excluir BinaryFields en listados para evitar cargar MB de datos."""
+        qs = super().get_queryset() if hasattr(super(), 'get_queryset') else self.queryset
+        if self.action in ('list', 'todos', 'index'):
+            # Usar defer() para excluir BinaryFields en listados
+            qs = qs.defer('volante_peticion', 'informe_imagen')
+        return qs
+
     def create(self, request):
         data = request.data.copy()
         if self.qr_field and not data.get(self.qr_field):
@@ -340,6 +386,10 @@ class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def todos(self, request):
         qs = self.get_queryset()
+        # PERF-5: Aplicar paginación al action `todos`
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            return self.get_paginated_response(self.get_serializer(page, many=True).data)
         return Response(self.get_serializer(qs, many=True).data)
 
     @action(detail=False, methods=['get'])

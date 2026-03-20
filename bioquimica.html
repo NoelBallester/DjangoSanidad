@@ -149,7 +149,7 @@
                         <input type="hidden" id="fechafin">
                     </div>
 
-                    
+
                 </div>
 
                 <!-- Area Derecha (Botón Volver alineado a la derecha) -->
@@ -181,7 +181,7 @@
             <div class="container__table col-12 col-lg-7 p-2 mb-3 mb-lg-0">
                 <div class="title d-flex">
                     <div class="col-10 ps-5">
-                        <h2 class="tubo__title">Muestras</h2>
+                        <h2 class="tubo__title">Registro de Muestras</h2>
                     </div>
                     <div class="col-2 justify-content-end">
                         <button type="button" class="btn m-0 p-0  icono__efect" id="btnformnuevotubo"><i
@@ -203,7 +203,7 @@
                     <table class="table sortable-theme-finder" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="col">Muestra / Paciente</th>
+                                <th scope="col">Muestra</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Aditivos</th>
                                 <th scope="col">Tipo de Muestra</th>
@@ -337,12 +337,14 @@
                         </button>
                     </div>
                     <div class="informe__scroll p-3">
-                        <div class="mb-3 p-2 rounded" style="background:var(--bg-light); border:1px solid var(--border-color);">
+                        <div class="mb-3 p-2 rounded"
+                            style="background:var(--bg-light); border:1px solid var(--border-color);">
                             <span class="blue__color--negrita">Muestra seleccionada:</span>
                             <span id="informeContextNum" class="blue__color">—</span>
                             <span class="mx-2">·</span>
                             <span class="blue__color--negrita">Detalle:</span>
-                            <span id="informeContextDescripcion" class="blue__color">Selecciona una cita para ver los detalles</span>
+                            <span id="informeContextDescripcion" class="blue__color">Selecciona una cita para ver los
+                                detalles</span>
                         </div>
                         <div id="informeStatus" class="alert d-none py-2 px-3 mb-3" role="alert"></div>
                         <div class="d-flex justify-content-end mb-3">
@@ -381,10 +383,12 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="tubo__informe_fecha" class="blue__color--negrita d-block">Fecha</label>
-                                    <input type="date" id="tubo__informe_fecha" class="form-control blue__color bg-light">
+                                    <input type="date" id="tubo__informe_fecha"
+                                        class="form-control blue__color bg-light">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="tubo__informe_tincion" class="blue__color--negrita d-block">Tipo De Análisis</label>
+                                    <label for="tubo__informe_tincion" class="blue__color--negrita d-block">Tipo De
+                                        Análisis</label>
                                     <select id="tubo__informe_tincion" class="form-select blue__color bg-light">
                                         <option selected disabled value="">Seleccionar Análisis</option>
                                         <option>Perfil Hepático</option>
@@ -414,11 +418,13 @@
                                         rows="3"></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="tubo__informe_imagen" class="blue__color--negrita d-block">Informe De Resultados</label>
+                                    <label for="tubo__informe_imagen" class="blue__color--negrita d-block">Informe De
+                                        Resultados</label>
                                     <input type="file" id="tubo__informe_imagen" accept="*/*"
                                         class="form-control blue__color bg-light">
                                 </div>
-                                <div class="d-flex gap-2 mt-4" style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
+                                <div class="d-flex gap-2 mt-4"
+                                    style="position: sticky; bottom: 0; background: var(--bg-light); padding-top: .75rem;">
                                     <button id="btnGuardarInforme" class="btn fondo w-100 py-2" type="button">
                                         <i class="fa-solid fa-save me-2"></i> Guardar Informe De Resultados
                                     </button>
@@ -430,7 +436,8 @@
                                 <div id="tubo__informe_preview_wrap" class="d-none mb-3">
                                     <label class="blue__color--negrita d-block">Vista previa</label>
                                     <img id="tubo__informe_preview" alt="Vista previa del informe"
-                                        class="img-fluid rounded border" style="max-height: 160px; object-fit: contain;">
+                                        class="img-fluid rounded border"
+                                        style="max-height: 160px; object-fit: contain;">
                                 </div>
                             </div>
                         </div>
@@ -446,13 +453,15 @@
 
                 <div class="form__header">
                     <h2 class="tubo__title">Nueva Muestra</h2>
-                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2" id="btnformcerrarnuevaMuestra"></i>
+                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2"
+                        id="btnformcerrarnuevaMuestra"></i>
                 </div>
 
                 <hr>
 
                 <div class="col-md-12">
-                    <label for="inputdescripcionMuestra" class="form-label blue__color">Validación muestra</label>
+                    <label for="inputdescripcionMuestra" class="form-label blue__color">Validación de la calidad de la
+                        muestra</label>
                     <input type="text" class="form-control blue__color" id="inputdescripcionMuestra" required>
                 </div>
 
@@ -475,7 +484,6 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
-                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
@@ -487,8 +495,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputImagenesMuestra" class="form-label blue__color">Adjuntar Imagen</label>
-                    <input type="file" accept="*/*" class="form-control blue__color"
-                        id="inputImagenesMuestra">
+                    <input type="file" accept="*/*" class="form-control blue__color" id="inputImagenesMuestra">
                 </div>
 
                 <div class="col-12">
@@ -512,7 +519,8 @@
                 <hr>
 
                 <div class="col-md-12">
-                    <label for="inputmodificardescripcionMuestra" class="form-label blue__color">Validación muestra</label>
+                    <label for="inputmodificardescripcionMuestra" class="form-label blue__color">Validación de la
+                        calidad de la muestra</label>
                     <input type="text" class="form-control blue__color" id="inputmodificardescripcionMuestra" required>
                 </div>
 
@@ -535,14 +543,15 @@
                         <option>Tricrómico</option>
                         <option>Orceína</option>
                         <option>P.A.S</option>
-                        <option>Biología Molecular</option>
                         <option>Otros</option>
                     </select>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputmodificarobservacionesMuestra" class="form-label blue__color">Diagnóstico probable</label>
-                    <textarea class="form-control blue__color" id="inputmodificarobservacionesMuestra" required></textarea>
+                    <label for="inputmodificarobservacionesMuestra" class="form-label blue__color">Diagnóstico
+                        probable</label>
+                    <textarea class="form-control blue__color" id="inputmodificarobservacionesMuestra"
+                        required></textarea>
                 </div>
 
                 <div class="col-12">
@@ -558,25 +567,35 @@
             <section class="detalletubo">
                 <div class="form__header">
                     <h2 class="tubo__title">Detalle Muestra</h2>
-                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2" id="btncerrardetalleMuestra"></i>
+                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2"
+                        id="btncerrardetalleMuestra"></i>
                 </div>
                 <hr>
 
                 <div class="p-2">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="d-flex align-items-start">
-                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal" style="cursor: pointer;">
-                                <i title="Imprimir QR Muestra" class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
+                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal"
+                                style="cursor: pointer;">
+                                <i title="Imprimir QR Muestra"
+                                    class="fa-sharp fa-solid fa-qrcode tubo__icon tubo__icon--infotubo"></i>
                             </div>
                             <div id="btnborrarmuestra" style="cursor: pointer;">
-                                <i title="Borrar Muestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                                <i title="Borrar Muestra"
+                                    class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
                             </div>
                             <div id="btnformmodificarMuestra" style="cursor: pointer;">
-                                <i title="Modificar Muestra" class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
+                                <i title="Modificar Muestra"
+                                    class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo"></i>
                             </div>
                         </div>
-                        <div>
-                            <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo"></i>
+                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2" id="btnaniadirimagenmuestra" style="cursor:pointer;" title="Añadir foto">
+                            <i class="fa-solid fa-circle-plus tubo__icon tubo__icon--infotubo"></i>
+                            <span class="blue__color fw-bold small">Añadir foto</span>
+                        </div>
+                        <i title="Borrar Imagen Muestra" id="btnborrarimagenmuestra"
+                            class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" style="cursor:pointer;"></i>
                         </div>
                     </div>
 
@@ -599,7 +618,8 @@
                             </div>
                         </div>
                         <div class="col-8">
-                            <img id="visor__img" class="visor__img w-100" style="max-height: 400px; object-fit: contain;" src="" alt="">
+                            <img id="visor__img" class="visor__img w-100"
+                                style="max-height: 400px; object-fit: contain;" src="" alt="">
                         </div>
                         <hr class="mt-4">
                         <div id="muestra__img" class="d-flex flex-wrap"></div>
@@ -616,7 +636,8 @@
 
                 <div class="form__header">
                     <h2 class="tubo__title m-0">Nueva Muestra</h2>
-                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2" id="btnformcerrarnuevoTubo"></i>
+                    <i class="fa-solid fa-circle-xmark tubo__icon tubo__icon--infotubo fs-2"
+                        id="btnformcerrarnuevoTubo"></i>
                 </div>
                 <hr class="m-0">
 
@@ -632,8 +653,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputClinica" class="form-label blue__color">Volante de petición</label>
-                    <input type="file" accept="*/*" class="form-control blue__color"
-                        id="inputClinica">
+                    <input type="file" accept="*/*" class="form-control blue__color" id="inputClinica">
                 </div>
 
                 <div class="row col-md-12">
@@ -729,8 +749,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputClinicaUpdate" class="form-label blue__color">Volante de petición</label>
-                    <input type="file" accept="*/*" class="form-control blue__color"
-                        id="inputClinicaUpdate">
+                    <input type="file" accept="*/*" class="form-control blue__color" id="inputClinicaUpdate">
                 </div>
 
                 <div class="row col-md-12">
@@ -760,7 +779,8 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputCaracteristicasUpdate" class="form-label blue__color">Descripción Macroscópica</label>
+                    <label for="inputCaracteristicasUpdate" class="form-label blue__color">Descripción
+                        Macroscópica</label>
 
                     <textarea class="form-control blue__color textarea__text" id="inputCaracteristicasUpdate"
                         required></textarea>
@@ -811,8 +831,10 @@
                         <p>Escanea o introduce el QR de una muestra o análisis</p>
                         <div id="qr-reader" style="width:100%; max-width:360px; margin:0 auto;"></div>
                         <div class="mt-3 d-flex gap-2">
-                            <input type="text" id="input__consultarqr" class="form-control" placeholder="Pega o escribe el código QR">
-                            <button type="button" class="btn btn-outline-primary" id="manualQrBtn" onclick="window.irConsultaQr && window.irConsultaQr()">Ir</button>
+                            <input type="text" id="input__consultarqr" class="form-control"
+                                placeholder="Pega o escribe el código QR">
+                            <button type="button" class="btn btn-outline-primary" id="manualQrBtn"
+                                onclick="window.irConsultaQr && window.irConsultaQr()">Ir</button>
                         </div>
                     </div>
 
@@ -959,7 +981,7 @@
 
         <script>
             // Escáner QR (inline para mayor fiabilidad)
-            (function() {
+            (function () {
                 let scannerInstance = null;
 
                 document.getElementById('qrConsultaModal')?.addEventListener('shown.bs.modal', function () {
@@ -990,41 +1012,41 @@
                                     else window.location.href = `/qr/resolver/?code=${encodeURIComponent(value)}`;
                                 }
                             },
-                            () => {}
+                            () => { }
                         ).catch(err => console.error("Error al iniciar escáner:", err));
                     }).catch(err => console.error("Error al obtener cámaras:", err));
                 });
 
                 document.getElementById('qrConsultaModal')?.addEventListener('hidden.bs.modal', function () {
                     if (scannerInstance?.isScanning) {
-                        scannerInstance.stop().catch(() => {});
+                        scannerInstance.stop().catch(() => { });
                     }
                 });
             })();
         </script>
         <script>
-        // Sistema de impresión QR con tamaños configurables
-        const QR_PRINT_SIZES = {
-            grande: { widthCm: 1.1, heightCm: 1.9 },
-            pequena: { widthCm: 0.8, heightCm: 2.4 }
-        };
+            // Sistema de impresión QR con tamaños configurables
+            const QR_PRINT_SIZES = {
+                grande: { widthCm: 1.1, heightCm: 1.9 },
+                pequena: { widthCm: 0.8, heightCm: 2.4 }
+            };
 
-        function getQrPrintSize(modalId) {
-            const modal = document.getElementById(modalId || '');
-            const value = modal?.querySelector('.qr-size-select')?.value || 'grande';
-            return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.grande;
-        }
+            function getQrPrintSize(modalId) {
+                const modal = document.getElementById(modalId || '');
+                const value = modal?.querySelector('.qr-size-select')?.value || 'grande';
+                return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.grande;
+            }
 
-        function printQrPayload(url, label, modalId) {
-            if (!url) return;
-            const printSize = getQrPrintSize(modalId);
-            const container = document.createElement('div');
-            new QRCode(container, { text: url, width: 900, height: 900 });
-            const canvas = container.querySelector('canvas');
-            if (!canvas) return;
-            const win = window.open('');
-            if (!win) return;
-            win.document.write(`<!doctype html>
+            function printQrPayload(url, label, modalId) {
+                if (!url) return;
+                const printSize = getQrPrintSize(modalId);
+                const container = document.createElement('div');
+                new QRCode(container, { text: url, width: 900, height: 900 });
+                const canvas = container.querySelector('canvas');
+                if (!canvas) return;
+                const win = window.open('');
+                if (!win) return;
+                win.document.write(`<!doctype html>
                 <html>
                     <head>
                         <meta charset="utf-8">
@@ -1057,25 +1079,25 @@
                         <div class="qr-label">${label || ''}</div>
                     </body>
                 </html>`);
-            win.document.close();
-            win.print();
-            win.close();
-        }
+                win.document.close();
+                win.print();
+                win.close();
+            }
 
-        // Variable para almacenar la URL del QR actual del tubo
-        let tuboQrActual = '';
-        let muestraQrActual = '';
+            // Variable para almacenar la URL del QR actual del tubo
+            let tuboQrActual = '';
+            let muestraQrActual = '';
 
-        // Inicializar eventos de impresión
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('btnImprimirQrTubo')?.addEventListener('click', function () {
-                printQrPayload(tuboQrActual, document.getElementById('qrTuboModalLabel')?.textContent || 'Tubo', 'qrTuboModal');
+            // Inicializar eventos de impresión
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('btnImprimirQrTubo')?.addEventListener('click', function () {
+                    printQrPayload(tuboQrActual, document.getElementById('qrTuboModalLabel')?.textContent || 'Tubo', 'qrTuboModal');
+                });
+
+                document.getElementById('btnImprimirQrMuestra')?.addEventListener('click', function () {
+                    printQrPayload(muestraQrActual, document.getElementById('qrMuestraModalLabel')?.textContent || 'Muestra', 'qrMuestraModal');
+                });
             });
-
-            document.getElementById('btnImprimirQrMuestra')?.addEventListener('click', function () {
-                printQrPayload(muestraQrActual, document.getElementById('qrMuestraModalLabel')?.textContent || 'Muestra', 'qrMuestraModal');
-            });
-        });
         </script>
 
 </body>

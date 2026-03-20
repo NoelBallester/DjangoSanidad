@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView, RedirectView
 from django.views.decorators.cache import cache_control, never_cache
 from django.views.static import serve as static_serve
+from django.http import JsonResponse
 import os
 
 handler404 = 'core.error_views.custom_404'
@@ -36,7 +37,12 @@ def render_html(request, page):
 def serve_static(request, path, document_root):
     return static_serve(request, path, document_root=document_root)
 
+def health_check(request):
+    """Health check endpoint para monitoreo en producción. No requiere autenticación."""
+    return JsonResponse({'status': 'ok'})
+
 urlpatterns = [
+    path('health/', health_check, name='health'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('web.urls')),          # Django template views (cassettes, login…)

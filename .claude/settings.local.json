@@ -33,7 +33,8 @@
       "Bash(pip install:*)",
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(cmd /c build_portable.bat)"
     ]
   }
 }

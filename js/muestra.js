@@ -10,10 +10,9 @@ const aniadirMuestra1 = async (event) => {
     casetteIdCasette: cassetteId,
   };
 
-  fetch("http://localhost:3000/api/muestras/", {
+  fetch("/api/muestras/", {
     method: "POST",
     headers: {
-      token: sessionStorage.getItem("token"),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newMuestra),

@@ -114,7 +114,7 @@ const userRegister = (event) => {
 const getNewPassword = (event) => {
   event.preventDefault();
 
-  fetch("modelo/tecnicos/tecnicos.php", {
+  fetch("/api/tecnicos/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

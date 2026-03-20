@@ -32,22 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar Usuarios
     const cargarUsuarios = () => {
-        fetch('modelo/tecnicos/tecnicos.php', {
-            method: 'POST',
+        fetch('/api/tecnicos/', {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                accion: 'listartecnicos'
-            })
+            }
         })
             .then(response => response.json())
             .then(data => {
-                if (data.exito) {
-                    renderUsuarios(data.tecnicos);
+                // Soportar tanto respuesta paginada como lista simple
+                const usuarios = data.results || data.technicos || data || [];
+                if (Array.isArray(usuarios)) {
+                    renderUsuarios(usuarios);
                 } else {
-                    console.error(data.error);
-                    alert("Error cargando usuarios: " + data.error);
+                    console.error("Formato de datos inesperado:", data);
                 }
             })
             .catch(err => console.error(err));
@@ -97,21 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.borrarUsuario = (id) => {
         if (confirm(`¿Estás seguro de que quieres eliminar al técnico con ID ${id}? Toda su información asociada se perderá.`)) {
-            fetch('modelo/tecnicos/tecnicos.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    accion: 'eliminartecnico',
-                    id_tecnico: id
-                })
+            fetch('/api/tecnicos/' + id + '/', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.exito) {
-                        cargarUsuarios();
-                    } else {
-                        alert('Error eliminando: ' + data.error);
-                    }
+                    cargarUsuarios();
                 })
                 .catch(err => console.error(err));
         }
@@ -130,40 +120,42 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const accion = inputIdUsuario.value ? 'modificartecnico' : 'registro';
-
-        // Use identificador for register to satisfy the backend fallback logically
-        const bodyContent = {
-            accion: accion,
+        const isCreate = !inputIdUsuario.value;
+        
+        const requestData = {
             centro: inputCentro.value,
-            rol: inputRol.value,
-            password: inputPassword.value
+            rol: inputRol.value
         };
-
-        if (accion === 'modificartecnico') {
-            bodyContent.id_tecnico = inputIdUsuario.value;
+        
+        if (inputPassword.value) {
+            requestData.password = inputPassword.value;
         }
 
-        fetch('modelo/tecnicos/tecnicos.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bodyContent)
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.exito || data.user) {
-                    // Success
-                    modalUsuarioObj.hide();
-                    cargarUsuarios();
+        const url = isCreate ? '/api/tecnicos/' : '/api/tecnicos/' + inputIdUsuario.value + '/';
+        const method = isCreate ? 'POST' : 'PUT';
 
-                    if (accion === 'registro') {
-                        alert(`El nuevo técnico se ha creado exitosamente con el ID: ${data.id_tecnico}\nApunte este ID para iniciar sesión.`);
-                    }
-                } else {
-                    errorFormUsuario.textContent = data.error || "Ocurrió un error inesperado";
-                    errorFormUsuario.classList.remove('d-none');
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Error en la respuesta');
+                return res.json();
+            })
+            .then(data => {
+                modalUsuarioObj.hide();
+                cargarUsuarios();
+
+                if (isCreate) {
+                    alert(`El nuevo técnico se ha creado exitosamente con el ID: ${data.id_tecnico}\nApunte este ID para iniciar sesión.`);
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(err);
+                errorFormUsuario.textContent = "Ocurrió un error procesando la solicitud";
+                errorFormUsuario.classList.remove('d-none');
+            });
 
     });
 
