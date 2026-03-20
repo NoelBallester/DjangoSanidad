@@ -34,7 +34,15 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(cd:*)",
-      "Bash(cmd /c build_portable.bat)"
+      "Bash(cmd /c build_portable.bat)",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/design\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/design\")",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/engineering\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/engineering\")",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/marketing\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/marketing\")",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/product\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/product\")",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/project-management\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/project-management\")",
+      "Bash(mkdir -p \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents\")",
+      "Bash(cp -r \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/design\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/engineering\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/marketing\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/product\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/project-management\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/studio-operations\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/claude-agents-library-main/testing\" \"c:/Users/Torment/Desktop/PROYECTOS/PYTHON-SANIDAD/DjangoSanidad/.claude/agents/\")",
+      "Bash(venv/Scripts/pip install:*)"
     ]
   }
 }
