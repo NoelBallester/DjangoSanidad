@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.utils import OperationalError
+from django.utils import timezone
 from unittest.mock import patch
 import os
 
@@ -754,6 +755,22 @@ class MuestraTests(TestCase):
         self.assertTrue(
             Muestra.objects.filter(cassette=self.cassette, descripcion='Muestra 1').exists()
         )
+
+    def test_crear_muestra_desde_modal_biopsias_sin_descripcion_explicita(self):
+        self.client.post(
+            reverse('muestra_create', args=[self.cassette.pk]),
+            {
+                'numero_bloque': 'B-101',
+                'descripcion_macroscopica': 'Tejido con alteraciones leves',
+                'tincion': 'Hematoxilina Eosina (HE)',
+            },
+        )
+
+        muestra = Muestra.objects.filter(cassette=self.cassette, numero_bloque='B-101').first()
+        self.assertIsNotNone(muestra)
+        self.assertEqual(muestra.descripcion, 'B-101')
+        self.assertEqual(muestra.descripcion_macroscopica, 'Tejido con alteraciones leves')
+        self.assertEqual(muestra.fecha, timezone.localdate())
 
     def test_eliminar_muestra(self):
         m = Muestra.objects.create(

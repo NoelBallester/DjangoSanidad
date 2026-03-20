@@ -572,13 +572,44 @@ def cassette_informe_delete(request, pk, informe_pk):
 @require_POST
 def muestra_create(request, cassette_pk):
     cassette = get_object_or_404(Cassette, pk=cassette_pk)
-    form = MuestraForm(request.POST)
+    payload = request.POST.copy()
+
+    # Compatibilidad con el modal de biopsias: usa numero_bloque/descripcion_macroscopica
+    # y no siempre envia "descripcion" ni "fecha".
+    if not (payload.get('descripcion') or '').strip():
+        fallback_descripcion = (payload.get('numero_bloque') or payload.get('descripcion_macroscopica') or '').strip()
+        if fallback_descripcion:
+            payload['descripcion'] = fallback_descripcion[:255]
+
+    if not (payload.get('fecha') or '').strip():
+        payload['fecha'] = timezone.localdate().isoformat()
+
+    form = MuestraForm(payload)
     if form.is_valid():
         muestra = form.save(cassette=cassette)
+        numero_bloque = (request.POST.get('numero_bloque') or '').strip()
+        descripcion_macroscopica = (request.POST.get('descripcion_macroscopica') or '').strip()
+        updates = []
+        if numero_bloque:
+            muestra.numero_bloque = numero_bloque
+            updates.append('numero_bloque')
+        if descripcion_macroscopica:
+            muestra.descripcion_macroscopica = descripcion_macroscopica
+            updates.append('descripcion_macroscopica')
+        if updates:
+            muestra.save(update_fields=updates)
+
         archivo_imagen = request.FILES.get('imagen')
         if archivo_imagen:
             Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
         return redirect(reverse('cassettes') + f'?cassette={cassette_pk}&muestra={muestra.pk}')
+
+    errores = []
+    for field, mensajes in form.errors.items():
+        label = form.fields.get(field).label if field in form.fields else field
+        for mensaje in mensajes:
+            errores.append(f'{label}: {mensaje}')
+    messages.error(request, 'No se pudo crear la muestra. ' + ' '.join(errores))
     return redirect(reverse('cassettes') + f'?cassette={cassette_pk}')
 
 
