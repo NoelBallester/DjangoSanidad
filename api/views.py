@@ -1080,17 +1080,22 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
         return [InformeResultadoViewSet._legacy_row_to_payload(row, model_name, object_id) for row in rows]
 
     def create(self, request):
-        if request.FILES.get('imagen'):
-            return Response(
-                {'error': 'Las imágenes del informe deben enviarse en base64 y se almacenan en base de datos.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         data = request.data.copy()
         imagen_bytes = None
+        imagen_file = request.FILES.get('imagen')
+
+        if self._modo_generico():
+            # Modo moderno: aceptar tanto multipart (archivo real) como base64 legacy.
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            informe = serializer.save()
+            return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
+
+        if imagen_file:
+            imagen_bytes = imagen_file.read()
 
         imagen_data = data.get('imagen')
-        if imagen_data:
+        if imagen_data and not imagen_file:
             if not isinstance(imagen_data, str):
                 return Response({'error': 'Formato de imagen inválido.'}, status=status.HTTP_400_BAD_REQUEST)
             if imagen_data.startswith('data:') and ';base64,' in imagen_data:
@@ -1102,17 +1107,6 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
 
         if 'imagen' in data:
             data.pop('imagen')
-
-        if self._modo_generico():
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            informe = serializer.save()
-
-            if imagen_bytes:
-                informe.imagen = imagen_bytes
-                informe.save(update_fields=['imagen'])
-
-            return Response(self.get_serializer(informe).data, status=status.HTTP_201_CREATED)
 
         target = self._legacy_parse_target(data)
         if not target:
@@ -1157,11 +1151,16 @@ class InformeResultadoViewSet(viewsets.ModelViewSet):
 
         informe_id = kwargs.get('pk')
         data = request.data.copy()
+        imagen_file = request.FILES.get('imagen')
 
-        try:
-            imagen_bytes = self._decode_base64_image(data.get('imagen')) if 'imagen' in data and data.get('imagen') else None
-        except Exception:
-            return Response({'error': 'La imagen no es base64 valido.'}, status=status.HTTP_400_BAD_REQUEST)
+        imagen_bytes = None
+        if imagen_file:
+            imagen_bytes = imagen_file.read()
+        else:
+            try:
+                imagen_bytes = self._decode_base64_image(data.get('imagen')) if 'imagen' in data and data.get('imagen') else None
+            except Exception:
+                return Response({'error': 'La imagen no es base64 valido.'}, status=status.HTTP_400_BAD_REQUEST)
 
         target = self._legacy_parse_target(data)
         target_fk_col = target[2] if target else None
