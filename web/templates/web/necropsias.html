@@ -622,6 +622,11 @@
                 </div>
                 <hr>
                 <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Examen interno del cadaver</label>
+                    <textarea name="examen_interno_cadaver" id="inputExamenInternoMuestra" class="form-control blue__color" required
+                        oninput="document.getElementById('inputdescripcionMuestra').value = this.value.substring(0, 250)"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Tecnica de apertura</label>
                     <input type="text" name="tecnica_apertura" id="inputTecnicaMuestra" class="form-control blue__color" required>
                 </div>
@@ -780,9 +785,11 @@
                         id="btnformcerrarmodificarMuestra"></i>
                 </div>
                 <hr>
+                <input type="hidden" name="descripcion" id="editMuestraDescripcion">
                 <div class="col-md-12">
                     <label class="form-label blue__color">Examen interno del cadaver</label>
-                    <textarea name="examen_interno_cadaver" id="editMuestraExamenInterno" class="form-control blue__color" required>{% if selected_muestra_item %}{{ selected_muestra_item.muestra.examen_interno_cadaver|default:'' }}{% endif %}</textarea>
+                    <textarea name="examen_interno_cadaver" id="editMuestraExamenInterno" class="form-control blue__color" required
+                        oninput="document.getElementById('editMuestraDescripcion').value = this.value.substring(0, 250)">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.examen_interno_cadaver|default:'' }}{% endif %}</textarea>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Tecnica de apertura</label>
@@ -1224,7 +1231,7 @@
         })();
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-        function abrirEditarMuestra(pk, descripcion, fecha, examenInterno, tecnicaApertura, datosRegion, observaciones) {
+        function abrirEditarMuestra(pk, descripcion, fecha, examenInterno, tecnicaApertura, datosRegion, tomaMuestras, pruebaComplementaria, observaciones) {
             const form = document.getElementById('formModificarMuestra');
             form.action = `/muestras-necropsia/${pk}/editar/`;
             document.getElementById('editMuestraDescripcion').value = descripcion;
@@ -1232,6 +1239,8 @@
             document.getElementById('editMuestraExamenInterno').value = examenInterno;
             document.getElementById('editMuestraTecnica').value = tecnicaApertura;
             document.getElementById('editMuestraDatosRegion').value = datosRegion;
+            document.getElementById('editMuestraTomaMuestras').value = tomaMuestras;
+            document.getElementById('editMuestraPruebaComplementaria').value = pruebaComplementaria;
             document.getElementById('editMuestraObservaciones').value = observaciones;
             closeModal('modalDetalleMuestra');
             openModal('modalmodificarMuestra');
@@ -1451,6 +1460,8 @@
                     '{{ selected_muestra_item.muestra.examen_interno_cadaver|default:''|escapejs }}',
                     '{{ selected_muestra_item.muestra.tecnica_apertura|default:''|escapejs }}',
                     '{{ selected_muestra_item.muestra.datos_relevantes_region|default:''|escapejs }}',
+                    '{{ selected_muestra_item.muestra.toma_muestras|default:''|escapejs }}',
+                    '{{ selected_muestra_item.muestra.prueba_complementaria|default:''|escapejs }}',
                     '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}'
                 );
                 {% endif %}
