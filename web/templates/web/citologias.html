@@ -901,7 +901,7 @@
         {% else %}
         <!-- Modal Nueva Citología cuando no hay seleccionada -->
         <section class="mimodal" id="modalnuevaCitologia">
-            <form class="row g-3 miform" method="post" action="{% url 'citologia_create' %}">
+            <form class="row g-3 miform" method="post" action="{% url 'citologia_create' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title m-0">Nueva Citología</h2>

@@ -809,7 +809,7 @@
 
         <!-- ── Modal Nuevo Cassette ────────────────────────────────────────── -->
         <section class="mimodal" id="modalnuevoCassette">
-            <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}">
+            <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title m-0">Nueva Biopsia</h2>
@@ -892,7 +892,7 @@
         {% else %}
         <!-- Modal Nuevo Cassette cuando no hay seleccionado -->
         <section class="mimodal" id="modalnuevoCassette">
-            <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}">
+            <form class="row g-3 miform" method="post" action="{% url 'cassette_create' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form__header">
                     <h2 class="cassette__title m-0">Nueva Biopsia</h2>
