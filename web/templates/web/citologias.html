@@ -139,7 +139,7 @@
                                     </option>
                                     <option {% if filtros.organo == 'Nervio' %}selected{% endif %}>Nervio</option>
                                     <option {% if filtros.organo == 'Ganglio Nervioso' %}selected{% endif %}>Ganglio
-                                        Nervios</option>
+                                        Nervioso</option>
                                 </optgroup>
                                 <optgroup label="Tegumento">
                                     <option {% if filtros.organo == 'Piel' %}selected{% endif %}>Piel</option>
@@ -646,18 +646,6 @@
                     <select name="tincion" class="form-select" required>
                         <option selected disabled value="">Seleccionar Tinción</option>
                         <option>Hematoxilina Eosina (HE)</option>
-                        <option>Giemsa</option>
-                        <option>Gram</option>
-                        <option>Azul de Metileno</option>
-                        <option>Papanicolau</option>
-                        <option>Diff Quick</option>
-                        <option>Wright</option>
-                        <option>Ziehl-Neelsen</option>
-                        <option>Tricrómico</option>
-                        <option>Orceína</option>
-                        <option>P.A.S</option>
-                        <option>Otros</option>
-                    </select>
                 </div>
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
@@ -700,7 +688,7 @@
                                 <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div style="cursor:pointer;"
-                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
+                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}', '{{ selected_muestra_item.muestra.descripcion_microscopica|default:''|escapejs }}')">
                                 <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
@@ -719,6 +707,9 @@
                             </li>
                             <li class="list-group-item blue__color--negrita">Observaciones:
                                 <p class="cassette__text">{{ selected_muestra_item.muestra.observaciones|default:'-' }}</p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                                <p class="cassette__text">{{ selected_muestra_item.muestra.descripcion_microscopica|default:'-' }}</p>
                             </li>
                             <div class="mt-3" id="qrMuestraPreview"></div>
                         </div>
@@ -1244,12 +1235,13 @@
         })();
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
+        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones, microscopica) {
             const form = document.getElementById('formModificarMuestra');
             form.action = `/muestras-citologia/${pk}/editar/`;
             document.getElementById('editMuestraDescripcion').value = descripcion;
             document.getElementById('editMuestraFecha').value = fecha;
             document.getElementById('editMuestraObservaciones').value = observaciones;
+            document.getElementById('editMuestraMicroscopica').value = microscopica;
             const sel = document.getElementById('editMuestraTincion');
             for (let o of sel.options) { o.selected = (o.text === tincion); }
             closeModal('modalDetalleMuestra');
