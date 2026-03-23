@@ -300,6 +300,41 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
+const limpiarParametrosQrUrl = () => {
+  if (!window.history?.replaceState) return;
+  window.history.replaceState({}, document.title, window.location.pathname);
+};
+
+const restaurarEstadoDesdeUrl = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const microbiologiaParam = params.get("microbiologia");
+  const muestraParam = params.get("muestra");
+
+  if (!microbiologiaParam && !muestraParam) return false;
+
+  try {
+    if (microbiologiaParam) {
+      const microbiologia = await cargarMicrobiologia(microbiologiaParam);
+      if (microbiologia?.id_muestra) {
+        imprimirDataMicrobiologia(microbiologia);
+        microbiologiaId = microbiologia.id_muestra;
+        const muestrasResp = await cargarMuestras(microbiologiaId);
+        imprimirMuestras(muestrasResp);
+      }
+    }
+
+    if (muestraParam) {
+      await detailMuestra(muestraParam);
+    }
+
+    limpiarParametrosQrUrl();
+    return true;
+  } catch (error) {
+    console.error("Error restaurando estado desde URL en microbiología:", error);
+    return false;
+  }
+};
+
 const cerrarModalQrConsulta = () => {
   if (!qrConsultaModal || !window.bootstrap?.Modal) return;
   const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
@@ -310,33 +345,12 @@ const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
 
-  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    try {
-      const parsed = new URL(value);
-      const codeParam = parsed.searchParams.get("code");
-      if (codeParam) {
-        code = codeParam;
-      } else {
-        window.location.href = value;
-        return;
-      }
-    } catch (_) {
-      window.location.href = value;
-      return;
-    }
-  }
-
-  if (await consultarMicrobiologiaQR(code, true)) {
-    cerrarModalQrConsulta();
-    return;
-  }
-  if (await consultarMuestraQR(code, true)) {
-    cerrarModalQrConsulta();
+    window.location.href = value;
     return;
   }
 
-  alert("No se encontró ningún registro para ese QR.");
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
 };
 
 const irConsultaQr = async () => {
@@ -1804,6 +1818,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
   }
   mostrarEstadoSinSeleccion();
+  await restaurarEstadoDesdeUrl();
   // Fechas sin restricciones - permite seleccionar cualquier fecha
   // Se elimina la restricción de fecha mínima para permitir fechas pasadas
 
@@ -2003,6 +2018,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarEstadoSinSeleccion();
     const respuesta = await cargarTodosMicrobiologias();
     imprimirMicrobiologias(respuesta);
+    limpiarParametrosQrUrl();
   });
 
   // Crear nuevos Microbiologias
