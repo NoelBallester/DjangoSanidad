@@ -1159,11 +1159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   body.style.display = "block";
   const respuesta = await cargarCassettesIndex();
   imprimirCasettes(respuesta);
-  let fechaActual = new Date().toISOString().split("T")[0];
-  // Para que no se pueda seleccionar una fecha anterior a la actual
-  inputFecha.setAttribute("min", fechaActual);
-  inputFechaUpdate.setAttribute("min", fechaActual);
-  inputFechaMuestra.setAttribute("min", fechaActual);
+  // Fechas sin restricciones - permite seleccionar cualquier fecha
 });
 
 // Consulta por Organo

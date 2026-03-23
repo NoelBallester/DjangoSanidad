@@ -1807,12 +1807,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
   }
   mostrarEstadoSinSeleccion();
-  let fechaActual = new Date().toISOString().split("T")[0];
-  // Para que no se pueda seleccionar una fecha anterior a la actual
-  // Se elimina la restricción de fecha mínima para permitir fechas pasadas
-  // inputFecha.setAttribute("min", fechaActual);
-  // inputFechaUpdate.setAttribute("min", fechaActual);
-  // inputFechaMuestra.setAttribute("min", fechaActual);
+  // Fechas sin restricciones - permite seleccionar cualquier fecha
 
   // Toggle section views
   const sectionTubosTable = document.getElementById("sectionTubos");

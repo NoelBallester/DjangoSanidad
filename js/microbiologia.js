@@ -623,16 +623,15 @@ const cargarMuestraUpdateModal = async (event) => {
 const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
-  const data = {
-    fecha: inputmodificarfechaMuestra.value,
-    descripcion: inputmodificardescripcionMuestra.value,
-    observaciones: inputmodificarobservacionesMuestra.value,
-    tincion: selectmodificartincionMuestra.value,
-    microbiologia: microbiologiaId
-  };
+  const data = {};
+  if (inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
+  if (inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
+  if (inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
+  data.microbiologia = microbiologiaId;
 
   await fetch(`/api/muestrasmicrobiologia/${muestraId}/`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
@@ -660,7 +659,38 @@ const modificarMuestraUpdate = async (event) => {
 
       modalmodificarMuestra.classList.remove("showmodal");
       modalmodificarMuestra.classList.add("hidemodal");
+    .then(async (response) => {
+      if (response.ok) {
+        // Actualizamos los datos del detalle del análisis
+        muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
+        let newfecha = inputmodificarfechaMuestra.value;
+        muestra__fecha.textContent =
+          newfecha.substring(8) +
+          "-" +
+          newfecha.substring(5, 7) +
+          "-" +
+          newfecha.substring(0, 4);
+
+        muestra__observaciones.textContent =
+          inputmodificarobservacionesMuestra.value;
+        muestra__tincion.textContent = selectmodificartincionMuestra.value;
+
+        // Mostramos los análisis para que se actualicen
+        let respuesta = await cargarMuestras(microbiologiaId);
+        imprimirMuestras(respuesta);
+
+        modalmodificarMuestra.classList.remove("showmodal");
+        modalmodificarMuestra.classList.add("hidemodal");
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
+        alert("Error al actualizar la muestra: " + mensaje);
+      }
     })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Error al actualizar la muestra: " + error.message);
+    });
 };
 
 const consultaFechaInicio = async () => {
@@ -1748,6 +1778,12 @@ if (btnformcerrarmodificarUser) {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("=== DOMContentLoaded EJECUTADO ===");
 
+  // Garantiza que no queden restricciones de fecha por cache o scripts anteriores.
+  document.querySelectorAll('input[type="date"]').forEach((input) => {
+    input.removeAttribute("min");
+    input.removeAttribute("max");
+  });
+
   // Asignar elementos globales que podrían no existir al cargar el script
   btnGuardarInforme = document.getElementById("btnGuardarInforme");
   microbiologiaInformeDescripcion = document.getElementById("microbiologia__informe_descripcion");
@@ -1776,11 +1812,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
   }
   mostrarEstadoSinSeleccion();
-  let fechaActual = new Date().toISOString().split("T")[0];
-  // Para que no se pueda seleccionar una fecha anterior a la actual
-  if (inputFecha) inputFecha.setAttribute("min", fechaActual);
-  if (inputFechaUpdate) inputFechaUpdate.setAttribute("min", fechaActual);
-  if (inputFechaMuestra) inputFechaMuestra.setAttribute("min", fechaActual);
+  // Fechas sin restricciones - permite seleccionar cualquier fecha
+  // Se elimina la restricción de fecha mínima para permitir fechas pasadas
 
   // Toggle section views
   const sectionMicrobiologiasTable = document.getElementById("sectionMicrobiologias");
