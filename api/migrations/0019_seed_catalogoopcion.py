@@ -9,7 +9,7 @@ def seed_catalog_options(apps, schema_editor):
         ('organo', 'Encéfalo', 'Sistema Nervioso', 10),
         ('organo', 'Médula Espinal', 'Sistema Nervioso', 20),
         ('organo', 'Nervio', 'Sistema Nervioso', 30),
-        ('organo', 'Ganglio Nervios', 'Sistema Nervioso', 40),
+        ('organo', 'Ganglio Nervioso', 'Sistema Nervioso', 40),
         ('organo', 'Piel', 'Tegumento', 50),
         ('organo', 'Uña', 'Tegumento', 60),
         ('organo', 'Pelo', 'Tegumento', 70),

@@ -79,7 +79,10 @@ def _catalog_simple_choices(tipo, empty_label):
     if not valores:
         valores = _fallback_catalog_values(tipo)
 
-    return _simple_choices_from_values(empty_label, valores)
+    choices = _simple_choices_from_values(empty_label, valores)
+    if tipo == CatalogoOpcion.TIPO_TINCION:
+        choices = _append_choice_if_missing(choices, 'Diff Quick')
+    return choices
 
 
 def _catalog_organo_choices():
