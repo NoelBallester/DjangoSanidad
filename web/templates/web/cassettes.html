@@ -363,7 +363,7 @@
                                 <span class="cassette__text">{{ selected.fecha }}</span>
                             </li>
                         </div>
-                        <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                        <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
                             <p class="cassette__text">{{ selected.caracteristicas }}</p>
                         </li>
                         <li class="list-group-item blue__color--negrita">Observaciones:
@@ -633,7 +633,7 @@
                     <input type="text" name="numero_bloque" class="form-control" required>
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción Microscópica</label>
+                    <label class="form-label blue__color">Descripción Macroscópica</label>
                     <textarea name="descripcion_macroscopica" class="form-control" required></textarea>
                 </div>
                 <div class="col-md-12">
@@ -699,7 +699,7 @@
 
                     <section class="row mt-3">
                         <div class="col-4 border-end text-start">
-                            <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                            <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
                                 <p class="muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion_macroscopica|default:selected_muestra_item.muestra.descripcion }}</p>
                             </li>
                             <li class="list-group-item blue__color--negrita">Fecha:
@@ -773,7 +773,7 @@
                 <hr>
                 <input type="hidden" name="descripcion" id="editMuestraDescripcionHidden">
                 <div class="col-md-12">
-                    <label class="form-label blue__color">Descripción Microscópica</label>
+                    <label class="form-label blue__color">Descripción Macroscópica</label>
                     <textarea name="descripcion_macroscopica" id="editMuestraDescripcion" class="form-control" required></textarea>
                 </div>
                 <div class="col-md-12">
