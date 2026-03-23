@@ -638,27 +638,6 @@ const modificarMuestraUpdate = async (event) => {
     },
     body: JSON.stringify(data),
   })
-    .then(async () => {
-      // Actualizamos los datos del detalle del análisis
-      muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
-      let newfecha = inputmodificarfechaMuestra.value;
-      muestra__fecha.textContent =
-        newfecha.substring(8) +
-        "-" +
-        newfecha.substring(5, 7) +
-        "-" +
-        newfecha.substring(0, 4);
-
-      muestra__observaciones.textContent =
-        inputmodificarobservacionesMuestra.value;
-      muestra__tincion.textContent = selectmodificartincionMuestra.value;
-
-      // Mostramos los análisis para que se actualicen
-      let respuesta = await cargarMuestras(microbiologiaId);
-      imprimirMuestras(respuesta);
-
-      modalmodificarMuestra.classList.remove("showmodal");
-      modalmodificarMuestra.classList.add("hidemodal");
     .then(async (response) => {
       if (response.ok) {
         // Actualizamos los datos del detalle del análisis
