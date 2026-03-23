@@ -1403,16 +1403,18 @@ const aniadirImagenSubMuestra = async () => {
 const borrarImagenSubMuestra = async () => {
   if (!imageId) return;
 
-  try {
-    await fetch(`/api/imageneshematologia/${imageId}/`, {
-      method: "DELETE",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-    });
-    await mostrarImagenesSubMuestra(muestraId);
-  } catch (err) {
-    console.error(err);
+  if (confirm("¿Desea eliminar esta imagen?")) {
+    try {
+      await fetch(`/api/imageneshematologia/${imageId}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      });
+      await mostrarImagenesSubMuestra(muestraId);
+    } catch (err) {
+      console.error(err);
+    }
   }
 };
 

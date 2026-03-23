@@ -1413,14 +1413,16 @@ const rellenarDatosMuestra = async (muestra) => {
 
 const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
-    fetch(`/api/imagenesmicrobiologia/${imageId}/`, {
-      method: "DELETE",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-    }).then(() => {
-      mostrarImagenesMuestra(muestraId);
-    });
+    if (confirm("¿Desea eliminar esta imagen?")) {
+      fetch(`/api/imagenesmicrobiologia/${imageId}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      }).then(() => {
+        mostrarImagenesMuestra(muestraId);
+      });
+    }
   }
 };
 
@@ -2102,6 +2104,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (modificarMuestra) {
     modificarMuestra.addEventListener("submit", modificarMuestraUpdate);
+  }
+
+  if (btnborrarimagenmuestra) {
+    btnborrarimagenmuestra.addEventListener("click", borrarImagenMuestra);
   }
 
   const cerrarModalDetalleSiAbierto = () => {

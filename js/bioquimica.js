@@ -53,6 +53,9 @@ const tuboObservaciones = document.getElementById(
 const tuboDiagnostico = document.getElementById(
   "tubo__diagnosticoMain"
 );
+const tuboVolanteLinkContainer = document.getElementById(
+  "tubo__volanteLinkContainer"
+);
 
 // Variables que se asignarán en DOMContentLoaded
 let tuboInformeDescripcion = null;
@@ -433,27 +436,29 @@ const crearTubo = async (event) => {
     return;
   }
 
-  const data = {
-    muestra: inputTubo.value,
-    fecha: inputFecha.value,
-    descripcion: inputDescripcion.value,
-    caracteristicas: inputCaracteristicas.value,
-    observaciones: inputObservaciones.value,
-    organo: inputSelect.value,
-    informacion_clinica: inputClinica.value,
-    descripcion_microscopica: inputMicroscopia.value,
-    diagnostico_final: inputDiagnostico.value,
-    patologo_responsable: inputPatologo.value,
-    tecnico: tecnicoId,
-  };
+  const formData = new FormData();
+  formData.append("tubo", inputTubo.value);
+  formData.append("fecha", inputFecha.value);
+  formData.append("descripcion", inputDescripcion.value);
+  formData.append("caracteristicas", inputCaracteristicas.value);
+  formData.append("observaciones", inputObservaciones.value);
+  formData.append("organo", inputSelect.value);
+  formData.append("informacion_clinica", ""); // No longer using text field for this in creation
+  formData.append("descripcion_microscopica", inputMicroscopia.value);
+  formData.append("diagnostico_final", inputDiagnostico.value);
+  formData.append("patologo_responsable", inputPatologo.value);
+  formData.append("tecnico", tecnicoId);
+
+  if (inputClinica.files[0]) {
+    formData.append("volante_peticion", inputClinica.files[0]);
+  }
 
   fetch("/api/tubos/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
     },
-    body: JSON.stringify(data),
+    body: formData,
   })
     .then(async (response) => {
       if (!response.ok) {
@@ -558,28 +563,29 @@ const modificarTuboUpdate = async (event) => {
     return;
   }
 
-  const data = {};
-  if (inputFechaUpdate.value) data.fecha = inputFechaUpdate.value;
-  if (inputTuboUpdate.value) data.muestra = inputTuboUpdate.value;
-  if (inputSelectUpdate.value) data.organo = inputSelectUpdate.value;
-  if (inputDescripcionUpdate.value) data.descripcion = inputDescripcionUpdate.value;
-  if (inputCaracteristicasUpdate.value) data.caracteristicas = inputCaracteristicasUpdate.value;
-  if (inputObservacionesUpdate.value) data.observaciones = inputObservacionesUpdate.value;
-  if (inputClinicaUpdate.value) data.informacion_clinica = inputClinicaUpdate.value;
-  if (inputMicroscopiaUpdate.value) data.descripcion_microscopica = inputMicroscopiaUpdate.value;
-  if (inputDiagnosticoUpdate.value) data.diagnostico_final = inputDiagnosticoUpdate.value;
-  if (inputPatologoUpdate.value) data.patologo_responsable = inputPatologoUpdate.value;
-  // Assuming qr_tubo is a new field and inputQRUpdate exists
-  if (typeof inputQRUpdate !== 'undefined' && inputQRUpdate.value) data.qr_tubo = inputQRUpdate.value;
-  data.tecnico = tecnicoId;
+  const formData = new FormData();
+  if (inputFechaUpdate.value) formData.append("fecha", inputFechaUpdate.value);
+  if (inputTuboUpdate.value) formData.append("tubo", inputTuboUpdate.value);
+  if (inputSelectUpdate.value) formData.append("organo", inputSelectUpdate.value);
+  if (inputDescripcionUpdate.value) formData.append("descripcion", inputDescripcionUpdate.value);
+  if (inputCaracteristicasUpdate.value) formData.append("caracteristicas", inputCaracteristicasUpdate.value);
+  if (inputObservacionesUpdate.value) formData.append("observaciones", inputObservacionesUpdate.value);
+  if (inputMicroscopiaUpdate.value) formData.append("descripcion_microscopica", inputMicroscopiaUpdate.value);
+  if (inputDiagnosticoUpdate.value) formData.append("diagnostico_final", inputDiagnosticoUpdate.value);
+  if (inputPatologoUpdate.value) formData.append("patologo_responsable", inputPatologoUpdate.value);
+  
+  if (inputClinicaUpdate.files[0]) {
+    formData.append("volante_peticion", inputClinicaUpdate.files[0]);
+  }
+
+  formData.append("tecnico", tecnicoId);
 
   await fetch(`/api/tubos/${tuboId}/`, {
     method: "PATCH",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
     },
-    body: JSON.stringify(data),
+    body: formData,
   })
     .then(async (response) => {
       if (response.ok) {
@@ -1195,6 +1201,21 @@ const imprimirDataTubo = (respuesta) => {
     tuboDiagnostico.textContent = respuesta.diagnostico_final || "";
   }
 
+  // Volante de Petición (Archivo Adjunto)
+  if (tuboVolanteLinkContainer) {
+    if (respuesta.volante_peticion_url) {
+      const fileName = respuesta.volante_peticion_nombre || "Ver volante de petición";
+      tuboVolanteLinkContainer.innerHTML = `
+        <a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold d-inline-flex align-items-center gap-2" style="border-radius: 20px; padding: 0.4rem 1rem;">
+          <i class="fa-solid fa-file-pdf"></i>
+          <span>${fileName}</span>
+        </a>
+      `;
+    } else {
+      tuboVolanteLinkContainer.innerHTML = '<span class="blue__color tubo__text opacity-50">Sin archivo adjunto</span>';
+    }
+  }
+
   tuboInformeDescripcion.value = respuesta.informe_descripcion || "";
   tuboInformeFecha.value = respuesta.informe_fecha || "";
   tuboInformeTincion.value = respuesta.informe_tincion || "";
@@ -1427,14 +1448,16 @@ const rellenarDatosMuestra = async (muestra) => {
 
 const borrarImagenMuestra = async () => {
   if (imageId != undefined) {
-    fetch(`/api/imagenestubo/${imageId}/`, {
-      method: "DELETE",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-    }).then(() => {
-      mostrarImagenesMuestra(muestraId);
-    });
+    if (confirm("¿Desea eliminar esta imagen?")) {
+      fetch(`/api/imagenestubo/${imageId}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      }).then(() => {
+        mostrarImagenesMuestra(muestraId);
+      });
+    }
   }
 };
 
@@ -2094,6 +2117,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (modificarMuestra) {
     modificarMuestra.addEventListener("submit", modificarMuestraUpdate);
+  }
+
+  if (btnborrarimagenmuestra) {
+    btnborrarimagenmuestra.addEventListener("click", borrarImagenMuestra);
   }
 
   const cerrarModalDetalleSiAbierto = () => {
