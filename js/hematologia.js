@@ -186,41 +186,6 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
-const limpiarParametrosQrUrl = () => {
-  if (!window.history?.replaceState) return;
-  window.history.replaceState({}, document.title, window.location.pathname);
-};
-
-const restaurarEstadoDesdeUrl = async () => {
-  const params = new URLSearchParams(window.location.search);
-  const hematologiaParam = params.get("hematologia");
-  const muestraParam = params.get("muestra");
-
-  if (!hematologiaParam && !muestraParam) return false;
-
-  try {
-    if (hematologiaParam) {
-      const hematologia = await cargarHematologia(hematologiaParam);
-      if (hematologia?.id_hematologia) {
-        imprimirDetalleHematologia(hematologia);
-        hematologiaId = hematologia.id_hematologia;
-        const subMuestras = await cargarSubMuestras(hematologiaId);
-        imprimirSubMuestras(subMuestras);
-      }
-    }
-
-    if (muestraParam) {
-      await detailSubMuestra(muestraParam);
-    }
-
-    limpiarParametrosQrUrl();
-    return true;
-  } catch (error) {
-    console.error("Error restaurando estado desde URL en hematología:", error);
-    return false;
-  }
-};
-
 const cerrarModalQrConsulta = () => {
   if (!qrConsultaModal || !window.bootstrap?.Modal) return;
   const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
@@ -231,12 +196,33 @@ const resolverTextoEscaneado = async (text) => {
   const value = (text || "").trim();
   if (!value) return;
 
+  let code = value;
   if (value.startsWith("http://") || value.startsWith("https://")) {
-    window.location.href = value;
+    try {
+      const parsed = new URL(value);
+      const codeParam = parsed.searchParams.get("code");
+      if (codeParam) {
+        code = codeParam;
+      } else {
+        window.location.href = value;
+        return;
+      }
+    } catch (_) {
+      window.location.href = value;
+      return;
+    }
+  }
+
+  if (await consultarHematologiaQR(code, true)) {
+    cerrarModalQrConsulta();
+    return;
+  }
+  if (await consultarSubMuestraQR(code, true)) {
+    cerrarModalQrConsulta();
     return;
   }
 
-  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(value)}`;
+  alert("No se encontró ningún registro para ese QR.");
 };
 
 const irConsultaQr = async () => {
@@ -1684,7 +1670,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const respuesta = await cargarHematologiasIndex();
   imprimirHematologias(respuesta);
   limpiarDetalleHematologia();
-  await restaurarEstadoDesdeUrl();
 
   // Fechas sin restricciones - permite seleccionar cualquier fecha
   // Se elimina la restricción de fecha mínima para permitir fechas pasadas
@@ -1856,7 +1841,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     todasMuestras.addEventListener("click", async () => {
       const respuesta = await cargarTodasHematologias();
       imprimirHematologias(respuesta);
-      limpiarParametrosQrUrl();
     });
   }
 
