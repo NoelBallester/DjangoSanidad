@@ -175,7 +175,7 @@ DEFAULT_CITOLOGIA_SAMPLE_TYPES = [
 # Tipos de analisis unificados para todos los informes.
 DEFAULT_INFORME_ANALYSIS_TYPES = [
     'Perfil Hepático',
-    'Perfil renal',
+    'Perfil Renal',
     'Perfil Lipídico',
     'Glucosa',
     'Análisis de Heces',
@@ -190,6 +190,7 @@ DEFAULT_INFORME_ANALYSIS_TYPES = [
     'Resultados Biopsias',
     'Improntas',
     'Aspirados',
+    'Biología Molecular',
     'Otros',
 ]
 
@@ -226,7 +227,7 @@ class CassetteForm(forms.ModelForm):
         model = Cassette
         fields = ['cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
                   'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 'organo',
-                  'informacion_clinica', 'volante_peticion']
+                  'volante_peticion']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
@@ -234,7 +235,6 @@ class CassetteForm(forms.ModelForm):
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'diagnostico_final': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
             'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
-            'informacion_clinica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color textarea__text'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -242,7 +242,7 @@ class CassetteForm(forms.ModelForm):
         self.fields['organo'].choices = _catalog_organo_choices()
         for name, field in self.fields.items():
             if name not in ('fecha', 'descripcion', 'caracteristicas', 'observaciones',
-                            'descripcion_microscopica', 'diagnostico_final', 'organo', 'informacion_clinica'):
+                            'descripcion_microscopica', 'diagnostico_final', 'organo'):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
     def save(self, commit=True, tecnico=None):

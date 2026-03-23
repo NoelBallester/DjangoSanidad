@@ -85,12 +85,15 @@
                         <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
                     </li>
                     {% if user.is_staff %}
-                        <li class="nav-item nav__item">
-                            <a class="nav-link nav__link" href="/usuarios/">Usuarios</a>
-                        </li>
-                        {% endif %}
                     <li class="nav-item nav__item">
-                        <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
+                        <a class="nav-link nav__link" href="/usuarios/">Usuarios</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item nav__item">
+                        <form method="post" action="/logout/" style="display:inline"><input type="hidden"
+                                name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit"
+                                class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar
+                                Sesión</button></form>
                     </li>
                     <li class="nav-item nav__item d-flex align-items-center">
                         <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3"
@@ -356,7 +359,7 @@
                             </li>
                         </div>
 
-                        <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                        <li class="list-group-item blue__color--negrita">Descripción Macroscópica:
                             <p id="cassette__caracteristicas" class="blue__color cassette__text"></p>
                         </li>
 
@@ -424,8 +427,7 @@
                             <input type="date" id="cassette__informe_fecha" class="form-control blue__color bg-light">
                         </div>
                         <div class="mb-3">
-                            <label for="cassette__informe_tincion"
-                                class="blue__color--negrita d-block">Análisis</label>
+                            <label for="cassette__informe_tincion" class="blue__color--negrita d-block">Análisis</label>
                             <select id="cassette__informe_tincion" class="form-select blue__color bg-light">
                                 <option selected disabled value="">Seleccionar Análisis</option>
                                 <option>Perfil Hepático</option>
@@ -444,6 +446,7 @@
                                 <option>Resultados Biopsias</option>
                                 <option>Improntas</option>
                                 <option>Aspirados</option>
+                                <option>Biología Molecular</option>
                                 <option>Otros</option>
                             </select>
                         </div>
@@ -454,8 +457,8 @@
                                 rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="cassette__informe_imagen"
-                                class="blue__color--negrita d-block">Informe De Resultados</label>
+                            <label for="cassette__informe_imagen" class="blue__color--negrita d-block">Informe De
+                                Resultados</label>
                             <input type="file" id="cassette__informe_imagen" accept="*/*"
                                 class="form-control blue__color bg-light">
                         </div>
@@ -489,7 +492,8 @@
                 </div>
 
                 <div class="col-md-12">
-                    <label for="inputDescripcionMacroscopica" class="form-label blue__color">Descripción Microscópica</label>
+                    <label for="inputDescripcionMacroscopica" class="form-label blue__color">Descripción
+                        Microscópica</label>
                     <textarea class="form-control blue__color" id="inputDescripcionMacroscopica" required></textarea>
                 </div>
 
@@ -525,8 +529,7 @@
 
                 <div class="col-md-12 mt-3">
                     <label for="inputImagenesMuestra" class="form-label blue__color">Adjuntar Imagen</label>
-                    <input type="file" accept="*/*" class="form-control blue__color"
-                        id="inputImagenesMuestra">
+                    <input type="file" accept="*/*" class="form-control blue__color" id="inputImagenesMuestra">
                 </div>
 
                 <div class="col-12">
@@ -552,7 +555,8 @@
 
                 <div class="col-md-12">
                     <label for="inputdescripcionMuestra" class="form-label blue__color">Descripción Microscópica</label>
-                    <textarea class="form-control blue__color" id="inputmodificardescripcionMuestra" required></textarea>
+                    <textarea class="form-control blue__color" id="inputmodificardescripcionMuestra"
+                        required></textarea>
                 </div>
 
                 <div class="col-md-12">
@@ -608,7 +612,8 @@
                 <div class="p-3">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center gap-2">
-                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal" style="cursor: pointer;">
+                            <div id="btn__qr" data-bs-toggle="modal" data-bs-target="#qrMuestraModal"
+                                style="cursor: pointer;">
                                 <i title="Imprimer QR Muestra"
                                     class="fa-sharp fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
@@ -701,7 +706,7 @@
                     <div class="col-md-6 mt-2">
                         <label for="inputSelect" class="form-label blue__color">Órgano</label>
                         <select class="form-select blue__color" id="inputSelect" required>
-                           <option disabled selected>Órgano</option>
+                            <option disabled selected>Órgano</option>
                             <option value="*">Todos</option>
                             <optgroup label="Sistema Nervioso">
                                 <option>Encéfalo</option>
@@ -838,7 +843,8 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputDescripcionUpdate" class="form-label blue__color">Nº Cassette / Bloque Asociado</label>
+                    <label for="inputDescripcionUpdate" class="form-label blue__color">Nº Cassette / Bloque
+                        Asociado</label>
                     <input class="form-control blue__color" id="inputDescripcionUpdate" required>
                 </div>
 
@@ -929,20 +935,18 @@
                 <div class="col-md-12 mt-3">
                     <label for="inputCaracteristicasUpdate" class="form-label">Características</label>
 
-                    <textarea class="form-control textarea__text" id="inputCaracteristicasUpdate"
-                        required></textarea>
+                    <textarea class="form-control textarea__text" id="inputCaracteristicasUpdate" required></textarea>
                 </div>
 
                 <div class="col-md-12 mt-3">
                     <label for="inputObservacionesUpdate" class="form-label">Observaciones</label>
-                    <textarea class="form-control textarea__text" id="inputObservacionesUpdate"
-                        required></textarea>
+                    <textarea class="form-control textarea__text" id="inputObservacionesUpdate" required></textarea>
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <label for="inputMicroscopiaUpdate" class="form-label blue__color">Volante de petición (archivo)</label>
-                    <input type="file" accept="*/*" class="form-control blue__color"
-                        id="inputMicroscopiaUpdate">
+                    <label for="inputMicroscopiaUpdate" class="form-label blue__color">Volante de petición
+                        (archivo)</label>
+                    <input type="file" accept="*/*" class="form-control blue__color" id="inputMicroscopiaUpdate">
                 </div>
 
                 <div class="col-md-12 mt-3">
