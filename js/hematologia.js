@@ -678,28 +678,31 @@ const crearHematologia = async (event) => {
     return;
   }
 
-  const data = {
-    hematologia: inputMuestras ? inputMuestras.value : "",
-    fecha: inputFecha ? inputFecha.value : "",
-    descripcion: inputDescripcion ? inputDescripcion.value : "",
-    caracteristicas: inputCaracteristicas ? inputCaracteristicas.value : "",
-    observaciones: inputObservaciones ? inputObservaciones.value : "",
-    organo: inputSelect ? inputSelect.value : "",
-    informacion_clinica: inputClinica ? inputClinica.value : "",
-    descripcion_microscopica: inputMicroscopia ? inputMicroscopia.value : "",
-    diagnostico_final: inputDiagnostico ? inputDiagnostico.value : "",
-    patologo_responsable: inputPatologo ? inputPatologo.value : "",
-    tecnico: tecnicoId,
-  };
+  const formData = new FormData();
+  if (inputMuestras) formData.append("hematologia", inputMuestras.value);
+  if (inputFecha) formData.append("fecha", inputFecha.value);
+  if (inputDescripcion) formData.append("descripcion", inputDescripcion.value);
+  if (inputCaracteristicas) formData.append("caracteristicas", inputCaracteristicas.value);
+  if (inputObservaciones) formData.append("observaciones", inputObservaciones.value);
+  if (inputSelect) formData.append("organo", inputSelect.value);
+  if (typeof inputClinica !== "undefined" && inputClinica) formData.append("informacion_clinica", inputClinica.value);
+  
+  // Volante de petición
+  if (inputMicroscopia && inputMicroscopia.files && inputMicroscopia.files[0]) {
+    formData.append("volante_peticion", inputMicroscopia.files[0]);
+  }
+  
+  if (inputDiagnostico) formData.append("diagnostico_final", inputDiagnostico.value);
+  if (inputPatologo) formData.append("patologo_responsable", inputPatologo.value);
+  formData.append("tecnico", tecnicoId);
 
   try {
     const response = await fetch("/api/hematologia/", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
       },
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -775,27 +778,29 @@ const modificarHematologiaUpdate = async (event) => {
     return;
   }
 
-  const data = {
-    hematologia: inputMuestrasUpdate ? inputMuestrasUpdate.value : "",
-    fecha: inputFechaUpdate ? inputFechaUpdate.value : "",
-    descripcion: inputDescripcionUpdate ? inputDescripcionUpdate.value : "",
-    caracteristicas: inputCaracteristicasUpdate ? inputCaracteristicasUpdate.value : "",
-    observaciones: inputObservacionesUpdate ? inputObservacionesUpdate.value : "",
-    organo: inputSelectUpdate ? inputSelectUpdate.value : "",
-    descripcion_microscopica: inputMicroscopiaUpdate ? inputMicroscopiaUpdate.value : "",
-    diagnostico_final: inputDiagnosticoUpdate ? inputDiagnosticoUpdate.value : "",
-    patologo_responsable: inputPatologoUpdate ? inputPatologoUpdate.value : "",
-    tecnico: tecnicoId,
-  };
+  const formData = new FormData();
+  if (inputMuestrasUpdate) formData.append("hematologia", inputMuestrasUpdate.value);
+  if (inputFechaUpdate) formData.append("fecha", inputFechaUpdate.value);
+  if (inputDescripcionUpdate) formData.append("descripcion", inputDescripcionUpdate.value);
+  if (inputCaracteristicasUpdate) formData.append("caracteristicas", inputCaracteristicasUpdate.value);
+  if (inputObservacionesUpdate) formData.append("observaciones", inputObservacionesUpdate.value);
+  if (inputSelectUpdate) formData.append("organo", inputSelectUpdate.value);
+
+  if (inputMicroscopiaUpdate && inputMicroscopiaUpdate.files && inputMicroscopiaUpdate.files[0]) {
+    formData.append("volante_peticion", inputMicroscopiaUpdate.files[0]);
+  }
+
+  if (inputDiagnosticoUpdate) formData.append("diagnostico_final", inputDiagnosticoUpdate.value);
+  if (inputPatologoUpdate) formData.append("patologo_responsable", inputPatologoUpdate.value);
+  formData.append("tecnico", tecnicoId);
 
   try {
     const response = await fetch(`/api/hematologia/${hematologiaId}/`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
       },
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     if (response.ok) {

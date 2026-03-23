@@ -119,6 +119,9 @@ li {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .container__table:hover,
@@ -205,7 +208,10 @@ li {
 
 .tablemuestra__scroll {
     overflow: auto;
-    height: 22rem;
+    height: 0;
+    min-height: 22rem;
+    flex: 1 1 0;
+    width: 100%;
 }
 
 .table__muestra .button-details {
@@ -1042,4 +1048,19 @@ html.dark-theme input[type="date"].border__color::-webkit-calendar-picker-indica
 :root.dark-theme textarea::placeholder,
 :root.dark-theme select {
     color: #94a3b8 !important;
+}
+
+/* Bulletproof stretch for table containers */
+.container__table,
+.container__muestra {
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    height: 100% !important;
+}
+.tablemuestra__scroll,
+.table__scroll {
+    overflow-y: auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    width: 100% !important;
 }
