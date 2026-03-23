@@ -1204,7 +1204,7 @@ const imprimirSubMuestras = (respuesta) => {
       btneditar.title = "Modificar análisis";
 
       const btneliminar = document.createElement("I");
-      btneliminar.className = "d-inline-block fa-solid fa-trash-can text-danger";
+      btneliminar.className = "d-inline-block fa-solid fa-trash-can text-danger Muestras__icon Muestras__icon--infoMuestras me-2";
       btneliminar.dataset.id = m.id_muestra;
       btneliminar.dataset.action = "delete";
       btneliminar.title = "Eliminar análisis";

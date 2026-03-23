@@ -1367,7 +1367,7 @@ const imprimirMuestras = (respuesta) => {
 
       let btneliminar = document.createElement("I");
       btneliminar.className =
-        "d-inline-block tubo__icon fa-solid fa-trash-can text-danger";
+        "d-inline-block tubo__icon fa-solid fa-trash-can text-danger tubo__icon--infotubo me-2";
       btneliminar.dataset.id = muestra.id_muestra;
       btneliminar.dataset.action = "delete";
       btneliminar.title = "Eliminar muestra";

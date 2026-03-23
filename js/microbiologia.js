@@ -1357,7 +1357,7 @@ const imprimirMuestras = (respuesta) => {
 
       let btneliminar = document.createElement("I");
       btneliminar.className =
-        "d-inline-block microbiologia__icon fa-solid fa-trash-can text-danger icono__efect";
+        "d-inline-block microbiologia__icon fa-solid fa-trash-can text-danger microbiologia__icon--infomicrobiologia icono__efect me-2";
       btneliminar.dataset.id = muestra.id_muestra;
       btneliminar.dataset.action = "delete";
       btneliminar.title = "Eliminar análisis";
