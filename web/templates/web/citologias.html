@@ -450,7 +450,7 @@
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
+                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}', '{{ item.muestra.descripcion_microscopica|default:''|escapejs }}')"
                                             title="Modificar">
                                         <i class="fa-solid fa-file-pen blue__color--negrita"></i>
                                     </button>
@@ -814,6 +814,11 @@
                     <label class="form-label blue__color">Observaciones</label>
                     <textarea name="observaciones" id="editMuestraObservaciones"
                         class="form-control"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Descripción Microscópica</label>
+                    <textarea name="descripcion_microscopica" id="editMuestraMicroscopica"
+                        class="form-control textarea__text"></textarea>
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal" type="submit">Modificar Muestra</button>
