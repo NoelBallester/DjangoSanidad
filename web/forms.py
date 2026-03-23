@@ -461,7 +461,6 @@ class NecropsiaForm(forms.ModelForm):
 
 
 class MuestraNecropsiaForm(forms.ModelForm):
-    tincion = forms.ChoiceField(choices=())
 
     class Meta:
         model = MuestraNecropsia
@@ -474,7 +473,6 @@ class MuestraNecropsiaForm(forms.ModelForm):
             'datos_relevantes_region',
             'toma_muestras',
             'prueba_complementaria',
-            'tincion',
             'observaciones',
         ]
         widgets = {
@@ -490,17 +488,6 @@ class MuestraNecropsiaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['fecha'].required = False
-        tincion_choices = _catalog_simple_choices(
-            CatalogoOpcion.TIPO_TINCION,
-            'Seleccionar Validación',
-        )
-        tincion_choices = _append_choice_if_missing(tincion_choices, 'Biología Molecular')
-        current_tincion = (
-            self.data.get(self.add_prefix('tincion'))
-            or self.initial.get('tincion')
-            or getattr(self.instance, 'tincion', '')
-        )
-        self.fields['tincion'].choices = _append_choice_if_missing(tincion_choices, current_tincion)
         for name, field in self.fields.items():
             if name not in (
                 'fecha',
@@ -510,7 +497,6 @@ class MuestraNecropsiaForm(forms.ModelForm):
                 'toma_muestras',
                 'prueba_complementaria',
                 'observaciones',
-                'tincion',
             ):
                 field.widget.attrs.setdefault('class', 'form-control blue__color')
 
