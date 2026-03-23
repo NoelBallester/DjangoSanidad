@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -5,7 +6,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="./js/auth.js"></script>
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -17,7 +18,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
 
   <!-- Favicon -->
-  <link rel="shortcut icon" href="./assets/images/favicon.png" type="image/x-icon" />
+  <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon" />
 
   <!-- Boxicons -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -26,13 +27,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/footer.css">
-  <link rel="stylesheet" href="css/index.css">
-  <link rel="stylesheet" href="css/dark-theme.css">
-  <link rel="stylesheet" href="css/hematologia.css">
+  <link rel="stylesheet" href="{% static 'css/header.css' %}">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/hematologia.css' %}">
 
-  <!-- Dark Mode Logic -->
   <!-- Dark Mode: apply theme immediately to avoid flash -->
   <script>
     (function () {
@@ -42,12 +42,11 @@
       }
     })();
   </script>
-  <script src="./js/darkmode.js" defer></script>
-  <!-- Page Specific Styles -->
-  <link rel="stylesheet" href="./css/sortable.css" />
-
-  <!-- QRious Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode" defer></script>
+  <link rel="stylesheet" href="{% static 'css/sortable.css' %}" />
+  <style>body { display: block !important; }</style>
 
   <title>Hematología</title>
 </head>
@@ -57,38 +56,44 @@
   <!-- Navigation -->
   <nav class="nav navbar navbar-expand-lg shadow-sm sticky-top">
     <div class="container-fluid d-flex align-items-center justify-content-between px-lg-5">
-      <!-- Logo -->
-      <a class="navbar-brand nav__logo-container" href="./index.html">
+      <a class="navbar-brand nav__logo-container" href="/">
         <div class="logo-box">
           <i class='bx bxs-flask-iv'></i>
           <i class="fa-solid fa-microscope" style="font-size: 1rem; margin-left: -5px;"></i>
         </div>
         <span class="nav__title">Sanidad</span>
       </a>
-
-      <!-- Mobile Toggle -->
       <button class="navbar-toggler custom-toggler d-lg-none" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false">
         <i class="fa-solid fa-bars header__icon"></i>
       </button>
-
-      <!-- Nav Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto nav__list">
           <li class="nav-item nav__item">
-            <a class="nav-link nav__link" href="./index.html">Inicio</a>
+            <a class="nav-link nav__link" href="/">Inicio</a>
           </li>
+          {% if request.user.is_staff or request.user.rol == 'profesor' or request.user.rol == 'anatomia_patologica' %}
           <li class="nav-item nav__item">
-            <a class="nav-link nav__link" href="./anatomia.html">Anatomía&nbsp;Patológica</a>
+            <a class="nav-link nav__link" href="/anatomia.html">Anatomía&nbsp;Patológica</a>
           </li>
+          {% endif %}
+          {% if request.user.is_staff or request.user.rol == 'profesor' or request.user.rol == 'laboratorio' %}
           <li class="nav-item nav__item">
-            <a class="nav-link nav__link active" href="./laboratorio.html">Laboratorio</a>
+            <a class="nav-link nav__link active" href="/laboratorio.html">Laboratorio</a>
           </li>
-          <li class="nav-item nav__item" id="nav-usuarios-container" style="display: none;">
-            <a class="nav-link nav__link" href="./usuarios.html">Usuarios</a>
-          </li>
+          {% endif %}
+          {% if request.user.is_staff %}
           <li class="nav-item nav__item">
-            <a class="nav-link nav__link" href="#" onclick="logout(); return false;">Cerrar Sesión</a>
+            <a class="nav-link nav__link" href="{% url 'usuarios' %}">Usuarios</a>
+          </li>
+          {% endif %}
+          <li class="nav-item nav__item">
+            <form method="post" action="{% url 'logout' %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">
+                Cerrar Sesión
+              </button>
+            </form>
           </li>
           <li class="nav-item nav__item d-flex align-items-center">
             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
@@ -150,7 +155,7 @@
 
         <!-- Area Derecha (Botón Volver alineado a la derecha) -->
         <div class="col d-flex justify-content-end p-0">
-          <a href="./laboratorio.html"
+          <a href="/laboratorio.html"
             class="btn btn-outline-primary border__color rounded-circle d-flex align-items-center justify-content-center unified-filter-height p-0"
             style="width: 42px; background: var(--bg-light);" title="Volver">
             <i class="bi bi-arrow-left-short fs-4 blue__color"></i>
@@ -1001,12 +1006,11 @@
           integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
           crossorigin="anonymous"></script>
 
-        <!-- Para ordenar tabla -->
-        <script src="./js/sortable.js?v=20260309"></script>
-        <script src="https://unpkg.com/html5-qrcode"></script>
-        <script src="./js/qr.js?v=20260309"></script>
-        <script src="./js/hematologia.js?v=20260323b"></script>
-        <script src="./js/muestra.js?v=20260309"></script>
+        <script src="{% static 'js/sortable.js' %}"></script>
+        <script src="{% static 'js/darkmode.js' %}" defer></script>
+        <script src="{% static 'js/qr.js' %}"></script>
+        <script src="{% static 'js/hematologia.js' %}"></script>
+        <script src="{% static 'js/muestra.js' %}"></script>
 
         <script>
             // Escáner QR (inline para mayor fiabilidad)

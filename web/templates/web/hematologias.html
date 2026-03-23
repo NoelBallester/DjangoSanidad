@@ -135,7 +135,7 @@
                                     </option>
                                     <option {% if filtros.organo == 'Nervio' %}selected{% endif %}>Nervio</option>
                                     <option {% if filtros.organo == 'Ganglio Nervioso' %}selected{% endif %}>Ganglio
-                                        Nervios</option>
+                                        Nervioso</option>
                                 </optgroup>
                                 <optgroup label="Tegumento">
                                     <option {% if filtros.organo == 'Piel' %}selected{% endif %}>Piel</option>
@@ -405,8 +405,9 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Validación muestra</th>
-                                <th>Tinción</th>
+                                <th>Tipo de Tinción</th>
                                 <th>Aproximación diagnóstica / Valoración citológica</th>
+                                <th>Descripción Microscópica</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -418,6 +419,7 @@
                                 <td>{{ item.muestra.descripcion }}</td>
                                 <td>{{ item.muestra.tincion }}</td>
                                 <td>{{ item.muestra.observaciones|truncatechars:40 }}</td>
+                                <td>{{ item.muestra.descripcion_microscopica|truncatechars:40|default:'-' }}</td>
                                 <td class="text-end" style="white-space:nowrap">
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
                                         onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}', '{{ item.muestra.qr_muestra|escapejs }}')"
@@ -425,7 +427,7 @@
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                        onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
+                                        onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}', '{{ item.muestra.descripcion_microscopica|default:''|escapejs }}')"
                                         title="Modificar">
                                         <i class="fa-solid fa-file-pen blue__color--negrita"></i>
                                     </button>
@@ -626,9 +628,11 @@
                     <input type="date" name="fecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tipo de muestra</label>
+                    <label class="form-label blue__color">Tipo de Tinción</label>
                     <select name="tincion" class="form-select blue__color" required>
-                        <option selected disabled value="">Seleccionar Tipo de muestra</option>
+                        <option selected disabled value="">Seleccionar Tinción</option>
+                        <option>Hematoxilina Eosina (HE)</option>
+                        <option>Diff Quick</option>
                         <option>Orina</option>
                         <option>Sangre Anticoagulada</option>
                         <option>Plasma</option>
@@ -646,6 +650,10 @@
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Aproximación diagnóstica / Valoración citológica</label>
                     <textarea name="observaciones" class="form-control blue__color"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Descripción Microscópica</label>
+                    <textarea name="descripcion_microscopica" class="form-control blue__color" rows="3"></textarea>
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Crear Muestra</button>
@@ -673,9 +681,11 @@
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color" required>
                 </div>
                 <div class="col-md-12 mt-3">
-                    <label class="form-label blue__color">Tipo de muestra</label>
+                    <label class="form-label blue__color">Tipo de Tinción</label>
                     <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required>
-                        <option value="">Seleccionar Tipo de muestra</option>
+                        <option value="">Seleccionar Tinción</option>
+                        <option>Hematoxilina Eosina (HE)</option>
+                        <option>Diff Quick</option>
                         <option>Orina</option>
                         <option>Sangre Anticoagulada</option>
                         <option>Plasma</option>
@@ -694,6 +704,11 @@
                     <label class="form-label blue__color">Aproximación diagnóstica / Valoración citológica</label>
                     <textarea name="observaciones" id="editMuestraObservaciones"
                         class="form-control blue__color"></textarea>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Descripción Microscópica</label>
+                    <textarea name="descripcion_microscopica" id="editMuestraMicroscopica"
+                        class="form-control blue__color" rows="3"></textarea>
                 </div>
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Modificar Muestra</button>
@@ -1029,12 +1044,13 @@
         });
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
+        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones, microscopica) {
             const form = document.getElementById('formModificarMuestra');
             form.action = `/muestras-hematologia/${pk}/editar/`;
             document.getElementById('editMuestraDescripcion').value = descripcion;
             document.getElementById('editMuestraFecha').value = fecha;
             document.getElementById('editMuestraObservaciones').value = observaciones;
+            document.getElementById('editMuestraMicroscopica').value = microscopica;
             const sel = document.getElementById('editMuestraTincion');
             for (let o of sel.options) { o.selected = (o.text === tincion); }
             closeModal('modalDetalleMuestra');

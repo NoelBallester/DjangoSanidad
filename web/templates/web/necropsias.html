@@ -638,7 +638,29 @@
                     <label class="form-label blue__color">Fecha</label>
                     <input type="date" name="fecha" id="inputFechaMuestra" class="form-control blue__color" required>
                 </div>
+<<<<<<< HEAD
 
+=======
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <select name="tincion" id="selectTincionMuestra" class="form-select blue__color" required
+                        onchange="document.getElementById('inputdescripcionMuestra').value = this.value">
+                        <option selected disabled value="">Seleccionar Validación</option>
+                        <option>Hematoxilina Eosina (HE)</option>
+                        <option>Giemsa</option>
+                        <option>Gram</option>
+                        <option>Azul de Metileno</option>
+                        <option>Papanicolau</option>
+                        <option>Wright</option>
+                        <option>Ziehl-Neelsen</option>
+                        <option>Tricrómico</option>
+                        <option>Orceína</option>
+                        <option>P.A.S</option>
+                        <option>Biología Molecular</option>
+                        <option>Otros</option>
+                    </select>
+                </div>
+>>>>>>> 7be4b59faefcbaed0df8beac46aa86f39cb1e200
                 <input type="hidden" name="descripcion" id="inputdescripcionMuestra">
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
@@ -795,7 +817,31 @@
                     <input type="date" name="fecha" id="editMuestraFecha" class="form-control blue__color"
                         value="{% if selected_muestra_item %}{{ selected_muestra_item.muestra.fecha|date:'Y-m-d' }}{% endif %}">
                 </div>
+<<<<<<< HEAD
 
+=======
+                <div class="col-md-12 mt-3">
+                    <label class="form-label blue__color">Validación de la calidad de la muestra</label>
+                    <select name="tincion" id="editMuestraTincion" class="form-select blue__color" required
+                        onchange="document.getElementById('editMuestraDescripcion').value = this.value">
+                        <option value="">Seleccionar Validación</option>
+                        {% with t=selected_muestra_item.muestra.tincion|default:'' %}
+                        <option{% if t == 'Hematoxilina Eosina (HE)' %} selected{% endif %}>Hematoxilina Eosina (HE)</option>
+                        <option{% if t == 'Giemsa' %} selected{% endif %}>Giemsa</option>
+                        <option{% if t == 'Gram' %} selected{% endif %}>Gram</option>
+                        <option{% if t == 'Azul de Metileno' %} selected{% endif %}>Azul de Metileno</option>
+                        <option{% if t == 'Papanicolau' %} selected{% endif %}>Papanicolau</option>
+                        <option{% if t == 'Wright' %} selected{% endif %}>Wright</option>
+                        <option{% if t == 'Ziehl-Neelsen' %} selected{% endif %}>Ziehl-Neelsen</option>
+                        <option{% if t == 'Tricrómico' %} selected{% endif %}>Tricrómico</option>
+                        <option{% if t == 'Orceína' %} selected{% endif %}>Orceína</option>
+                        <option{% if t == 'P.A.S' %} selected{% endif %}>P.A.S</option>
+                        <option{% if t == 'Biología Molecular' %} selected{% endif %}>Biología Molecular</option>
+                        <option{% if t == 'Otros' %} selected{% endif %}>Otros</option>
+                        {% endwith %}
+                    </select>
+                </div>
+>>>>>>> 7be4b59faefcbaed0df8beac46aa86f39cb1e200
                 <div class="col-md-12 mt-3">
                     <label class="form-label blue__color">Observaciones</label>
                     <textarea name="observaciones" id="editMuestraObservaciones" class="form-control blue__color">{% if selected_muestra_item %}{{ selected_muestra_item.muestra.observaciones|default:'' }}{% endif %}</textarea>
