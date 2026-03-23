@@ -971,6 +971,7 @@ const imprimirDetalleHematologia = (h) => {
       foreground: "#000000",
       level: "H",
     });
+    window.hematologiaQrUrl = buildResolverUrl(h.qr_hematologia);
   }
 };
 
@@ -1275,6 +1276,7 @@ const detailSubMuestra = async (muestraid) => {
       foreground: "#000000",
       level: "H",
     });
+    window.muestraHemaQrUrl = buildResolverUrl(m.qr_muestra);
     const modalImg = document.getElementById("imgmuestra__qr_modal");
     if (modalImg) {
       modalImg.src = imgmuestra__qr.toDataURL ? imgmuestra__qr.toDataURL() : imgmuestra__qr.src;
