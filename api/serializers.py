@@ -125,7 +125,11 @@ class CassetteSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializ
             'id_casette', 'cassette', 'fecha', 'descripcion', 'caracteristicas', 'observaciones',
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'qr_casette', 'organo', 'tecnico', 'informe_descripcion',
+<<<<<<< HEAD
             'informe_fecha', 'informe_tincion', 'informe_observaciones', 'informe_imagen',
+=======
+            'informe_fecha', 'informe_tincion', 'informe_observaciones',
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
             'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
@@ -170,7 +174,11 @@ class CitologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seriali
             'observaciones', 'qr_citologia', 'qr_imagen', 'organo', 'tecnico',
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'informe_descripcion', 'informe_fecha',
+<<<<<<< HEAD
             'informe_tincion', 'informe_observaciones', 'informe_imagen',
+=======
+            'informe_tincion', 'informe_observaciones',
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
             'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
@@ -222,7 +230,11 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seriali
             'patologo_responsable', 'informe_descripcion', 'informe_fecha',
             'informe_tincion', 'informe_observaciones',
             'qr_necropsia', 'qr_imagen', 'tecnico',
+<<<<<<< HEAD
             'informe_imagen', 'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+=======
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
         ]
         read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
 
@@ -275,7 +287,11 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_tubo', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
+<<<<<<< HEAD
             'informe_tincion', 'informe_observaciones', 'informe_imagen', 'informe_imagen_url',
+=======
+            'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
             'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
@@ -340,7 +356,11 @@ class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seria
             'observaciones', 'informacion_clinica', 'descripcion_microscopica', 
             'diagnostico_final', 'patologo_responsable', 'qr_hematologia', 'organo', 
             'tecnico', 'informe_descripcion', 'informe_fecha', 'informe_tincion', 
+<<<<<<< HEAD
             'informe_observaciones', 'informe_imagen', 'informe_imagen_url',
+=======
+            'informe_observaciones', 'informe_imagen_url',
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
             'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
@@ -413,7 +433,11 @@ class MicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, ser
             'descripcion', 'caracteristicas', 'observaciones', 'informacion_clinica', 
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_microbiologia', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
+<<<<<<< HEAD
             'informe_tincion', 'informe_observaciones', 'informe_imagen', 'informe_imagen_url',
+=======
+            'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
+>>>>>>> 6bcf60a810f4466d6a1042d22ef41510fcd912e3
             'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 

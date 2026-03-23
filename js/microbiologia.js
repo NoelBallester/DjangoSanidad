@@ -430,27 +430,24 @@ const crearMicrobiologia = async (event) => {
     return;
   }
 
-  const data = {
-    muestra: inputMicrobiologia.value,
-    fecha: inputFecha.value,
-    descripcion: inputDescripcion.value,
-    caracteristicas: inputCaracteristicas.value,
-    observaciones: inputObservaciones.value,
-    organo: inputSelect.value,
-    informacion_clinica: inputClinica.value,
-    descripcion_microscopica: inputMicroscopia.value,
-    diagnostico_final: inputDiagnostico.value,
-    patologo_responsable: inputPatologo.value,
-    tecnico: tecnicoId,
-  };
+  const dataForm = new FormData();
+  if (inputMicrobiologia.value) dataForm.append("muestra", inputMicrobiologia.value);
+  if (inputFecha.value) dataForm.append("fecha", inputFecha.value);
+  if (inputDescripcion.value) dataForm.append("descripcion", inputDescripcion.value);
+  if (inputCaracteristicas.value) dataForm.append("caracteristicas", inputCaracteristicas.value);
+  if (inputObservaciones.value) dataForm.append("observaciones", inputObservaciones.value);
+  if (inputSelect.value) dataForm.append("organo", inputSelect.value);
+  if (inputClinica.files.length > 0) dataForm.append("volante_peticion", inputClinica.files[0]);
+  if (inputDiagnostico.value) dataForm.append("diagnostico_final", inputDiagnostico.value);
+  if (inputPatologo.value) dataForm.append("patologo_responsable", inputPatologo.value);
+  dataForm.append("tecnico", tecnicoId);
 
   fetch("/api/microbiologias/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
     },
-    body: JSON.stringify(data),
+    body: dataForm,
   })
     .then(async (response) => {
       if (!response.ok) {
@@ -537,8 +534,8 @@ const cargarMicrobiologiaUpdateModal = async (event) => {
     inputFechaUpdate.value = microbiologia.fecha;
     inputCaracteristicasUpdate.value = microbiologia.caracteristicas;
     inputObservacionesUpdate.value = microbiologia.observaciones;
-    inputClinicaUpdate.value = microbiologia.informacion_clinica || "";
-    inputMicroscopiaUpdate.value = microbiologia.descripcion_microscopica || "";
+    inputClinicaUpdate.value = "";
+    inputMicroscopiaUpdate.value = "";
     inputDiagnosticoUpdate.value = microbiologia.diagnostico_final || "";
     inputPatologoUpdate.value = microbiologia.patologo_responsable || "";
     inputSelectUpdate.value = microbiologia.organo;
@@ -555,27 +552,24 @@ const modificarMicrobiologiaUpdate = async (event) => {
     return;
   }
 
-  const data = {
-    microbiologia: inputMicrobiologiaUpdate.value,
-    fecha: inputFechaUpdate.value,
-    descripcion: inputDescripcionUpdate.value,
-    caracteristicas: inputCaracteristicasUpdate.value,
-    observaciones: inputObservacionesUpdate.value,
-    organo: inputSelectUpdate.value,
-    informacion_clinica: inputClinicaUpdate.value,
-    descripcion_microscopica: inputMicroscopiaUpdate.value,
-    diagnostico_final: inputDiagnosticoUpdate.value,
-    patologo_responsable: inputPatologoUpdate.value,
-    tecnico: tecnicoId,
-  };
+  const dataForm = new FormData();
+  if (inputMicrobiologiaUpdate.value) dataForm.append("microbiologia", inputMicrobiologiaUpdate.value);
+  if (inputFechaUpdate.value) dataForm.append("fecha", inputFechaUpdate.value);
+  if (inputDescripcionUpdate.value) dataForm.append("descripcion", inputDescripcionUpdate.value);
+  if (inputCaracteristicasUpdate.value) dataForm.append("caracteristicas", inputCaracteristicasUpdate.value);
+  if (inputObservacionesUpdate.value) dataForm.append("observaciones", inputObservacionesUpdate.value);
+  if (inputSelectUpdate.value) dataForm.append("organo", inputSelectUpdate.value);
+  if (inputClinicaUpdate.files.length > 0) dataForm.append("volante_peticion", inputClinicaUpdate.files[0]);
+  if (inputDiagnosticoUpdate.value) dataForm.append("diagnostico_final", inputDiagnosticoUpdate.value);
+  if (inputPatologoUpdate.value) dataForm.append("patologo_responsable", inputPatologoUpdate.value);
+  dataForm.append("tecnico", tecnicoId);
 
   await fetch(`/api/microbiologias/${microbiologiaId}/`, {
     method: "PATCH",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
     },
-    body: JSON.stringify(data),
+    body: dataForm,
   })
     .then((response) => {
       if (response.ok) {
@@ -1179,6 +1173,16 @@ const imprimirDataMicrobiologia = (respuesta) => {
   microbiologiaObservaciones.textContent = respuesta.observaciones || "";
   if (microbiologiaDiagnostico) {
     microbiologiaDiagnostico.textContent = respuesta.diagnostico_final || "";
+  }
+
+  const microbiologiaVolanteText = document.getElementById("microbiologia__volanteMainText");
+  const microbiologiaVolanteWrapper = document.getElementById("microbiologia__volanteMainWrapper");
+  if (microbiologiaVolanteText && microbiologiaVolanteWrapper) {
+    if (respuesta.volante_peticion_url) {
+        microbiologiaVolanteWrapper.innerHTML = `<a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fa-solid fa-file-pdf me-1"></i> Ver Volante de Petición</a>`;
+    } else {
+        microbiologiaVolanteWrapper.innerHTML = `<span id="microbiologia__volanteMainText" class="blue__color microbiologia__text m-0">No adjuntado</span>`;
+    }
   }
 
   microbiologiaInformeDescripcion.value = respuesta.informe_descripcion || "";
