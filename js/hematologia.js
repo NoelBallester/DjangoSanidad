@@ -222,7 +222,7 @@ const resolverTextoEscaneado = async (text) => {
     return;
   }
 
-  alert("No se encontró ningún registro para ese QR.");
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
 const irConsultaQr = async () => {
@@ -1494,7 +1494,8 @@ const consultarHematologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/hematologia/qr/${qr}/`);
   const lista = normalizarListaApi(await response.json());
   if (lista.length > 0) {
-    imprimirHematologias(lista);
+    const todas = await cargarTodasHematologias();
+    imprimirHematologias(todas);
     const h = lista[0];
     imprimirDetalleHematologia(h);
     hematologiaId = h.id_hematologia;

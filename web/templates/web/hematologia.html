@@ -843,8 +843,9 @@
           <div class="modal-body text-center fs-4 blue__color">
             <p>Escanea o introduce el QR de una muestra o análisis</p>
             <div id="qr-reader" style="width:100%; max-width:360px; margin:0 auto;"></div>
-            <div class="mt-3 d-flex gap-2">
-              <input type="text" id="input__consultarqr" class="form-control" placeholder="Pega o escribe el código QR">
+            <p class="text-muted mt-3 mb-1 small">Copia el código que aparece bajo el QR y pégalo aquí. También puedes escanearlo con la cámara.</p>
+            <div class="d-flex gap-2">
+              <input type="text" id="input__consultarqr" class="form-control" placeholder="Pega o escribe el código (ej: --h--abc123def456)" autocomplete="off">
               <button type="button" class="btn btn-outline-primary" id="manualQrBtn" onclick="window.irConsultaQr && window.irConsultaQr()">Ir</button>
             </div>
           </div>
