@@ -864,12 +864,21 @@
                     </div>
                     <div class="modal-body d-flex flex-column align-items-center gap-3">
                         <div id="qrcode-tubo"></div>
-                        <small class="text-muted text-break" id="qrcode-tubo-url"></small>
+                        <small class="d-none" id="qrcode-tubo-url"></small>
+                        <div class="w-100 text-center">
+                            <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+                            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                                <code id="qr-code-tubo" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-tubo')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
                         <div class="w-100" style="max-width: 280px;">
                             <label class="form-label mb-1">Tamaño de impresión</label>
                             <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
-                                <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
-                                <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                                <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                                <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                                <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                                <option value="hoja">Hoja completa</option>
                             </select>
                         </div>
                     </div>
@@ -947,12 +956,21 @@
                     </div>
                     <div class="modal-body d-flex flex-column align-items-center gap-3">
                         <div id="qrcode-muestra"></div>
-                        <small class="text-muted text-break" id="qrcode-muestra-url"></small>
+                        <small class="d-none" id="qrcode-muestra-url"></small>
+                        <div class="w-100 text-center">
+                            <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+                            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                                <code id="qr-code-muestra" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-muestra')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
                         <div class="w-100" style="max-width: 280px;">
                             <label class="form-label mb-1">Tamaño de impresión</label>
                             <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
-                                <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
-                                <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                                <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                                <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                                <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                                <option value="hoja">Hoja completa</option>
                             </select>
                         </div>
                     </div>
@@ -1038,62 +1056,85 @@
         <script>
             // Sistema de impresión QR con tamaños configurables
             const QR_PRINT_SIZES = {
-                grande: { widthCm: 1.1, heightCm: 1.9 },
-                pequena: { widthCm: 0.8, heightCm: 2.4 }
+                etiq_peq: { widthCm: 1.1, heightCm: 1.9 },
+                etiq_med: { widthCm: 3, heightCm: 3 },
+                etiq_gra: { widthCm: 5, heightCm: 5 },
+                hoja:     { widthCm: null, heightCm: null }
             };
+
+            function extractCode(url) {
+                try { return new URL(url).searchParams.get('code') || url; } catch (e) { return url; }
+            }
+
+            function copiarCodigo(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el || !el.textContent.trim()) return;
+                navigator.clipboard?.writeText(el.textContent.trim()).then(() => {
+                    const btn = el.parentElement?.querySelector('button');
+                    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!'; setTimeout(() => btn.innerHTML = orig, 1500); }
+                }).catch(() => {
+                    const range = document.createRange();
+                    range.selectNodeContents(el);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                });
+            }
 
             function getQrPrintSize(modalId) {
                 const modal = document.getElementById(modalId || '');
-                const value = modal?.querySelector('.qr-size-select')?.value || 'grande';
-                return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.grande;
+                const value = modal?.querySelector('.qr-size-select')?.value || 'etiq_med';
+                return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.etiq_med;
             }
 
             function printQrPayload(url, label, modalId) {
                 if (!url) return;
                 const printSize = getQrPrintSize(modalId);
+                const code = extractCode(url);
+                const isFullPage = !printSize.widthCm;
+                const imgW = isFullPage ? 8 : printSize.widthCm;
+                const imgH = isFullPage ? 8 : printSize.heightCm;
+                const labelFontPt = isFullPage ? 10 : Math.max(4, imgH * 2);
+                const codeFontPt  = isFullPage ? 8  : Math.max(3, imgH * 1.5);
                 const container = document.createElement('div');
                 new QRCode(container, { text: url, width: 900, height: 900 });
-                const canvas = container.querySelector('canvas');
-                if (!canvas) return;
-                const win = window.open('');
-                if (!win) return;
-                win.document.write(`<!doctype html>
+                setTimeout(() => {
+                    const canvas = container.querySelector('canvas');
+                    if (!canvas) return;
+                    const win = window.open('');
+                    if (!win) return;
+                    win.document.write(`<!doctype html>
                 <html>
                     <head>
                         <meta charset="utf-8">
                         <style>
-                            @page { margin: 0; }
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                min-height: 100vh;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-family: Arial, sans-serif;
-                            }
-                            .qr-label {
-                                position: fixed;
-                                bottom: 0.2cm;
-                                left: 0.2cm;
-                                right: 0.2cm;
-                                text-align: center;
-                                font-size: 8pt;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                            }
+                            @page { margin: ${isFullPage ? '1cm' : '0'}; }
+                            body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
+                            .qr-label { text-align: center; font-size: ${labelFontPt}pt; margin-top: 1px; }
+                            .qr-code  { text-align: center; font-family: monospace; font-size: ${codeFontPt}pt; font-weight: bold; margin-top: 1px; letter-spacing: 0.05em; }
                         </style>
                     </head>
                     <body>
-                        <img src="${canvas.toDataURL()}" style="width:${printSize.widthCm}cm;height:${printSize.heightCm}cm;object-fit:contain;" />
+                        <img src="${canvas.toDataURL()}" style="width:${imgW}cm;height:${imgH}cm;object-fit:contain;" />
                         <div class="qr-label">${label || ''}</div>
+                        <div class="qr-code">${code}</div>
                     </body>
                 </html>`);
-                win.document.close();
-                win.print();
-                win.close();
+                    win.document.close();
+                    win.document.body.onload = function() { win.print(); win.close(); };
+                }, 100);
             }
+
+            // Populate code elements when modals open
+            document.getElementById('qrTuboModal')?.addEventListener('shown.bs.modal', function () {
+                const url = document.getElementById('qrcode-tubo-url')?.textContent || '';
+                const el = document.getElementById('qr-code-tubo');
+                if (el) el.textContent = extractCode(url);
+            });
+            document.getElementById('qrMuestraModal')?.addEventListener('shown.bs.modal', function () {
+                const url = document.getElementById('qrcode-muestra-url')?.textContent || '';
+                const el = document.getElementById('qr-code-muestra');
+                if (el) el.textContent = extractCode(url);
+            });
 
             // Variable para almacenar la URL del QR actual del tubo
             let tuboQrActual = '';

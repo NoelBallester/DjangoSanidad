@@ -837,43 +837,79 @@
     </section>
 
     <!-- Modal Imprimir QR Muestra-->
-    <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <section class="modal fade" id="qrMuestraModal" tabindex="-1" aria-labelledby="qrMuestraModalLabel"
       aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title" id="qrMuestraModalLabel">QR Sub-muestra</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
-            <p>Impresión QR Muestra</p>
-            <img src="" alt="Imprimir Muestra" id="imgmuestra__qr_modal">
-            <input type="text" value="qr" id="inputmuestra__qr">
-            <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrmuestra"
-              data-bs-dismiss="modal">Imprimir</button>
+          <div class="modal-body d-flex flex-column align-items-center gap-3">
+            <img src="" alt="QR Muestra" id="imgmuestra__qr_modal" style="max-width: 200px;">
+            <input type="text" id="inputmuestra__qr" class="d-none">
+            <div class="w-100 text-center">
+              <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+              <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                <code id="qr-code-muestra-hema" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-muestra-hema')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+              </div>
+            </div>
+            <div class="w-100" style="max-width: 280px;">
+              <label class="form-label mb-1">Tamaño de impresión</label>
+              <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
+                <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                <option value="hoja">Hoja completa</option>
+              </select>
+            </div>
           </div>
 
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btn__imprimirqrmuestra">Imprimir</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Modal Imprimir QR Muestra-->
-    <section class="modal fade" id="qrMuestrasModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <!-- Modal Imprimir QR Muestras-->
+    <section class="modal fade" id="qrMuestrasModal" tabindex="-1" aria-labelledby="qrMuestrasModalLabel"
       aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h5 class="modal-title" id="qrMuestrasModalLabel">QR Hematología</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body text-center fs-4 blue__color">
-            <p>Impresión QR Muestras</p>
-            <img src="" alt="Imprimir Muestras" id="imgMuestras__qr">
-            <input type="text" value="qr" id="inputMuestras__qr">
-            <button type="button" class="btn btn__modal mt-3" id="btn__imprimirqrMuestras"
-              data-bs-dismiss="modal">Imprimir</button>
+          <div class="modal-body d-flex flex-column align-items-center gap-3">
+            <img src="" alt="QR Hematología" id="imgMuestras__qr" style="max-width: 200px;">
+            <input type="text" id="inputMuestras__qr" class="d-none">
+            <div class="w-100 text-center">
+              <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+              <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                <code id="qr-code-muestras-hema" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-muestras-hema')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+              </div>
+            </div>
+            <div class="w-100" style="max-width: 280px;">
+              <label class="form-label mb-1">Tamaño de impresión</label>
+              <select class="form-select qr-size-select" aria-label="Tamaño QR para imprimir">
+                <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                <option value="hoja">Hoja completa</option>
+              </select>
+            </div>
           </div>
 
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btn__imprimirqrMuestras">Imprimir</button>
+          </div>
         </div>
       </div>
     </section>
@@ -1006,6 +1042,91 @@
                     }
                 });
             })();
+        <script>
+            // QR print system for hematologia (QRious-based)
+            const HEMA_QR_PRINT_SIZES = {
+                etiq_peq: { widthCm: 1.1, heightCm: 1.9 },
+                etiq_med: { widthCm: 3, heightCm: 3 },
+                etiq_gra: { widthCm: 5, heightCm: 5 },
+                hoja:     { widthCm: null, heightCm: null }
+            };
+
+            function extractCode(url) {
+                try { return new URL(url).searchParams.get('code') || url; } catch (e) { return url; }
+            }
+
+            function copiarCodigo(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el || !el.textContent.trim()) return;
+                navigator.clipboard?.writeText(el.textContent.trim()).then(() => {
+                    const btn = el.parentElement?.querySelector('button');
+                    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!'; setTimeout(() => btn.innerHTML = orig, 1500); }
+                }).catch(() => {
+                    const range = document.createRange();
+                    range.selectNodeContents(el);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                });
+            }
+
+            function getHemaQrPrintSize(modalId) {
+                const modal = document.getElementById(modalId || '');
+                const value = modal?.querySelector('.qr-size-select')?.value || 'etiq_med';
+                return HEMA_QR_PRINT_SIZES[value] || HEMA_QR_PRINT_SIZES.etiq_med;
+            }
+
+            function printQrPayloadFromImg(imgEl, label, qrUrl, modalId) {
+                if (!imgEl || !imgEl.src) return;
+                const printSize = getHemaQrPrintSize(modalId);
+                const code = extractCode(qrUrl || '');
+                const isFullPage = !printSize.widthCm;
+                const imgW = isFullPage ? 8 : printSize.widthCm;
+                const imgH = isFullPage ? 8 : printSize.heightCm;
+                const labelFontPt = isFullPage ? 10 : Math.max(4, imgH * 2);
+                const codeFontPt  = isFullPage ? 8  : Math.max(3, imgH * 1.5);
+                const win = window.open('');
+                if (!win) return;
+                win.document.write(`<!doctype html>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            @page { margin: ${isFullPage ? '1cm' : '0'}; }
+                            body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
+                            .qr-label { text-align: center; font-size: ${labelFontPt}pt; margin-top: 1px; }
+                            .qr-code  { text-align: center; font-family: monospace; font-size: ${codeFontPt}pt; font-weight: bold; margin-top: 1px; letter-spacing: 0.05em; }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${imgEl.src}" style="width:${imgW}cm;height:${imgH}cm;object-fit:contain;" />
+                        <div class="qr-label">${label || ''}</div>
+                        <div class="qr-code">${code}</div>
+                    </body>
+                </html>`);
+                win.document.close();
+                win.document.body.onload = function() { win.print(); win.close(); };
+            }
+
+            // Populate code elements when modals open
+            document.getElementById('qrMuestrasModal')?.addEventListener('shown.bs.modal', function () {
+                const el = document.getElementById('qr-code-muestras-hema');
+                if (el) el.textContent = extractCode(window.hematologiaQrUrl || '');
+            });
+            document.getElementById('qrMuestraModal')?.addEventListener('shown.bs.modal', function () {
+                const el = document.getElementById('qr-code-muestra-hema');
+                if (el) el.textContent = extractCode(window.muestraHemaQrUrl || '');
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('btn__imprimirqrMuestras')?.addEventListener('click', function () {
+                    const img = document.getElementById('imgMuestras__qr');
+                    printQrPayloadFromImg(img, document.getElementById('qrMuestrasModalLabel')?.textContent || 'Hematología', window.hematologiaQrUrl, 'qrMuestrasModal');
+                });
+                document.getElementById('btn__imprimirqrmuestra')?.addEventListener('click', function () {
+                    const img = document.getElementById('imgmuestra__qr_modal');
+                    printQrPayloadFromImg(img, document.getElementById('qrMuestraModalLabel')?.textContent || 'Sub-muestra', window.muestraHemaQrUrl, 'qrMuestraModal');
+                });
+            });
         </script>
 
 </body>
