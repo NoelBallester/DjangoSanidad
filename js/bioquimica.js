@@ -342,7 +342,7 @@ const resolverTextoEscaneado = async (text) => {
     return;
   }
 
-  alert("No se encontró ningún registro para ese QR.");
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
 const irConsultaQr = async () => {
@@ -1709,10 +1709,11 @@ const borrarMuestra = async () => {
 
 const consultarTuboQR = async (qr, silent = false) => {
   const response = await fetch(`/api/tubos/qr/${encodeURIComponent(qr)}/`);
-  let tubo = await response.json();
-  if (tubo.length > 0) {
-    imprimirTubos(tubo);
-    tubo = tubo[0];
+  let lista = await response.json();
+  if (lista.length > 0) {
+    const todos = await cargarTodosTubos();
+    imprimirTubos(todos);
+    const tubo = lista[0];
     imprimirDataTubo(tubo);
     tuboId = tubo.id_muestra;
     let muestras_resp = await cargarMuestras(tuboId);
