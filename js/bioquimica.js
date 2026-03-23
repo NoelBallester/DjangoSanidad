@@ -2092,6 +2092,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   nuevaMuestra.addEventListener("submit", crearMuestra);
 
+  if (modificarMuestra) {
+    modificarMuestra.addEventListener("submit", modificarMuestraUpdate);
+  }
+
   const cerrarModalDetalleSiAbierto = () => {
     if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
       return;
