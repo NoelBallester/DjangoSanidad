@@ -529,7 +529,7 @@ const borrarTubo = () => {
         eliminarTuboModal.classList.remove("showmodal");
         eliminarTuboModal.classList.add("hidemodal");
         setTimeout(() => {
-          location.href = "bioquimica.html";
+          location.href = "/bioquimica/";
         }, 500);
       } else {
         alert("Error al eliminar el análisis");

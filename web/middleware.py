@@ -31,6 +31,8 @@ _URLS_LABORATORIO = frozenset({
     'imagen_hematologia_upload', 'imagen_hematologia_delete',
     # Volantes Laboratorio
     'descargar_volante_hematologia', 'descargar_volante_tubo', 'descargar_volante_microbiologia',
+    # Páginas laboratorio (API-driven)
+    'bioquimica', 'microbiologia', 'hematologia_lab',
 })
 
 # Páginas .html servidas por render_html (core/urls.py)
