@@ -86,12 +86,14 @@
             <a class="nav-link nav__link" href="./laboratorio.html">Laboratorio</a>
           </li>
           {% if user.is_staff %}
-                        <li class="nav-item nav__item">
-                            <a class="nav-link nav__link" href="/usuarios/">Usuarios</a>
-                        </li>
-                        {% endif %}
           <li class="nav-item nav__item">
-            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button type="submit" class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
+            <a class="nav-link nav__link" href="/usuarios/">Usuarios</a>
+          </li>
+          {% endif %}
+          <li class="nav-item nav__item">
+            <form method="post" action="/logout/" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken"
+                value="{{ csrf_token }}"><button type="submit"
+                class="nav-link nav__link btn btn-link p-0 border-0 bg-transparent">Cerrar Sesión</button></form>
           </li>
           <li class="nav-item nav__item d-flex align-items-center">
             <a href="#" id="darkModeToggle" class="nav-link nav__link ms-lg-3" aria-label="Toggle Dark Mode">
@@ -421,8 +423,7 @@
             </div>
             <div class="mb-3">
               <label for="necropsia__informe_imagen" class="blue__color--negrita d-block">Informe De Resultados</label>
-              <input type="file" id="necropsia__informe_imagen" accept="*/*"
-                class="form-control blue__color bg-light">
+              <input type="file" id="necropsia__informe_imagen" accept="*/*" class="form-control blue__color bg-light">
             </div>
             <div class="text-end mt-4">
               <button id="btnGuardarInforme" class="btn fondo w-100 py-2">
@@ -458,7 +459,7 @@
           <input type="date" class="form-control blue__color" id="inputFechaMuestra" required>
         </div>
 
-          </select>
+        </select>
         </div>
 
         <div class="col-md-12 mt-3">
