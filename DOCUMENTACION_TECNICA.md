@@ -476,3 +476,12 @@ python manage.py runserver
 1. Acceder al **panel de administración** en `/admin/` con el superusuario creado.
 2. Gestionar `CatalogoOpcion` para configurar las opciones de los formularios (órganos, tinciones, tipos de análisis, etc.).
 3. Crear los usuarios técnicos asignando el rol correspondiente (`profesor`, `anatomia_patologica` o `laboratorio`).
+
+
+
+
+
+
+192.168.35.155
+admin
+AdministradorIESElBohio26
