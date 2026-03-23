@@ -330,8 +330,10 @@ class MuestraForm(forms.ModelForm):
 
     class Meta:
         model = Muestra
-        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        fields = ['numero_bloque', 'descripcion_macroscopica', 'descripcion', 'fecha', 'tincion', 'observaciones']
         widgets = {
+            'numero_bloque': forms.TextInput(attrs={'class': 'form-control blue__color'}),
+            'descripcion_macroscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
         }

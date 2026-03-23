@@ -587,18 +587,6 @@ def muestra_create(request, cassette_pk):
     form = MuestraForm(payload)
     if form.is_valid():
         muestra = form.save(cassette=cassette)
-        numero_bloque = (request.POST.get('numero_bloque') or '').strip()
-        descripcion_macroscopica = (request.POST.get('descripcion_macroscopica') or '').strip()
-        updates = []
-        if numero_bloque:
-            muestra.numero_bloque = numero_bloque
-            updates.append('numero_bloque')
-        if descripcion_macroscopica:
-            muestra.descripcion_macroscopica = descripcion_macroscopica
-            updates.append('descripcion_macroscopica')
-        if updates:
-            muestra.save(update_fields=updates)
-
         archivo_imagen = request.FILES.get('imagen')
         if archivo_imagen:
             Imagen.objects.create(muestra=muestra, imagen=archivo_imagen.read())
@@ -620,17 +608,13 @@ def muestra_update(request, pk):
     payload = request.POST.copy()
 
     if not (payload.get('descripcion') or '').strip():
-        fallback_descripcion = (payload.get('descripcion_macroscopica') or '').strip()
+        fallback_descripcion = (payload.get('numero_bloque') or payload.get('descripcion_macroscopica') or '').strip()
         if fallback_descripcion:
             payload['descripcion'] = fallback_descripcion[:255]
 
     form = MuestraForm(payload, instance=muestra)
     if form.is_valid():
-        muestra = form.save()
-        descripcion_macroscopica = (request.POST.get('descripcion_macroscopica') or '').strip()
-        if descripcion_macroscopica:
-            muestra.descripcion_macroscopica = descripcion_macroscopica
-            muestra.save(update_fields=['descripcion_macroscopica'])
+        form.save()
     return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}&muestra={pk}')
 
 
