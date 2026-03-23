@@ -1184,9 +1184,8 @@ const imprimirDataMicrobiologia = (respuesta) => {
     microbiologiaDiagnostico.textContent = respuesta.diagnostico_final || "";
   }
 
-  const microbiologiaVolanteText = document.getElementById("microbiologia__volanteMainText");
   const microbiologiaVolanteWrapper = document.getElementById("microbiologia__volanteMainWrapper");
-  if (microbiologiaVolanteText && microbiologiaVolanteWrapper) {
+  if (microbiologiaVolanteWrapper) {
     if (respuesta.volante_peticion_url) {
         microbiologiaVolanteWrapper.innerHTML = `<a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fa-solid fa-file-pdf me-1"></i> Ver Volante de Petición</a>`;
     } else {
