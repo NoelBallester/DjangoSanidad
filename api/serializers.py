@@ -126,7 +126,7 @@ class CassetteSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializ
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'qr_casette', 'organo', 'tecnico', 'informe_descripcion',
             'informe_fecha', 'informe_tincion', 'informe_observaciones',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_volante_peticion_url(self, obj):
@@ -171,7 +171,7 @@ class CitologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seriali
             'informacion_clinica', 'descripcion_microscopica', 'diagnostico_final',
             'patologo_responsable', 'informe_descripcion', 'informe_fecha',
             'informe_tincion', 'informe_observaciones',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_volante_peticion_url(self, obj):
@@ -222,7 +222,7 @@ class NecropsiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seriali
             'patologo_responsable', 'informe_descripcion', 'informe_fecha',
             'informe_tincion', 'informe_observaciones',
             'qr_necropsia', 'qr_imagen', 'tecnico',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
         read_only_fields = ['id_necropsia', 'qr_necropsia', 'tecnico']
 
@@ -276,7 +276,7 @@ class TuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_tubo', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
             'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_informe_imagen_url(self, obj):
@@ -341,7 +341,7 @@ class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seria
             'diagnostico_final', 'patologo_responsable', 'qr_hematologia', 'organo', 
             'tecnico', 'informe_descripcion', 'informe_fecha', 'informe_tincion', 
             'informe_observaciones', 'informe_imagen_url',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_informe_imagen_url(self, obj):
@@ -414,7 +414,7 @@ class MicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, ser
             'descripcion_microscopica', 'diagnostico_final', 'patologo_responsable', 
             'qr_microbiologia', 'organo', 'tecnico', 'informe_descripcion', 'informe_fecha', 
             'informe_tincion', 'informe_observaciones', 'informe_imagen_url',
-            'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
+            'volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo', 'volante_peticion_url'
         ]
 
     def get_informe_imagen_url(self, obj):
