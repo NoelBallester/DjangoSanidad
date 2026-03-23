@@ -356,6 +356,7 @@ class HematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seria
 class MuestraHematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     tincion = serializers.CharField(required=False, allow_blank=True)
     qr_muestra = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
     id_muestra = serializers.IntegerField(read_only=True)
@@ -429,6 +430,7 @@ class MicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, ser
 class MuestraMicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, serializers.ModelSerializer):
     tincion = serializers.CharField(required=False, allow_blank=True)
     qr_muestra = serializers.CharField(required=False, allow_blank=True)
+    fecha = serializers.DateField(required=False)
     qr_field = 'qr_muestra'
     imagen_url = serializers.SerializerMethodField()
 

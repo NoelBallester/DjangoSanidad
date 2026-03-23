@@ -771,6 +771,8 @@ class MuestraHematologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelVie
     
     def create(self, request):
         data = request.data.copy()
+        if not data.get('fecha'):
+            data['fecha'] = datetime.today().date().isoformat()
         # Generar QR automáticamente si no existe
         if 'qr_muestra' not in data or not data['qr_muestra']:
             data['qr_muestra'] = generar_qr_unico('--mh--', MuestraHematologia, 'qr_muestra')
@@ -893,6 +895,8 @@ class MuestraMicrobiologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelV
     
     def create(self, request):
         data = request.data.copy()
+        if not data.get('fecha'):
+            data['fecha'] = datetime.today().date().isoformat()
         if 'qr_muestra' not in data or not data['qr_muestra']:
             data['qr_muestra'] = generar_qr_unico('--mmb--', MuestraMicrobiologia, 'qr_muestra')
         
