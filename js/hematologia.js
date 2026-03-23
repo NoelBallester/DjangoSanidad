@@ -1092,17 +1092,16 @@ const cargarSubMuestraUpdateModal = async () => {
 const modificarSubMuestraUpdate = async (event) => {
   event.preventDefault();
 
-  const data = {
-    fecha: inputmodificarfechaMuestra ? inputmodificarfechaMuestra.value : "",
-    descripcion: inputmodificardescripcionMuestra ? inputmodificardescripcionMuestra.value : "",
-    observaciones: inputmodificarobservacionesMuestra ? inputmodificarobservacionesMuestra.value : "",
-    tincion: selectmodificartincionMuestra ? selectmodificartincionMuestra.value : "",
-    hematologia: hematologiaId,
-  };
+  const data = {};
+  if (inputmodificarfechaMuestra && inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
+  if (inputmodificardescripcionMuestra && inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
+  if (inputmodificarobservacionesMuestra && inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (selectmodificartincionMuestra && selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
+  data.hematologia = hematologiaId;
 
   try {
     const response = await fetch(`/api/muestrashematologia/${muestraId}/`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -1111,8 +1110,9 @@ const modificarSubMuestraUpdate = async (event) => {
     });
 
     if (!response.ok) {
-      const err = await response.json();
-      alert("Error al modificar: " + JSON.stringify(err));
+      const err = await response.json().catch(() => ({}));
+      const mensaje = err.error || err.detail || JSON.stringify(err) || "Error desconocido";
+      alert("Error al modificar: " + mensaje);
       return;
     }
 
@@ -1615,6 +1615,12 @@ const guardarInformeMedico = async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("=== Hematología DOMContentLoaded ===");
 
+  // Garantiza que no queden restricciones de fecha por cache o scripts anteriores.
+  document.querySelectorAll('input[type="date"]').forEach((input) => {
+    input.removeAttribute("min");
+    input.removeAttribute("max");
+  });
+
   // Asignar campos de informe
   muestrasInformeDescripcion = document.getElementById("Muestras__informe_descripcion");
   muestrasInformeFecha = document.getElementById("Muestras__informe_fecha");
@@ -1633,11 +1639,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   imprimirHematologias(respuesta);
   limpiarDetalleHematologia();
 
-  // Fechas mínimas
-  const fechaActual = new Date().toISOString().split("T")[0];
-  if (inputFecha) inputFecha.setAttribute("min", fechaActual);
-  if (inputFechaUpdate) inputFechaUpdate.setAttribute("min", fechaActual);
-  if (inputFechaMuestra) inputFechaMuestra.setAttribute("min", fechaActual);
+  // Fechas sin restricciones - permite seleccionar cualquier fecha
+  // Se elimina la restricción de fecha mínima para permitir fechas pasadas
 
   // ---- Toggle Informe / Muestras ----
   const sectionMuestrasDiv = document.getElementById("sectionMuestras");

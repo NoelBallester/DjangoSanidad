@@ -131,6 +131,7 @@
                             <option>Raspados</option>
                             <option>Uñas</option>
                             <option>Fluidos Biológicos</option>
+                            <option>Biología Molecular</option>
                             <option>Otros</option>
                         </select>
                     </div>
@@ -293,16 +294,6 @@
                             <label class="blue__color--negrita">Diagnóstico probable:</label>
                             <p id="microbiologia__diagnosticoMain" class="blue__color microbiologia__text m-0"></p>
                         </div>
-
-                        <hr class="my-2">
-
-                        <!-- Volante de Petición -->
-                        <div class="microbiologia__info-field">
-                            <label class="blue__color--negrita">Volante de petición:</label>
-                            <div id="microbiologia__volanteMainWrapper">
-                                <span id="microbiologia__volanteMainText" class="blue__color microbiologia__text m-0">No adjuntado</span>
-                            </div>
-                        </div>
                     </section>
                 </div>
             </section>
@@ -422,6 +413,7 @@
                                         <option>Resultados Biopsias</option>
                                         <option>Improntas</option>
                                         <option>Aspirados</option>
+                                        <option>Biología Molecular</option>
                                         <option>Otros</option>
                                     </select>
                                 </div>
@@ -537,8 +529,7 @@
 
                 <div class="col-md-12">
                     <label for="inputmodificarfechaMuestra" class="form-label blue__color">Fecha</label>
-                    <input type="date" class="form-control blue__color" id="inputmodificarfechaMuestra" required
-                        disabled>
+                    <input type="date" class="form-control blue__color" id="inputmodificarfechaMuestra">
                 </div>
 
                 <div class="col-md-12 mt-3">
@@ -596,17 +587,13 @@
                                 <i title="Modificar Muestra procesada" class="fa-solid fa-file-pen microbiologia__icon microbiologia__icon--infomicrobiologia"></i>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                        <div class="d-flex align-items-center gap-2" id="btnaniadirimagenmuestra" style="cursor:pointer;" title="Añadir foto">
-                            <i class="fa-solid fa-circle-plus microbiologia__icon microbiologia__icon--infomicrobiologia"></i>
-                            <span class="blue__color fw-bold small">Añadir foto</span>
-                        </div>
-                        <i title="Borrar Imagen Muestra procesada" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" style="cursor:pointer;"></i>
+                        <div>
+                            <i title="Borrar Imagen Muestra procesada" id="btnborrarimagenmuestra" class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia"></i>
                         </div>
                     </div>
 
                     <section class="row mt-3">
-                        <div class="col-4 border-end text-start">
+                        <div class="col-4 border-end text-center">
                             <li class="list-group-item blue__color--negrita">Aditivo añadido:
                                 <p id="muestra__descripcion" class="blue__color muestradescripcion__text"></p>
                             </li>
@@ -682,6 +669,7 @@
                             <option>Raspados</option>
                             <option>Uñas</option>
                             <option>Fluidos Biológicos</option>
+                            <option>Biología Molecular</option>
                             <option>Otros</option>
                         </select>
                     </div>
@@ -779,6 +767,7 @@
                             <option>Raspados</option>
                             <option>Uñas</option>
                             <option>Fluidos Biológicos</option>
+                            <option>Biología Molecular</option>
                             <option>Otros</option>
                         </select>
                     </div>
@@ -979,8 +968,8 @@
         <script src="./js/sortable.js?v=20260309"></script>
         <script src="https://unpkg.com/html5-qrcode"></script>
         <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-        <script src="js/microbiologia.js"></script>
-        <script src="js/api-django.js"></script>
+        <script src="js/microbiologia.js?v=20260323"></script>
+        <script src="js/api-django.js?v=20260323"></script>
         <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
         <script>
