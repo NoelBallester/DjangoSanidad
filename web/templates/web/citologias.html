@@ -445,7 +445,7 @@
                                         <i class="fa-solid fa-eye blue__color--negrita"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                            onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}')"
+                                            onclick="abrirQrMuestra('{{ item.qr_url|escapejs }}', 'Muestra {{ item.muestra.id_muestra }}', '{{ item.muestra.qr_muestra|escapejs }}')"
                                             title="QR de muestra">
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
@@ -693,7 +693,7 @@
                     {% if selected_muestra_item %}
                     <div class="d-flex justify-content-between">
                         <div class="d-flex align-items-start">
-                            <div onclick="abrirQrMuestra('{{ selected_muestra_item.qr_url|escapejs }}', 'Muestra {{ selected_muestra_item.muestra.id_muestra }}')" style="cursor:pointer;">
+                            <div onclick="abrirQrMuestra('{{ selected_muestra_item.qr_url|escapejs }}', 'Muestra {{ selected_muestra_item.muestra.id_muestra }}', '{{ selected_muestra_item.muestra.qr_muestra|escapejs }}')" style="cursor:pointer;">
                                 <i title="Imprimir QR Muestra" class="fa-sharp fa-solid fa-qrcode cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div data-bs-toggle="modal" data-bs-target="#eliminarMuestraModal" data-muestra-pk="{{ selected_muestra_item.muestra.pk }}" style="cursor:pointer;">
@@ -932,12 +932,20 @@
                 </div>
                 <div class="modal-body d-flex flex-column align-items-center gap-3">
                     <div id="qrcode-citologia"></div>
-                    <small class="text-muted text-break">{{ selected_qr_url }}</small>
+                    <div class="w-100 text-center">
+                        <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+                        <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                            <code id="qr-code-citologia" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-citologia')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+                        </div>
+                    </div>
                     <div class="w-100" style="max-width: 280px;">
-                        <label class="form-label mb-1">Tamano de impresion</label>
+                        <label class="form-label mb-1">Tamaño de impresión</label>
                         <select class="form-select qr-size-select" aria-label="Tamano QR para imprimir">
-                            <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
-                            <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                            <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                            <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                            <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                            <option value="hoja">Hoja completa</option>
                         </select>
                     </div>
                 </div>
@@ -959,12 +967,20 @@
                 </div>
                 <div class="modal-body d-flex flex-column align-items-center gap-3">
                     <div id="qrcode-muestra"></div>
-                    <small class="text-muted text-break" id="qrcode-muestra-url"></small>
+                    <div class="w-100 text-center">
+                        <small class="text-muted d-block mb-1">Código para escribir en el buscador manual:</small>
+                        <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                            <code id="qr-code-muestra" class="user-select-all text-break fw-bold" style="background:#e9f0fb;padding:6px 12px;border-radius:6px;border:2px solid #0d6efd;font-size:1em;letter-spacing:0.06em;"></code>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="copiarCodigo('qr-code-muestra')" title="Copiar código"><i class="fa-regular fa-copy"></i> Copiar</button>
+                        </div>
+                    </div>
                     <div class="w-100" style="max-width: 280px;">
-                        <label class="form-label mb-1">Tamano de impresion</label>
+                        <label class="form-label mb-1">Tamaño de impresión</label>
                         <select class="form-select qr-size-select" aria-label="Tamano QR para imprimir">
-                            <option value="grande" selected>Normal (1,9 cm alto x 1,1 cm ancho)</option>
-                            <option value="pequena">Pequeña (2,4 cm alto x 0,8 cm ancho)</option>
+                            <option value="etiq_peq">Etiqueta pequeña (1,1×1,9 cm)</option>
+                            <option value="etiq_med" selected>Etiqueta mediana (3×3 cm)</option>
+                            <option value="etiq_gra">Etiqueta grande (5×5 cm)</option>
+                            <option value="hoja">Hoja completa</option>
                         </select>
                     </div>
                 </div>
@@ -987,11 +1003,11 @@
                 </div>
                 <div class="modal-body">
                     <div id="qr-reader" style="width:100%;"></div>
-                    <div class="mt-3 d-flex gap-2">
-                        <input type="text" id="manualQrInput" class="form-control" placeholder="Pega o escribe el código QR">
-                        <button type="button" class="btn btn-outline-primary" id="manualQrBtn">Ir</button>
+                    <p class="text-muted mt-3 mb-1 small">Copia el código que aparece bajo el QR y pégalo aquí. También puedes escanearlo con la cámara.</p>
+                    <div class="d-flex gap-2">
+                        <input type="text" id="manualQrInput" class="form-control" placeholder="Pega o escribe el código (ej: --cit--abc123def456)" autocomplete="off">
+                        <button type="button" class="btn btn-primary" id="manualQrBtn">Ir</button>
                     </div>
-                    <small class="text-muted d-block mt-2">Al escanear, se abrirá automáticamente el detalle de la muestra/cassette/citología.</small>
                 </div>
             </div>
         </div>
@@ -1304,7 +1320,29 @@
         // ── QR Citología ──────────────────────────────────────────────────────
         {% if selected %}
         const qrCitologiaValue = "{{ selected_qr_url|escapejs }}";
+        const qrCitologiaCode  = "{{ selected.qr_citologia|escapejs }}";
+
+        function extractCode(url) {
+            try { return new URL(url).searchParams.get('code') || url; } catch (e) { return url; }
+        }
+
+        function copiarCodigo(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el || !el.textContent.trim()) return;
+            navigator.clipboard?.writeText(el.textContent.trim()).then(() => {
+                const btn = el.parentElement?.querySelector('button');
+                if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!'; setTimeout(() => btn.innerHTML = orig, 1500); }
+            }).catch(() => {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+            });
+        }
+
         document.getElementById('qrCitologiaModal')?.addEventListener('shown.bs.modal', function () {
+            const codeEl = document.getElementById('qr-code-citologia');
+            if (codeEl) codeEl.textContent = qrCitologiaCode || qrCitologiaValue;
             const el = document.getElementById('qrcode-citologia');
             if (el) {
                 el.innerHTML = '';
@@ -1316,61 +1354,54 @@
         });
 
         const QR_PRINT_SIZES = {
-            grande: { widthCm: 1.1, heightCm: 1.9 },
-            pequena: { widthCm: 0.8, heightCm: 2.4 }
+            etiq_peq: { widthCm: 1.1, heightCm: 1.9 },
+            etiq_med: { widthCm: 3, heightCm: 3 },
+            etiq_gra: { widthCm: 5, heightCm: 5 },
+            hoja:     { widthCm: null, heightCm: null }
         };
 
         function getQrPrintSize(modalId) {
             const modal = document.getElementById(modalId || '');
-            const value = modal?.querySelector('.qr-size-select')?.value || 'grande';
-            return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.grande;
+            const value = modal?.querySelector('.qr-size-select')?.value || 'etiq_med';
+            return QR_PRINT_SIZES[value] || QR_PRINT_SIZES.etiq_med;
         }
 
         function printQrPayload(url, label, modalId) {
             if (!url) return;
             const printSize = getQrPrintSize(modalId);
+            const code = extractCode(url);
+            const isFullPage = !printSize.widthCm;
+            const imgW = isFullPage ? 8 : printSize.widthCm;
+            const imgH = isFullPage ? 8 : printSize.heightCm;
+            const labelFontPt = isFullPage ? 10 : Math.max(4, imgH * 2);
+            const codeFontPt  = isFullPage ? 8  : Math.max(3, imgH * 1.5);
             const container = document.createElement('div');
             new QRCode(container, { text: url, width: 900, height: 900 });
-            const canvas = container.querySelector('canvas');
-            if (!canvas) return;
-            const win = window.open('');
-            if (!win) return;
-            win.document.write(`<!doctype html>
-                <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <style>
-                            @page { margin: 0; }
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                min-height: 100vh;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-family: Arial, sans-serif;
-                            }
-                            .qr-label {
-                                position: fixed;
-                                bottom: 0.2cm;
-                                left: 0.2cm;
-                                right: 0.2cm;
-                                text-align: center;
-                                font-size: 8pt;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${canvas.toDataURL()}" style="width:${printSize.widthCm}cm;height:${printSize.heightCm}cm;object-fit:contain;" />
-                        <div class="qr-label">${label || ''}</div>
-                    </body>
-                </html>`);
-            win.document.close();
-            win.print();
-            win.close();
+            setTimeout(() => {
+                const canvas = container.querySelector('canvas');
+                if (!canvas) return;
+                const win = window.open('');
+                if (!win) return;
+                win.document.write(`<!doctype html>
+                    <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                @page { margin: ${isFullPage ? '1cm' : '0'}; }
+                                body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
+                                .qr-label { text-align: center; font-size: ${labelFontPt}pt; margin-top: 1px; }
+                                .qr-code  { text-align: center; font-family: monospace; font-size: ${codeFontPt}pt; font-weight: bold; margin-top: 1px; letter-spacing: 0.05em; }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${canvas.toDataURL()}" style="width:${imgW}cm;height:${imgH}cm;object-fit:contain;" />
+                            <div class="qr-label">${label || ''}</div>
+                            <div class="qr-code">${code}</div>
+                        </body>
+                    </html>`);
+                win.document.close();
+                win.document.body.onload = function() { win.print(); win.close(); };
+            }, 100);
         }
 
         function imprimirQR(modalId) {
@@ -1378,23 +1409,25 @@
         }
 
         let muestraQrActual = '';
-        function abrirQrMuestra(url, titulo) {
+        let muestraCodeActual = '';
+        function abrirQrMuestra(url, titulo, rawCode) {
             muestraQrActual = url;
+            muestraCodeActual = rawCode || url;
             const titleEl = document.getElementById('qrMuestraModalLabel');
             if (titleEl) titleEl.textContent = `QR - ${titulo}`;
-            const qrUrlEl = document.getElementById('qrcode-muestra-url');
-            if (qrUrlEl) qrUrlEl.textContent = url;
+            const codeEl = document.getElementById('qr-code-muestra');
+            if (codeEl) codeEl.textContent = muestraCodeActual;
             const qrWrap = document.getElementById('qrcode-muestra');
             if (qrWrap) {
                 qrWrap.innerHTML = '';
-                new QRCode(qrWrap, { text: url, width: 220, height: 220 });
+                new QRCode(qrWrap, { text: url || rawCode, width: 220, height: 220 });
             }
             const modalEl = document.getElementById('qrMuestraModal');
             if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
         }
 
         document.getElementById('btnImprimirQrMuestra')?.addEventListener('click', function () {
-            printQrPayload(muestraQrActual, document.getElementById('qrMuestraModalLabel')?.textContent || 'Muestra', 'qrMuestraModal');
+            printQrPayload(muestraQrActual || muestraCodeActual, document.getElementById('qrMuestraModalLabel')?.textContent || 'Muestra', 'qrMuestraModal');
         });
 
         // Resalta y centra la muestra abierta por querystring
@@ -1438,7 +1471,13 @@
             resolverTextoEscaneado(value);
         });
 
+        document.getElementById('manualQrInput')?.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') resolverTextoEscaneado(this.value);
+        });
+
         document.getElementById('scanQrModal')?.addEventListener('shown.bs.modal', function () {
+            const inp = document.getElementById('manualQrInput');
+            if (inp) { inp.value = ''; inp.focus(); }
             if (!window.Html5Qrcode) return;
             if (!html5QrInstance) html5QrInstance = new Html5Qrcode('qr-reader');
             Html5Qrcode.getCameras().then((cameras) => {
