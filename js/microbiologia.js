@@ -518,7 +518,7 @@ const borrarMicrobiologia = () => {
         eliminarMicrobiologiaModal.classList.remove("showmodal");
         eliminarMicrobiologiaModal.classList.add("hidemodal");
         setTimeout(() => {
-          location.href = "microbiologia.html";
+          location.href = "/microbiologia/";
         }, 500);
       } else {
         alert("Error al eliminar el análisis");

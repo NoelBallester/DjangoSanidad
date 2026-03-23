@@ -65,6 +65,11 @@ urlpatterns = [
     path('usuarios/<int:pk>/eliminar/',        views.usuario_delete, name='usuario_delete'),
     path('usuarios/bulk-delete/',              views.usuario_bulk_delete, name='usuario_bulk_delete'),
 
+    # Laboratorio (páginas API-driven)
+    path('bioquimica/',      views.bioquimica_lab,      name='bioquimica'),
+    path('microbiologia/',   views.microbiologia_lab,   name='microbiologia'),
+    path('hematologia/',     views.hematologia_lab,     name='hematologia_lab'),
+
     # Descargar volantes de petición
     path('cassettes/<int:pk>/volante/',         views.descargar_volante_cassette,       name='descargar_volante_cassette'),
     path('citologias/<int:pk>/volante/',        views.descargar_volante_citologia,      name='descargar_volante_citologia'),

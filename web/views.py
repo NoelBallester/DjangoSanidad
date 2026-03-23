@@ -824,19 +824,19 @@ def qr_resolver(request):
 
     tubo = Tubo.objects.filter(qr_tubo=payload).first()
     if tubo:
-        return redirect(f'/bioquimica.html?tubo={tubo.pk}')
+        return redirect(reverse('bioquimica') + f'?tubo={tubo.pk}')
 
     muestra_tubo = MuestraTubo.objects.filter(qr_muestra=payload).select_related('tubo').first()
     if muestra_tubo:
-        return redirect(f'/bioquimica.html?tubo={muestra_tubo.tubo_id}&muestra={muestra_tubo.pk}')
+        return redirect(reverse('bioquimica') + f'?tubo={muestra_tubo.tubo_id}&muestra={muestra_tubo.pk}')
 
     microbiologia = Microbiologia.objects.filter(qr_microbiologia=payload).first()
     if microbiologia:
-        return redirect(f'/microbiologia.html?microbiologia={microbiologia.pk}')
+        return redirect(reverse('microbiologia') + f'?microbiologia={microbiologia.pk}')
 
     muestra_microbiologia = MuestraMicrobiologia.objects.filter(qr_muestra=payload).select_related('microbiologia').first()
     if muestra_microbiologia:
-        return redirect(f'/microbiologia.html?microbiologia={muestra_microbiologia.microbiologia_id}&muestra={muestra_microbiologia.pk}')
+        return redirect(reverse('microbiologia') + f'?microbiologia={muestra_microbiologia.microbiologia_id}&muestra={muestra_microbiologia.pk}')
 
     messages.error(request, 'No se encontró ninguna muestra, citología, necropsia o cassette para ese QR.')
     return redirect('cassettes')
@@ -1659,3 +1659,23 @@ def descargar_informe_resultado(request, informe_pk):
     response['X-Content-Type-Options'] = 'nosniff'
     response['Content-Disposition'] = f'inline; filename="informe_{informe.pk}.{ext}"'
     return response
+
+
+# ── Laboratorio (páginas API-driven) ────────────────────────────────────────────
+
+@never_cache
+@login_required
+def bioquimica_lab(request):
+    return render(request, 'web/bioquimica.html')
+
+
+@never_cache
+@login_required
+def microbiologia_lab(request):
+    return render(request, 'web/microbiologia.html')
+
+
+@never_cache
+@login_required
+def hematologia_lab(request):
+    return render(request, 'web/hematologia.html')
