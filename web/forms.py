@@ -467,6 +467,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
         model = MuestraNecropsia
         fields = [
             'descripcion',
+            'descripcion_microscopica',
             'fecha',
             'examen_interno_cadaver',
             'tecnica_apertura',
@@ -478,6 +479,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
         ]
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'examen_interno_cadaver': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'datos_relevantes_region': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
             'toma_muestras': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
@@ -502,6 +504,7 @@ class MuestraNecropsiaForm(forms.ModelForm):
         for name, field in self.fields.items():
             if name not in (
                 'fecha',
+                'descripcion_microscopica',
                 'examen_interno_cadaver',
                 'datos_relevantes_region',
                 'toma_muestras',
@@ -645,10 +648,11 @@ class MuestraHematologiaForm(forms.ModelForm):
 
     class Meta:
         model = MuestraHematologia
-        fields = ['descripcion', 'fecha', 'tincion', 'observaciones']
+        fields = ['descripcion', 'fecha', 'tincion', 'observaciones', 'descripcion_microscopica']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control blue__color'}),
             'observaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
+            'descripcion_microscopica': forms.Textarea(attrs={'rows': 2, 'class': 'form-control blue__color'}),
         }
 
     def __init__(self, *args, **kwargs):

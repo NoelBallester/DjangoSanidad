@@ -617,9 +617,20 @@ def muestra_create(request, cassette_pk):
 @require_POST
 def muestra_update(request, pk):
     muestra = get_object_or_404(Muestra, pk=pk)
-    form = MuestraForm(request.POST, instance=muestra)
+    payload = request.POST.copy()
+
+    if not (payload.get('descripcion') or '').strip():
+        fallback_descripcion = (payload.get('descripcion_macroscopica') or '').strip()
+        if fallback_descripcion:
+            payload['descripcion'] = fallback_descripcion[:255]
+
+    form = MuestraForm(payload, instance=muestra)
     if form.is_valid():
-        form.save()
+        muestra = form.save()
+        descripcion_macroscopica = (request.POST.get('descripcion_macroscopica') or '').strip()
+        if descripcion_macroscopica:
+            muestra.descripcion_macroscopica = descripcion_macroscopica
+            muestra.save(update_fields=['descripcion_macroscopica'])
     return redirect(reverse('cassettes') + f'?cassette={muestra.cassette_id}&muestra={pk}')
 
 

@@ -238,7 +238,7 @@ class MuestraNecropsiaSerializer(QrUnicoValidatorMixin, serializers.ModelSeriali
     class Meta:
         model = MuestraNecropsia
         fields = [
-            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'id_muestra', 'descripcion', 'descripcion_microscopica', 'fecha', 'observaciones', 'tincion',
             'qr_muestra', 'qr_imagen', 'necropsia',
             'examen_interno_cadaver', 'tecnica_apertura', 'datos_relevantes_region',
             'toma_muestras', 'prueba_complementaria',
@@ -297,7 +297,7 @@ class MuestraTuboSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin, seria
 
     class Meta:
         model = MuestraTubo
-        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_url']
+        fields = ['id_muestra', 'descripcion', 'fecha', 'observaciones', 'descripcion_microscopica', 'tincion', 'qr_muestra', 'qr_imagen', 'tubo', 'imagen_url']
         read_only_fields = ['id_muestra', 'imagen_url']
 
     def get_imagen_url(self, obj):
@@ -364,7 +364,7 @@ class MuestraHematologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMixin
     class Meta:
         model = MuestraHematologia
         fields = [
-            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'descripcion_microscopica', 'tincion',
             'qr_muestra', 'qr_imagen', 'hematologia', 'imagen_url'
         ]
         read_only_fields = ['id_muestra', 'imagen_url']
@@ -437,7 +437,7 @@ class MuestraMicrobiologiaSerializer(QrUnicoValidatorMixin, FileUrlSerializerMix
     class Meta:
         model = MuestraMicrobiologia
         fields = [
-            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'tincion',
+            'id_muestra', 'descripcion', 'fecha', 'observaciones', 'descripcion_microscopica', 'tincion',
             'qr_muestra', 'qr_imagen', 'microbiologia', 'imagen_url'
         ]
         read_only_fields = ['id_muestra', 'imagen_url']

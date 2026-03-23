@@ -722,12 +722,13 @@ const crearMuestra = async (event) => {
   // SI QUEREMOS GUARDAR UNA IMAGEN CON PDO NECESITAMOS UN FormData
   let newMuestra = new FormData();
   
-  // Usar técnica de apertura como descripción
-  const descripcion = document.getElementById("inputTecnicaMuestra")?.value || "Muestra";
-  newMuestra.append("descripcion", descripcion);
+  // descripcion/tincion = validacion; descripcion_microscopica = descripcion visible de la biopsia
+  const validacion = document.getElementById("selectTincionMuestra")?.value || "";
+  newMuestra.append("descripcion", validacion);
+  newMuestra.append("descripcion_microscopica", inputdescripcionMuestra?.value || "");
   newMuestra.append("fecha", document.getElementById("inputFechaMuestra")?.value || "");
   newMuestra.append("observaciones", document.getElementById("inputObservacionesMuestra")?.value || "");
-  newMuestra.append("tincion", document.getElementById("selectTincionMuestra")?.value || "Otros");
+  newMuestra.append("tincion", document.getElementById("selectTincionMuestra")?.value || "");
   newMuestra.append("necropsia", necropsiaId);
   
   // Campos específicos de necropsia
@@ -763,12 +764,14 @@ const limpiarModalMuestra = () => {
   document.getElementById("inputdescripcionMuestra").value = "";
   document.getElementById("inputFechaMuestra").value = "";
   document.getElementById("inputObservacionesMuestra").value = "";
-  document.getElementById("selectTincionMuestra").value = "Otros";
+  document.getElementById("selectTincionMuestra").value = "";
   document.getElementById("inputImagenesMuestra").value = "";
-  document.getElementById("inputTecnicaMuestra").value = "";
-  document.getElementById("inputDatosRelevantsMuestra").value = "";
-  document.querySelector('textarea[name="toma_muestras"]').value = "";
-  document.querySelector('textarea[name="prueba_complementaria"]').value = "";
+  if (document.getElementById("inputTecnicaMuestra")) document.getElementById("inputTecnicaMuestra").value = "";
+  if (document.getElementById("inputDatosRelevantsMuestra")) document.getElementById("inputDatosRelevantsMuestra").value = "";
+  const toma = document.querySelector('textarea[name="toma_muestras"]');
+  if (toma) toma.value = "";
+  const prueba = document.querySelector('textarea[name="prueba_complementaria"]');
+  if (prueba) prueba.value = "";
 };
 
 // Cargamos el modal datos muestra a modificar
@@ -785,7 +788,7 @@ const cargarMuestraUpdateModal = async (event) => {
     });
 
     let muestra = await response.json();
-    inputmodificardescripcionMuestra.value = muestra.descripcion;
+    inputmodificardescripcionMuestra.value = muestra.descripcion_microscopica || "";
     inputmodificarfechaMuestra.value = muestra.fecha;
     selectmodificartincionMuestra.value = muestra.tincion;
     inputmodificarobservacionesMuestra.value = muestra.observaciones;
@@ -801,7 +804,8 @@ const modificarMuestraUpdate = async (event) => {
     headers: getHeaders('PUT', false),
     body: JSON.stringify({
       fecha: inputmodificarfechaMuestra.value,
-      descripcion: inputmodificardescripcionMuestra.value,
+      descripcion: selectmodificartincionMuestra.value,
+      descripcion_microscopica: inputmodificardescripcionMuestra.value,
       observaciones: inputmodificarobservacionesMuestra.value,
       tincion: selectmodificartincionMuestra.value,
     }),
@@ -857,8 +861,10 @@ const imprimirMuestras = (respuesta) => {
 
       tr.classList.add("table__row");
       let descripcion = document.createElement("td");
-      descripcion.textContent = muestra.descripcion.substring(0, 80);
-      descripcion.title = muestra.descripcion;
+      const descripcionMicroscopica = (muestra.descripcion_microscopica || "").trim();
+      const descripcionVisible = descripcionMicroscopica || "-";
+      descripcion.textContent = descripcionVisible.substring(0, 80);
+      descripcion.title = descripcionVisible;
 
       let fecha = document.createElement("td");
       nuevafecha = muestra.fecha;
@@ -945,8 +951,10 @@ const obtenerImagenesMuestra = async (muestraid) => {
 
 // rellenamos los datos texto de la muestra
 const rellenarDatosMuestra = async (muestra) => {
-  muestra__descripcion.textContent = muestra.descripcion.substring(0, 60);
-  muestra__descripcion.title = muestra.descripcion;
+  const descripcionMicroscopica = (muestra.descripcion_microscopica || "").trim();
+  const descripcionVisible = descripcionMicroscopica || "-";
+  muestra__descripcion.textContent = descripcionVisible.substring(0, 60);
+  muestra__descripcion.title = descripcionVisible;
 
   nuevafecha = muestra.fecha;
   muestra__fecha.textContent =

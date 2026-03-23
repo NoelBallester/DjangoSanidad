@@ -420,6 +420,7 @@ class Necropsia(RegistroConInforme):
 
 class MuestraNecropsia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column='id')
+    descripcion_microscopica = models.TextField(null=True, blank=True)
     examen_interno_cadaver = models.TextField(null=True, blank=True)
     tecnica_apertura = models.CharField(max_length=255, null=True, blank=True)
     datos_relevantes_region = models.TextField(null=True, blank=True)
@@ -458,6 +459,7 @@ class MuestraTubo(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column='id')
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column='tubo_id')
+    descripcion_microscopica = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'muestrastubo'
@@ -489,6 +491,7 @@ class MuestraHematologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column='id')
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     hematologia = models.ForeignKey(Hematologia, on_delete=models.CASCADE, db_column='hematologia_id')
+    descripcion_microscopica = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'muestrashematologia'
@@ -520,6 +523,7 @@ class MuestraMicrobiologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column='id')
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     microbiologia = models.ForeignKey(Microbiologia, on_delete=models.CASCADE, db_column='microbiologia_id')
+    descripcion_microscopica = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'muestrasmicrobiologia'

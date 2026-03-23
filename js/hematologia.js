@@ -144,6 +144,7 @@ const inputdescripcionMuestra = document.getElementById("inputdescripcionMuestra
 const inputFechaMuestra = document.getElementById("inputFechaMuestra");
 const selectTincionMuestra = document.getElementById("selectTincionMuestra");
 const inputObservacionesMuestra = document.getElementById("inputObservacionesMuestra");
+const inputMicroscopiaMuestra = document.getElementById("inputMicroscopiaMuestra");
 const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
 
@@ -156,6 +157,7 @@ const inputmodificardescripcionMuestra = document.getElementById("inputmodificar
 const inputmodificarfechaMuestra = document.getElementById("inputmodificarfechaMuestra");
 const selectmodificartincionMuestra = document.getElementById("selectmodificartincionMuestra");
 const inputmodificarobservacionesMuestra = document.getElementById("inputmodificarobservacionesMuestra");
+const inputmodificarmicroscopiaMuestra = document.getElementById("inputmodificarmicroscopiaMuestra");
 
 // Sub-muestra - Detalle
 const modaldetalleMuestra = document.getElementById("modaldetalleMuestra");
@@ -163,6 +165,7 @@ const btncerrardetalleMuestra = document.getElementById("btncerrardetalleMuestra
 const muestra__descripcion = document.getElementById("muestra__descripcion");
 const muestra__fecha = document.getElementById("muestra__fecha");
 const muestra__observaciones = document.getElementById("muestra__observaciones");
+const muestra__descripcion_microscopica = document.getElementById("muestra__descripcion_microscopica");
 const muestra__tincion = document.getElementById("muestra__tincion");
 const muestra__img = document.getElementById("muestra__img");
 const visor__img = document.getElementById("visor__img");
@@ -1034,6 +1037,7 @@ const crearSubMuestra = async (event) => {
   formData.append("descripcion", inputdescripcionMuestra ? inputdescripcionMuestra.value : "");
   formData.append("fecha", inputFechaMuestra ? inputFechaMuestra.value : "");
   formData.append("observaciones", inputObservacionesMuestra ? inputObservacionesMuestra.value : "");
+  formData.append("descripcion_microscopica", inputMicroscopiaMuestra ? inputMicroscopiaMuestra.value : "");
   formData.append("tincion", selectTincionMuestra ? selectTincionMuestra.value : "");
   formData.append("hematologia", hematologiaId);
 
@@ -1097,6 +1101,7 @@ const limpiarFormularioSubMuestra = () => {
   if (inputdescripcionMuestra) inputdescripcionMuestra.value = "";
   if (inputFechaMuestra) inputFechaMuestra.value = "";
   if (inputObservacionesMuestra) inputObservacionesMuestra.value = "";
+  if (inputMicroscopiaMuestra) inputMicroscopiaMuestra.value = "";
   if (selectTincionMuestra) selectTincionMuestra.value = "";
   if (inputImagenesMuestra) inputImagenesMuestra.value = "";
 };
@@ -1108,6 +1113,7 @@ const cargarSubMuestraUpdateModal = async () => {
   if (inputmodificarfechaMuestra) inputmodificarfechaMuestra.value = m.fecha || "";
   if (selectmodificartincionMuestra) selectmodificartincionMuestra.value = m.tincion || "";
   if (inputmodificarobservacionesMuestra) inputmodificarobservacionesMuestra.value = m.observaciones || "";
+  if (inputmodificarmicroscopiaMuestra) inputmodificarmicroscopiaMuestra.value = m.descripcion_microscopica || "";
 };
 
 const modificarSubMuestraUpdate = async (event) => {
@@ -1117,6 +1123,7 @@ const modificarSubMuestraUpdate = async (event) => {
   if (inputmodificarfechaMuestra && inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
   if (inputmodificardescripcionMuestra && inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
   if (inputmodificarobservacionesMuestra && inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (inputmodificarmicroscopiaMuestra && inputmodificarmicroscopiaMuestra.value) data.descripcion_microscopica = inputmodificarmicroscopiaMuestra.value;
   if (selectmodificartincionMuestra && selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
   data.hematologia = hematologiaId;
 
@@ -1141,6 +1148,7 @@ const modificarSubMuestraUpdate = async (event) => {
     if (muestra__descripcion) muestra__descripcion.textContent = inputmodificardescripcionMuestra ? inputmodificardescripcionMuestra.value : "";
     if (muestra__fecha) muestra__fecha.textContent = formatFecha(inputmodificarfechaMuestra ? inputmodificarfechaMuestra.value : "");
     if (muestra__observaciones) muestra__observaciones.textContent = inputmodificarobservacionesMuestra ? inputmodificarobservacionesMuestra.value : "";
+    if (muestra__descripcion_microscopica) muestra__descripcion_microscopica.textContent = inputmodificarmicroscopiaMuestra ? inputmodificarmicroscopiaMuestra.value : "";
     if (muestra__tincion) muestra__tincion.textContent = selectmodificartincionMuestra ? selectmodificartincionMuestra.value : "";
 
     cerrarModal(modalmodificarMuestra);
@@ -1262,6 +1270,7 @@ const detailSubMuestra = async (muestraid) => {
   if (muestra__descripcion) muestra__descripcion.textContent = m.descripcion || "Sin descripción";
   if (muestra__fecha) muestra__fecha.textContent = formatFecha(m.fecha);
   if (muestra__observaciones) muestra__observaciones.textContent = m.observaciones || "Sin observaciones";
+  if (muestra__descripcion_microscopica) muestra__descripcion_microscopica.textContent = m.descripcion_microscopica || "Sin descripción";
   if (muestra__tincion) muestra__tincion.textContent = m.tincion || "Sin tipo";
 
   // QR sub-muestra

@@ -738,7 +738,7 @@ const cargarMuestraUpdateModal = async (event) => {
     });
 
     let muestra = await response.json();
-    inputmodificardescripcionMuestra.value = muestra.descripcion;
+    inputmodificardescripcionMuestra.value = muestra.descripcion_macroscopica || "";
     inputmodificarfechaMuestra.value = muestra.fecha;
     selectmodificartincionMuestra.value = muestra.tincion;
     inputmodificarobservacionesMuestra.value = muestra.observaciones;
@@ -755,6 +755,7 @@ const modificarMuestraUpdate = async (event) => {
     body: JSON.stringify({
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
+      descripcion_macroscopica: inputmodificardescripcionMuestra.value,
       observaciones: inputmodificarobservacionesMuestra.value,
       tincion: selectmodificartincionMuestra.value,
     }),
@@ -882,8 +883,9 @@ const obtenerImagenesMuestra = async (muestraid) => {
 
 // rellenamos los datos texto de la muestra
 const rellenarDatosMuestra = async (muestra) => {
-  muestra__descripcion.textContent = muestra.descripcion.substring(0, 60);
-  muestra__descripcion.title = muestra.descripcion;
+  const descripcionMicroscopica = (muestra.descripcion_macroscopica || muestra.descripcion || "").trim();
+  muestra__descripcion.textContent = descripcionMicroscopica.substring(0, 60);
+  muestra__descripcion.title = descripcionMicroscopica;
 
   nuevafecha = muestra.fecha;
   muestra__fecha.textContent =

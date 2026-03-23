@@ -152,6 +152,7 @@ const selectTincionMuestra = document.getElementById("selectTincionMuestra");
 const inputObservacionesMuestra = document.getElementById(
   "inputObservacionesMuestra"
 );
+const inputMicroscopiaMuestra = document.getElementById("inputMicroscopiaMuestra");
 const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
 
 // Detalle Muestra
@@ -160,6 +161,7 @@ const muestra__fecha = document.getElementById("muestra__fecha");
 const muestra__observaciones = document.getElementById(
   "muestra__observaciones"
 );
+const muestra__descripcion_microscopica = document.getElementById("muestra__descripcion_microscopica");
 const muestra__tincion = document.getElementById("muestra__tincion");
 
 const muestra__img = document.getElementById("muestra__img");
@@ -192,6 +194,10 @@ const selectmodificartincionMuestra = document.getElementById(
 
 const inputmodificarobservacionesMuestra = document.getElementById(
   "inputmodificarobservacionesMuestra"
+);
+
+const inputmodificarmicroscopiaMuestra = document.getElementById(
+  "inputmodificarmicroscopiaMuestra"
 );
 // Borrar Muestra
 const btnborrarmuestra = document.getElementById("btnborrarmuestra");
@@ -735,6 +741,7 @@ const crearMuestra = async (event) => {
   newMuestra.append("descripcion", inputdescripcionMuestra.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
+  newMuestra.append("descripcion_microscopica", inputMicroscopiaMuestra.value);
   newMuestra.append("tincion", selectTincionMuestra.value);
   newMuestra.append("citologia", citologiaId);
 
@@ -759,6 +766,7 @@ const limpiarModalMuestra = () => {
   inputdescripcionMuestra.value = "";
   inputFechaMuestra.value = "";
   inputObservacionesMuestra.value = "";
+  inputMicroscopiaMuestra.value = "";
   selectTincionMuestra.value = "";
   inputImagenesMuestra.value = "";
 };
@@ -781,6 +789,7 @@ const cargarMuestraUpdateModal = async (event) => {
     inputmodificarfechaMuestra.value = muestra.fecha;
     selectmodificartincionMuestra.value = muestra.tincion;
     inputmodificarobservacionesMuestra.value = muestra.observaciones;
+    inputmodificarmicroscopiaMuestra.value = muestra.descripcion_microscopica || "";
   }
 };
 
@@ -795,6 +804,7 @@ const modificarMuestraUpdate = async (event) => {
       fecha: inputmodificarfechaMuestra.value,
       descripcion: inputmodificardescripcionMuestra.value,
       observaciones: inputmodificarobservacionesMuestra.value,
+      descripcion_microscopica: inputmodificarmicroscopiaMuestra.value,
       tincion: selectmodificartincionMuestra.value,
     }),
   })
@@ -812,6 +822,8 @@ const modificarMuestraUpdate = async (event) => {
       // muestra__fecha.textContent = inputmodificarfechaMuestra.value;
       muestra__observaciones.textContent =
         inputmodificarobservacionesMuestra.value;
+      muestra__descripcion_microscopica.textContent =
+        inputmodificarmicroscopiaMuestra.value;
       muestra__tincion.textContent = selectmodificartincionMuestra.value;
 
       // Mostramos las muestras para que se actualicen los cambios
@@ -936,6 +948,7 @@ const rellenarDatosMuestra = async (muestra) => {
     nuevafecha.substring(0, 4);
 
   muestra__observaciones.textContent = muestra.observaciones;
+  muestra__descripcion_microscopica.textContent = muestra.descripcion_microscopica || "";
   muestra__tincion.textContent = muestra.tincion;
 };
 

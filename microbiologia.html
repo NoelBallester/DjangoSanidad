@@ -506,6 +506,11 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
+                    <label for="inputMicroscopiaMuestra" class="form-label blue__color">Descripción Microscópica</label>
+                    <textarea class="form-control blue__color" id="inputMicroscopiaMuestra"></textarea>
+                </div>
+
+                <div class="col-md-12 mt-3">
                     <label for="inputImagenesMuestra" class="form-label blue__color">Adjuntar Imagen</label>
                     <input type="file" accept="*/*" class="form-control blue__color"
                         id="inputImagenesMuestra">
@@ -566,6 +571,11 @@
                         required></textarea>
                 </div>
 
+                <div class="col-md-12 mt-3">
+                    <label for="inputmodificarmicroscopiaMuestra" class="form-label blue__color">Descripción Microscópica</label>
+                    <textarea class="form-control blue__color" id="inputmodificarmicroscopiaMuestra"></textarea>
+                </div>
+
                 <div class="col-12">
                     <button class="btn btn__modal blue__color" type="submit">Modificar Muestra procesada</button>
                 </div>
@@ -615,6 +625,9 @@
                             </li>
                             <li class="list-group-item blue__color--negrita">Diagnóstico probable:
                                 <p id="muestra__observaciones" class="blue__color microbiologia__text"></p>
+                            </li>
+                            <li class="list-group-item blue__color--negrita">Descripción Microscópica:
+                                <p id="muestra__descripcion_microscopica" class="blue__color microbiologia__text"></p>
                             </li>
                             <div id="qrMuestraContainer" class="mt-3">
                                 <canvas id="imgmuestra__qr"></canvas>
