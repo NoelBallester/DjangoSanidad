@@ -186,6 +186,42 @@ const buildResolverUrl = (code) => {
   return `${window.location.origin}${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
+const actualizarCodigoQrHematologia = (qrUrl) => {
+  window.hematologiaQrUrl = qrUrl || "";
+  const codeEl = document.getElementById("qr-code-muestras-hema");
+  const inputEl = document.getElementById("inputMuestras__qr");
+  const code = qrUrl
+    ? (() => {
+        try {
+          return new URL(qrUrl).searchParams.get("code") || qrUrl;
+        } catch (_) {
+          return qrUrl;
+        }
+      })()
+    : "";
+
+  if (codeEl) codeEl.textContent = code;
+  if (inputEl) inputEl.value = code;
+};
+
+const actualizarCodigoQrSubMuestra = (qrUrl) => {
+  window.muestraHemaQrUrl = qrUrl || "";
+  const codeEl = document.getElementById("qr-code-muestra-hema");
+  const inputEl = document.getElementById("inputmuestra__qr");
+  const code = qrUrl
+    ? (() => {
+        try {
+          return new URL(qrUrl).searchParams.get("code") || qrUrl;
+        } catch (_) {
+          return qrUrl;
+        }
+      })()
+    : "";
+
+  if (codeEl) codeEl.textContent = code;
+  if (inputEl) inputEl.value = code;
+};
+
 const limpiarParametrosQrUrl = () => {
   if (!window.history?.replaceState) return;
   window.history.replaceState({}, document.title, window.location.pathname);
@@ -978,17 +1014,19 @@ const imprimirDetalleHematologia = (h) => {
   refrescarInformesHematologia(currentHematologiaId);
 
   // QR principal
+  const hematologiaQrUrl = buildResolverUrl(h.qr_hematologia);
+  actualizarCodigoQrHematologia(hematologiaQrUrl);
+
   if (window.QRious && imgMuestras__qr) {
     new QRious({
       element: imgMuestras__qr,
-      value: buildResolverUrl(h.qr_hematologia),
+      value: hematologiaQrUrl,
       size: QR_RENDER_SIZE,
       background: "#ffffff",
       backgroundAlpha: 1,
       foreground: "#000000",
       level: "H",
     });
-    window.hematologiaQrUrl = buildResolverUrl(h.qr_hematologia);
   }
 };
 
@@ -1289,17 +1327,19 @@ const detailSubMuestra = async (muestraid) => {
   if (muestra__tincion) muestra__tincion.textContent = m.tincion || "Sin tipo";
 
   // QR sub-muestra
+  const muestraQrUrl = buildResolverUrl(m.qr_muestra);
+  actualizarCodigoQrSubMuestra(muestraQrUrl);
+
   if (window.QRious && imgmuestra__qr) {
     new QRious({
       element: imgmuestra__qr,
-      value: buildResolverUrl(m.qr_muestra),
+      value: muestraQrUrl,
       size: QR_RENDER_SIZE,
       background: "#ffffff",
       backgroundAlpha: 1,
       foreground: "#000000",
       level: "H",
     });
-    window.muestraHemaQrUrl = buildResolverUrl(m.qr_muestra);
     const modalImg = document.getElementById("imgmuestra__qr_modal");
     if (modalImg) {
       modalImg.src = imgmuestra__qr.toDataURL ? imgmuestra__qr.toDataURL() : imgmuestra__qr.src;
