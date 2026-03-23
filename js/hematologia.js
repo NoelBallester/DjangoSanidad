@@ -58,6 +58,8 @@ const muestrasTecnicoId = document.getElementById("Muestras__tecnico_id");
 const muestrasCaracteristicas = document.getElementById("Muestras__caracteristicas");
 const muestrasObservaciones = document.getElementById("Muestras__observaciones");
 const muestrasDiagnostico = document.getElementById("Muestras__diagnostico");
+const muestrasVolanteWrapper = document.getElementById("Muestras__volanteWrapper");
+const muestrasVolanteText = document.getElementById("Muestras__volanteText");
 
 // Botones de acción en detalle principal
 const btnEliminarHematologia = document.getElementById("btnEliminarHematologia");
@@ -927,6 +929,20 @@ const imprimirDetalleHematologia = (h) => {
   if (muestrasObservaciones) muestrasObservaciones.textContent = h.observaciones || "";
   if (muestrasDiagnostico) {
     muestrasDiagnostico.textContent = h.diagnostico_final || "";
+  }
+
+  // Renderizar el Volante de Petición
+  if (muestrasVolanteWrapper && muestrasVolanteText) {
+      if (h.volante_peticion_url) {
+          const fileName = h.volante_peticion_nombre || "Volante_Adjunto.pdf";
+          muestrasVolanteWrapper.innerHTML = `
+              <a href="${h.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-info d-block mt-2">
+                  <i class="fa-solid fa-file-pdf me-2"></i>Ver ${fileName}
+              </a>
+          `;
+      } else {
+          muestrasVolanteWrapper.innerHTML = `<span id="Muestras__volanteText" class="blue__color">No adjuntado</span>`;
+      }
   }
 
   // Rellenar campos del informe
