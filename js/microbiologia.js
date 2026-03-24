@@ -336,7 +336,7 @@ const resolverTextoEscaneado = async (text) => {
     return;
   }
 
-  alert("No se encontró ningún registro para ese QR.");
+  window.location.href = `${qrResolverBase}?code=${encodeURIComponent(code)}`;
 };
 
 const irConsultaQr = async () => {
@@ -1686,10 +1686,11 @@ const borrarMuestra = async () => {
 
 const consultarMicrobiologiaQR = async (qr, silent = false) => {
   const response = await fetch(`/api/microbiologias/qr/${encodeURIComponent(qr)}/`);
-  let microbiologia = await response.json();
-  if (microbiologia.length > 0) {
-    imprimirMicrobiologias(microbiologia);
-    microbiologia = microbiologia[0];
+  let lista = await response.json();
+  if (lista.length > 0) {
+    const todas = await cargarTodosMicrobiologias();
+    imprimirMicrobiologias(todas);
+    const microbiologia = lista[0];
     imprimirDataMicrobiologia(microbiologia);
     microbiologiaId = microbiologia.id_muestra;
     let muestras_resp = await cargarMuestras(microbiologiaId);

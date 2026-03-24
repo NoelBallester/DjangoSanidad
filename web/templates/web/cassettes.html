@@ -446,7 +446,7 @@
                                         <i class="fa-solid fa-qrcode blue__color--negrita"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-link p-0 me-1"
-                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
+                                            onclick="abrirEditarMuestra({{ item.muestra.pk }}, '{{ item.muestra.numero_bloque|default:''|escapejs }}', '{{ item.muestra.descripcion_macroscopica|default:item.muestra.descripcion|escapejs }}', '{{ item.muestra.fecha|date:"Y-m-d" }}', '{{ item.muestra.tincion|escapejs }}', '{{ item.muestra.observaciones|default:''|escapejs }}')"
                                             title="Modificar">
                                         <i class="fa-solid fa-file-pen blue__color--negrita"></i>
                                     </button>
@@ -691,7 +691,7 @@
                                 <i title="Borrar Muestra" class="fa-solid fa-trash-can cassette__icon cassette__icon--infocassette"></i>
                             </div>
                             <div style="cursor:pointer;"
-                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.descripcion_macroscopica|default:selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
+                                onclick="abrirEditarMuestra({{ selected_muestra_item.muestra.pk }}, '{{ selected_muestra_item.muestra.numero_bloque|default:''|escapejs }}', '{{ selected_muestra_item.muestra.descripcion_macroscopica|default:selected_muestra_item.muestra.descripcion|escapejs }}', '{{ selected_muestra_item.muestra.fecha|date:"Y-m-d" }}', '{{ selected_muestra_item.muestra.tincion|escapejs }}', '{{ selected_muestra_item.muestra.observaciones|default:''|escapejs }}')">
                                 <i title="Modificar Muestra" class="fa-solid fa-file-pen cassette__icon cassette__icon--infocassette"></i>
                             </div>
                         </div>
@@ -699,6 +699,9 @@
 
                     <section class="row mt-3">
                         <div class="col-4 border-end text-start">
+                            <li class="list-group-item blue__color--negrita">Número de Bloque:
+                                <p class="cassette__text">{{ selected_muestra_item.muestra.numero_bloque|default:'-' }}</p>
+                            </li>
                             <li class="list-group-item blue__color--negrita">Descripción Microscópica:
                                 <p class="muestradescripcion__text">{{ selected_muestra_item.muestra.descripcion_macroscopica|default:selected_muestra_item.muestra.descripcion }}</p>
                             </li>
@@ -772,6 +775,10 @@
                 </div>
                 <hr>
                 <input type="hidden" name="descripcion" id="editMuestraDescripcionHidden">
+                <div class="col-md-12">
+                    <label class="form-label blue__color">Número de Bloque</label>
+                    <input type="text" name="numero_bloque" id="editMuestraBloque" class="form-control">
+                </div>
                 <div class="col-md-12">
                     <label class="form-label blue__color">Descripción Microscópica</label>
                     <textarea name="descripcion_macroscopica" id="editMuestraDescripcion" class="form-control" required></textarea>
@@ -1180,9 +1187,10 @@
         })();
 
         // ── Abrir modal editar muestra con datos pre-cargados ─────────────────
-        function abrirEditarMuestra(pk, descripcion, fecha, tincion, observaciones) {
+        function abrirEditarMuestra(pk, bloque, descripcion, fecha, tincion, observaciones) {
             const form = document.getElementById('formModificarMuestra');
             form.action = `/muestras/${pk}/editar/`;
+            document.getElementById('editMuestraBloque').value = bloque;
             document.getElementById('editMuestraDescripcion').value = descripcion;
             document.getElementById('editMuestraDescripcionHidden').value = descripcion;
             document.getElementById('editMuestraFecha').value = fecha;
