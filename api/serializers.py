@@ -3,13 +3,11 @@ import binascii
 import logging
 import uuid
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-logger = logging.getLogger(__name__)
 from .models import (
     Cassette,
     CatalogoOpcion,
@@ -33,6 +31,8 @@ from .models import (
     Tecnico,
     Tubo,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _validar_catalogo(tipo, valor, campo):
@@ -63,13 +63,13 @@ class QrUnicoValidatorMixin:
     sea *este* validador —y no el genérico de DRF— el que produzca el error.
     """
 
-    qr_field: str = None
+    qr_field: str | None = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.qr_field:
             return
-        field = self.fields.get(self.qr_field)
+        field = self.fields.get(self.qr_field)  # type: ignore[attr-defined]
         if field is None:
             return
         # Sustituir cualquier UniqueValidator auto-generado por DRF por uno con
@@ -130,11 +130,6 @@ class FileUrlSerializerMixin:
         # (datos legados almacenados como path de archivo)
         model_name = self._PROXY_MODEL_NAMES.get(instance.__class__.__name__)
         if model_name and instance.pk:
-            field_obj = (
-                instance._meta.get_field(field_name)
-                if hasattr(instance._meta, "get_field")
-                else None
-            )
             # Comprobar si el campo es un FileField/ImageField con valor
             try:
                 if archivo and hasattr(archivo, "name") and archivo.name:

@@ -41,7 +41,7 @@ El problema que resuelve: los laboratorios de FP gestionaban sus registros en pa
 - Un centro educativo en producción con la aplicación instalada. [verificar con el equipo qué centro]
 - Pendiente de implantación en IES Ramón y Cajal.
 - Convive actualmente con un sistema PHP legado (PHPSanidad) al que sirve datos a través de la API REST.
-- La API y la UI de plantillas están feature-complete. No existen tests automáticos.
+- La API y la UI de plantillas están feature-complete. La suite de tests automáticos cubre seguridad, validación, permisos y flujos CRUD (`api/tests.py` + `web/tests.py`: **217 tests**, todos verdes, ~150 s con BD en memoria).
 
 ### 1.3 Números clave
 
@@ -56,6 +56,7 @@ El problema que resuelve: los laboratorios de FP gestionaban sus registros en pa
 | Apps Django | 2 (`api`, `web`) |
 | Roles de usuario | 3 (`profesor`, `anatomia_patologica`, `laboratorio`) |
 | Centros en producción | 1 [verificar con el equipo] |
+| Tests automáticos (`api` + `web`) | 217 |
 
 ---
 
@@ -72,6 +73,8 @@ El problema que resuelve: los laboratorios de FP gestionaban sus registros en pa
 | QR | qrcode | 8.2 | Generación de códigos QR para trazabilidad de muestras | — |
 | Despliegue portátil | PyInstaller | (dev-dep) | Empaqueta toda la aplicación en un ejecutable `.exe` sin que el centro necesite Python instalado | Docker — no disponible en equipos Windows de aula sin administrador de dominio |
 | Autenticación | Sesión Django (cookie) | — | Sin configuración adicional, funciona con navegador, no requiere cliente HTTP especial | JWT — añade complejidad innecesaria para una app de intranet con un solo servidor |
+| Type stubs (dev) | django-stubs + djangorestframework-stubs | 6.0.3 / 3.16.9 | Proveen tipos estáticos a Pyright/Pylance para los modelos ORM y los serializers DRF, eliminando ~300 falsos positivos en el IDE | — |
+| Type checker (dev) | mypy + mypy_django_plugin + mypy_drf_plugin | ≥1.13 | Análisis estático offline; configurado en `mypy.ini` con `django_settings_module = core.settings` | — |
 | Servidor HTTP | `runserver` de Django | — | Suficiente para intranet local; no expuesto a internet | Gunicorn/Waitress — el modo portátil no los incluye; previsto en el roadmap |
 | Servidor estático | Django (sirve directamente) | — | Sin Nginx disponible en entorno portátil; `core/urls.py` registra rutas para `css/`, `js/`, `assets/` | Nginx/WhiteNoise — adecuado en producción real, innecesario en despliegue local |
 
@@ -211,6 +214,8 @@ Model
 ### 3.4 Soft-delete (`api/models.py:95-143`)
 
 `SoftDeleteModel` añade `is_deleted BooleanField(default=False, db_index=True)`. El manager por defecto (`objects`) filtra `is_deleted=False` automáticamente. Para acceder a todos los registros se usa `all_objects`. La eliminación en cascada de imágenes hijas se gestiona en `_cascade_soft_delete_children()` (`api/models.py:123-131`) y en `_soft_delete_related_images()` en `api/views.py:206-213`.
+
+> **Nota (corrección aplicada):** `_cascade_soft_delete_children` itera `_meta.related_objects` y llama a `relation.get_accessor_name()`, que puede devolver `None`. Se añadió una guarda `if accessor is None: continue` para evitar un `TypeError` silencioso al pasar `None` a `getattr`.
 
 Las tablas de registro principal (Cassette, Citologia, Necropsia, Tubo, Hematologia, Microbiologia) **no tienen soft-delete** — se eliminan físicamente. Solo las sub-muestras (`Muestra*`) e imágenes (`Imagen*`) tienen soft-delete.
 
@@ -388,7 +393,12 @@ DjangoSanidad/
 ├── AUTO_DESCARGAR_E_INICIAR_DJANGOSANIDAD.bat  Instalación desatendida 1-clic
 ├── INICIAR_DJANGOSANIDAD_WINDOWS.bat           Arranque diario en el centro
 ├── ELIMINAR_DJANGOSANIDAD_COMPLETAMENTE.bat    Desinstalación limpia
-├── requirements.txt            8 dependencias Python
+├── requirements.txt            11 dependencias Python (8 de producción + 3 de type-checking:
+│                               django-stubs, django-stubs-ext, djangorestframework-stubs)
+├── pyrightconfig.json          Configuración de Pyright/Pylance: apunta al venv, Python 3.14,
+│                               modo de comprobación básico
+├── mypy.ini                    Configuración de mypy con los plugins django y drf;
+│                               `django_settings_module = core.settings`
 ├── .env.example                Plantilla de variables de entorno
 ├── .env                        Variables activas (en .gitignore)
 ├── db.sqlite3                  Base de datos de producción (19 MB actualmente)
@@ -1004,7 +1014,7 @@ Cuando PHPSanidad se apague:
 |---|---|---|---|---|
 | 1 | SQLite concurrencia | **Alta** | SQLite usa bloqueo a nivel de fichero. Con >5 usuarios concurrentes escribiendo simultáneamente pueden producirse errores `OperationalError: database is locked`. Aceptable para una sola aula; inaceptable si se añaden más centros o módulos online. | Migración a MySQL: 1-2 días |
 | 2 | `DJANGO_CORS_ALLOWED_ORIGINS` ausente en `.bat` | **Alta** | `AUTO_DESCARGAR.bat` e `INICIAR.bat` crean un `.env` sin `DJANGO_CORS_ALLOWED_ORIGINS`. Django lanza `ImproperlyConfigured` al arrancar. El `launcher_portable.py` sí lo establece correctamente. Fix: añadir la línea al bloque de creación del `.env` en ambos `.bat`. | 5 minutos |
-| 3 | Sin tests automáticos | **Alta** | No hay ningún test unitario ni de integración. Los ficheros `api/tests.py` y `web/tests.py` existen pero están vacíos. Cualquier refactor o migración es ciego. | 2-4 semanas para cobertura básica |
+| 3 | ~~Sin tests automáticos~~ | ~~**Alta**~~ **Resuelto** | 217 tests automáticos en `api/tests.py` y `web/tests.py` cubriendo seguridad, validación de imágenes, control de acceso por rol, helpers, serializers y flujos CRUD. Pendiente: integrar la ejecución en CI (ver §14.5). | — |
 | 4 | `runserver` en producción | **Alta** | El servidor de desarrollo Django no está diseñado para producción: no soporta múltiples workers, no gestiona keepalive adecuadamente, sin compresión gzip. Para un aula de 10 alumnos es tolerable; para uso simultáneo desde múltiples aulas, no. | 1-2 días (Waitress + script de arranque) |
 | 5 | `SECRET_KEY` generada por `.bat` sin `CORS` | **Media** | Relacionado con el riesgo 2. Si el usuario usa el `.bat` y Django no arranca, puede no saber por qué. | Fix junto con riesgo 2 |
 | 6 | Migraciones con numeración duplicada | **Media** | Hay 7 pares de migraciones con el mismo número (`0006_*`, `0007_*`, `0018_*`, `0030_*` etc.) resueltos con `merge_*`. En BD nueva funcionan bien, pero el historial hace difícil el rollback selectivo. | Squash de migraciones: 1 día |
@@ -1075,7 +1085,7 @@ Si la aplicación necesita ser accesible desde fuera del centro (profesores en c
 Un pipeline mínimo con GitHub Actions:
 - Lint con `flake8` o `ruff`.
 - `python manage.py migrate --run-syncdb` contra una BD test.
-- Los tests Django cuando existan.
+- `python manage.py test api web` (217 tests, ~150 s).
 
 ---
 

@@ -101,6 +101,8 @@ class SoftDeleteModel(models.Model):
             ):
                 continue
             accessor = relation.get_accessor_name()
+            if accessor is None:
+                continue
             related_manager = getattr(self, accessor, None)
             if related_manager is not None:
                 related_manager.all().update(is_deleted=True)
@@ -313,6 +315,7 @@ class Cassette(RegistroConInforme):
 
 class Muestra(MuestraBase):
     id_muestra = models.AutoField(primary_key=True)
+    cassette_id: int  # FK attrib generado por Django
     cassette = models.ForeignKey(Cassette, on_delete=models.CASCADE)
     numero_bloque = models.CharField(max_length=100, null=True, blank=True)
     descripcion_macroscopica = models.TextField(null=True, blank=True)
@@ -323,6 +326,7 @@ class Muestra(MuestraBase):
 
 class Imagen(ImagenBase):
     id_imagen = models.AutoField(primary_key=True)
+    muestra_id: int  # FK attrib generado por Django
     muestra = models.ForeignKey(Muestra, on_delete=models.CASCADE)
 
     class Meta:
@@ -353,6 +357,7 @@ class Citologia(RegistroConInforme):
 
 class MuestraCitologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column="id")
+    citologia_id: int  # FK attrib generado por Django
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     citologia = models.ForeignKey(
         Citologia, on_delete=models.CASCADE, db_column="citologia_id"
@@ -366,6 +371,7 @@ class MuestraCitologia(MuestraBase):
 
 class ImagenCitologia(ImagenBase):
     id_imagen = models.AutoField(primary_key=True, db_column="id")
+    muestra_id: int  # FK attrib generado por Django
     muestra = models.ForeignKey(
         MuestraCitologia, on_delete=models.CASCADE, db_column="muestra_id"
     )
@@ -397,6 +403,7 @@ class Necropsia(RegistroConInforme):
 
 class MuestraNecropsia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column="id")
+    necropsia_id: int  # FK attrib generado por Django
     descripcion_microscopica = models.TextField(null=True, blank=True)
     examen_interno_cadaver = models.TextField(null=True, blank=True)
     tecnica_apertura = models.CharField(max_length=255, null=True, blank=True)
@@ -414,6 +421,7 @@ class MuestraNecropsia(MuestraBase):
 
 class ImagenNecropsia(ImagenBase):
     id_imagen = models.AutoField(primary_key=True, db_column="id")
+    muestra_id: int  # FK attrib generado por Django
     muestra = models.ForeignKey(
         MuestraNecropsia, on_delete=models.CASCADE, db_column="muestra_id"
     )
@@ -439,6 +447,7 @@ class Tubo(RegistroConInforme):
 
 class MuestraTubo(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column="id")
+    tubo_id: int  # FK attrib generado por Django
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     tubo = models.ForeignKey(Tubo, on_delete=models.CASCADE, db_column="tubo_id")
     descripcion_microscopica = models.TextField(null=True, blank=True)
@@ -474,6 +483,7 @@ class Hematologia(RegistroConInforme):
 
 class MuestraHematologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column="id")
+    hematologia_id: int  # FK attrib generado por Django
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     hematologia = models.ForeignKey(
         Hematologia, on_delete=models.CASCADE, db_column="hematologia_id"
@@ -511,6 +521,7 @@ class Microbiologia(RegistroConInforme):
 
 class MuestraMicrobiologia(MuestraBase):
     id_muestra = models.AutoField(primary_key=True, db_column="id")
+    microbiologia_id: int  # FK attrib generado por Django
     qr_imagen = models.CharField(max_length=100, null=True, blank=True)
     microbiologia = models.ForeignKey(
         Microbiologia, on_delete=models.CASCADE, db_column="microbiologia_id"

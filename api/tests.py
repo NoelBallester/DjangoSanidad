@@ -16,11 +16,8 @@ from .models import (
     Citologia,
     Hematologia,
     Imagen,
-    ImagenCitologia,
     ImagenHematologia,
-    ImagenMicrobiologia,
     ImagenNecropsia,
-    ImagenTubo,
     InformeResultado,
     Microbiologia,
     Muestra,
@@ -60,6 +57,8 @@ def make_cassette(qr="QRCASS01"):
 
 
 class ApiPermissionTests(TestCase):
+    client: APIClient
+
     def setUp(self):
         self.client = APIClient()
         self.tecnico = make_tecnico(email="perm@test.com")
@@ -123,6 +122,8 @@ class ApiPermissionTests(TestCase):
 
 
 class ApiLoginTests(TestCase):
+    client: APIClient
+
     def setUp(self):
         self.client = APIClient()
         self.tecnico = make_tecnico(password="clave123", email="login@test.com")
@@ -154,6 +155,8 @@ class ApiLoginTests(TestCase):
 
 
 class ImagenEndpointTests(TestCase):
+    client: APIClient
+
     def setUp(self):
         self.client = APIClient()
         self.tecnico = make_tecnico(email="img@test.com")
@@ -371,7 +374,7 @@ class ImagenEndpointTests(TestCase):
             hematologia=hematologia,
         )
         webp_bytes = b"RIFF\x00g\x00\x00WEBPVP8 " + b"0" * 32
-        imagen = ImagenHematologia.objects.create(
+        _imagen = ImagenHematologia.objects.create(
             muestra=muestra,
             imagen=ContentFile(webp_bytes, name="test.webp"),
         )
@@ -418,6 +421,8 @@ class ValidacionImagenAPITests(TestCase):
     Cubre _validar_imagen_api (tamaño máximo y magic bytes alternativos),
     _sanitize_filename y las cabeceras de seguridad que añade proxy_file.
     """
+
+    client: APIClient
 
     def setUp(self):
         self.client = APIClient()
@@ -556,6 +561,8 @@ class ValidacionImagenAPITests(TestCase):
 
 
 class FileProxyRoleAuthorizationTests(TestCase):
+    client: APIClient
+
     def setUp(self):
         self.client = APIClient()
         self.lab = make_tecnico(email="lab-proxy@test.com")
@@ -715,6 +722,8 @@ class FileProxyRoleAuthorizationTests(TestCase):
 
 
 class ApiCustomActionTests(TestCase):
+    client: APIClient
+
     def setUp(self):
         self.client = APIClient()
         self.tecnico = make_tecnico(email="acciones@test.com")
@@ -773,6 +782,8 @@ class SerializadorValidacionTests(TestCase):
     Cubre QrUnicoValidatorMixin y las validaciones de InformeResultadoSerializer:
     destino único, múltiples destinos e imagen en formato data URL.
     """
+
+    client: APIClient
 
     def setUp(self):
         self.client = APIClient()

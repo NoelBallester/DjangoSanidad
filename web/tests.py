@@ -270,6 +270,10 @@ class AnatomiaPatologicaLegacyDbTests(TestCase):
         citologia = Citologia.objects.first()
         necropsia = Necropsia.objects.first()
         hematologia = Hematologia.objects.first()
+        assert cassette is not None
+        assert citologia is not None
+        assert necropsia is not None
+        assert hematologia is not None
 
         with patch(
             "web.views.InformeResultado.objects.filter",
@@ -327,6 +331,7 @@ class ImageHelperTests(TestCase):
         imagen.refresh_from_db()
 
         self.assertTrue(imagen.imagen.name)
+        assert imagen.imagen.name is not None
         self.assertTrue(imagen.imagen.name.startswith("imagenes/"))
         self.assertTrue(imagen.imagen.path.startswith(str(settings.MEDIA_ROOT)))
         self.assertTrue(os.path.exists(imagen.imagen.path))
@@ -431,6 +436,7 @@ class VolanteSecurityTests(TestCase):
         cassette.refresh_from_db()
 
         self.assertTrue(cassette.volante_peticion.name)
+        assert cassette.volante_peticion.name is not None
         self.assertTrue(cassette.volante_peticion.name.startswith("volantes/"))
         self.assertTrue(
             cassette.volante_peticion.path.startswith(str(settings.MEDIA_ROOT))
@@ -899,6 +905,7 @@ class MuestraTests(TestCase):
             cassette=self.cassette, numero_bloque="B-101"
         ).first()
         self.assertIsNotNone(muestra)
+        assert muestra is not None
         self.assertEqual(muestra.descripcion, "B-101")
         self.assertEqual(
             muestra.descripcion_macroscopica, "Tejido con alteraciones leves"
@@ -1012,6 +1019,7 @@ class CassetteExtrasTests(TestCase):
         )
         c = Cassette.objects.filter(cassette="C100").first()
         self.assertIsNotNone(c)
+        assert c is not None
         self.assertTrue(c.qr_casette.startswith("--c--"))
 
     def test_crear_cassette_asocia_tecnico_actual(self):
@@ -1169,6 +1177,7 @@ class MuestraCassetteExtrasTests(TestCase):
         )
         m = Muestra.objects.filter(descripcion="Muestra QR").first()
         self.assertIsNotNone(m)
+        assert m is not None
         self.assertTrue(m.qr_muestra.startswith("--m--"))
 
     def test_subir_imagen_a_muestra(self):
@@ -1238,6 +1247,7 @@ class MuestraCitologiaTests(TestCase):
         )
         m = MuestraCitologia.objects.filter(descripcion="MC QR").first()
         self.assertIsNotNone(m)
+        assert m is not None
         self.assertTrue(m.qr_muestra.startswith("--mc--"))
 
     def test_actualizar_muestra_citologia(self):
@@ -1457,6 +1467,7 @@ class MuestraHematologiaTests(TestCase):
         )
         m = MuestraHematologia.objects.filter(descripcion="MH QR").first()
         self.assertIsNotNone(m)
+        assert m is not None
         self.assertTrue(m.qr_muestra.startswith("--mh--"))
 
     def test_actualizar_muestra_hematologia(self):
@@ -1545,6 +1556,7 @@ class InformeCassetteTests(TestCase):
         )
         informe = informe_qs_for(self.cassette).first()
         self.assertIsNotNone(informe)
+        assert informe is not None
         self.assertEqual(informe.descripcion, "Desc informe")
 
     def test_actualizar_informe_existente_no_duplica(self):

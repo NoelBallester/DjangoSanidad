@@ -44,10 +44,7 @@ from .forms import (
     CassetteForm,
     CitologiaForm,
     HematologiaForm,
-    ImagenCitologiaForm,
-    ImagenForm,
     ImagenHematologiaForm,
-    ImagenNecropsiaForm,
     InformeForm,
     MuestraCitologiaForm,
     MuestraForm,
@@ -394,7 +391,7 @@ def cassette_create(request):
                 _guardar_volante_peticion(volante_file, c)
             c.save()
             return redirect(reverse("cassettes") + f"?cassette={c.pk}")
-        except Exception as e:
+        except Exception:
             logger.exception("Error al guardar cassette user=%s", request.user.pk)
             messages.error(
                 request,
@@ -402,9 +399,9 @@ def cassette_create(request):
             )
             return redirect("cassettes")
     error_detail = "; ".join(
-        f"{form.fields[k].label or k}: {', '.join(v)}"
+        f"{form.fields[k].label or k}: {', '.join(str(e) for e in v)}"
         if k != "__all__"
-        else ", ".join(v)
+        else ", ".join(str(e) for e in v)
         for k, v in form.errors.items()
     )
     messages.error(request, f"Error al crear el cassette — {error_detail}")
@@ -533,7 +530,7 @@ def muestra_create(request, cassette_pk):
 
     errores = []
     for field, mensajes in form.errors.items():
-        label = form.fields.get(field).label if field in form.fields else field
+        label = form.fields[field].label if field in form.fields else field
         for mensaje in mensajes:
             errores.append(f"{label}: {mensaje}")
     messages.error(request, "No se pudo crear la muestra. " + " ".join(errores))
@@ -859,7 +856,7 @@ def citologia_create(request):
                 _guardar_volante_peticion(volante_file, c)
             c.save()
             return redirect(reverse("citologias") + f"?citologia={c.pk}")
-        except Exception as e:
+        except Exception:
             logger.exception("Error al guardar citologia user=%s", request.user.pk)
             messages.error(
                 request,
@@ -867,9 +864,9 @@ def citologia_create(request):
             )
             return redirect("citologias")
     error_detail = "; ".join(
-        f"{form.fields[k].label or k}: {', '.join(v)}"
+        f"{form.fields[k].label or k}: {', '.join(str(e) for e in v)}"
         if k != "__all__"
-        else ", ".join(v)
+        else ", ".join(str(e) for e in v)
         for k, v in form.errors.items()
     )
     messages.error(request, f"Error al crear la citología — {error_detail}")
@@ -1108,7 +1105,7 @@ def necropsia_list(request):
             },
             "tipos_autopsia": [
                 choice
-                for choice in NecropsiaForm().fields["tipo_necropsia"].choices
+                for choice in NecropsiaForm().fields["tipo_necropsia"].choices  # type: ignore[attr-defined]
                 if choice[0]
             ],
             "todos_numeros": list(
@@ -1133,17 +1130,17 @@ def necropsia_create(request):
                 _guardar_volante_peticion(volante_file, n)
             n.save()
             return redirect(reverse("necropsias") + f"?necropsia={n.pk}")
-        except Exception as e:
-            logger.exception("Error al guardar autopsia user=%s", request.user.pk)
+        except Exception:
+            logger.exception("Error al guardar necropsia user=%s", request.user.pk)
             messages.error(
                 request,
                 "Error interno al guardar la autopsia. Contacta con el administrador.",
             )
             return redirect("necropsias")
     error_detail = "; ".join(
-        f"{form.fields[k].label or k}: {', '.join(v)}"
+        f"{form.fields[k].label or k}: {', '.join(str(e) for e in v)}"
         if k != "__all__"
-        else ", ".join(v)
+        else ", ".join(str(e) for e in v)
         for k, v in form.errors.items()
     )
     messages.error(request, f"Error al crear la autopsia — {error_detail}")
@@ -1182,7 +1179,7 @@ def necropsia_informe(request, pk):
         Necropsia,
         "necropsia",
         "necropsias",
-        form_class=NecropsiaInformeForm,
+        form_class=NecropsiaInformeForm,  # type: ignore[arg-type]
     )
 
 

@@ -4,13 +4,12 @@ import os
 import uuid
 from datetime import datetime
 
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
-from django.http import FileResponse, Http404, HttpResponse
+from django.db.models import QuerySet
+from django.http import FileResponse, Http404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -272,7 +271,7 @@ class ActualizarInformeMixin:
 
     @action(detail=True, methods=["post"])
     def actualizar_informe(self, request, pk=None):
-        instance = self.get_object()
+        instance = self.get_object()  # type: ignore[attr-defined]
         data = request.data
 
         campos_simples = (
@@ -296,7 +295,7 @@ class ActualizarInformeMixin:
             )
 
         instance.save()
-        return Response(self.get_serializer(instance).data)
+        return Response(self.get_serializer(instance).data)  # type: ignore[attr-defined]
 
 
 class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
@@ -306,16 +305,17 @@ class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
     las subclases declaran `qr_prefix` y `qr_field`.
     """
 
-    qr_prefix: str = None
-    qr_field: str = None
+    qr_prefix: str | None = None
+    qr_field: str | None = None
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:  # type: ignore[override]
         """PERF-3: Excluir BinaryFields en listados para evitar cargar MB de datos."""
         qs = (
             super().get_queryset()
             if hasattr(super(), "get_queryset")
-            else self.queryset
+            else self.queryset.all()  # type: ignore[union-attr]  # siempre configurado por subclases
         )
+        assert qs is not None, "queryset debe estar configurado en la subclase"
         if self.action in ("list", "todos", "index"):
             # Usar defer() para excluir BinaryFields en listados
             qs = qs.defer("volante_peticion", "informe_imagen")
@@ -325,7 +325,9 @@ class RegistroViewSet(ActualizarInformeMixin, viewsets.ModelViewSet):
         data = request.data.copy()
         if self.qr_field and not data.get(self.qr_field):
             data[self.qr_field] = generar_qr_unico(
-                self.qr_prefix, self.queryset.model, self.qr_field
+                self.qr_prefix,
+                self.queryset.model,  # type: ignore[union-attr]
+                self.qr_field,
             )
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
