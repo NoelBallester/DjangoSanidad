@@ -1,0 +1,408 @@
+GUÍA DE IMPLANTACIÓN — DjangoSanidad
+Para: IES Ramón y Cajal
+Versión: 1.0 | Fecha: Abril 2026
+================================================================================
+
+
+ÍNDICE
+------
+1. Descripción del aplicativo
+2. Tecnologías y frameworks utilizados
+3. Requisitos del equipo donde se implanta
+4. Modalidades de implantación
+   4.1. Modalidad A — Ejecutable portátil (la más sencilla)
+   4.2. Modalidad B — Despliegue automático desde repositorio (recomendada)
+   4.3. Modalidad C — Instalación manual desde código fuente
+5. Base de datos
+6. Fichero de configuración (.env)
+7. Primer arranque y usuario administrador
+8. Acceso desde otros equipos de la red
+9. Apagar el servidor
+10. Desinstalar completamente
+
+
+================================================================================
+1. DESCRIPCIÓN DEL APLICATIVO
+================================================================================
+
+DjangoSanidad es una aplicación web de gestión de laboratorio veterinario y
+anatomía patológica. Permite registrar, consultar y gestionar muestras
+biológicas de distintos tipos (histología, citología, necropsia, hematología,
+microbiología y tubo/tejido), generando códigos QR de trazabilidad, informes de
+resultados y volantes de petición.
+
+La aplicación se ejecuta localmente en un equipo Windows de la red del centro.
+El acceso se realiza desde cualquier navegador web apuntando a la IP del equipo
+servidor.
+
+
+================================================================================
+2. TECNOLOGÍAS Y FRAMEWORKS UTILIZADOS
+================================================================================
+
+La aplicación está desarrollada con las siguientes tecnologías:
+
+  Lenguaje de programación ......... Python 3.12
+  Framework web .................... Django 6.0.3
+  API REST ......................... Django REST Framework 3.16.1
+  Base de datos .................... SQLite3 (integrada en Python, sin servidor)
+  Driver MySQL (uso futuro) ........ PyMySQL 1.1.2
+  Procesamiento de imágenes ........ Pillow 12.1.1
+  Generación de códigos QR ......... qrcode 8.2
+  CORS (acceso desde red local) .... django-cors-headers 4.9.0
+  Empaquetado ejecutable ........... PyInstaller 6.x
+
+No requiere Apache, Nginx, IIS ni ningún servidor web externo. Django incluye
+su propio servidor de aplicaciones, suficiente para uso en intranet.
+
+
+================================================================================
+3. REQUISITOS DEL EQUIPO DONDE SE IMPLANTA
+================================================================================
+
+  Sistema operativo ............... Windows 10 / Windows 11 (64 bits)
+  RAM mínima ...................... 4 GB (recomendado 8 GB)
+  Espacio en disco ................ 500 MB libres (para la aplicación)
+                                    + espacio adicional para imágenes y PDFs
+                                    almacenados en la base de datos
+  Conexión a red .................. Necesaria solo en la Modalidad B
+                                    (descarga automática desde GitHub)
+  Navegador web ................... Google Chrome, Firefox, Edge (versiones
+                                    actuales). No requiere instalación especial.
+
+  MODALIDAD A (ejecutable portátil):
+    - No requiere instalar nada. Python ya va incluido en el ejecutable.
+
+  MODALIDAD B y C (desde código fuente):
+    - Python 3.10 o superior (se puede instalar automáticamente, ver apartado 4.2)
+    - Conexión a internet para la primera instalación (descarga de dependencias)
+
+
+================================================================================
+4. MODALIDADES DE IMPLANTACIÓN
+================================================================================
+
+Hay tres formas de implantar el aplicativo. Se recomienda la Modalidad B para
+centros que quieran recibir actualizaciones fácilmente.
+
+
+--------------------------------------------------------------------------------
+4.1. MODALIDAD A — EJECUTABLE PORTÁTIL (la más sencilla)
+--------------------------------------------------------------------------------
+
+Esta es la modalidad que se utilizó para la prueba inicial. Consiste en una
+carpeta que contiene un archivo .exe que incluye Python, Django y toda la
+aplicación ya compilada. No requiere instalar nada en el equipo.
+
+Pasos:
+  1. Copiar la carpeta "DjangoSanidad" (que contiene DjangoSanidad.exe y la
+     subcarpeta _internal) en el equipo destino. Se puede copiar en cualquier
+     ubicación (escritorio, C:\DjangoSanidad, pendrive, etc.).
+
+  2. Hacer doble clic en DjangoSanidad.exe.
+
+  3. Se abrirá una ventana de consola negra. Esperar a que aparezca el mensaje:
+       "Starting development server at http://0.0.0.0:8000/"
+     Esto indica que el servidor está en marcha.
+
+  4. Abrir un navegador web en ESE MISMO equipo y acceder a:
+       http://127.0.0.1:8000/
+
+IMPORTANTE sobre la base de datos en esta modalidad:
+  La base de datos (db.sqlite3) está dentro de la carpeta _internal del
+  ejecutable. Los datos que se introduzcan quedarán guardados allí. Si se
+  actualiza el ejecutable o se reemplaza la carpeta, SE PERDERÁN LOS DATOS.
+  Para hacer copias de seguridad, copiar el fichero db.sqlite3 de:
+    DjangoSanidad\_internal\db.sqlite3
+
+LIMITACIÓN: Esta modalidad no recibe actualizaciones automáticas. Para
+actualizar habría que reemplazar la carpeta con una nueva versión del ejecutable,
+con el riesgo de pérdida de datos descrito arriba. Por eso se recomienda la
+Modalidad B para uso permanente.
+
+
+--------------------------------------------------------------------------------
+4.2. MODALIDAD B — DESPLIEGUE AUTOMÁTICO (recomendada)
+--------------------------------------------------------------------------------
+
+Esta modalidad descarga el código fuente desde el repositorio oficial en GitHub,
+instala automáticamente Python si no está presente, configura el entorno y
+arranca la aplicación. Todo con doble clic.
+
+Requisitos previos:
+  - El equipo debe tener conexión a internet en el momento de la instalación.
+  - Windows 10/11 con winget disponible (incluido en Windows 11 y en Windows 10
+    actualizado a partir de 2021).
+
+Pasos:
+  1. Descargar el fichero AUTO_DESCARGAR_E_INICIAR_DJANGOSANIDAD.bat del
+     repositorio o recibirlo del centro cedente.
+
+  2. Colocar el .bat en la carpeta donde se quiera instalar la aplicación
+     (por ejemplo, C:\DjangoSanidad\ o en el Escritorio).
+
+  3. Hacer doble clic en AUTO_DESCARGAR_E_INICIAR_DJANGOSANIDAD.bat.
+
+  4. El script realizará automáticamente las siguientes acciones:
+       a) Detectar si Python 3.12 está instalado. Si no lo está, lo instalará
+          usando winget (requiere confirmación de UAC).
+       b) Descargar el código fuente desde GitHub (usando Git si está disponible,
+          o descargando el ZIP en caso contrario).
+       c) Crear un entorno virtual de Python dentro de la carpeta del proyecto.
+       d) Instalar todas las dependencias del proyecto (Django, PIL, qrcode...).
+       e) Generar automáticamente el fichero de configuración .env con una clave
+          secreta única para esta instalación.
+       f) Aplicar las migraciones de base de datos (crear las tablas en db.sqlite3).
+       g) Arrancar el servidor en el puerto 8000 (o el siguiente disponible).
+       h) Abrir automáticamente el navegador en http://127.0.0.1:8000/
+
+  5. La primera ejecución puede tardar entre 3 y 10 minutos dependiendo de la
+     velocidad de la conexión a internet.
+
+  Para arrancar la aplicación a partir de la segunda vez, hay dos opciones:
+    - Volver a usar AUTO_DESCARGAR_E_INICIAR_DJANGOSANIDAD.bat (detecta que ya
+      está instalado y salta directamente al arranque).
+    - Usar INICIAR_DJANGOSANIDAD_WINDOWS.bat (colocado dentro de la carpeta
+      DjangoSanidad del proyecto), que es más rápido al no comprobar descargas.
+
+Si se produce un error durante la instalación, revisar el fichero
+deployment_log.txt que se genera en la misma carpeta que el .bat.
+
+
+--------------------------------------------------------------------------------
+4.3. MODALIDAD C — INSTALACIÓN MANUAL DESDE CÓDIGO FUENTE
+--------------------------------------------------------------------------------
+
+Para usuarios con conocimientos técnicos que quieran control total.
+
+  1. Instalar Python 3.10 o superior desde https://www.python.org/
+     Marcar la opción "Add Python to PATH" durante la instalación.
+
+  2. Obtener el código fuente:
+       git clone https://github.com/NoelBallester/DjangoSanidad
+     O descargar el ZIP desde GitHub y descomprimirlo.
+
+  3. Abrir una terminal (cmd o PowerShell) en la carpeta del proyecto.
+
+  4. Crear y activar el entorno virtual:
+       python -m venv venv
+       venv\Scripts\activate.bat
+
+  5. Instalar dependencias:
+       pip install -r requirements.txt
+
+  6. Crear el fichero .env en la raíz del proyecto con el siguiente contenido
+     mínimo (ver apartado 6 para más detalle):
+       DJANGO_SECRET_KEY=<clave-aleatoria-larga>
+       DJANGO_DEBUG=false
+       DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+       DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
+  7. Aplicar migraciones:
+       python manage.py migrate
+
+  8. Crear el primer usuario administrador (ver apartado 7):
+       python manage.py createsuperuser
+
+  9. Arrancar el servidor:
+       python manage.py runserver 0.0.0.0:8000
+
+
+================================================================================
+5. BASE DE DATOS
+================================================================================
+
+Motor utilizado: SQLite3
+
+SQLite3 es una base de datos de fichero único. No requiere instalar ningún
+servidor de base de datos (ni MySQL, ni PostgreSQL, ni SQL Server). La base de
+datos es el fichero db.sqlite3 que se genera automáticamente en la raíz del
+proyecto al aplicar las migraciones.
+
+No tiene usuario ni contraseña de base de datos. No hay ningún servicio de
+base de datos que gestionar.
+
+Ubicación del fichero de base de datos:
+  <carpeta del proyecto>\db.sqlite3
+
+COPIAS DE SEGURIDAD:
+  Para hacer una copia de seguridad completa de todos los datos basta con
+  copiar el fichero db.sqlite3 a otro lugar. Para restaurar, reemplazar el
+  fichero por la copia guardada (con el servidor apagado).
+
+NOTA SOBRE PRODUCCIÓN:
+  La aplicación incluye el driver PyMySQL para conectarse a MySQL si en el
+  futuro se desea migrar a un motor más robusto (varios usuarios simultáneos,
+  grandes volúmenes de datos). Para el uso previsto en el IES, SQLite3 es
+  completamente suficiente.
+
+
+================================================================================
+6. FICHERO DE CONFIGURACIÓN (.env)
+================================================================================
+
+La aplicación lee su configuración desde un fichero llamado ".env" en la raíz
+del proyecto. Las Modalidades A y B lo generan automáticamente. En la Modalidad
+C hay que crearlo manualmente.
+
+Variables disponibles:
+
+  DJANGO_SECRET_KEY          (obligatoria)
+    Clave criptográfica interna de Django. Debe ser larga, aleatoria y única
+    para cada instalación. NUNCA compartir esta clave ni subirla a un
+    repositorio público. Las modalidades A y B la generan automáticamente.
+    Ejemplo: DJANGO_SECRET_KEY=g7k2p9x....(50+ caracteres aleatorios)
+
+  DJANGO_CORS_ALLOWED_ORIGINS  (obligatoria)
+    Orígenes web desde los que se permite acceder a la API. Para uso local:
+    DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+    Si se accede desde otros equipos de la red, añadir la IP del servidor:
+    DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:8000,http://192.168.x.x:8000
+
+  DJANGO_DEBUG               (opcional, por defecto: false)
+    Activar solo para depuración. NUNCA en producción.
+    DJANGO_DEBUG=false
+
+  DJANGO_ALLOWED_HOSTS       (opcional, por defecto: localhost,127.0.0.1)
+    Si se accede desde otros equipos, añadir la IP del servidor:
+    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.x.x
+
+  DJANGO_TIME_ZONE           (opcional, por defecto: Europe/Madrid)
+    DJANGO_TIME_ZONE=Europe/Madrid
+
+
+================================================================================
+7. PRIMER ARRANQUE Y USUARIO ADMINISTRADOR
+================================================================================
+
+La instalación NO crea ningún usuario por defecto. Tras el primer arranque hay
+que crear el usuario administrador manualmente.
+
+PASO 1 — Crear el superusuario (solo una vez, tras la primera instalación):
+
+  Con la Modalidad A (ejecutable):
+    El ejecutable portátil no permite ejecutar comandos de gestión fácilmente.
+    Hay que utilizar la Modalidad B o C para crear el primer superusuario y
+    luego exportar la base de datos si fuera necesario.
+    Alternativa: acceder a /admin/ — si no hay usuarios, Django mostrará un
+    aviso. Contactar con el centro cedente para que proporcione una base de
+    datos inicial con el superusuario ya creado.
+
+  Con la Modalidad B o C (desde código fuente):
+    Con el entorno virtual activado, ejecutar:
+      python manage.py createsuperuser
+    El asistente pedirá:
+      - Correo electrónico (se usa como nombre de usuario para entrar)
+      - Contraseña (y confirmación)
+    Este usuario tendrá rol de "profesor" (acceso completo).
+
+PASO 2 — Acceder al panel de administración:
+
+  Abrir en el navegador: http://127.0.0.1:8000/admin/
+  Introducir el correo y contraseña del superusuario creado.
+
+PASO 3 — Configuración inicial obligatoria:
+
+  Desde el panel de administración (/admin/) hay que realizar estas acciones
+  antes de que los alumnos empiecen a usar el aplicativo:
+
+  a) CATÁLOGO DE OPCIONES (CatalogoOpcion):
+     Define los valores que aparecen en los desplegables de los formularios:
+     órganos, tinciones, tipos de análisis, tipos de citología, tipos de
+     autopsia. Sin esta configuración, los formularios aparecerán vacíos.
+     Añadir las opciones que el IES necesite en cada categoría.
+
+  b) USUARIOS TÉCNICOS (Tecnicos):
+     Crear un usuario por cada persona que vaya a usar la aplicación.
+     Cada usuario tiene un rol:
+       - profesor: acceso completo a todos los módulos
+       - anatomia_patologica: solo cassettes, citologías y necropsias
+       - laboratorio: solo hematología, microbiología y bioquímica
+     El correo electrónico es el identificador de acceso (no hay campo de
+     nombre de usuario separado).
+
+NOTA SOBRE CREDENCIALES:
+  Cada instalación debe tener sus propias credenciales. No utilizar las mismas
+  contraseñas que el centro cedente. El superusuario tiene acceso completo a
+  todos los datos y a la configuración del sistema.
+
+
+================================================================================
+8. ACCESO DESDE OTROS EQUIPOS DE LA RED
+================================================================================
+
+Por defecto, el servidor solo es accesible desde el propio equipo donde se
+ejecuta (localhost / 127.0.0.1). Para que otros equipos de la red puedan
+acceder:
+
+  1. Conocer la IP del equipo servidor en la red local (ejemplo: 192.168.1.50).
+     Se obtiene ejecutando en cmd: ipconfig
+
+  2. Modificar el fichero .env para incluir esa IP:
+       DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.50
+       DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://192.168.1.50:8000
+
+  3. Asegurarse de que el servidor se arranca escuchando en todas las interfaces:
+     Las Modalidades A y B ya arrancan con "0.0.0.0:8000", lo que permite
+     conexiones desde la red local.
+
+  4. El firewall de Windows puede bloquear el acceso. Si otros equipos no
+     pueden conectar, crear una regla de entrada en el Firewall de Windows para
+     el puerto 8000 (TCP, entrante).
+
+  5. Desde los equipos cliente, acceder con el navegador a:
+       http://192.168.1.50:8000/   (sustituyendo por la IP real del servidor)
+
+
+================================================================================
+9. APAGAR EL SERVIDOR
+================================================================================
+
+Para detener el servidor Django, cerrar la ventana de consola negra que se
+abrió al ejecutar el .bat o el .exe. No es necesario ningún otro paso.
+
+Los datos quedan guardados en la base de datos (db.sqlite3). No hay pérdida
+de datos al apagar.
+
+
+================================================================================
+10. DESINSTALAR COMPLETAMENTE
+================================================================================
+
+Si se desea eliminar completamente la aplicación del equipo:
+
+  - Modalidad A: simplemente borrar la carpeta DjangoSanidad (con el .exe).
+
+  - Modalidades B y C: ejecutar el script ELIMINAR_DJANGOSANIDAD_COMPLETAMENTE.bat.
+    Este script pedirá confirmación escribiendo "SI" en mayúsculas. Eliminará:
+      - La carpeta del proyecto y el código fuente
+      - El entorno virtual (venv)
+      - La base de datos (db.sqlite3) y TODOS los datos
+      - El fichero de configuración (.env)
+      - Las imágenes, informes y volantes subidos (carpeta media)
+      - Los registros de errores (carpeta logs)
+      - La caché de Python
+
+    AVISO: Esta operación no tiene vuelta atrás. Hacer una copia del fichero
+    db.sqlite3 antes si se quieren conservar los datos.
+
+
+================================================================================
+RESUMEN RÁPIDO PARA IMPLANTACIÓN SIN CONOCIMIENTOS TÉCNICOS
+================================================================================
+
+  1. Descargar el fichero AUTO_DESCARGAR_E_INICIAR_DJANGOSANIDAD.bat
+  2. Colocarlo en una carpeta vacía (ej. C:\DjangoSanidad)
+  3. Hacer doble clic — esperar entre 5 y 10 minutos (solo la primera vez)
+  4. Se abrirá el navegador automáticamente con la aplicación
+  5. Ir a http://127.0.0.1:8000/admin/ y crear el primer usuario administrador
+     con: python manage.py createsuperuser (desde la carpeta del proyecto,
+     con el entorno activado)
+  6. Configurar el catálogo de opciones y crear los usuarios desde /admin/
+  7. Para arrancar en días sucesivos: doble clic en INICIAR_DJANGOSANIDAD_WINDOWS.bat
+     (dentro de la carpeta DjangoSanidad)
+
+================================================================================
+Documento elaborado por el equipo de desarrollo DjangoSanidad.
+Para consultas técnicas, contactar con el centro cedente.
+================================================================================

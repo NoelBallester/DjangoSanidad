@@ -1,5 +1,11 @@
 claude-agents-library-main/
 
+# Archivos comprimidos grandes
+*.rar
+*.zip
+dist/
+build/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
