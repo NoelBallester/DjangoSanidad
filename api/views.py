@@ -627,9 +627,7 @@ class ImagenViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        imagen_obj = Imagen.objects.create(
-            imagen=imagen_file.read(), muestra_id=muestra_id
-        )
+        imagen_obj = Imagen.objects.create(imagen=imagen_file, muestra_id=muestra_id)
         return Response(
             self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED
         )
@@ -669,7 +667,7 @@ class ImagenCitologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             )
 
         imagen_obj = ImagenCitologia.objects.create(
-            imagen=imagen_file.read(), muestra_id=muestra_id
+            imagen=imagen_file, muestra_id=muestra_id
         )
         return Response(
             self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED
@@ -710,7 +708,7 @@ class ImagenNecropsiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             )
 
         imagen_obj = ImagenNecropsia.objects.create(
-            imagen=imagen_file.read(), muestra_id=muestra_id
+            imagen=imagen_file, muestra_id=muestra_id
         )
         return Response(
             self.get_serializer(imagen_obj).data, status=status.HTTP_201_CREATED
@@ -800,8 +798,7 @@ class MuestraTuboViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelViewSet):
 
         # Si hay imagen, crear el registro en ImagenTubo con datos binarios
         if imagen_file:
-            imagen_bytes = imagen_file.read()
-            ImagenTubo.objects.create(imagen=imagen_bytes, muestra=muestra)
+            ImagenTubo.objects.create(imagen=imagen_file, muestra=muestra)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -847,9 +844,8 @@ class ImagenTuboViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        imagen_bytes = imagen_file.read()
         imagen_tubo = ImagenTubo.objects.create(
-            imagen=imagen_bytes, muestra_id=muestra_id
+            imagen=imagen_file, muestra_id=muestra_id
         )
 
         return Response(
@@ -928,7 +924,7 @@ class MuestraHematologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelVie
 
         # Si hay imagen, crear el registro en ImagenHematologia
         if imagen_file:
-            ImagenHematologia.objects.create(imagen=imagen_file.read(), muestra=muestra)
+            ImagenHematologia.objects.create(imagen=imagen_file, muestra=muestra)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -974,7 +970,7 @@ class ImagenHematologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             )
 
         imagen_hematologia = ImagenHematologia.objects.create(
-            imagen=imagen_file.read(), muestra_id=muestra_id
+            imagen=imagen_file, muestra_id=muestra_id
         )
 
         return Response(
@@ -1066,9 +1062,7 @@ class MuestraMicrobiologiaViewSet(MuestraSoftDeleteDestroyMixin, viewsets.ModelV
         muestra = serializer.save()
 
         if imagen_file:
-            ImagenMicrobiologia.objects.create(
-                imagen=imagen_file.read(), muestra=muestra
-            )
+            ImagenMicrobiologia.objects.create(imagen=imagen_file, muestra=muestra)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -1112,7 +1106,7 @@ class ImagenMicrobiologiaViewSet(SoftDeleteDestroyMixin, viewsets.ModelViewSet):
             )
 
         imagen_microbiologia = ImagenMicrobiologia.objects.create(
-            imagen=imagen_file.read(), muestra_id=muestra_id
+            imagen=imagen_file, muestra_id=muestra_id
         )
 
         return Response(

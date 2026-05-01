@@ -1,34 +1,52 @@
-from django.test import TestCase, Client
-from django.test import RequestFactory
+import os
+from unittest.mock import patch
+
 from django.conf import settings
-from django.urls import reverse
 from django.contrib.auth.hashers import make_password
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.utils import OperationalError
+from django.test import Client, RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
-from unittest.mock import patch
-import os
 
 from api.models import (
-    Tecnico, Cassette, Muestra, Imagen, Citologia, MuestraCitologia,
-    ImagenCitologia, Hematologia, MuestraHematologia, ImagenHematologia, Necropsia, MuestraNecropsia,
+    Cassette,
+    Citologia,
+    Hematologia,
+    Imagen,
+    ImagenCitologia,
+    ImagenHematologia,
     InformeResultado,
+    Muestra,
+    MuestraCitologia,
+    MuestraHematologia,
+    MuestraNecropsia,
+    Necropsia,
+    Tecnico,
 )
 from core.error_views import custom_404, custom_500
-from web.views import _imagen_bytes_a_base64, _mime_tipo_desde_bytes
-
+from web.views import (
+    _detectar_tipo_volante,
+    _imagen_bytes_a_base64,
+    _mime_tipo_desde_bytes,
+)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def make_tecnico(id_tecnico=None, password='pass1234', staff=False):
+
+def make_tecnico(id_tecnico=None, password="pass1234", staff=False):
     """Crea un técnico de prueba con contraseña hasheada."""
     kwargs = dict(
-        nombre='Test', apellidos='User',
-        email=f'test{id_tecnico or ""}@test.com',
-        rol='profesor',
-        is_staff=staff, is_active=True,
+        nombre="Test",
+        apellidos="User",
+        email=f"test{id_tecnico or ''}@test.com",
+        username=f"tecnico{id_tecnico or ''}",
+        rol="profesor",
+        is_staff=staff,
+        is_active=True,
     )
     t = Tecnico(**kwargs)
     t.password = make_password(password)
@@ -38,24 +56,24 @@ def make_tecnico(id_tecnico=None, password='pass1234', staff=False):
 
 def make_cassette(n=1):
     return Cassette.objects.create(
-        cassette=f'C{n:03d}',
-        fecha='2024-01-01',
-        descripcion='Desc',
-        caracteristicas='Caract',
-        qr_casette=f'QR{n}',
-        organo='Pulmón',
+        cassette=f"C{n:03d}",
+        fecha="2024-01-01",
+        descripcion="Desc",
+        caracteristicas="Caract",
+        qr_casette=f"QR{n}",
+        organo="Pulmón",
     )
 
 
 def make_citologia(tecnico=None, n=1):
     return Citologia.objects.create(
-        citologia=f'CIT{n:03d}',
-        tipo_citologia='Improntas',
-        fecha='2024-01-01',
-        descripcion='Desc',
-        caracteristicas='Caract',
-        qr_citologia=f'QRC{n}',
-        organo='Pulmón',
+        citologia=f"CIT{n:03d}",
+        tipo_citologia="Improntas",
+        fecha="2024-01-01",
+        descripcion="Desc",
+        caracteristicas="Caract",
+        qr_citologia=f"QRC{n}",
+        organo="Pulmón",
         tecnico=tecnico,
     )
 
@@ -66,104 +84,116 @@ def informe_qs_for(obj):
 
 
 PNG_BYTES = (
-    b'\x89PNG\r\n\x1a\n'
-    b'\x00\x00\x00\rIHDR'
-    b'\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00'
-    b'\x90wS\xde'
-    b'\x00\x00\x00\x0cIDATx\x9cc``\x00\x00\x00\x02\x00\x01'
-    b'\x0b\xe7\x02\x9d'
-    b'\x00\x00\x00\x00IEND\xaeB`\x82'
+    b"\x89PNG\r\n\x1a\n"
+    b"\x00\x00\x00\rIHDR"
+    b"\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00"
+    b"\x90wS\xde"
+    b"\x00\x00\x00\x0cIDATx\x9cc``\x00\x00\x00\x02\x00\x01"
+    b"\x0b\xe7\x02\x9d"
+    b"\x00\x00\x00\x00IEND\xaeB`\x82"
 )
 
 
 # ── 1. Autenticación ──────────────────────────────────────────────────────────
 
-class LoginTests(TestCase):
 
+class LoginTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
-        self.url = reverse('login')
+        self.url = reverse("login")
 
     def test_get_muestra_formulario(self):
         r = self.client.get(self.url)
         self.assertEqual(r.status_code, 200)
 
     def test_login_correcto_redirige(self):
-        r = self.client.post(self.url, {
-            'tecnico_id': self.tecnico.pk,
-            'password': 'pass1234',
-        })
-        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+        r = self.client.post(
+            self.url,
+            {
+                "tecnico_id": self.tecnico.pk,
+                "password": "pass1234",
+            },
+        )
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
 
     def test_login_password_incorrecta(self):
-        r = self.client.post(self.url, {
-            'tecnico_id': self.tecnico.pk,
-            'password': 'mala',
-        })
+        r = self.client.post(
+            self.url,
+            {
+                "tecnico_id": self.tecnico.pk,
+                "password": "mala",
+            },
+        )
         self.assertEqual(r.status_code, 200)
-        self.assertContains(r, 'incorrectos')
+        self.assertContains(r, "incorrectos")
 
     def test_login_usuario_inexistente(self):
-        r = self.client.post(self.url, {
-            'tecnico_id': 9999,
-            'password': 'pass1234',
-        })
+        r = self.client.post(
+            self.url,
+            {
+                "tecnico_id": 9999,
+                "password": "pass1234",
+            },
+        )
         self.assertEqual(r.status_code, 200)
-        self.assertContains(r, 'incorrectos')
+        self.assertContains(r, "incorrectos")
 
     def test_ya_autenticado_redirige_sin_pedir_credenciales(self):
         self.client.force_login(self.tecnico)
         r = self.client.get(self.url)
-        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
 
     def test_login_next_respetado(self):
         r = self.client.post(
-            self.url + '?next=/cassettes/',
-            {'tecnico_id': self.tecnico.pk, 'password': 'pass1234'},
+            self.url + "?next=/cassettes/",
+            {"tecnico_id": self.tecnico.pk, "password": "pass1234"},
         )
-        self.assertRedirects(r, '/cassettes/', fetch_redirect_response=False)
+        self.assertRedirects(r, "/cassettes/", fetch_redirect_response=False)
 
     def test_login_next_externo_bloqueado(self):
         r = self.client.post(
-            self.url + '?next=http://evil.local/',
-            {'tecnico_id': self.tecnico.pk, 'password': 'pass1234'},
+            self.url + "?next=http://evil.local/",
+            {"tecnico_id": self.tecnico.pk, "password": "pass1234"},
         )
-        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
 
     def test_login_next_scheme_relative_bloqueado(self):
         r = self.client.post(
-            self.url + '?next=//evil.local/path',
-            {'tecnico_id': self.tecnico.pk, 'password': 'pass1234'},
+            self.url + "?next=//evil.local/path",
+            {"tecnico_id": self.tecnico.pk, "password": "pass1234"},
         )
-        self.assertRedirects(r, '/index.html', fetch_redirect_response=False)
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
 
 
 class LogoutTests(TestCase):
-
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
         self.client.force_login(self.tecnico)
 
     def test_logout_post_elimina_sesion(self):
-        r = self.client.post(reverse('logout'))
-        self.assertRedirects(r, reverse('login'), fetch_redirect_response=False)
+        r = self.client.post(reverse("logout"))
+        self.assertRedirects(r, reverse("login"), fetch_redirect_response=False)
         # Tras logout, acceder a vista protegida redirige al login
-        r2 = self.client.get(reverse('cassettes'))
-        self.assertRedirects(r2, '/login/?next=/cassettes/', fetch_redirect_response=False)
+        r2 = self.client.get(reverse("cassettes"))
+        self.assertRedirects(
+            r2, "/login/?next=/cassettes/", fetch_redirect_response=False
+        )
 
     def test_logout_get_rechazado(self):
-        r = self.client.get(reverse('logout'))
+        r = self.client.get(reverse("logout"))
         self.assertEqual(r.status_code, 405)
 
 
 # ── 2. Control de acceso ──────────────────────────────────────────────────────
 
-class AccesoProtegidoTests(TestCase):
 
+class AccesoProtegidoTests(TestCase):
     URLS_PROTEGIDAS = [
-        'cassettes', 'citologias', 'usuarios',
+        "cassettes",
+        "citologias",
+        "usuarios",
     ]
 
     def setUp(self):
@@ -175,7 +205,7 @@ class AccesoProtegidoTests(TestCase):
             with self.subTest(url=nombre):
                 r = self.client.get(reverse(nombre))
                 self.assertEqual(r.status_code, 302)
-                self.assertIn('/login/', r['Location'])
+                self.assertIn("/login/", r["Location"])
 
     def test_con_sesion_devuelve_200(self):
         self.client.force_login(self.tecnico)
@@ -186,19 +216,18 @@ class AccesoProtegidoTests(TestCase):
 
     def test_cabeceras_no_cache_en_cassettes(self):
         self.client.force_login(self.tecnico)
-        r = self.client.get(reverse('cassettes'))
-        cc = r.get('Cache-Control', '')
-        self.assertIn('no-store', cc)
+        r = self.client.get(reverse("cassettes"))
+        cc = r.get("Cache-Control", "")
+        self.assertIn("no-store", cc)
 
     def test_cabeceras_no_cache_en_citologias(self):
         self.client.force_login(self.tecnico)
-        r = self.client.get(reverse('citologias'))
-        cc = r.get('Cache-Control', '')
-        self.assertIn('no-store', cc)
+        r = self.client.get(reverse("citologias"))
+        cc = r.get("Cache-Control", "")
+        self.assertIn("no-store", cc)
 
 
 class AnatomiaPatologicaLegacyDbTests(TestCase):
-
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -207,30 +236,30 @@ class AnatomiaPatologicaLegacyDbTests(TestCase):
         make_cassette(1)
         make_citologia(self.tecnico, 1)
         Necropsia.objects.create(
-            necropsia='N001',
-            tipo_necropsia='Clínica',
-            fecha='2024-01-01',
-            descripcion='Desc',
-            caracteristicas='Caract',
-            qr_necropsia='QRN1',
-            organo='Pulmón',
+            necropsia="N001",
+            tipo_necropsia="Clínica",
+            fecha="2024-01-01",
+            descripcion="Desc",
+            caracteristicas="Caract",
+            qr_necropsia="QRN1",
+            organo="Pulmón",
             tecnico=self.tecnico,
         )
         Hematologia.objects.create(
-            hematologia='H001',
-            fecha='2024-01-01',
-            descripcion='Desc',
-            caracteristicas='Caract',
-            qr_hematologia='QRH1',
-            organo='Pulmón',
+            hematologia="H001",
+            fecha="2024-01-01",
+            descripcion="Desc",
+            caracteristicas="Caract",
+            qr_hematologia="QRH1",
+            organo="Pulmón",
             tecnico=self.tecnico,
         )
 
         with connection.cursor() as cursor:
-            cursor.execute('DROP TABLE IF EXISTS catalogo_opciones')
+            cursor.execute("DROP TABLE IF EXISTS catalogo_opciones")
 
     def test_paginas_anatomia_cargan_sin_catalogo(self):
-        urls = ['cassettes', 'citologias', 'necropsias', 'hematologias']
+        urls = ["cassettes", "citologias", "necropsias", "hematologias"]
         for nombre in urls:
             with self.subTest(url=nombre):
                 response = self.client.get(reverse(nombre))
@@ -242,93 +271,97 @@ class AnatomiaPatologicaLegacyDbTests(TestCase):
         necropsia = Necropsia.objects.first()
         hematologia = Hematologia.objects.first()
 
-        with patch('web.views.InformeResultado.objects.filter', side_effect=OperationalError('legacy schema')):
+        with patch(
+            "web.views.InformeResultado.objects.filter",
+            side_effect=OperationalError("legacy schema"),
+        ):
             urls = [
-                reverse('cassettes') + f'?cassette={cassette.pk}',
-                reverse('citologias') + f'?citologia={citologia.pk}',
-                reverse('necropsias') + f'?necropsia={necropsia.pk}',
-                reverse('hematologias') + f'?hematologia={hematologia.pk}',
+                reverse("cassettes") + f"?cassette={cassette.pk}",
+                reverse("citologias") + f"?citologia={citologia.pk}",
+                reverse("necropsias") + f"?necropsia={necropsia.pk}",
+                reverse("hematologias") + f"?hematologia={hematologia.pk}",
             ]
             for url in urls:
                 with self.subTest(url=url):
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, 200)
-                    self.assertIsNotNone(response.context['selected'])
+                    self.assertIsNotNone(response.context["selected"])
 
 
 class ImageHelperTests(TestCase):
-
     def test_helpers_leen_filefield_correctamente(self):
         cassette = make_cassette(99)
         muestra = Muestra.objects.create(
             cassette=cassette,
-            descripcion='Muestra test',
-            fecha='2024-01-01',
-            observaciones='obs',
-            tincion='Otros',
-            qr_muestra='QR-TEST-IMG',
+            descripcion="Muestra test",
+            fecha="2024-01-01",
+            observaciones="obs",
+            tincion="Otros",
+            qr_muestra="QR-TEST-IMG",
         )
         imagen = Imagen.objects.create(
             muestra=muestra,
-            imagen=PNG_BYTES,
+            imagen=ContentFile(PNG_BYTES, name="test.png"),
         )
 
-        self.assertEqual(_mime_tipo_desde_bytes(imagen.imagen), 'image/png')
+        self.assertEqual(_mime_tipo_desde_bytes(imagen.imagen), "image/png")
         self.assertTrue(_imagen_bytes_a_base64(imagen.imagen))
 
     def test_helpers_leen_bytes_legacy_correctamente(self):
-        self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), 'image/png')
+        self.assertEqual(_mime_tipo_desde_bytes(PNG_BYTES), "image/png")
         self.assertTrue(_imagen_bytes_a_base64(PNG_BYTES))
 
     def test_imagen_se_guarda_en_media_y_bd_guarda_ruta(self):
         cassette = make_cassette(100)
         muestra = Muestra.objects.create(
             cassette=cassette,
-            descripcion='Muestra persistencia',
-            fecha='2024-01-01',
-            observaciones='obs',
-            tincion='Otros',
-            qr_muestra='QR-TEST-STORAGE',
+            descripcion="Muestra persistencia",
+            fecha="2024-01-01",
+            observaciones="obs",
+            tincion="Otros",
+            qr_muestra="QR-TEST-STORAGE",
         )
-        imagen = Imagen.objects.create(muestra=muestra, imagen=PNG_BYTES)
+        imagen = Imagen.objects.create(
+            muestra=muestra, imagen=ContentFile(PNG_BYTES, name="test.png")
+        )
         imagen.refresh_from_db()
 
         self.assertTrue(imagen.imagen.name)
-        self.assertTrue(imagen.imagen.name.startswith('imagenes/'))
+        self.assertTrue(imagen.imagen.name.startswith("imagenes/"))
         self.assertTrue(imagen.imagen.path.startswith(str(settings.MEDIA_ROOT)))
         self.assertTrue(os.path.exists(imagen.imagen.path))
 
         with connection.cursor() as cursor:
-            cursor.execute('SELECT imagen FROM imagenes WHERE id_imagen = %s', [imagen.pk])
+            cursor.execute(
+                "SELECT imagen FROM imagenes WHERE id_imagen = %s", [imagen.pk]
+            )
             valor_bd = cursor.fetchone()[0]
         self.assertIsInstance(valor_bd, str)
         self.assertEqual(valor_bd, imagen.imagen.name)
 
 
 class ErrorViewTests(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
 
     def test_custom_404_renderiza_plantilla_propia(self):
-        request = self.factory.get('/ruta-inexistente/')
-        response = custom_404(request, Exception('missing'))
+        request = self.factory.get("/ruta-inexistente/")
+        response = custom_404(request, Exception("missing"))
 
         self.assertEqual(response.status_code, 404)
-        self.assertIn(b'404', response.content)
-        self.assertIn(b'La pagina solicitada no existe', response.content)
+        self.assertIn(b"404", response.content)
+        self.assertIn(b"La pagina solicitada no existe", response.content)
 
     def test_custom_500_renderiza_plantilla_propia(self):
-        request = self.factory.get('/error/')
+        request = self.factory.get("/error/")
         response = custom_500(request)
 
         self.assertEqual(response.status_code, 500)
-        self.assertIn(b'500', response.content)
-        self.assertIn(b'Se ha producido un error interno', response.content)
+        self.assertIn(b"500", response.content)
+        self.assertIn(b"Se ha producido un error interno", response.content)
 
 
 class VolanteSecurityTests(TestCase):
-
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(111)
@@ -336,52 +369,85 @@ class VolanteSecurityTests(TestCase):
 
     def test_descarga_volante_ignora_content_type_manipulado(self):
         cassette = make_cassette(700)
-        cassette.volante_peticion = b'%PDF-1.4\n%test\n'
-        cassette.volante_peticion_nombre = 'volante.pdf'
-        cassette.volante_peticion_tipo = 'text/html'
-        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+        cassette.volante_peticion = ContentFile(
+            b"%PDF-1.4\n%test\n", name="volante.pdf"
+        )
+        cassette.volante_peticion_nombre = "volante.pdf"
+        cassette.volante_peticion_tipo = "text/html"
+        cassette.save(
+            update_fields=[
+                "volante_peticion",
+                "volante_peticion_nombre",
+                "volante_peticion_tipo",
+            ]
+        )
 
-        response = self.client.get(reverse('descargar_volante_cassette', args=[cassette.pk]))
+        response = self.client.get(
+            reverse("descargar_volante_cassette", args=[cassette.pk])
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
-        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 
     def test_descarga_volante_html_se_serve_como_octet_stream(self):
         cassette = make_cassette(701)
-        cassette.volante_peticion = b'<!doctype html><html><script>alert(1)</script></html>'
-        cassette.volante_peticion_nombre = 'volante.html'
-        cassette.volante_peticion_tipo = 'text/html'
-        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+        cassette.volante_peticion = ContentFile(
+            b"<!doctype html><html><script>alert(1)</script></html>",
+            name="volante.html",
+        )
+        cassette.volante_peticion_nombre = "volante.html"
+        cassette.volante_peticion_tipo = "text/html"
+        cassette.save(
+            update_fields=[
+                "volante_peticion",
+                "volante_peticion_nombre",
+                "volante_peticion_tipo",
+            ]
+        )
 
-        response = self.client.get(reverse('descargar_volante_cassette', args=[cassette.pk]))
+        response = self.client.get(
+            reverse("descargar_volante_cassette", args=[cassette.pk])
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/octet-stream')
-        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response["Content-Type"], "application/octet-stream")
+        self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 
     def test_volante_se_guarda_en_media_y_bd_guarda_ruta(self):
         cassette = make_cassette(702)
-        cassette.volante_peticion = b'%PDF-1.4\n%stored-file\n'
-        cassette.volante_peticion_nombre = 'volante_file.pdf'
-        cassette.volante_peticion_tipo = 'application/pdf'
-        cassette.save(update_fields=['volante_peticion', 'volante_peticion_nombre', 'volante_peticion_tipo'])
+        cassette.volante_peticion = ContentFile(
+            b"%PDF-1.4\n%stored-file\n", name="volante_file.pdf"
+        )
+        cassette.volante_peticion_nombre = "volante_file.pdf"
+        cassette.volante_peticion_tipo = "application/pdf"
+        cassette.save(
+            update_fields=[
+                "volante_peticion",
+                "volante_peticion_nombre",
+                "volante_peticion_tipo",
+            ]
+        )
         cassette.refresh_from_db()
 
         self.assertTrue(cassette.volante_peticion.name)
-        self.assertTrue(cassette.volante_peticion.name.startswith('volantes/'))
-        self.assertTrue(cassette.volante_peticion.path.startswith(str(settings.MEDIA_ROOT)))
+        self.assertTrue(cassette.volante_peticion.name.startswith("volantes/"))
+        self.assertTrue(
+            cassette.volante_peticion.path.startswith(str(settings.MEDIA_ROOT))
+        )
         self.assertTrue(os.path.exists(cassette.volante_peticion.path))
 
         with connection.cursor() as cursor:
-            cursor.execute('SELECT volante_peticion FROM cassettes WHERE id_casette = %s', [cassette.pk])
+            cursor.execute(
+                "SELECT volante_peticion FROM cassettes WHERE id_casette = %s",
+                [cassette.pk],
+            )
             valor_bd = cursor.fetchone()[0]
         self.assertIsInstance(valor_bd, str)
         self.assertEqual(valor_bd, cassette.volante_peticion.name)
 
 
 class MuestrasSinImagenTemplateTests(TestCase):
-
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(101)
@@ -391,93 +457,102 @@ class MuestrasSinImagenTemplateTests(TestCase):
         cassette = make_cassette(501)
         muestra = Muestra.objects.create(
             cassette=cassette,
-            descripcion='Sin imagen',
-            fecha='2024-01-01',
-            observaciones='obs',
-            tincion='Otros',
-            qr_muestra='QR-NO-IMG-CAS',
+            descripcion="Sin imagen",
+            fecha="2024-01-01",
+            observaciones="obs",
+            tincion="Otros",
+            qr_muestra="QR-NO-IMG-CAS",
         )
 
-        response = self.client.get(reverse('cassettes') + f'?cassette={cassette.pk}&muestra={muestra.pk}')
+        response = self.client.get(
+            reverse("cassettes") + f"?cassette={cassette.pk}&muestra={muestra.pk}"
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sin imagen adjunta')
-        self.assertContains(response, 'no_disponible.jpg')
+        self.assertContains(response, "Sin imagen adjunta")
+        self.assertContains(response, "no_disponible.jpg")
 
     def test_citologias_muestra_sin_imagen_muestra_placeholder(self):
         citologia = make_citologia(self.tecnico, 601)
         muestra = MuestraCitologia.objects.create(
             citologia=citologia,
-            descripcion='Sin imagen',
-            fecha='2024-01-01',
-            observaciones='obs',
-            tincion='Otros',
-            qr_muestra='QR-NO-IMG-CIT',
+            descripcion="Sin imagen",
+            fecha="2024-01-01",
+            observaciones="obs",
+            tincion="Otros",
+            qr_muestra="QR-NO-IMG-CIT",
         )
 
-        response = self.client.get(reverse('citologias') + f'?citologia={citologia.pk}&muestra={muestra.pk}')
+        response = self.client.get(
+            reverse("citologias") + f"?citologia={citologia.pk}&muestra={muestra.pk}"
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sin imagen adjunta')
-        self.assertContains(response, 'no_disponible.jpg')
+        self.assertContains(response, "Sin imagen adjunta")
+        self.assertContains(response, "no_disponible.jpg")
 
     def test_necropsias_muestra_sin_imagen_muestra_placeholder(self):
         necropsia = Necropsia.objects.create(
-            necropsia='N901',
-            tipo_necropsia='Clínica',
-            fecha='2024-01-01',
-            descripcion='Desc',
-            caracteristicas='Caract',
-            qr_necropsia='QRN901',
-            organo='Pulmón',
+            necropsia="N901",
+            tipo_necropsia="Clínica",
+            fecha="2024-01-01",
+            descripcion="Desc",
+            caracteristicas="Caract",
+            qr_necropsia="QRN901",
+            organo="Pulmón",
             tecnico=self.tecnico,
         )
         muestra = MuestraNecropsia.objects.create(
             necropsia=necropsia,
-            descripcion='Sin imagen',
-            fecha='2024-01-01',
-            observaciones='obs',
-            qr_muestra='QR-NO-IMG-NEC',
-            examen_interno_cadaver='dato',
-            tecnica_apertura='tecnica',
-            datos_relevantes_region='region',
+            descripcion="Sin imagen",
+            fecha="2024-01-01",
+            observaciones="obs",
+            qr_muestra="QR-NO-IMG-NEC",
+            examen_interno_cadaver="dato",
+            tecnica_apertura="tecnica",
+            datos_relevantes_region="region",
         )
 
-        response = self.client.get(reverse('necropsias') + f'?necropsia={necropsia.pk}&muestra={muestra.pk}')
+        response = self.client.get(
+            reverse("necropsias") + f"?necropsia={necropsia.pk}&muestra={muestra.pk}"
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sin imagen adjunta')
-        self.assertContains(response, 'no_disponible.jpg')
+        self.assertContains(response, "Sin imagen adjunta")
+        self.assertContains(response, "no_disponible.jpg")
 
     def test_hematologias_muestra_sin_imagen_muestra_placeholder(self):
         hematologia = Hematologia.objects.create(
-            hematologia='H901',
-            fecha='2024-01-01',
-            descripcion='Desc',
-            caracteristicas='Caract',
-            qr_hematologia='QRH901',
-            organo='Pulmón',
+            hematologia="H901",
+            fecha="2024-01-01",
+            descripcion="Desc",
+            caracteristicas="Caract",
+            qr_hematologia="QRH901",
+            organo="Pulmón",
             tecnico=self.tecnico,
         )
         muestra = MuestraHematologia.objects.create(
             hematologia=hematologia,
-            descripcion='Sin imagen',
-            fecha='2024-01-01',
-            observaciones='obs',
-            tincion='Otros',
-            qr_muestra='QR-NO-IMG-HEM',
+            descripcion="Sin imagen",
+            fecha="2024-01-01",
+            observaciones="obs",
+            tincion="Otros",
+            qr_muestra="QR-NO-IMG-HEM",
         )
 
-        response = self.client.get(reverse('hematologias') + f'?hematologia={hematologia.pk}&muestra={muestra.pk}')
+        response = self.client.get(
+            reverse("hematologias")
+            + f"?hematologia={hematologia.pk}&muestra={muestra.pk}"
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sin imagen adjunta')
+        self.assertContains(response, "Sin imagen adjunta")
 
 
 # ── 3. Permisos de staff ──────────────────────────────────────────────────────
 
-class PermisosStaffTests(TestCase):
 
+class PermisosStaffTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.normal = make_tecnico(1)
@@ -485,43 +560,53 @@ class PermisosStaffTests(TestCase):
 
     def test_no_staff_no_puede_crear_tecnico(self):
         self.client.force_login(self.normal)
-        self.client.post(reverse('usuario_create'), {
-            'nombre': 'Nuevo', 'apellidos': 'Tecnico',
-            'email': 'nuevo@test.com', 'password': 'abc123',
-        })
-        self.assertFalse(Tecnico.objects.filter(email='nuevo@test.com').exists())
+        self.client.post(
+            reverse("usuario_create"),
+            {
+                "nombre": "Nuevo",
+                "apellidos": "Tecnico",
+                "email": "nuevo@test.com",
+                "password": "abc123",
+            },
+        )
+        self.assertFalse(Tecnico.objects.filter(email="nuevo@test.com").exists())
 
     def test_staff_puede_crear_tecnico(self):
         self.client.force_login(self.staff)
-        self.client.post(reverse('usuario_create'), {
-            'nombre': 'Nuevo', 'apellidos': 'Tecnico',
-            'email': 'nuevo@test.com', 'password': 'abc123',
-            'username': 'nuevotecnico',
-        })
-        self.assertTrue(Tecnico.objects.filter(email='nuevo@test.com').exists())
+        self.client.post(
+            reverse("usuario_create"),
+            {
+                "nombre": "Nuevo",
+                "apellidos": "Tecnico",
+                "email": "nuevo@test.com",
+                "password": "abc123",
+                "username": "nuevotecnico",
+            },
+        )
+        self.assertTrue(Tecnico.objects.filter(email="nuevo@test.com").exists())
 
     def test_no_staff_no_puede_eliminar_tecnico(self):
         victima = make_tecnico(3)
         self.client.force_login(self.normal)
-        self.client.post(reverse('usuario_delete', args=[victima.pk]))
+        self.client.post(reverse("usuario_delete", args=[victima.pk]))
         self.assertTrue(Tecnico.objects.filter(pk=victima.pk).exists())
 
     def test_staff_puede_eliminar_tecnico(self):
         victima = make_tecnico(3)
         self.client.force_login(self.staff)
-        self.client.post(reverse('usuario_delete', args=[victima.pk]))
+        self.client.post(reverse("usuario_delete", args=[victima.pk]))
         self.assertFalse(Tecnico.objects.filter(pk=victima.pk).exists())
 
     def test_staff_no_puede_eliminarse_a_si_mismo(self):
         self.client.force_login(self.staff)
-        self.client.post(reverse('usuario_delete', args=[self.staff.pk]))
+        self.client.post(reverse("usuario_delete", args=[self.staff.pk]))
         self.assertTrue(Tecnico.objects.filter(pk=self.staff.pk).exists())
 
 
 # ── 4. CRUD Cassettes ─────────────────────────────────────────────────────────
 
-class CassetteCRUDTests(TestCase):
 
+class CassetteCRUDTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -530,57 +615,76 @@ class CassetteCRUDTests(TestCase):
     def test_listar_sin_filtros_devuelve_10(self):
         for i in range(15):
             make_cassette(i + 1)
-        r = self.client.get(reverse('cassettes'))
+        r = self.client.get(reverse("cassettes"))
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.context['cassettes']), 10)
+        self.assertEqual(len(r.context["cassettes"]), 10)
 
     def test_filtro_por_organo(self):
         make_cassette(1)
         Cassette.objects.create(
-            cassette='C999', fecha='2024-01-01', descripcion='D',
-            caracteristicas='C', qr_casette='QR999', organo='Riñon',
+            cassette="C999",
+            fecha="2024-01-01",
+            descripcion="D",
+            caracteristicas="C",
+            qr_casette="QR999",
+            organo="Riñon",
         )
-        r = self.client.get(reverse('cassettes') + '?organo=Riñon')
-        self.assertEqual(len(r.context['cassettes']), 1)
-        self.assertEqual(r.context['cassettes'][0].organo, 'Riñon')
+        r = self.client.get(reverse("cassettes") + "?organo=Riñon")
+        self.assertEqual(len(r.context["cassettes"]), 1)
+        self.assertEqual(r.context["cassettes"][0].organo, "Riñon")
 
     def test_crear_cassette(self):
-        self.client.post(reverse('cassette_create'), {
-            'cassette': 'C001', 'fecha': '2024-06-01',
-            'descripcion': 'Desc', 'caracteristicas': 'Caract',
-            'qr_casette': 'QR001', 'organo': 'Pulmón',
-        })
-        self.assertTrue(Cassette.objects.filter(cassette='C001').exists())
+        self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C001",
+                "fecha": "2024-06-01",
+                "descripcion": "Desc",
+                "caracteristicas": "Caract",
+                "qr_casette": "QR001",
+                "organo": "Pulmón",
+            },
+        )
+        self.assertTrue(Cassette.objects.filter(cassette="C001").exists())
 
     def test_editar_cassette(self):
         c = make_cassette(1)
-        self.client.post(reverse('cassette_update', args=[c.pk]), {
-            'cassette': c.cassette, 'fecha': c.fecha,
-            'descripcion': 'Nueva desc', 'caracteristicas': c.caracteristicas,
-            'qr_casette': c.qr_casette, 'organo': c.organo,
-        })
+        self.client.post(
+            reverse("cassette_update", args=[c.pk]),
+            {
+                "cassette": c.cassette,
+                "fecha": c.fecha,
+                "descripcion": "Nueva desc",
+                "caracteristicas": c.caracteristicas,
+                "qr_casette": c.qr_casette,
+                "organo": c.organo,
+            },
+        )
         c.refresh_from_db()
-        self.assertEqual(c.descripcion, 'Nueva desc')
+        self.assertEqual(c.descripcion, "Nueva desc")
 
     def test_eliminar_cassette(self):
         c = make_cassette(1)
-        self.client.post(reverse('cassette_delete', args=[c.pk]))
+        self.client.post(reverse("cassette_delete", args=[c.pk]))
         self.assertFalse(Cassette.objects.filter(pk=c.pk).exists())
 
     def test_detalle_cassette_por_param(self):
         c = make_cassette(1)
-        r = self.client.get(reverse('cassettes') + f'?cassette={c.pk}')
-        self.assertEqual(r.context['selected'].pk, c.pk)
+        r = self.client.get(reverse("cassettes") + f"?cassette={c.pk}")
+        self.assertEqual(r.context["selected"].pk, c.pk)
 
 
 # ── 5. CRUD Citologías ────────────────────────────────────────────────────────
 
-class CitologiaCRUDTests(TestCase):
 
+class CitologiaCRUDTests(TestCase):
     DATOS_VALIDOS = {
-        'citologia': 'CIT001', 'tipo_citologia': 'Improntas',
-        'fecha': '2024-06-01', 'descripcion': 'Desc',
-        'caracteristicas': 'Caract', 'organo': 'Pulmón',
+        "citologia": "CIT001",
+        "tipo_citologia": "Improntas",
+        "fecha": "2024-06-01",
+        "descripcion": "Desc",
+        "caracteristicas": "Caract",
+        "organo": "Pulmón",
     }
 
     def setUp(self):
@@ -589,96 +693,107 @@ class CitologiaCRUDTests(TestCase):
         self.client.force_login(self.tecnico)
 
     def test_crear_citologia(self):
-        r = self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        r = self.client.post(reverse("citologia_create"), self.DATOS_VALIDOS)
         self.assertEqual(r.status_code, 302)
-        self.assertTrue(Citologia.objects.filter(citologia='CIT001').exists())
+        self.assertTrue(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_crear_citologia_genera_qr(self):
-        self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
-        c = Citologia.objects.get(citologia='CIT001')
-        self.assertTrue(c.qr_citologia.startswith('--cit--'))
+        self.client.post(reverse("citologia_create"), self.DATOS_VALIDOS)
+        c = Citologia.objects.get(citologia="CIT001")
+        self.assertTrue(c.qr_citologia.startswith("--cit--"))
 
     def test_crear_citologia_asocia_tecnico(self):
-        self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
-        c = Citologia.objects.get(citologia='CIT001')
+        self.client.post(reverse("citologia_create"), self.DATOS_VALIDOS)
+        c = Citologia.objects.get(citologia="CIT001")
         self.assertEqual(c.tecnico, self.tecnico)
 
     def test_crear_citologia_sin_tipo_no_crea(self):
         """ChoiceField required=True — tipo vacío debe rechazarse."""
-        datos = {**self.DATOS_VALIDOS, 'tipo_citologia': ''}
-        self.client.post(reverse('citologia_create'), datos)
-        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+        datos = {**self.DATOS_VALIDOS, "tipo_citologia": ""}
+        self.client.post(reverse("citologia_create"), datos)
+        self.assertFalse(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_crear_citologia_sin_organo_no_crea(self):
-        datos = {**self.DATOS_VALIDOS, 'organo': ''}
-        self.client.post(reverse('citologia_create'), datos)
-        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+        datos = {**self.DATOS_VALIDOS, "organo": ""}
+        self.client.post(reverse("citologia_create"), datos)
+        self.assertFalse(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_crear_citologia_sin_descripcion_no_crea(self):
-        datos = {**self.DATOS_VALIDOS, 'descripcion': ''}
-        self.client.post(reverse('citologia_create'), datos)
-        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+        datos = {**self.DATOS_VALIDOS, "descripcion": ""}
+        self.client.post(reverse("citologia_create"), datos)
+        self.assertFalse(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_crear_citologia_tipo_desconocido_se_acepta(self):
         """Un tipo libre (no en catálogo) se acepta para compatibilidad con registros legacy."""
-        datos = {**self.DATOS_VALIDOS, 'tipo_citologia': 'Exfoliativa'}
-        self.client.post(reverse('citologia_create'), datos)
-        self.assertTrue(Citologia.objects.filter(citologia='CIT001').exists())
+        datos = {**self.DATOS_VALIDOS, "tipo_citologia": "Exfoliativa"}
+        self.client.post(reverse("citologia_create"), datos)
+        self.assertTrue(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_crear_citologia_sin_sesion_redirige_login(self):
         self.client.logout()
-        r = self.client.post(reverse('citologia_create'), self.DATOS_VALIDOS)
+        r = self.client.post(reverse("citologia_create"), self.DATOS_VALIDOS)
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/login/', r['Location'])
-        self.assertFalse(Citologia.objects.filter(citologia='CIT001').exists())
+        self.assertIn("/login/", r["Location"])
+        self.assertFalse(Citologia.objects.filter(citologia="CIT001").exists())
 
     def test_editar_citologia(self):
         c = make_citologia(self.tecnico, 1)
-        self.client.post(reverse('citologia_update', args=[c.pk]), {
-            'citologia': c.citologia, 'tipo_citologia': 'Improntas',
-            'fecha': c.fecha, 'descripcion': 'Desc actualizada',
-            'caracteristicas': c.caracteristicas, 'organo': c.organo,
-        })
+        self.client.post(
+            reverse("citologia_update", args=[c.pk]),
+            {
+                "citologia": c.citologia,
+                "tipo_citologia": "Improntas",
+                "fecha": c.fecha,
+                "descripcion": "Desc actualizada",
+                "caracteristicas": c.caracteristicas,
+                "organo": c.organo,
+            },
+        )
         c.refresh_from_db()
-        self.assertEqual(c.descripcion, 'Desc actualizada')
+        self.assertEqual(c.descripcion, "Desc actualizada")
 
     def test_editar_citologia_tipo_desconocido_modifica(self):
         """Un tipo libre se acepta también en edición (compatibilidad legacy)."""
         c = make_citologia(self.tecnico, 1)
-        self.client.post(reverse('citologia_update', args=[c.pk]), {
-            'citologia': c.citologia, 'tipo_citologia': 'TipoFalso',
-            'fecha': c.fecha, 'descripcion': 'Desc cambiada',
-            'caracteristicas': c.caracteristicas, 'organo': c.organo,
-        })
+        self.client.post(
+            reverse("citologia_update", args=[c.pk]),
+            {
+                "citologia": c.citologia,
+                "tipo_citologia": "TipoFalso",
+                "fecha": c.fecha,
+                "descripcion": "Desc cambiada",
+                "caracteristicas": c.caracteristicas,
+                "organo": c.organo,
+            },
+        )
         c.refresh_from_db()
-        self.assertEqual(c.descripcion, 'Desc cambiada')
-        self.assertEqual(c.tipo_citologia, 'TipoFalso')
+        self.assertEqual(c.descripcion, "Desc cambiada")
+        self.assertEqual(c.tipo_citologia, "TipoFalso")
 
     def test_eliminar_citologia(self):
         c = make_citologia(self.tecnico, 1)
-        self.client.post(reverse('citologia_delete', args=[c.pk]))
+        self.client.post(reverse("citologia_delete", args=[c.pk]))
         self.assertFalse(Citologia.objects.filter(pk=c.pk).exists())
 
     def test_eliminar_citologia_inexistente_devuelve_404(self):
-        r = self.client.post(reverse('citologia_delete', args=[99999]))
+        r = self.client.post(reverse("citologia_delete", args=[99999]))
         self.assertEqual(r.status_code, 404)
 
     def test_listar_sin_filtros_devuelve_10(self):
         for i in range(15):
             make_citologia(self.tecnico, i + 1)
-        r = self.client.get(reverse('citologias'))
-        self.assertEqual(len(r.context['citologias']), 10)
+        r = self.client.get(reverse("citologias"))
+        self.assertEqual(len(r.context["citologias"]), 10)
 
 
 class NecropsiaMuestrasTests(TestCase):
-
     DATOS_VALIDOS = {
-        'citologia': 'CIT001',
-        'tipo_citologia': 'Improntas',
-        'fecha': '2024-06-01',
-        'descripcion': 'Paciente A',
-        'caracteristicas': 'Caract',
-        'organo': 'Pulmón',
+        "citologia": "CIT001",
+        "tipo_citologia": "Improntas",
+        "fecha": "2024-06-01",
+        "descripcion": "Paciente A",
+        "caracteristicas": "Caract",
+        "organo": "Pulmón",
     }
 
     def setUp(self):
@@ -686,58 +801,69 @@ class NecropsiaMuestrasTests(TestCase):
         self.tecnico = make_tecnico(1)
         self.client.force_login(self.tecnico)
         self.necropsia = Necropsia.objects.create(
-            necropsia='N001',
-            tipo_necropsia='Clínica',
-            fecha='2024-01-01',
-            descripcion='Desc',
-            caracteristicas='Caract',
-            qr_necropsia='QRN1',
-            organo='Pulmón',
+            necropsia="N001",
+            tipo_necropsia="Clínica",
+            fecha="2024-01-01",
+            descripcion="Desc",
+            caracteristicas="Caract",
+            qr_necropsia="QRN1",
+            organo="Pulmón",
             tecnico=self.tecnico,
         )
 
     def test_crear_muestra_necropsia_acepta_tincion_hidden_legacy(self):
-        response = self.client.post(reverse('muestra_necropsia_create', args=[self.necropsia.pk]), {
-            'descripcion': 'Muestra necropsia',
-            'fecha': '2026-03-11',
-            'examen_interno_cadaver': 'dato',
-            'tecnica_apertura': 'tecnica',
-            'datos_relevantes_region': 'region',
-            'tincion': 'Otros',
-            'observaciones': 'obs',
-        })
+        response = self.client.post(
+            reverse("muestra_necropsia_create", args=[self.necropsia.pk]),
+            {
+                "descripcion": "Muestra necropsia",
+                "fecha": "2026-03-11",
+                "examen_interno_cadaver": "dato",
+                "tecnica_apertura": "tecnica",
+                "datos_relevantes_region": "region",
+                "tincion": "Otros",
+                "observaciones": "obs",
+            },
+        )
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(MuestraNecropsia.objects.filter(necropsia=self.necropsia, descripcion='Muestra necropsia').exists())
+        self.assertTrue(
+            MuestraNecropsia.objects.filter(
+                necropsia=self.necropsia, descripcion="Muestra necropsia"
+            ).exists()
+        )
 
     def test_filtro_por_organo(self):
         make_citologia(self.tecnico, 1)  # organo='Pulmón'
         Citologia.objects.create(
-            citologia='CIT999', tipo_citologia='Improntas', fecha='2024-01-01',
-            descripcion='D', caracteristicas='C', qr_citologia='QRCFILTRO',
-            organo='Riñón',
+            citologia="CIT999",
+            tipo_citologia="Improntas",
+            fecha="2024-01-01",
+            descripcion="D",
+            caracteristicas="C",
+            qr_citologia="QRCFILTRO",
+            organo="Riñón",
         )
-        r = self.client.get(reverse('citologias') + '?organo=Riñón')
-        self.assertEqual(len(r.context['citologias']), 1)
-        self.assertEqual(r.context['citologias'][0].organo, 'Riñón')
+        r = self.client.get(reverse("citologias") + "?organo=Riñón")
+        self.assertEqual(len(r.context["citologias"]), 1)
+        self.assertEqual(r.context["citologias"][0].organo, "Riñón")
 
     def test_detalle_citologia_por_param(self):
         c = make_citologia(self.tecnico, 1)
-        r = self.client.get(reverse('citologias') + f'?citologia={c.pk}')
-        self.assertEqual(r.context['selected'].pk, c.pk)
+        r = self.client.get(reverse("citologias") + f"?citologia={c.pk}")
+        self.assertEqual(r.context["selected"].pk, c.pk)
 
     def test_todos_los_tipos_validos_crean_citologia(self):
-        tipos = ['Improntas', 'Punción-aspiración', 'Esputo', 'Muestra endometrial']
+        tipos = ["Improntas", "Punción-aspiración", "Esputo", "Muestra endometrial"]
         for i, tipo in enumerate(tipos):
-            datos = {**self.DATOS_VALIDOS, 'citologia': f'T{i}', 'tipo_citologia': tipo}
-            self.client.post(reverse('citologia_create'), datos)
+            datos = {**self.DATOS_VALIDOS, "citologia": f"T{i}", "tipo_citologia": tipo}
+            self.client.post(reverse("citologia_create"), datos)
         self.assertEqual(Citologia.objects.count(), len(tipos))
 
 
 # ── 6. Muestras ───────────────────────────────────────────────────────────────
 
-class MuestraTests(TestCase):
 
+class MuestraTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -746,44 +872,57 @@ class MuestraTests(TestCase):
 
     def test_crear_muestra_asociada_a_cassette(self):
         self.client.post(
-            reverse('muestra_create', args=[self.cassette.pk]),
+            reverse("muestra_create", args=[self.cassette.pk]),
             {
-                'descripcion': 'Muestra 1', 'fecha': '2024-06-01',
-                'tincion': 'Hematoxilina Eosina (HE)',
+                "descripcion": "Muestra 1",
+                "fecha": "2024-06-01",
+                "tincion": "Hematoxilina Eosina (HE)",
             },
         )
         self.assertTrue(
-            Muestra.objects.filter(cassette=self.cassette, descripcion='Muestra 1').exists()
+            Muestra.objects.filter(
+                cassette=self.cassette, descripcion="Muestra 1"
+            ).exists()
         )
 
     def test_crear_muestra_desde_modal_biopsias_sin_descripcion_explicita(self):
         self.client.post(
-            reverse('muestra_create', args=[self.cassette.pk]),
+            reverse("muestra_create", args=[self.cassette.pk]),
             {
-                'numero_bloque': 'B-101',
-                'descripcion_macroscopica': 'Tejido con alteraciones leves',
-                'tincion': 'Hematoxilina Eosina (HE)',
+                "numero_bloque": "B-101",
+                "descripcion_macroscopica": "Tejido con alteraciones leves",
+                "tincion": "Hematoxilina Eosina (HE)",
             },
         )
 
-        muestra = Muestra.objects.filter(cassette=self.cassette, numero_bloque='B-101').first()
+        muestra = Muestra.objects.filter(
+            cassette=self.cassette, numero_bloque="B-101"
+        ).first()
         self.assertIsNotNone(muestra)
-        self.assertEqual(muestra.descripcion, 'B-101')
-        self.assertEqual(muestra.descripcion_macroscopica, 'Tejido con alteraciones leves')
+        self.assertEqual(muestra.descripcion, "B-101")
+        self.assertEqual(
+            muestra.descripcion_macroscopica, "Tejido con alteraciones leves"
+        )
         self.assertEqual(muestra.fecha, timezone.localdate())
 
     def test_eliminar_muestra(self):
         m = Muestra.objects.create(
-            descripcion='M', fecha='2024-01-01', tincion='HE',
-            qr_muestra='QRM2', cassette=self.cassette,
+            descripcion="M",
+            fecha="2024-01-01",
+            tincion="HE",
+            qr_muestra="QRM2",
+            cassette=self.cassette,
         )
-        self.client.post(reverse('muestra_delete', args=[m.pk]))
+        self.client.post(reverse("muestra_delete", args=[m.pk]))
         self.assertFalse(Muestra.objects.filter(pk=m.pk).exists())
 
     def test_eliminar_cassette_elimina_muestras_en_cascada(self):
         Muestra.objects.create(
-            descripcion='M', fecha='2024-01-01', tincion='HE',
-            qr_muestra='QRM3', cassette=self.cassette,
+            descripcion="M",
+            fecha="2024-01-01",
+            tincion="HE",
+            qr_muestra="QRM3",
+            cassette=self.cassette,
         )
         pk = self.cassette.pk
         self.cassette.delete()
@@ -792,168 +931,214 @@ class MuestraTests(TestCase):
 
 # ── Helpers adicionales ───────────────────────────────────────────────────────
 
+
 def make_hematologia(tecnico=None, n=1):
     return Hematologia.objects.create(
-        hematologia=f'HEM{n:03d}',
-        fecha='2024-01-01',
-        descripcion='Paciente prueba',
-        caracteristicas='Caract',
-        qr_hematologia=f'QRH{n}',
-        organo='Pulmón',
+        hematologia=f"HEM{n:03d}",
+        fecha="2024-01-01",
+        descripcion="Paciente prueba",
+        caracteristicas="Caract",
+        qr_hematologia=f"QRH{n}",
+        organo="Pulmón",
         tecnico=tecnico,
     )
 
 
 def make_muestra(cassette, n=1):
     return Muestra.objects.create(
-        descripcion=f'Muestra {n}',
-        fecha='2024-01-01',
-        tincion='Hematoxilina Eosina (HE)',
-        qr_muestra=f'QRM{n}',
+        descripcion=f"Muestra {n}",
+        fecha="2024-01-01",
+        tincion="Hematoxilina Eosina (HE)",
+        qr_muestra=f"QRM{n}",
         cassette=cassette,
     )
 
 
 def make_muestra_citologia(citologia, n=1):
     return MuestraCitologia.objects.create(
-        descripcion=f'Muestra CIT {n}',
-        fecha='2024-01-01',
-        tincion='Papanicolau',
-        qr_muestra=f'QRMC{n}',
+        descripcion=f"Muestra CIT {n}",
+        fecha="2024-01-01",
+        tincion="Papanicolau",
+        qr_muestra=f"QRMC{n}",
         citologia=citologia,
     )
 
 
 def make_muestra_hematologia(hematologia, n=1):
     return MuestraHematologia.objects.create(
-        descripcion=f'Muestra HEM {n}',
-        fecha='2024-01-01',
-        tincion='Wright',
-        qr_muestra=f'QRMH{n}',
+        descripcion=f"Muestra HEM {n}",
+        fecha="2024-01-01",
+        tincion="Wright",
+        qr_muestra=f"QRMH{n}",
         hematologia=hematologia,
     )
 
 
-def fake_image(name='test.jpg'):
+def fake_image(name="test.jpg"):
     """Imagen JPEG mínima válida para pruebas de subida."""
     return SimpleUploadedFile(
         name,
-        b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00'
-        b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t'
-        b'\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a'
-        b'\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\x1e!'
-        b'\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00'
-        b'\xff\xc4\x00\x1f\x00\x00\x01\x05\x01\x01\x01\x01\x01\x01\x00\x00'
-        b'\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b'
-        b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xfb\xff\xd9',
-        content_type='image/jpeg',
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t"
+        b"\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a"
+        b"\x1f\x1e\x1d\x1a\x1c\x1c $.' \",#\x1c\x1c(7),01444\x1f'9=82<.342\x1e!"
+        b"\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00"
+        b"\xff\xc4\x00\x1f\x00\x00\x01\x05\x01\x01\x01\x01\x01\x01\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b"
+        b"\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xfb\xff\xd9",
+        content_type="image/jpeg",
     )
 
 
 # ── 7. Cassette: QR, técnico, filtros adicionales ─────────────────────────────
 
-class CassetteExtrasTests(TestCase):
 
+class CassetteExtrasTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
         self.client.force_login(self.tecnico)
 
     def test_crear_cassette_genera_qr_automaticamente(self):
-        self.client.post(reverse('cassette_create'), {
-            'cassette': 'C100', 'fecha': '2024-06-01',
-            'descripcion': 'D', 'caracteristicas': 'C', 'organo': 'Pulmón',
-        })
-        c = Cassette.objects.filter(cassette='C100').first()
+        self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C100",
+                "fecha": "2024-06-01",
+                "descripcion": "D",
+                "caracteristicas": "C",
+                "organo": "Pulmón",
+            },
+        )
+        c = Cassette.objects.filter(cassette="C100").first()
         self.assertIsNotNone(c)
-        self.assertTrue(c.qr_casette.startswith('--c--'))
+        self.assertTrue(c.qr_casette.startswith("--c--"))
 
     def test_crear_cassette_asocia_tecnico_actual(self):
-        self.client.post(reverse('cassette_create'), {
-            'cassette': 'C101', 'fecha': '2024-06-01',
-            'descripcion': 'D', 'caracteristicas': 'C', 'organo': 'Riñón',
-        })
-        c = Cassette.objects.get(cassette='C101')
+        self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C101",
+                "fecha": "2024-06-01",
+                "descripcion": "D",
+                "caracteristicas": "C",
+                "organo": "Riñón",
+            },
+        )
+        c = Cassette.objects.get(cassette="C101")
         self.assertEqual(c.tecnico, self.tecnico)
 
     def test_crear_cassette_redirige_al_detalle(self):
-        r = self.client.post(reverse('cassette_create'), {
-            'cassette': 'C102', 'fecha': '2024-06-01',
-            'descripcion': 'D', 'caracteristicas': 'C', 'organo': 'Hígado',
-        })
-        c = Cassette.objects.get(cassette='C102')
+        r = self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C102",
+                "fecha": "2024-06-01",
+                "descripcion": "D",
+                "caracteristicas": "C",
+                "organo": "Hígado",
+            },
+        )
+        c = Cassette.objects.get(cassette="C102")
         self.assertRedirects(
-            r, reverse('cassettes') + f'?cassette={c.pk}',
+            r,
+            reverse("cassettes") + f"?cassette={c.pk}",
             fetch_redirect_response=False,
         )
 
     def test_crear_cassette_sin_descripcion_no_crea(self):
-        self.client.post(reverse('cassette_create'), {
-            'cassette': 'C103', 'fecha': '2024-06-01',
-            'descripcion': '', 'caracteristicas': 'C', 'organo': 'Pulmón',
-        })
-        self.assertFalse(Cassette.objects.filter(cassette='C103').exists())
+        self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C103",
+                "fecha": "2024-06-01",
+                "descripcion": "",
+                "caracteristicas": "C",
+                "organo": "Pulmón",
+            },
+        )
+        self.assertFalse(Cassette.objects.filter(cassette="C103").exists())
 
     def test_crear_cassette_sin_sesion_redirige_login(self):
         self.client.logout()
-        r = self.client.post(reverse('cassette_create'), {
-            'cassette': 'C104', 'fecha': '2024-06-01',
-            'descripcion': 'D', 'caracteristicas': 'C', 'organo': 'Pulmón',
-        })
+        r = self.client.post(
+            reverse("cassette_create"),
+            {
+                "cassette": "C104",
+                "fecha": "2024-06-01",
+                "descripcion": "D",
+                "caracteristicas": "C",
+                "organo": "Pulmón",
+            },
+        )
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/login/', r['Location'])
-        self.assertFalse(Cassette.objects.filter(cassette='C104').exists())
+        self.assertIn("/login/", r["Location"])
+        self.assertFalse(Cassette.objects.filter(cassette="C104").exists())
 
     def test_filtro_por_numero_cassette(self):
-        make_cassette(1)   # 'C001'
-        make_cassette(2)   # 'C002'
-        r = self.client.get(reverse('cassettes') + '?numero=C001')
-        self.assertEqual(len(r.context['cassettes']), 1)
-        self.assertEqual(r.context['cassettes'][0].cassette, 'C001')
+        make_cassette(1)  # 'C001'
+        make_cassette(2)  # 'C002'
+        r = self.client.get(reverse("cassettes") + "?numero=C001")
+        self.assertEqual(len(r.context["cassettes"]), 1)
+        self.assertEqual(r.context["cassettes"][0].cassette, "C001")
 
     def test_filtro_por_rango_fechas(self):
         Cassette.objects.create(
-            cassette='CDATE1', fecha='2023-01-10', descripcion='D',
-            caracteristicas='C', qr_casette='QRDATE1', organo='Pulmón',
+            cassette="CDATE1",
+            fecha="2023-01-10",
+            descripcion="D",
+            caracteristicas="C",
+            qr_casette="QRDATE1",
+            organo="Pulmón",
         )
         Cassette.objects.create(
-            cassette='CDATE2', fecha='2024-06-15', descripcion='D',
-            caracteristicas='C', qr_casette='QRDATE2', organo='Pulmón',
+            cassette="CDATE2",
+            fecha="2024-06-15",
+            descripcion="D",
+            caracteristicas="C",
+            qr_casette="QRDATE2",
+            organo="Pulmón",
         )
-        r = self.client.get(reverse('cassettes') + '?inicio=2024-01-01&fin=2024-12-31')
-        self.assertEqual(len(r.context['cassettes']), 1)
-        self.assertEqual(r.context['cassettes'][0].cassette, 'CDATE2')
+        r = self.client.get(reverse("cassettes") + "?inicio=2024-01-01&fin=2024-12-31")
+        self.assertEqual(len(r.context["cassettes"]), 1)
+        self.assertEqual(r.context["cassettes"][0].cassette, "CDATE2")
 
     def test_get_en_cassette_create_rechazado(self):
-        r = self.client.get(reverse('cassette_create'))
+        r = self.client.get(reverse("cassette_create"))
         self.assertEqual(r.status_code, 405)
 
     def test_get_en_cassette_delete_rechazado(self):
         c = make_cassette(1)
-        r = self.client.get(reverse('cassette_delete', args=[c.pk]))
+        r = self.client.get(reverse("cassette_delete", args=[c.pk]))
         self.assertEqual(r.status_code, 405)
 
     def test_eliminar_cassette_inexistente_devuelve_404(self):
-        r = self.client.post(reverse('cassette_delete', args=[99999]))
+        r = self.client.post(reverse("cassette_delete", args=[99999]))
         self.assertEqual(r.status_code, 404)
 
     def test_editar_cassette_redirige_al_detalle(self):
         c = make_cassette(1)
-        r = self.client.post(reverse('cassette_update', args=[c.pk]), {
-            'cassette': c.cassette, 'fecha': c.fecha,
-            'descripcion': 'Desc editada', 'caracteristicas': c.caracteristicas,
-            'organo': c.organo,
-        })
+        r = self.client.post(
+            reverse("cassette_update", args=[c.pk]),
+            {
+                "cassette": c.cassette,
+                "fecha": c.fecha,
+                "descripcion": "Desc editada",
+                "caracteristicas": c.caracteristicas,
+                "organo": c.organo,
+            },
+        )
         self.assertRedirects(
-            r, reverse('cassettes') + f'?cassette={c.pk}',
+            r,
+            reverse("cassettes") + f"?cassette={c.pk}",
             fetch_redirect_response=False,
         )
 
 
 # ── 8. Muestras de cassette: update e imagen ──────────────────────────────────
 
-class MuestraCassetteExtrasTests(TestCase):
 
+class MuestraCassetteExtrasTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -962,55 +1147,69 @@ class MuestraCassetteExtrasTests(TestCase):
         self.muestra = make_muestra(self.cassette, 1)
 
     def test_actualizar_muestra(self):
-        self.client.post(reverse('muestra_update', args=[self.muestra.pk]), {
-            'descripcion': 'Desc modificada', 'fecha': '2024-07-01',
-            'tincion': 'Giemsa',
-        })
+        self.client.post(
+            reverse("muestra_update", args=[self.muestra.pk]),
+            {
+                "descripcion": "Desc modificada",
+                "fecha": "2024-07-01",
+                "tincion": "Giemsa",
+            },
+        )
         self.muestra.refresh_from_db()
-        self.assertEqual(self.muestra.descripcion, 'Desc modificada')
+        self.assertEqual(self.muestra.descripcion, "Desc modificada")
 
     def test_crear_muestra_genera_qr(self):
         self.client.post(
-            reverse('muestra_create', args=[self.cassette.pk]),
-            {'descripcion': 'Muestra QR', 'fecha': '2024-06-01',
-             'tincion': 'Hematoxilina Eosina (HE)'},
+            reverse("muestra_create", args=[self.cassette.pk]),
+            {
+                "descripcion": "Muestra QR",
+                "fecha": "2024-06-01",
+                "tincion": "Hematoxilina Eosina (HE)",
+            },
         )
-        m = Muestra.objects.filter(descripcion='Muestra QR').first()
+        m = Muestra.objects.filter(descripcion="Muestra QR").first()
         self.assertIsNotNone(m)
-        self.assertTrue(m.qr_muestra.startswith('--m--'))
+        self.assertTrue(m.qr_muestra.startswith("--m--"))
 
     def test_subir_imagen_a_muestra(self):
         img = fake_image()
         self.client.post(
-            reverse('imagen_upload', args=[self.muestra.pk]),
-            {'imagen': img},
+            reverse("imagen_upload", args=[self.muestra.pk]),
+            {"imagen": img},
         )
         self.assertEqual(Imagen.objects.filter(muestra=self.muestra).count(), 1)
 
     def test_subir_imagen_sin_fichero_no_crea(self):
-        self.client.post(reverse('imagen_upload', args=[self.muestra.pk]), {})
+        self.client.post(reverse("imagen_upload", args=[self.muestra.pk]), {})
         self.assertEqual(Imagen.objects.filter(muestra=self.muestra).count(), 0)
 
     def test_eliminar_imagen(self):
-        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra.jpg').read())
-        self.client.post(reverse('imagen_delete', args=[imagen.pk]))
+        imagen = Imagen.objects.create(
+            muestra=self.muestra, imagen=fake_image("muestra.jpg")
+        )
+        self.client.post(reverse("imagen_delete", args=[imagen.pk]))
         self.assertFalse(Imagen.objects.filter(pk=imagen.pk).exists())
 
     def test_eliminar_imagen_redirige_a_cassette(self):
-        imagen = Imagen.objects.create(muestra=self.muestra, imagen=fake_image('muestra2.jpg').read())
-        r = self.client.post(reverse('imagen_delete', args=[imagen.pk]))
-        expected = reverse('cassettes') + f'?cassette={self.cassette.pk}&muestra={self.muestra.pk}'
+        imagen = Imagen.objects.create(
+            muestra=self.muestra, imagen=fake_image("muestra2.jpg")
+        )
+        r = self.client.post(reverse("imagen_delete", args=[imagen.pk]))
+        expected = (
+            reverse("cassettes")
+            + f"?cassette={self.cassette.pk}&muestra={self.muestra.pk}"
+        )
         self.assertRedirects(r, expected, fetch_redirect_response=False)
 
     def test_eliminar_imagen_inexistente_devuelve_404(self):
-        r = self.client.post(reverse('imagen_delete', args=[99999]))
+        r = self.client.post(reverse("imagen_delete", args=[99999]))
         self.assertEqual(r.status_code, 404)
 
 
 # ── 9. Muestras de citología ──────────────────────────────────────────────────
 
-class MuestraCitologiaTests(TestCase):
 
+class MuestraCitologiaTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -1019,37 +1218,44 @@ class MuestraCitologiaTests(TestCase):
 
     def test_crear_muestra_citologia(self):
         self.client.post(
-            reverse('muestra_citologia_create', args=[self.citologia.pk]),
-            {'descripcion': 'Muestra cit 1', 'fecha': '2024-06-01',
-             'tincion': 'Papanicolau'},
+            reverse("muestra_citologia_create", args=[self.citologia.pk]),
+            {
+                "descripcion": "Muestra cit 1",
+                "fecha": "2024-06-01",
+                "tincion": "Papanicolau",
+            },
         )
         self.assertTrue(
             MuestraCitologia.objects.filter(
-                citologia=self.citologia, descripcion='Muestra cit 1'
+                citologia=self.citologia, descripcion="Muestra cit 1"
             ).exists()
         )
 
     def test_crear_muestra_citologia_genera_qr(self):
         self.client.post(
-            reverse('muestra_citologia_create', args=[self.citologia.pk]),
-            {'descripcion': 'MC QR', 'fecha': '2024-06-01', 'tincion': 'Papanicolau'},
+            reverse("muestra_citologia_create", args=[self.citologia.pk]),
+            {"descripcion": "MC QR", "fecha": "2024-06-01", "tincion": "Papanicolau"},
         )
-        m = MuestraCitologia.objects.filter(descripcion='MC QR').first()
+        m = MuestraCitologia.objects.filter(descripcion="MC QR").first()
         self.assertIsNotNone(m)
-        self.assertTrue(m.qr_muestra.startswith('--mc--'))
+        self.assertTrue(m.qr_muestra.startswith("--mc--"))
 
     def test_actualizar_muestra_citologia(self):
         m = make_muestra_citologia(self.citologia, 1)
-        self.client.post(reverse('muestra_citologia_update', args=[m.pk]), {
-            'descripcion': 'Desc actualizada', 'fecha': m.fecha,
-            'tincion': 'Giemsa',
-        })
+        self.client.post(
+            reverse("muestra_citologia_update", args=[m.pk]),
+            {
+                "descripcion": "Desc actualizada",
+                "fecha": m.fecha,
+                "tincion": "Giemsa",
+            },
+        )
         m.refresh_from_db()
-        self.assertEqual(m.descripcion, 'Desc actualizada')
+        self.assertEqual(m.descripcion, "Desc actualizada")
 
     def test_eliminar_muestra_citologia(self):
         m = make_muestra_citologia(self.citologia, 1)
-        self.client.post(reverse('muestra_citologia_delete', args=[m.pk]))
+        self.client.post(reverse("muestra_citologia_delete", args=[m.pk]))
         self.assertFalse(MuestraCitologia.objects.filter(pk=m.pk).exists())
 
     def test_eliminar_citologia_elimina_muestras_en_cascada(self):
@@ -1061,33 +1267,39 @@ class MuestraCitologiaTests(TestCase):
     def test_subir_imagen_citologia(self):
         m = make_muestra_citologia(self.citologia, 1)
         img = fake_image()
-        self.client.post(reverse('imagen_citologia_upload', args=[m.pk]), {'imagen': img})
+        self.client.post(
+            reverse("imagen_citologia_upload", args=[m.pk]), {"imagen": img}
+        )
         self.assertEqual(ImagenCitologia.objects.filter(muestra=m).count(), 1)
 
     def test_subir_imagen_citologia_sin_fichero_no_crea(self):
         m = make_muestra_citologia(self.citologia, 1)
-        self.client.post(reverse('imagen_citologia_upload', args=[m.pk]), {})
+        self.client.post(reverse("imagen_citologia_upload", args=[m.pk]), {})
         self.assertEqual(ImagenCitologia.objects.filter(muestra=m).count(), 0)
 
     def test_eliminar_imagen_citologia(self):
         m = make_muestra_citologia(self.citologia, 1)
-        imagen = ImagenCitologia.objects.create(muestra=m, imagen=fake_image('citologia.jpg').read())
-        self.client.post(reverse('imagen_citologia_delete', args=[imagen.pk]))
+        imagen = ImagenCitologia.objects.create(
+            muestra=m, imagen=fake_image("citologia.jpg")
+        )
+        self.client.post(reverse("imagen_citologia_delete", args=[imagen.pk]))
         self.assertFalse(ImagenCitologia.objects.filter(pk=imagen.pk).exists())
 
     def test_eliminar_imagen_citologia_inexistente_devuelve_404(self):
-        r = self.client.post(reverse('imagen_citologia_delete', args=[99999]))
+        r = self.client.post(reverse("imagen_citologia_delete", args=[99999]))
         self.assertEqual(r.status_code, 404)
 
 
 # ── 10. Hematología CRUD ──────────────────────────────────────────────────────
 
-class HematologiaCRUDTests(TestCase):
 
+class HematologiaCRUDTests(TestCase):
     DATOS_VALIDOS = {
-        'hematologia': 'HEM001', 'fecha': '2024-06-01',
-        'descripcion': 'Paciente A', 'caracteristicas': 'Caract',
-        'organo': 'Pulmón',
+        "hematologia": "HEM001",
+        "fecha": "2024-06-01",
+        "descripcion": "Paciente A",
+        "caracteristicas": "Caract",
+        "organo": "Pulmón",
     }
 
     def setUp(self):
@@ -1096,115 +1308,131 @@ class HematologiaCRUDTests(TestCase):
         self.client.force_login(self.tecnico)
 
     def test_listar_hematologias_devuelve_200(self):
-        r = self.client.get(reverse('hematologias'))
+        r = self.client.get(reverse("hematologias"))
         self.assertEqual(r.status_code, 200)
 
     def test_listar_sin_filtros_devuelve_10(self):
         for i in range(15):
             make_hematologia(self.tecnico, i + 1)
-        r = self.client.get(reverse('hematologias'))
-        self.assertEqual(len(r.context['hematologias']), 10)
+        r = self.client.get(reverse("hematologias"))
+        self.assertEqual(len(r.context["hematologias"]), 10)
 
     def test_crear_hematologia(self):
-        self.client.post(reverse('hematologia_create'), self.DATOS_VALIDOS)
-        self.assertTrue(Hematologia.objects.filter(hematologia='HEM001').exists())
+        self.client.post(reverse("hematologia_create"), self.DATOS_VALIDOS)
+        self.assertTrue(Hematologia.objects.filter(hematologia="HEM001").exists())
 
     def test_crear_hematologia_genera_qr(self):
-        self.client.post(reverse('hematologia_create'), self.DATOS_VALIDOS)
-        h = Hematologia.objects.get(hematologia='HEM001')
-        self.assertTrue(h.qr_hematologia.startswith('--h--'))
+        self.client.post(reverse("hematologia_create"), self.DATOS_VALIDOS)
+        h = Hematologia.objects.get(hematologia="HEM001")
+        self.assertTrue(h.qr_hematologia.startswith("--h--"))
 
     def test_crear_hematologia_asocia_tecnico(self):
-        self.client.post(reverse('hematologia_create'), self.DATOS_VALIDOS)
-        h = Hematologia.objects.get(hematologia='HEM001')
+        self.client.post(reverse("hematologia_create"), self.DATOS_VALIDOS)
+        h = Hematologia.objects.get(hematologia="HEM001")
         self.assertEqual(h.tecnico, self.tecnico)
 
     def test_crear_hematologia_redirige_al_detalle(self):
-        r = self.client.post(reverse('hematologia_create'), self.DATOS_VALIDOS)
-        h = Hematologia.objects.get(hematologia='HEM001')
+        r = self.client.post(reverse("hematologia_create"), self.DATOS_VALIDOS)
+        h = Hematologia.objects.get(hematologia="HEM001")
         self.assertRedirects(
-            r, reverse('hematologias') + f'?hematologia={h.pk}',
+            r,
+            reverse("hematologias") + f"?hematologia={h.pk}",
             fetch_redirect_response=False,
         )
 
     def test_crear_hematologia_sin_descripcion_no_crea(self):
-        datos = {**self.DATOS_VALIDOS, 'descripcion': ''}
-        self.client.post(reverse('hematologia_create'), datos)
-        self.assertFalse(Hematologia.objects.filter(hematologia='HEM001').exists())
+        datos = {**self.DATOS_VALIDOS, "descripcion": ""}
+        self.client.post(reverse("hematologia_create"), datos)
+        self.assertFalse(Hematologia.objects.filter(hematologia="HEM001").exists())
 
     def test_crear_hematologia_sin_sesion_redirige_login(self):
         self.client.logout()
-        r = self.client.post(reverse('hematologia_create'), self.DATOS_VALIDOS)
+        r = self.client.post(reverse("hematologia_create"), self.DATOS_VALIDOS)
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/login/', r['Location'])
-        self.assertFalse(Hematologia.objects.filter(hematologia='HEM001').exists())
+        self.assertIn("/login/", r["Location"])
+        self.assertFalse(Hematologia.objects.filter(hematologia="HEM001").exists())
 
     def test_editar_hematologia(self):
         h = make_hematologia(self.tecnico, 1)
-        self.client.post(reverse('hematologia_update', args=[h.pk]), {
-            'hematologia': h.hematologia, 'fecha': h.fecha,
-            'descripcion': 'Paciente editado', 'caracteristicas': h.caracteristicas,
-            'organo': h.organo,
-        })
+        self.client.post(
+            reverse("hematologia_update", args=[h.pk]),
+            {
+                "hematologia": h.hematologia,
+                "fecha": h.fecha,
+                "descripcion": "Paciente editado",
+                "caracteristicas": h.caracteristicas,
+                "organo": h.organo,
+            },
+        )
         h.refresh_from_db()
-        self.assertEqual(h.descripcion, 'Paciente editado')
+        self.assertEqual(h.descripcion, "Paciente editado")
 
     def test_editar_hematologia_redirige_al_detalle(self):
         h = make_hematologia(self.tecnico, 1)
-        r = self.client.post(reverse('hematologia_update', args=[h.pk]), {
-            'hematologia': h.hematologia, 'fecha': h.fecha,
-            'descripcion': 'D', 'caracteristicas': h.caracteristicas,
-            'organo': h.organo,
-        })
+        r = self.client.post(
+            reverse("hematologia_update", args=[h.pk]),
+            {
+                "hematologia": h.hematologia,
+                "fecha": h.fecha,
+                "descripcion": "D",
+                "caracteristicas": h.caracteristicas,
+                "organo": h.organo,
+            },
+        )
         self.assertRedirects(
-            r, reverse('hematologias') + f'?hematologia={h.pk}',
+            r,
+            reverse("hematologias") + f"?hematologia={h.pk}",
             fetch_redirect_response=False,
         )
 
     def test_eliminar_hematologia(self):
         h = make_hematologia(self.tecnico, 1)
-        self.client.post(reverse('hematologia_delete', args=[h.pk]))
+        self.client.post(reverse("hematologia_delete", args=[h.pk]))
         self.assertFalse(Hematologia.objects.filter(pk=h.pk).exists())
 
     def test_eliminar_hematologia_inexistente_devuelve_404(self):
-        r = self.client.post(reverse('hematologia_delete', args=[99999]))
+        r = self.client.post(reverse("hematologia_delete", args=[99999]))
         self.assertEqual(r.status_code, 404)
 
     def test_detalle_hematologia_por_param(self):
         h = make_hematologia(self.tecnico, 1)
-        r = self.client.get(reverse('hematologias') + f'?hematologia={h.pk}')
-        self.assertEqual(r.context['selected'].pk, h.pk)
+        r = self.client.get(reverse("hematologias") + f"?hematologia={h.pk}")
+        self.assertEqual(r.context["selected"].pk, h.pk)
 
     def test_filtro_por_numero_hematologia(self):
-        make_hematologia(self.tecnico, 1)   # 'HEM001'
-        make_hematologia(self.tecnico, 2)   # 'HEM002'
-        r = self.client.get(reverse('hematologias') + '?numero=HEM001')
-        self.assertEqual(len(r.context['hematologias']), 1)
+        make_hematologia(self.tecnico, 1)  # 'HEM001'
+        make_hematologia(self.tecnico, 2)  # 'HEM002'
+        r = self.client.get(reverse("hematologias") + "?numero=HEM001")
+        self.assertEqual(len(r.context["hematologias"]), 1)
 
     def test_filtro_por_organo_hematologia(self):
         make_hematologia(self.tecnico, 1)  # organo='Sangre'
         Hematologia.objects.create(
-            hematologia='HEM999', fecha='2024-01-01', descripcion='D',
-            caracteristicas='C', qr_hematologia='QRHFILTRO', organo='Médula Ósea',
+            hematologia="HEM999",
+            fecha="2024-01-01",
+            descripcion="D",
+            caracteristicas="C",
+            qr_hematologia="QRHFILTRO",
+            organo="Médula Ósea",
         )
-        r = self.client.get(reverse('hematologias') + '?organo=Médula Ósea')
-        self.assertEqual(len(r.context['hematologias']), 1)
-        self.assertEqual(r.context['hematologias'][0].organo, 'Médula Ósea')
+        r = self.client.get(reverse("hematologias") + "?organo=Médula Ósea")
+        self.assertEqual(len(r.context["hematologias"]), 1)
+        self.assertEqual(r.context["hematologias"][0].organo, "Médula Ósea")
 
     def test_get_en_hematologia_create_rechazado(self):
-        r = self.client.get(reverse('hematologia_create'))
+        r = self.client.get(reverse("hematologia_create"))
         self.assertEqual(r.status_code, 405)
 
     def test_get_en_hematologia_delete_rechazado(self):
         h = make_hematologia(self.tecnico, 1)
-        r = self.client.get(reverse('hematologia_delete', args=[h.pk]))
+        r = self.client.get(reverse("hematologia_delete", args=[h.pk]))
         self.assertEqual(r.status_code, 405)
 
 
 # ── 11. Muestras de hematología ───────────────────────────────────────────────
 
-class MuestraHematologiaTests(TestCase):
 
+class MuestraHematologiaTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -1213,67 +1441,80 @@ class MuestraHematologiaTests(TestCase):
 
     def test_crear_muestra_hematologia(self):
         self.client.post(
-            reverse('muestra_hematologia_create', args=[self.hematologia.pk]),
-            {'descripcion': 'MH 1', 'fecha': '2024-06-01', 'tincion': 'Wright'},
+            reverse("muestra_hematologia_create", args=[self.hematologia.pk]),
+            {"descripcion": "MH 1", "fecha": "2024-06-01", "tincion": "Wright"},
         )
         self.assertTrue(
             MuestraHematologia.objects.filter(
-                hematologia=self.hematologia, descripcion='MH 1'
+                hematologia=self.hematologia, descripcion="MH 1"
             ).exists()
         )
 
     def test_crear_muestra_hematologia_genera_qr(self):
         self.client.post(
-            reverse('muestra_hematologia_create', args=[self.hematologia.pk]),
-            {'descripcion': 'MH QR', 'fecha': '2024-06-01', 'tincion': 'Wright'},
+            reverse("muestra_hematologia_create", args=[self.hematologia.pk]),
+            {"descripcion": "MH QR", "fecha": "2024-06-01", "tincion": "Wright"},
         )
-        m = MuestraHematologia.objects.filter(descripcion='MH QR').first()
+        m = MuestraHematologia.objects.filter(descripcion="MH QR").first()
         self.assertIsNotNone(m)
-        self.assertTrue(m.qr_muestra.startswith('--mh--'))
+        self.assertTrue(m.qr_muestra.startswith("--mh--"))
 
     def test_actualizar_muestra_hematologia(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        self.client.post(reverse('muestra_hematologia_update', args=[m.pk]), {
-            'descripcion': 'MH actualizada', 'fecha': m.fecha, 'tincion': 'Giemsa',
-        })
+        self.client.post(
+            reverse("muestra_hematologia_update", args=[m.pk]),
+            {
+                "descripcion": "MH actualizada",
+                "fecha": m.fecha,
+                "tincion": "Giemsa",
+            },
+        )
         m.refresh_from_db()
-        self.assertEqual(m.descripcion, 'MH actualizada')
+        self.assertEqual(m.descripcion, "MH actualizada")
 
     def test_eliminar_muestra_hematologia(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        self.client.post(reverse('muestra_hematologia_delete', args=[m.pk]))
+        self.client.post(reverse("muestra_hematologia_delete", args=[m.pk]))
         self.assertFalse(MuestraHematologia.objects.filter(pk=m.pk).exists())
 
     def test_eliminar_hematologia_elimina_muestras_en_cascada(self):
         make_muestra_hematologia(self.hematologia, 1)
         pk = self.hematologia.pk
         self.hematologia.delete()
-        self.assertEqual(MuestraHematologia.objects.filter(hematologia_id=pk).count(), 0)
+        self.assertEqual(
+            MuestraHematologia.objects.filter(hematologia_id=pk).count(), 0
+        )
 
     def test_subir_imagen_hematologia(self):
         m = make_muestra_hematologia(self.hematologia, 1)
         img = fake_image()
-        self.client.post(reverse('imagen_hematologia_upload', args=[m.pk]), {'imagen': img})
+        self.client.post(
+            reverse("imagen_hematologia_upload", args=[m.pk]), {"imagen": img}
+        )
         self.assertEqual(ImagenHematologia.objects.filter(muestra=m).count(), 1)
 
     def test_eliminar_imagen_hematologia(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia.jpg').read())
-        self.client.post(reverse('imagen_hematologia_delete', args=[imagen.pk]))
+        imagen = ImagenHematologia.objects.create(
+            muestra=m, imagen=fake_image("hematologia.jpg")
+        )
+        self.client.post(reverse("imagen_hematologia_delete", args=[imagen.pk]))
         self.assertFalse(ImagenHematologia.objects.filter(pk=imagen.pk).exists())
 
     def test_eliminar_imagen_hematologia_redirige(self):
         m = make_muestra_hematologia(self.hematologia, 1)
-        imagen = ImagenHematologia.objects.create(muestra=m, imagen=fake_image('hematologia2.jpg').read())
-        r = self.client.post(reverse('imagen_hematologia_delete', args=[imagen.pk]))
-        expected = reverse('hematologias') + f'?hematologia={self.hematologia.pk}'
+        imagen = ImagenHematologia.objects.create(
+            muestra=m, imagen=fake_image("hematologia2.jpg")
+        )
+        r = self.client.post(reverse("imagen_hematologia_delete", args=[imagen.pk]))
+        expected = reverse("hematologias") + f"?hematologia={self.hematologia.pk}"
         self.assertRedirects(r, expected, fetch_redirect_response=False)
 
 
 # ── 12. Informes de cassette ──────────────────────────────────────────────────
 
-class InformeCassetteTests(TestCase):
 
+class InformeCassetteTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -1281,74 +1522,87 @@ class InformeCassetteTests(TestCase):
         self.cassette = make_cassette(1)
 
     def test_crear_informe_cassette(self):
-        self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
-            'informe_descripcion': 'Resultado positivo',
-            'informe_fecha': '2024-06-01',
-            'informe_tincion': '',
-            'informe_observaciones': 'Sin anomalías',
-        })
+        self.client.post(
+            reverse("cassette_informe", args=[self.cassette.pk]),
+            {
+                "informe_descripcion": "Resultado positivo",
+                "informe_fecha": "2024-06-01",
+                "informe_tincion": "",
+                "informe_observaciones": "Sin anomalías",
+            },
+        )
         self.assertTrue(informe_qs_for(self.cassette).exists())
 
     def test_crear_informe_cassette_guarda_descripcion(self):
-        self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
-            'informe_descripcion': 'Desc informe',
-            'informe_fecha': '2024-06-01',
-            'informe_tincion': '',
-            'informe_observaciones': '',
-        })
+        self.client.post(
+            reverse("cassette_informe", args=[self.cassette.pk]),
+            {
+                "informe_descripcion": "Desc informe",
+                "informe_fecha": "2024-06-01",
+                "informe_tincion": "",
+                "informe_observaciones": "",
+            },
+        )
         informe = informe_qs_for(self.cassette).first()
         self.assertIsNotNone(informe)
-        self.assertEqual(informe.descripcion, 'Desc informe')
+        self.assertEqual(informe.descripcion, "Desc informe")
 
     def test_actualizar_informe_existente_no_duplica(self):
         informe = InformeResultado.objects.create(
             content_type=ContentType.objects.get_for_model(Cassette),
             object_id=self.cassette.pk,
-            descripcion='Original',
-            fecha='2024-01-01',
+            descripcion="Original",
+            fecha="2024-01-01",
         )
-        self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
-            'informe_id': informe.pk,
-            'informe_descripcion': 'Actualizado',
-            'informe_fecha': '2024-06-01',
-            'informe_tincion': '',
-            'informe_observaciones': '',
-        })
+        self.client.post(
+            reverse("cassette_informe", args=[self.cassette.pk]),
+            {
+                "informe_id": informe.pk,
+                "informe_descripcion": "Actualizado",
+                "informe_fecha": "2024-06-01",
+                "informe_tincion": "",
+                "informe_observaciones": "",
+            },
+        )
         self.assertEqual(informe_qs_for(self.cassette).count(), 1)
         informe.refresh_from_db()
-        self.assertEqual(informe.descripcion, 'Actualizado')
+        self.assertEqual(informe.descripcion, "Actualizado")
 
     def test_eliminar_informe_cassette(self):
         informe = InformeResultado.objects.create(
             content_type=ContentType.objects.get_for_model(Cassette),
             object_id=self.cassette.pk,
-            descripcion='A eliminar',
-            fecha='2024-01-01',
+            descripcion="A eliminar",
+            fecha="2024-01-01",
         )
         self.client.post(
-            reverse('cassette_informe_delete', args=[self.cassette.pk, informe.pk])
+            reverse("cassette_informe_delete", args=[self.cassette.pk, informe.pk])
         )
         self.assertFalse(InformeResultado.objects.filter(pk=informe.pk).exists())
 
     def test_eliminar_informe_cassette_inexistente_devuelve_404(self):
         r = self.client.post(
-            reverse('cassette_informe_delete', args=[self.cassette.pk, 99999])
+            reverse("cassette_informe_delete", args=[self.cassette.pk, 99999])
         )
         self.assertEqual(r.status_code, 404)
 
     def test_informe_cassette_sin_sesion_redirige_login(self):
         self.client.logout()
-        r = self.client.post(reverse('cassette_informe', args=[self.cassette.pk]), {
-            'informe_descripcion': 'X', 'informe_fecha': '2024-06-01',
-        })
+        r = self.client.post(
+            reverse("cassette_informe", args=[self.cassette.pk]),
+            {
+                "informe_descripcion": "X",
+                "informe_fecha": "2024-06-01",
+            },
+        )
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/login/', r['Location'])
+        self.assertIn("/login/", r["Location"])
 
 
 # ── 13. Informes de citología ─────────────────────────────────────────────────
 
-class InformeCitologiaTests(TestCase):
 
+class InformeCitologiaTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
@@ -1356,23 +1610,26 @@ class InformeCitologiaTests(TestCase):
         self.citologia = make_citologia(self.tecnico, 1)
 
     def test_crear_informe_citologia(self):
-        self.client.post(reverse('citologia_informe', args=[self.citologia.pk]), {
-            'informe_descripcion': 'Resultado cit',
-            'informe_fecha': '2024-06-01',
-            'informe_tincion': '',
-            'informe_observaciones': '',
-        })
+        self.client.post(
+            reverse("citologia_informe", args=[self.citologia.pk]),
+            {
+                "informe_descripcion": "Resultado cit",
+                "informe_fecha": "2024-06-01",
+                "informe_tincion": "",
+                "informe_observaciones": "",
+            },
+        )
         self.assertTrue(informe_qs_for(self.citologia).exists())
 
     def test_eliminar_informe_citologia(self):
         informe = InformeResultado.objects.create(
             content_type=ContentType.objects.get_for_model(Citologia),
             object_id=self.citologia.pk,
-            descripcion='A borrar',
-            fecha='2024-01-01',
+            descripcion="A borrar",
+            fecha="2024-01-01",
         )
         self.client.post(
-            reverse('citologia_informe_delete', args=[self.citologia.pk, informe.pk])
+            reverse("citologia_informe_delete", args=[self.citologia.pk, informe.pk])
         )
         self.assertFalse(InformeResultado.objects.filter(pk=informe.pk).exists())
 
@@ -1380,25 +1637,28 @@ class InformeCitologiaTests(TestCase):
         informe = InformeResultado.objects.create(
             content_type=ContentType.objects.get_for_model(Citologia),
             object_id=self.citologia.pk,
-            descripcion='Original',
-            fecha='2024-01-01',
+            descripcion="Original",
+            fecha="2024-01-01",
         )
-        self.client.post(reverse('citologia_informe', args=[self.citologia.pk]), {
-            'informe_id': informe.pk,
-            'informe_descripcion': 'Actualizado cit',
-            'informe_fecha': '2024-06-01',
-            'informe_tincion': '',
-            'informe_observaciones': '',
-        })
+        self.client.post(
+            reverse("citologia_informe", args=[self.citologia.pk]),
+            {
+                "informe_id": informe.pk,
+                "informe_descripcion": "Actualizado cit",
+                "informe_fecha": "2024-06-01",
+                "informe_tincion": "",
+                "informe_observaciones": "",
+            },
+        )
         self.assertEqual(informe_qs_for(self.citologia).count(), 1)
         informe.refresh_from_db()
-        self.assertEqual(informe.descripcion, 'Actualizado cit')
+        self.assertEqual(informe.descripcion, "Actualizado cit")
 
 
 # ── 14. Gestión de usuarios ───────────────────────────────────────────────────
 
-class UsuarioGestionTests(TestCase):
 
+class UsuarioGestionTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.staff = make_tecnico(1, staff=True)
@@ -1406,145 +1666,174 @@ class UsuarioGestionTests(TestCase):
         self.client.force_login(self.staff)
 
     def test_listar_usuarios_devuelve_200(self):
-        r = self.client.get(reverse('usuarios'))
+        r = self.client.get(reverse("usuarios"))
         self.assertEqual(r.status_code, 200)
 
     def test_staff_puede_actualizar_tecnico(self):
-        self.client.post(reverse('usuario_update', args=[self.normal.pk]), {
-            'nombre': 'Modificado', 'apellidos': self.normal.apellidos,
-            'email': self.normal.email, 'username': self.normal.username or '',
-        })
+        self.client.post(
+            reverse("usuario_update", args=[self.normal.pk]),
+            {
+                "nombre": "Modificado",
+                "apellidos": self.normal.apellidos,
+                "email": self.normal.email,
+                "username": self.normal.username or "",
+            },
+        )
         self.normal.refresh_from_db()
-        self.assertEqual(self.normal.nombre, 'Modificado')
+        self.assertEqual(self.normal.nombre, "Modificado")
 
     def test_no_staff_no_puede_actualizar_tecnico(self):
         self.client.force_login(self.normal)
-        self.client.post(reverse('usuario_update', args=[self.staff.pk]), {
-            'nombre': 'Hackeado', 'apellidos': self.staff.apellidos,
-            'email': self.staff.email,
-        })
+        self.client.post(
+            reverse("usuario_update", args=[self.staff.pk]),
+            {
+                "nombre": "Hackeado",
+                "apellidos": self.staff.apellidos,
+                "email": self.staff.email,
+            },
+        )
         self.staff.refresh_from_db()
-        self.assertNotEqual(self.staff.nombre, 'Hackeado')
+        self.assertNotEqual(self.staff.nombre, "Hackeado")
 
     def test_actualizar_password_queda_hasheada(self):
-        self.client.post(reverse('usuario_update', args=[self.normal.pk]), {
-            'nombre': self.normal.nombre, 'apellidos': self.normal.apellidos,
-            'email': self.normal.email, 'username': self.normal.username or '',
-            'password': 'nuevaclave99',
-        })
+        self.client.post(
+            reverse("usuario_update", args=[self.normal.pk]),
+            {
+                "nombre": self.normal.nombre,
+                "apellidos": self.normal.apellidos,
+                "email": self.normal.email,
+                "username": self.normal.username or "",
+                "password": "nuevaclave99",
+            },
+        )
         self.normal.refresh_from_db()
         # La contraseña hasheada no coincide directamente con el texto plano
-        self.assertNotEqual(self.normal.password, 'nuevaclave99')
+        self.assertNotEqual(self.normal.password, "nuevaclave99")
         # Pero sí es correcta a través del hasher
         from django.contrib.auth.hashers import check_password
-        self.assertTrue(check_password('nuevaclave99', self.normal.password))
+
+        self.assertTrue(check_password("nuevaclave99", self.normal.password))
 
     def test_staff_crea_tecnico_con_password_hasheada(self):
-        self.client.post(reverse('usuario_create'), {
-            'nombre': 'Nuevo', 'apellidos': 'Tecnico',
-            'email': 'nuevo2@test.com', 'username': 'nuevotecnico2',
-            'password': 'segura123',
-        })
-        t = Tecnico.objects.get(email='nuevo2@test.com')
+        self.client.post(
+            reverse("usuario_create"),
+            {
+                "nombre": "Nuevo",
+                "apellidos": "Tecnico",
+                "email": "nuevo2@test.com",
+                "username": "nuevotecnico2",
+                "password": "segura123",
+            },
+        )
+        t = Tecnico.objects.get(email="nuevo2@test.com")
         from django.contrib.auth.hashers import check_password
-        self.assertTrue(check_password('segura123', t.password))
+
+        self.assertTrue(check_password("segura123", t.password))
 
     def test_usuario_delete_redirige_a_lista(self):
         victima = make_tecnico(3)
-        r = self.client.post(reverse('usuario_delete', args=[victima.pk]))
-        self.assertRedirects(r, reverse('usuarios'), fetch_redirect_response=False)
+        r = self.client.post(reverse("usuario_delete", args=[victima.pk]))
+        self.assertRedirects(r, reverse("usuarios"), fetch_redirect_response=False)
 
     def test_get_en_usuario_delete_rechazado(self):
-        r = self.client.get(reverse('usuario_delete', args=[self.normal.pk]))
+        r = self.client.get(reverse("usuario_delete", args=[self.normal.pk]))
         self.assertEqual(r.status_code, 405)
 
 
 # ── 15. Resolvedor QR ─────────────────────────────────────────────────────────
 
-class QRResolverTests(TestCase):
 
+class QRResolverTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.tecnico = make_tecnico(1)
         self.client.force_login(self.tecnico)
 
     def test_sin_codigo_redirige_a_cassettes(self):
-        r = self.client.get(reverse('qr_resolver'))
-        self.assertRedirects(r, reverse('cassettes'), fetch_redirect_response=False)
+        r = self.client.get(reverse("qr_resolver"))
+        self.assertRedirects(r, reverse("cassettes"), fetch_redirect_response=False)
 
     def test_codigo_cassette_redirige_al_cassette(self):
         c = make_cassette(1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={c.qr_casette}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={c.qr_casette}")
         self.assertRedirects(
-            r, reverse('cassettes') + f'?cassette={c.pk}',
+            r,
+            reverse("cassettes") + f"?cassette={c.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_citologia_redirige_a_citologia(self):
         cit = make_citologia(self.tecnico, 1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={cit.qr_citologia}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={cit.qr_citologia}")
         self.assertRedirects(
-            r, reverse('citologias') + f'?citologia={cit.pk}',
+            r,
+            reverse("citologias") + f"?citologia={cit.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_muestra_cassette_redirige(self):
         c = make_cassette(1)
         m = make_muestra(c, 1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={m.qr_muestra}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={m.qr_muestra}")
         self.assertRedirects(
-            r, reverse('cassettes') + f'?cassette={c.pk}&muestra={m.pk}',
+            r,
+            reverse("cassettes") + f"?cassette={c.pk}&muestra={m.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_muestra_citologia_redirige(self):
         cit = make_citologia(self.tecnico, 1)
         m = make_muestra_citologia(cit, 1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={m.qr_muestra}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={m.qr_muestra}")
         self.assertRedirects(
-            r, reverse('citologias') + f'?citologia={cit.pk}&muestra={m.pk}',
+            r,
+            reverse("citologias") + f"?citologia={cit.pk}&muestra={m.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_hematologia_redirige(self):
         h = make_hematologia(self.tecnico, 1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={h.qr_hematologia}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={h.qr_hematologia}")
         self.assertRedirects(
-            r, reverse('hematologias') + f'?hematologia={h.pk}',
+            r,
+            reverse("hematologias") + f"?hematologia={h.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_muestra_hematologia_redirige(self):
         h = make_hematologia(self.tecnico, 1)
         m = make_muestra_hematologia(h, 1)
-        r = self.client.get(reverse('qr_resolver') + f'?code={m.qr_muestra}')
+        r = self.client.get(reverse("qr_resolver") + f"?code={m.qr_muestra}")
         self.assertRedirects(
-            r, reverse('hematologias') + f'?hematologia={h.pk}&muestra={m.pk}',
+            r,
+            reverse("hematologias") + f"?hematologia={h.pk}&muestra={m.pk}",
             fetch_redirect_response=False,
         )
 
     def test_codigo_desconocido_redirige_a_cassettes(self):
-        r = self.client.get(reverse('qr_resolver') + '?code=NOEXISTE123')
-        self.assertRedirects(r, reverse('cassettes'), fetch_redirect_response=False)
+        r = self.client.get(reverse("qr_resolver") + "?code=NOEXISTE123")
+        self.assertRedirects(r, reverse("cassettes"), fetch_redirect_response=False)
 
     def test_url_completa_como_codigo_se_extrae_correctamente(self):
         """Si se escanea la URL completa en lugar del código, debe funcionar igual."""
         c = make_cassette(1)
-        url_completa = f'http://testserver{reverse("qr_resolver")}?code={c.qr_casette}'
-        r = self.client.get(reverse('qr_resolver') + f'?code={url_completa}')
+        url_completa = f"http://testserver{reverse('qr_resolver')}?code={c.qr_casette}"
+        r = self.client.get(reverse("qr_resolver") + f"?code={url_completa}")
         self.assertRedirects(
-            r, reverse('cassettes') + f'?cassette={c.pk}',
+            r,
+            reverse("cassettes") + f"?cassette={c.pk}",
             fetch_redirect_response=False,
         )
 
     def test_qr_resolver_sin_sesion_redirige_login(self):
         self.client.logout()
-        r = self.client.get(reverse('qr_resolver'))
+        r = self.client.get(reverse("qr_resolver"))
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/login/', r['Location'])
+        self.assertIn("/login/", r["Location"])
 
 
 # ── 16. Métodos HTTP incorrectos ──────────────────────────────────────────────
+
 
 class MetodosHTTPTests(TestCase):
     """Verifica que las vistas de acción solo aceptan POST."""
@@ -1559,41 +1848,307 @@ class MetodosHTTPTests(TestCase):
 
     def _post_only(self, url_name, *args):
         r = self.client.get(reverse(url_name, args=args))
-        self.assertEqual(r.status_code, 405, msg=f'{url_name} debe rechazar GET')
+        self.assertEqual(r.status_code, 405, msg=f"{url_name} debe rechazar GET")
 
     def test_cassette_create_rechaza_get(self):
-        self._post_only('cassette_create')
+        self._post_only("cassette_create")
 
     def test_cassette_update_rechaza_get(self):
-        self._post_only('cassette_update', self.cassette.pk)
+        self._post_only("cassette_update", self.cassette.pk)
 
     def test_cassette_delete_rechaza_get(self):
-        self._post_only('cassette_delete', self.cassette.pk)
+        self._post_only("cassette_delete", self.cassette.pk)
 
     def test_citologia_create_rechaza_get(self):
-        self._post_only('citologia_create')
+        self._post_only("citologia_create")
 
     def test_citologia_update_rechaza_get(self):
-        self._post_only('citologia_update', self.citologia.pk)
+        self._post_only("citologia_update", self.citologia.pk)
 
     def test_citologia_delete_rechaza_get(self):
-        self._post_only('citologia_delete', self.citologia.pk)
+        self._post_only("citologia_delete", self.citologia.pk)
 
     def test_hematologia_create_rechaza_get(self):
-        self._post_only('hematologia_create')
+        self._post_only("hematologia_create")
 
     def test_hematologia_update_rechaza_get(self):
-        self._post_only('hematologia_update', self.hematologia.pk)
+        self._post_only("hematologia_update", self.hematologia.pk)
 
     def test_hematologia_delete_rechaza_get(self):
-        self._post_only('hematologia_delete', self.hematologia.pk)
+        self._post_only("hematologia_delete", self.hematologia.pk)
 
     def test_muestra_create_rechaza_get(self):
-        self._post_only('muestra_create', self.cassette.pk)
+        self._post_only("muestra_create", self.cassette.pk)
 
     def test_muestra_delete_rechaza_get(self):
         m = make_muestra(self.cassette, 1)
-        self._post_only('muestra_delete', m.pk)
+        self._post_only("muestra_delete", m.pk)
 
     def test_logout_rechaza_get(self):
-        self._post_only('logout')
+        self._post_only("logout")
+
+
+# ── 17. Middleware de control de rol ─────────────────────────────────────────
+
+
+class MiddlewareRolAccesoTests(TestCase):
+    """
+    Cubre las ramas denied=True de RolAccesoMiddleware para cada combinación
+    rol↔URL/page, incluyendo el branch 'page' in view_kwargs.
+    """
+
+    def setUp(self):
+        self.client = Client()
+
+        self.tecnico_anatomia = make_tecnico(210)
+        self.tecnico_anatomia.rol = Tecnico.ROL_ANATOMIA
+        self.tecnico_anatomia.save(update_fields=["rol"])
+
+        self.tecnico_laboratorio = make_tecnico(211)
+        self.tecnico_laboratorio.rol = Tecnico.ROL_LABORATORIO
+        self.tecnico_laboratorio.save(update_fields=["rol"])
+
+        self.tecnico_profesor = make_tecnico(212)  # rol="profesor" por defecto
+        self.tecnico_staff = make_tecnico(213, staff=True)
+
+    def test_laboratorio_denegado_en_url_de_anatomia(self):
+        """Rol laboratorio no puede acceder a URLs de anatomia patologica (_URLS_ANATOMIA)."""
+        self.client.force_login(self.tecnico_laboratorio)
+        urls_anatomia = [
+            reverse("cassettes"),
+            reverse("citologias"),
+            reverse("necropsias"),
+        ]
+        for url in urls_anatomia:
+            with self.subTest(url=url):
+                r = self.client.get(url)
+                self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
+
+    def test_anatomia_denegada_en_url_de_laboratorio(self):
+        """Rol anatomia_patologica no puede acceder a URLs de laboratorio (_URLS_LABORATORIO)."""
+        self.client.force_login(self.tecnico_anatomia)
+        urls_lab = [
+            reverse("hematologias"),
+            reverse("bioquimica"),
+            reverse("microbiologia"),
+        ]
+        for url in urls_lab:
+            with self.subTest(url=url):
+                r = self.client.get(url)
+                self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
+
+    def test_profesor_accede_a_url_de_ambos_roles(self):
+        """Rol profesor tiene acceso total: no es bloqueado por el middleware."""
+        self.client.force_login(self.tecnico_profesor)
+        for url in [reverse("cassettes"), reverse("hematologias")]:
+            with self.subTest(url=url):
+                r = self.client.get(url)
+                self.assertEqual(r.status_code, 200)
+
+    def test_staff_accede_a_url_de_ambos_roles(self):
+        """is_staff=True tiene acceso total sin restriccion de rol."""
+        self.client.force_login(self.tecnico_staff)
+        for url in [reverse("cassettes"), reverse("hematologias")]:
+            with self.subTest(url=url):
+                r = self.client.get(url)
+                self.assertEqual(r.status_code, 200)
+
+    def test_laboratorio_denegado_en_pagina_de_anatomia(self):
+        """
+        Rama 'page' in view_kwargs: laboratorio no accede a paginas de anatomia.
+        /anatomia.html activa render_html con page='anatomia' que esta en _PAGES_ANATOMIA.
+        """
+        self.client.force_login(self.tecnico_laboratorio)
+        r = self.client.get("/anatomia.html")
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
+
+    def test_anatomia_denegada_en_pagina_de_laboratorio(self):
+        """
+        Rama 'page' in view_kwargs: anatomia no accede a paginas de laboratorio.
+        /laboratorio.html activa render_html con page='laboratorio' en _PAGES_LABORATORIO.
+        """
+        self.client.force_login(self.tecnico_anatomia)
+        r = self.client.get("/laboratorio.html")
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
+
+    def test_denegacion_anade_mensaje_error_y_redirige_a_index(self):
+        """Al denegar acceso, el middleware anade messages.error y redirige a /index.html."""
+        from django.contrib.messages import get_messages
+
+        self.client.force_login(self.tecnico_laboratorio)
+        r = self.client.get(reverse("cassettes"))
+
+        self.assertRedirects(r, "/index.html", fetch_redirect_response=False)
+        msgs = [m.message for m in get_messages(r.wsgi_request)]
+        self.assertIn("No tienes acceso a esta sección.", msgs)
+
+
+# ── 18. Helpers de tipo MIME y detección de volante ───────────────────────────
+
+
+class MimeTipoYDetectarVolanteTests(TestCase):
+    """
+    Tests unitarios de _mime_tipo_desde_bytes (ramas faltantes: JPEG, GIF, BMP, WebP,
+    fallback) y de _detectar_tipo_volante (PDF, ZIP, OLE, JPEG, PNG, GIF, fallback).
+    """
+
+    # ── _mime_tipo_desde_bytes ───────────────────────────────────────────────
+
+    def test_mime_tipo_jpeg(self):
+        """_mime_tipo_desde_bytes identifica JPEG por magic \\xff\\xd8\\xff."""
+        self.assertEqual(
+            _mime_tipo_desde_bytes(b"\xff\xd8\xff\xe0" + b"0" * 10), "image/jpeg"
+        )
+
+    def test_mime_tipo_gif87a(self):
+        """_mime_tipo_desde_bytes identifica GIF87a por magic bytes."""
+        self.assertEqual(_mime_tipo_desde_bytes(b"GIF87a" + b"0" * 10), "image/gif")
+
+    def test_mime_tipo_gif89a(self):
+        """_mime_tipo_desde_bytes identifica GIF89a por magic bytes."""
+        self.assertEqual(_mime_tipo_desde_bytes(b"GIF89a" + b"0" * 10), "image/gif")
+
+    def test_mime_tipo_bmp(self):
+        """_mime_tipo_desde_bytes identifica BMP por magic BM."""
+        self.assertEqual(_mime_tipo_desde_bytes(b"BM" + b"0" * 10), "image/bmp")
+
+    def test_mime_tipo_webp(self):
+        """_mime_tipo_desde_bytes identifica WebP por magic RIFF...WEBP."""
+        self.assertEqual(
+            _mime_tipo_desde_bytes(b"RIFF\x00\x00\x00\x00WEBP" + b"0" * 10),
+            "image/webp",
+        )
+
+    def test_mime_tipo_desconocido_es_jpeg(self):
+        """_mime_tipo_desde_bytes devuelve image/jpeg como fallback para bytes desconocidos."""
+        self.assertEqual(_mime_tipo_desde_bytes(b"UNKNOWNHEADER"), "image/jpeg")
+
+    def test_mime_tipo_bytes_vacios_es_jpeg(self):
+        """_mime_tipo_desde_bytes devuelve image/jpeg cuando el campo esta vacio."""
+        self.assertEqual(_mime_tipo_desde_bytes(b""), "image/jpeg")
+
+    # ── _detectar_tipo_volante ─────────────────────────────────────────────
+
+    def test_detectar_tipo_pdf(self):
+        """_detectar_tipo_volante identifica PDF por magic %PDF."""
+        self.assertEqual(_detectar_tipo_volante(b"%PDF-1.4\nresto"), "application/pdf")
+
+    def test_detectar_tipo_docx_zip(self):
+        """_detectar_tipo_volante identifica ZIP-based (docx/odt) por magic PK."""
+        self.assertEqual(
+            _detectar_tipo_volante(b"PK\x03\x04" + b"0" * 20),
+            "application/octet-stream",
+        )
+
+    def test_detectar_tipo_msword_ole(self):
+        """_detectar_tipo_volante identifica .doc legacy (OLE) por magic bytes."""
+        ole_magic = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
+        self.assertEqual(
+            _detectar_tipo_volante(ole_magic + b"0" * 10), "application/msword"
+        )
+
+    def test_detectar_tipo_jpeg_bytes(self):
+        """_detectar_tipo_volante identifica JPEG dentro de un volante."""
+        self.assertEqual(
+            _detectar_tipo_volante(b"\xff\xd8\xff" + b"0" * 10), "image/jpeg"
+        )
+
+    def test_detectar_tipo_png_bytes(self):
+        """_detectar_tipo_volante identifica PNG dentro de un volante."""
+        self.assertEqual(
+            _detectar_tipo_volante(b"\x89PNG\r\n\x1a\n" + b"0" * 10), "image/png"
+        )
+
+    def test_detectar_tipo_gif_bytes(self):
+        """_detectar_tipo_volante identifica GIF dentro de un volante."""
+        self.assertEqual(_detectar_tipo_volante(b"GIF89a" + b"0" * 10), "image/gif")
+
+    def test_detectar_tipo_desconocido_octet_stream(self):
+        """_detectar_tipo_volante devuelve octet-stream para tipos no reconocidos."""
+        self.assertEqual(
+            _detectar_tipo_volante(b"UNKNOWNCONTENT"), "application/octet-stream"
+        )
+
+
+# ── 19. Descarga de InformeResultado ────────────────────────────────────────────
+
+
+class DescargaInformeResultadoTests(TestCase):
+    """
+    Cubre descargar_informe_resultado: content-type correcto, manejo de ausencia
+    de imagen e informe inexistente.
+    """
+
+    def setUp(self):
+        self.client = Client()
+        self.tecnico = make_tecnico(300)
+        self.client.force_login(self.tecnico)
+
+    def _crear_informe_con_imagen(self, contenido, nombre, n):
+        """Helper interno: crea un InformeResultado con imagen adjunta sobre un Cassette."""
+        cassette = make_cassette(n)
+        ct = ContentType.objects.get_for_model(Cassette)
+        return InformeResultado.objects.create(
+            content_type=ct,
+            object_id=cassette.pk,
+            descripcion="Informe descarga test",
+            fecha="2024-01-01",
+            imagen=ContentFile(contenido, name=nombre),
+        )
+
+    def test_descargar_informe_pdf_devuelve_200(self):
+        """Un informe con imagen PDF devuelve 200 y content-type application/pdf."""
+        informe = self._crear_informe_con_imagen(
+            b"%PDF-1.4\n%test\n", "informe.pdf", 400
+        )
+        r = self.client.get(reverse("descargar_informe_resultado", args=[informe.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "application/pdf")
+        self.assertEqual(r["X-Content-Type-Options"], "nosniff")
+
+    def test_descargar_informe_png_devuelve_content_type_correcto(self):
+        """Un informe con imagen PNG devuelve content-type image/png."""
+        informe = self._crear_informe_con_imagen(
+            b"\x89PNG\r\n\x1a\n" + b"0" * 32, "informe.png", 401
+        )
+        r = self.client.get(reverse("descargar_informe_resultado", args=[informe.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "image/png")
+
+    def test_descargar_informe_sin_imagen_devuelve_404(self):
+        """Un informe sin campo imagen devuelve 404 al intentar descargar."""
+        cassette = make_cassette(402)
+        ct = ContentType.objects.get_for_model(Cassette)
+        informe_sin_imagen = InformeResultado.objects.create(
+            content_type=ct,
+            object_id=cassette.pk,
+            descripcion="Sin imagen",
+            fecha="2024-01-01",
+        )
+        r = self.client.get(
+            reverse("descargar_informe_resultado", args=[informe_sin_imagen.pk])
+        )
+        self.assertEqual(r.status_code, 404)
+
+    def test_descargar_informe_inexistente_devuelve_404(self):
+        """Un pk de informe que no existe devuelve 404."""
+        r = self.client.get(reverse("descargar_informe_resultado", args=[99999]))
+        self.assertEqual(r.status_code, 404)
+
+    def test_descargar_informe_sin_sesion_redirige_login(self):
+        """
+        La vista descargar_informe_resultado deberia requerir autenticacion.
+        Este test verifica el comportamiento actual: si falla aqui hay un bug de
+        seguridad (falta @login_required en la vista).
+        """
+        informe = self._crear_informe_con_imagen(b"%PDF-1.4\n", "sec_test.pdf", 403)
+        client_anonimo = Client()
+        r = client_anonimo.get(
+            reverse("descargar_informe_resultado", args=[informe.pk])
+        )
+        # Debe redirigir al login; si devuelve 200 indica que falta @login_required
+        self.assertRedirects(
+            r,
+            f"/login/?next=/informes/{informe.pk}/descargar/",
+            fetch_redirect_response=False,
+        )

@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 logger = logging.getLogger(__name__)
 from .models import (
@@ -55,23 +56,36 @@ class QrUnicoValidatorMixin:
     """
     Mixin para serializers que necesiten validar unicidad de un campo QR.
     La subclase debe declarar `qr_field` con el nombre del campo a validar.
+
+    El mixin reemplaza en ``__init__`` el ``UniqueValidator`` que DRF genera
+    automáticamente (por el ``unique=True`` del campo de modelo) por uno propio
+    con el mensaje personalizado "El QR ya existe.".  Esto garantiza que siempre
+    sea *este* validador —y no el genérico de DRF— el que produzca el error.
     """
 
     qr_field: str = None
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if not self.qr_field:
-            return attrs
-        value = attrs.get(self.qr_field)
-        if not value:
-            return attrs
-        qs = self.Meta.model.objects.filter(**{self.qr_field: value})
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError({self.qr_field: "El QR ya existe."})
-        return attrs
+            return
+        field = self.fields.get(self.qr_field)
+        if field is None:
+            return
+        # Sustituir cualquier UniqueValidator auto-generado por DRF por uno con
+        # el mensaje personalizado, conservando el queryset original.
+        nuevos = []
+        for v in field.validators:
+            if isinstance(v, UniqueValidator):
+                nuevos.append(
+                    UniqueValidator(
+                        queryset=v.queryset,
+                        message="El QR ya existe.",
+                    )
+                )
+            else:
+                nuevos.append(v)
+        field.validators = nuevos
 
 
 class FileUrlSerializerMixin:
