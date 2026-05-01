@@ -2,8 +2,8 @@ const inputNumTubo = document.getElementById("inputNumTubo");
 const token = sessionStorage.getItem("token");
 
 const body = document.getElementById("body");
-const tubos = document.getElementById("tubos_lista");  // tabla de muestras principales
-const muestras = document.getElementById("tubos");  // tabla de tubos/análisis
+const tubos = document.getElementById("tubos_lista"); // tabla de muestras principales
+const muestras = document.getElementById("tubos"); // tabla de tubos/análisis
 const tipo_tubos = document.getElementById("tipo_tubos");
 const numTubo = document.getElementById("numTubo");
 
@@ -11,12 +11,12 @@ const numTubo = document.getElementById("numTubo");
 const btnformmodificarUser = document.getElementById("btnformmodificarUser");
 const modalupdateUser = document.getElementById("modalupdateUser");
 const btnformcerrarmodificarUser = document.getElementById(
-  "btnformcerrarmodificarUser"
+  "btnformcerrarmodificarUser",
 );
 
 const inputUpdateNombreUser = document.getElementById("inputUpdateNombreUser");
 const inputUpdateApellidosUser = document.getElementById(
-  "inputUpdateApellidosUser"
+  "inputUpdateApellidosUser",
 );
 const inputUpdateCorreoUser = document.getElementById("inputUpdateCorreoUser");
 const inputUpdatePass1User = document.getElementById("inputUpdatePass1User");
@@ -26,14 +26,12 @@ const inputUpdateCentroUser = document.getElementById("inputUpdateCentroUser");
 const btnborrar = document.getElementById("btnborrar");
 const modalnuevoTubo = document.getElementById("modalnuevoTubo");
 const btnformnuevotubo = document.getElementById("btnformnuevotubo");
-const btnformmodificartubo = document.getElementById(
-  "btnformmodificartubo"
-);
+const btnformmodificartubo = document.getElementById("btnformmodificartubo");
 const btnformcerrarnuevoTubo = document.getElementById(
-  "btnformcerrarnuevoTubo"
+  "btnformcerrarnuevoTubo",
 );
 const btnformcerrarmodificarTubo = document.getElementById(
-  "btnformcerrarmodificarTubo"
+  "btnformcerrarmodificarTubo",
 );
 const btnmodificar = document.getElementById("btnmodificar");
 const nuevoTubo = document.getElementById("nuevoTubo");
@@ -45,16 +43,12 @@ const tuboTubo = document.getElementById("tubo__muestraMain");
 const tuboFecha = document.getElementById("tubo__fechaMain");
 const tuboTecnicoId = document.getElementById("tubo__tecnico_idMain");
 const tuboCaracteristicas = document.getElementById(
-  "tubo__caracteristicasMain"
+  "tubo__caracteristicasMain",
 );
-const tuboObservaciones = document.getElementById(
-  "tubo__observacionesMain"
-);
-const tuboDiagnostico = document.getElementById(
-  "tubo__diagnosticoMain"
-);
+const tuboObservaciones = document.getElementById("tubo__observacionesMain");
+const tuboDiagnostico = document.getElementById("tubo__diagnosticoMain");
 const tuboVolanteLinkContainer = document.getElementById(
-  "tubo__volanteLinkContainer"
+  "tubo__volanteLinkContainer",
 );
 
 // Variables que se asignarán en DOMContentLoaded
@@ -68,7 +62,9 @@ let tuboInformePreview = null;
 let btnGuardarInforme = null;
 const informeStatus = document.getElementById("informeStatus");
 const informeContextNum = document.getElementById("informeContextNum");
-const informeContextDescripcion = document.getElementById("informeContextDescripcion");
+const informeContextDescripcion = document.getElementById(
+  "informeContextDescripcion",
+);
 const INFORME_TAB_KEY = "bioquimica_active_tab";
 
 const tuboImagen = document.getElementById("tubo__imagen");
@@ -114,16 +110,20 @@ const inputFechaUpdate = document.getElementById("inputFechaUpdate");
 const inputImagenesUpdate = document.getElementById("inputImagenesUpdate");
 
 const inputDescripcionUpdate = document.getElementById(
-  "inputDescripcionUpdate"
+  "inputDescripcionUpdate",
 );
 const inputCaracteristicasUpdate = document.getElementById(
-  "inputCaracteristicasUpdate"
+  "inputCaracteristicasUpdate",
 );
 const inputObservacionesUpdate = document.getElementById(
-  "inputObservacionesUpdate"
+  "inputObservacionesUpdate",
 );
-const inputMicroscopiaUpdate = document.getElementById("inputMicroscopiaUpdate");
-const inputDiagnosticoUpdate = document.getElementById("inputDiagnosticoUpdate");
+const inputMicroscopiaUpdate = document.getElementById(
+  "inputMicroscopiaUpdate",
+);
+const inputDiagnosticoUpdate = document.getElementById(
+  "inputDiagnosticoUpdate",
+);
 const inputPatologoUpdate = document.getElementById("inputPatologoUpdate");
 const inputSelectUpdate = document.getElementById("inputSelectUpdate");
 const inputClinicaUpdate = document.getElementById("inputClinicaUpdate");
@@ -132,41 +132,45 @@ const inputTuboUpdate = document.getElementById("inputTuboUpdate");
 // Crear un análisis (Tubos)
 const btnformnuevaMuestra = document.getElementById("btnformnuevaMuestra");
 const btnformcerrarnuevaMuestra = document.getElementById(
-  "btnformcerrarnuevaMuestra"
+  "btnformcerrarnuevaMuestra",
 );
 
 const modalnuevaMuestra = document.getElementById("modalnuevaMuestra");
 
 // Nueva Análisis
 const inputdescripcionMuestra = document.getElementById(
-  "inputdescripcionMuestra"
+  "inputdescripcionMuestra",
 );
 const inputFechaMuestra = document.getElementById("inputFechaMuestra");
 const selectTincionMuestra = document.getElementById("selectTincionMuestra");
 const inputObservacionesMuestra = document.getElementById(
-  "inputObservacionesMuestra"
+  "inputObservacionesMuestra",
 );
-const inputMicroscopiaMuestra = document.getElementById("inputMicroscopiaMuestra");
+const inputMicroscopiaMuestra = document.getElementById(
+  "inputMicroscopiaMuestra",
+);
 const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
 
 // Detalle Análisis
 const muestra__descripcion = document.getElementById("muestra__descripcion");
 const muestra__fecha = document.getElementById("muestra__fecha");
 const muestra__observaciones = document.getElementById(
-  "muestra__observaciones"
+  "muestra__observaciones",
 );
-const muestra__descripcion_microscopica = document.getElementById("muestra__descripcion_microscopica");
+const muestra__descripcion_microscopica = document.getElementById(
+  "muestra__descripcion_microscopica",
+);
 const muestra__tincion = document.getElementById("muestra__tincion");
 
 const muestra__img = document.getElementById("muestra__img");
 const btncerrardetalleMuestra = document.getElementById(
-  "btncerrardetalleMuestra"
+  "btncerrardetalleMuestra",
 );
 const btncerrarmuestradetalle = document.getElementById(
-  "btncerrarmuestradetalle"
+  "btncerrarmuestradetalle",
 );
 const btnaniadirimagenmuestra = document.getElementById(
-  "btnaniadirimagenmuestra"
+  "btnaniadirimagenmuestra",
 );
 
 // Modificar análisis
@@ -174,45 +178,45 @@ const modificarMuestra = document.getElementById("modificarAnalysisForm");
 const modalmodificarMuestra = document.getElementById("modalmodificarAnalysis");
 const modaldetalleMuestra = document.getElementById("modaldetalleTubo");
 const btnformmodificarMuestra = document.getElementById(
-  "btnformmodificarMuestra"
+  "btnformmodificarMuestra",
 );
 const btnformcerrarmodificarMuestra = document.getElementById(
-  "btnformcerrarmodificarMuestra"
+  "btnformcerrarmodificarMuestra",
 );
 
 // Datos para modificar un análisis
 const inputmodificardescripcionMuestra = document.getElementById(
-  "inputmodificardescripcionMuestra"
+  "inputmodificardescripcionMuestra",
 );
 
 const inputmodificarfechaMuestra = document.getElementById(
-  "inputmodificarfechaMuestra"
+  "inputmodificarfechaMuestra",
 );
 
 const selectmodificartincionMuestra = document.getElementById(
-  "selectmodificartincionMuestra"
+  "selectmodificartincionMuestra",
 );
 
 const inputmodificarobservacionesMuestra = document.getElementById(
-  "inputmodificarobservacionesMuestra"
+  "inputmodificarobservacionesMuestra",
 );
 
 const inputmodificarmicroscopiaMuestra = document.getElementById(
-  "inputmodificarmicroscopiaMuestra"
+  "inputmodificarmicroscopiaMuestra",
 );
 // Borrar Análisis
 const btnborrarmuestra = document.getElementById("btnborrarmuestra");
 
 // Borrar Imagen Análisis
 const btnborrarimagenmuestra = document.getElementById(
-  "btnborrarimagenmuestra"
+  "btnborrarimagenmuestra",
 );
 
 const qrMuestraModal = document.getElementById("qrMuestraModal");
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
 const inputmuestra__qr = document.getElementById("inputmuestra__qr");
 const btn__imprimirqrmuestra = document.getElementById(
-  "btn__imprimirqrmuestra"
+  "btn__imprimirqrmuestra",
 );
 
 // Consultar por código qr
@@ -269,7 +273,9 @@ const configurarEventosInformesTubo = () => {
     if (!currentTuboId) return;
 
     const informes = await cargarInformesTubo(currentTuboId);
-    const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+    const informe = informes.find(
+      (item) => String(item.id_informe) === String(informeId),
+    );
     if (!informe) return;
 
     if (action === "cargar") {
@@ -283,7 +289,10 @@ const configurarEventosInformesTubo = () => {
     if (action === "ver") {
       const urlInforme = obtenerUrlInformeTubo(informe);
       if (!urlInforme) {
-        mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+        mostrarEstadoInforme(
+          "Este informe no tiene archivo adjunto.",
+          "warning",
+        );
         return;
       }
       window.open(urlInforme, "_blank", "noopener");
@@ -308,7 +317,9 @@ const buildResolverUrl = (code) => {
 
 const cerrarModalQrConsulta = () => {
   if (!qrConsultaModal || !window.bootstrap?.Modal) return;
-  const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
+  const modal =
+    window.bootstrap.Modal.getInstance(qrConsultaModal) ||
+    new window.bootstrap.Modal(qrConsultaModal);
   modal.hide();
 };
 
@@ -413,7 +424,7 @@ initAuth();
 
 // Carga Tubos al inicio
 const cargarTubosIndex = async () => {
-  return await fetch("/api/tubos/index/").then(data => data.json());
+  return await fetch("/api/tubos/index/").then((data) => data.json());
 };
 
 const normalizarListaApi = (payload) => {
@@ -424,7 +435,7 @@ const normalizarListaApi = (payload) => {
 
 // Carga el detalle del tubo seleccionado
 const cargarTubo = async (tuboId) => {
-  return await fetch(`/api/tubos/${tuboId}/`).then(data => data.json());
+  return await fetch(`/api/tubos/${tuboId}/`).then((data) => data.json());
 };
 
 const crearTubo = async (event) => {
@@ -511,7 +522,9 @@ const obtenerTubosFecha = async (fecha) => {
 };
 
 const obtenerTubosFechaRango = async (inicio, fin) => {
-  const response = await fetch(`/api/tubos/rango_fechas/?inicio=${inicio}&fin=${fin}`);
+  const response = await fetch(
+    `/api/tubos/rango_fechas/?inicio=${inicio}&fin=${fin}`,
+  );
   return await response.json();
 };
 
@@ -521,7 +534,7 @@ const borrarTubo = () => {
     headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
-    }
+    },
   })
     .then((response) => {
       if (response.ok) {
@@ -556,7 +569,7 @@ const cargarTuboUpdateModal = async (event) => {
     inputDiagnosticoUpdate.value = tubo.diagnostico_final || "";
     inputPatologoUpdate.value = tubo.patologo_responsable || "";
     inputSelectUpdate.value = tubo.organo;
-    inputTuboUpdate.value = tubo.muestra;
+    inputTuboUpdate.value = tubo.tubo;
   }
 };
 
@@ -572,14 +585,21 @@ const modificarTuboUpdate = async (event) => {
   const formData = new FormData();
   if (inputFechaUpdate.value) formData.append("fecha", inputFechaUpdate.value);
   if (inputTuboUpdate.value) formData.append("tubo", inputTuboUpdate.value);
-  if (inputSelectUpdate.value) formData.append("organo", inputSelectUpdate.value);
-  if (inputDescripcionUpdate.value) formData.append("descripcion", inputDescripcionUpdate.value);
-  if (inputCaracteristicasUpdate.value) formData.append("caracteristicas", inputCaracteristicasUpdate.value);
-  if (inputObservacionesUpdate.value) formData.append("observaciones", inputObservacionesUpdate.value);
-  if (inputMicroscopiaUpdate.value) formData.append("descripcion_microscopica", inputMicroscopiaUpdate.value);
-  if (inputDiagnosticoUpdate.value) formData.append("diagnostico_final", inputDiagnosticoUpdate.value);
-  if (inputPatologoUpdate.value) formData.append("patologo_responsable", inputPatologoUpdate.value);
-  
+  if (inputSelectUpdate.value)
+    formData.append("organo", inputSelectUpdate.value);
+  if (inputDescripcionUpdate.value)
+    formData.append("descripcion", inputDescripcionUpdate.value);
+  if (inputCaracteristicasUpdate.value)
+    formData.append("caracteristicas", inputCaracteristicasUpdate.value);
+  if (inputObservacionesUpdate.value)
+    formData.append("observaciones", inputObservacionesUpdate.value);
+  if (inputMicroscopiaUpdate.value)
+    formData.append("descripcion_microscopica", inputMicroscopiaUpdate.value);
+  if (inputDiagnosticoUpdate.value)
+    formData.append("diagnostico_final", inputDiagnosticoUpdate.value);
+  if (inputPatologoUpdate.value)
+    formData.append("patologo_responsable", inputPatologoUpdate.value);
+
   if (inputClinicaUpdate.files[0]) {
     formData.append("volante_peticion", inputClinicaUpdate.files[0]);
   }
@@ -601,7 +621,11 @@ const modificarTuboUpdate = async (event) => {
         actualizarVistaYLista(tuboId);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
+        const mensaje =
+          errorData.error ||
+          errorData.detail ||
+          JSON.stringify(errorData) ||
+          "Error desconocido";
         alert("Error al actualizar el análisis: " + mensaje);
       }
     })
@@ -619,7 +643,9 @@ const actualizarVistaYLista = async (id) => {
 };
 
 const cargarMuestras = async (tuboId) => {
-  return await fetch(`/api/muestrastubo/tubo/${tuboId}/`).then((data) => data.json());
+  return await fetch(`/api/muestrastubo/tubo/${tuboId}/`).then((data) =>
+    data.json(),
+  );
 };
 
 const limpiarModalMuestra = () => {
@@ -642,7 +668,9 @@ const cargarMuestraUpdateModal = async (event) => {
     inputmodificarfechaMuestra.value = muestra.fecha;
     selectmodificartincionMuestra.value = muestra.tincion;
     inputmodificarobservacionesMuestra.value = muestra.observaciones;
-    if (inputmodificarmicroscopiaMuestra) inputmodificarmicroscopiaMuestra.value = muestra.descripcion_microscopica || "";
+    if (inputmodificarmicroscopiaMuestra)
+      inputmodificarmicroscopiaMuestra.value =
+        muestra.descripcion_microscopica || "";
   }
 };
 
@@ -650,11 +678,19 @@ const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
   const data = {};
-  if (inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
-  if (inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
-  if (inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
-  if (inputmodificarmicroscopiaMuestra && inputmodificarmicroscopiaMuestra.value) data.descripcion_microscopica = inputmodificarmicroscopiaMuestra.value;
-  if (selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
+  if (inputmodificarfechaMuestra.value)
+    data.fecha = inputmodificarfechaMuestra.value;
+  if (inputmodificardescripcionMuestra.value)
+    data.descripcion = inputmodificardescripcionMuestra.value;
+  if (inputmodificarobservacionesMuestra.value)
+    data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (
+    inputmodificarmicroscopiaMuestra &&
+    inputmodificarmicroscopiaMuestra.value
+  )
+    data.descripcion_microscopica = inputmodificarmicroscopiaMuestra.value;
+  if (selectmodificartincionMuestra.value)
+    data.tincion = selectmodificartincionMuestra.value;
   data.tubo = tuboId; // El tubo padre sigue siendo necesario o al menos no molesta
 
   await fetch(`/api/muestrastubo/${muestraId}/`, {
@@ -664,36 +700,41 @@ const modificarMuestraUpdate = async (event) => {
       "X-CSRFToken": getCookie("csrftoken"),
     },
     body: JSON.stringify(data),
-  })
-    .then(async (response) => {
-      if (response.ok) {
-        // Actualizamos los datos del detalle del análisis
-        muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
-        let newfecha = inputmodificarfechaMuestra.value;
-        muestra__fecha.textContent =
-          newfecha.substring(8) +
-          "-" +
-          newfecha.substring(5, 7) +
-          "-" +
-          newfecha.substring(0, 4);
+  }).then(async (response) => {
+    if (response.ok) {
+      // Actualizamos los datos del detalle del análisis
+      muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
+      let newfecha = inputmodificarfechaMuestra.value;
+      muestra__fecha.textContent =
+        newfecha.substring(8) +
+        "-" +
+        newfecha.substring(5, 7) +
+        "-" +
+        newfecha.substring(0, 4);
 
-        muestra__observaciones.textContent =
-          inputmodificarobservacionesMuestra.value;
-        if (muestra__descripcion_microscopica) muestra__descripcion_microscopica.textContent = inputmodificarmicroscopiaMuestra.value;
-        muestra__tincion.textContent = selectmodificartincionMuestra.value;
+      muestra__observaciones.textContent =
+        inputmodificarobservacionesMuestra.value;
+      if (muestra__descripcion_microscopica)
+        muestra__descripcion_microscopica.textContent =
+          inputmodificarmicroscopiaMuestra.value;
+      muestra__tincion.textContent = selectmodificartincionMuestra.value;
 
-        // Mostramos los análisis para que se actualicen
-        let respuesta = await cargarMuestras(tuboId);
-        imprimirMuestras(respuesta);
+      // Mostramos los análisis para que se actualicen
+      let respuesta = await cargarMuestras(tuboId);
+      imprimirMuestras(respuesta);
 
-        modalmodificarMuestra.classList.remove("showmodal");
-        modalmodificarMuestra.classList.add("hidemodal");
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
-        alert("Error al actualizar la muestra: " + mensaje);
-      }
-    })
+      modalmodificarMuestra.classList.remove("showmodal");
+      modalmodificarMuestra.classList.add("hidemodal");
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      const mensaje =
+        errorData.error ||
+        errorData.detail ||
+        JSON.stringify(errorData) ||
+        "Error desconocido";
+      alert("Error al actualizar la muestra: " + mensaje);
+    }
+  });
 };
 
 const consultaFechaInicio = async () => {
@@ -711,7 +752,7 @@ const consultaFechaInicio = async () => {
       alertfecha.classList.add("ocultar");
       respuesta = await obtenerTubosFechaRango(
         fechainicio.value,
-        fechafin.value
+        fechafin.value,
       );
     }
   }
@@ -732,7 +773,7 @@ const consultaFechaFin = async () => {
       alertfecha.classList.add("ocultar");
       const respuesta = await obtenerTubosFechaRango(
         fechainicio.value,
-        fechafin.value
+        fechafin.value,
       );
       imprimirTubos(respuesta, false);
     }
@@ -770,7 +811,9 @@ const mostrarEstadoSinSeleccion = () => {
   muestras.appendChild(estado);
 
   if (informeContextNum) informeContextNum.textContent = "—";
-  if (informeContextDescripcion) informeContextDescripcion.textContent = "Selecciona una cita para ver los detalles";
+  if (informeContextDescripcion)
+    informeContextDescripcion.textContent =
+      "Selecciona una cita para ver los detalles";
   if (informeStatus) {
     informeStatus.classList.add("d-none");
     informeStatus.textContent = "";
@@ -784,7 +827,8 @@ const mostrarEstadoSinSeleccion = () => {
   }
 
   if (informesListaTubo) {
-    informesListaTubo.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
+    informesListaTubo.innerHTML =
+      '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
   }
 };
 
@@ -794,11 +838,18 @@ const cargarInformesTubo = async (idTubo) => {
 };
 
 const cargarInformeEnFormularioTubo = (informe) => {
-  if (tuboInformeDescripcion) tuboInformeDescripcion.value = informe.descripcion || "";
+  if (tuboInformeDescripcion)
+    tuboInformeDescripcion.value = informe.descripcion || "";
   if (tuboInformeFecha) tuboInformeFecha.value = informe.fecha || "";
   if (tuboInformeTincion) tuboInformeTincion.value = informe.tincion || "";
-  if (tuboInformeObservaciones) tuboInformeObservaciones.value = informe.observaciones || "";
-  actualizarPreviewInformeTubo(informe.informe_imagen_url || informe.imagen_url || informe.imagen_base64 || "");
+  if (tuboInformeObservaciones)
+    tuboInformeObservaciones.value = informe.observaciones || "";
+  actualizarPreviewInformeTubo(
+    informe.informe_imagen_url ||
+      informe.imagen_url ||
+      informe.imagen_base64 ||
+      "",
+  );
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -806,7 +857,8 @@ const obtenerUrlInformeTubo = (informe) => {
   if (!informe) return "";
   if (informe.imagen_url) return informe.imagen_url;
   if (informe.informe_imagen_url) return informe.informe_imagen_url;
-  if (informe.imagen_base64) return `data:application/octet-stream;base64,${informe.imagen_base64}`;
+  if (informe.imagen_base64)
+    return `data:application/octet-stream;base64,${informe.imagen_base64}`;
   return "";
 };
 
@@ -822,18 +874,19 @@ window.verInfoInformeBioquimica = async (informeId) => {
   if (!informeId) return;
   try {
     const res = await fetch(`/api/informesresultado/${informeId}/`);
-    if (!res.ok) throw new Error("No se pudo cargar la informacion del informe");
+    if (!res.ok)
+      throw new Error("No se pudo cargar la informacion del informe");
     const informe = await res.json();
-    const host = informesListaTubo?.closest('.informe__scroll');
+    const host = informesListaTubo?.closest(".informe__scroll");
     if (!host) return;
 
-    let panel = document.getElementById('infoInformePanelBioquimica');
+    let panel = document.getElementById("infoInformePanelBioquimica");
     if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'infoInformePanelBioquimica';
-      panel.className = 'mb-3 p-3 rounded';
-      panel.style.background = 'var(--bg-light)';
-      panel.style.border = '1px solid var(--border-color)';
+      panel = document.createElement("div");
+      panel.id = "infoInformePanelBioquimica";
+      panel.className = "mb-3 p-3 rounded";
+      panel.style.background = "var(--bg-light)";
+      panel.style.border = "1px solid var(--border-color)";
       panel.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h3 class="tubo__title m-0">Detalle del informe</h3>
@@ -845,22 +898,32 @@ window.verInfoInformeBioquimica = async (informeId) => {
         <div class="blue__color mt-2"><strong>Observaciones:</strong></div>
         <div class="blue__color mt-1" data-field="observaciones">-</div>
       `;
-      const tableWrap = informesListaTubo.closest('.table__scroll');
+      const tableWrap = informesListaTubo.closest(".table__scroll");
       host.insertBefore(panel, tableWrap);
-      panel.querySelector('#cerrarInfoInformeBioquimica').addEventListener('click', () => {
-        panel.classList.add('d-none');
-      });
+      panel
+        .querySelector("#cerrarInfoInformeBioquimica")
+        .addEventListener("click", () => {
+          panel.classList.add("d-none");
+        });
     }
 
-    panel.querySelector('[data-field="fecha"]').textContent = informe.fecha ? formatFecha(informe.fecha) : 'Sin fecha';
-    panel.querySelector('[data-field="descripcion"]').textContent = informe.descripcion || 'Sin descripcion';
-    panel.querySelector('[data-field="tincion"]').textContent = informe.tincion || 'Sin resultado';
-    panel.querySelector('[data-field="observaciones"]').textContent = informe.observaciones || 'Sin observaciones';
-    panel.classList.remove('d-none');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    panel.querySelector('[data-field="fecha"]').textContent = informe.fecha
+      ? formatFecha(informe.fecha)
+      : "Sin fecha";
+    panel.querySelector('[data-field="descripcion"]').textContent =
+      informe.descripcion || "Sin descripcion";
+    panel.querySelector('[data-field="tincion"]').textContent =
+      informe.tincion || "Sin resultado";
+    panel.querySelector('[data-field="observaciones"]').textContent =
+      informe.observaciones || "Sin observaciones";
+    panel.classList.remove("d-none");
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (error) {
     console.error(error);
-    mostrarEstadoInforme("No se pudo cargar la informacion del informe.", "danger");
+    mostrarEstadoInforme(
+      "No se pudo cargar la informacion del informe.",
+      "danger",
+    );
   }
 };
 
@@ -868,7 +931,9 @@ window.editarInformeBioquimica = async (informeId) => {
   const targetId = currentTuboId || tuboId;
   if (!targetId || !informeId) return;
   const informes = await cargarInformesTubo(targetId);
-  const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+  const informe = informes.find(
+    (item) => String(item.id_informe) === String(informeId),
+  );
   if (!informe) return;
   informeEditandoId = String(informe.id_informe);
   actualizarEtiquetaBotonInforme();
@@ -894,7 +959,10 @@ window.eliminarInformeBioquimica = async (informeId) => {
 window.guardarInformeBioquimica = async () => {
   const targetId = currentTuboId || tuboId;
   if (!targetId) {
-    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    mostrarEstadoInforme(
+      "Selecciona una cita para guardar el informe.",
+      "warning",
+    );
     alert("Selecciona una muestra antes de guardar el informe.");
     return;
   }
@@ -904,10 +972,13 @@ window.guardarInformeBioquimica = async () => {
 
   try {
     mostrarEstadoInforme("Guardando informe...", "info");
-    const descripcion = document.getElementById("tubo__informe_descripcion")?.value || "";
+    const descripcion =
+      document.getElementById("tubo__informe_descripcion")?.value || "";
     const fecha = document.getElementById("tubo__informe_fecha")?.value || "";
-    const tincion = document.getElementById("tubo__informe_tincion")?.value || "";
-    const observaciones = document.getElementById("tubo__informe_observaciones")?.value || "";
+    const tincion =
+      document.getElementById("tubo__informe_tincion")?.value || "";
+    const observaciones =
+      document.getElementById("tubo__informe_observaciones")?.value || "";
     const inputFile = document.getElementById("tubo__informe_imagen");
 
     const payload = new FormData();
@@ -922,7 +993,9 @@ window.guardarInformeBioquimica = async () => {
     }
 
     const isEdit = Boolean(informeEditandoId);
-    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const endpoint = isEdit
+      ? `/api/informesresultado/${informeEditandoId}/`
+      : "/api/informesresultado/";
     const res = await fetch(endpoint, {
       method: isEdit ? "PATCH" : "POST",
       headers: {
@@ -932,10 +1005,19 @@ window.guardarInformeBioquimica = async () => {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const mensaje = err.error || err.detail || JSON.stringify(err) || "No se pudo guardar el informe";
+      const mensaje =
+        err.error ||
+        err.detail ||
+        JSON.stringify(err) ||
+        "No se pudo guardar el informe";
       throw new Error(mensaje);
     }
-    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(
+      isEdit
+        ? "Informe actualizado correctamente."
+        : "Informe guardado correctamente.",
+      "success",
+    );
     informeEditandoId = null;
     actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
@@ -966,7 +1048,8 @@ const imprimirInformesTubo = (informes) => {
   informesListaTubo.innerHTML = "";
 
   if (!informes || informes.length === 0) {
-    informesListaTubo.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td></tr>';
+    informesListaTubo.innerHTML =
+      '<tr><td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td></tr>';
     return;
   }
 
@@ -978,10 +1061,13 @@ const imprimirInformesTubo = (informes) => {
     tr.classList.add("table__row");
 
     const tdFecha = document.createElement("td");
-    tdFecha.textContent = informe.fecha ? formatFecha(informe.fecha) : "Sin fecha";
+    tdFecha.textContent = informe.fecha
+      ? formatFecha(informe.fecha)
+      : "Sin fecha";
 
     const tdDescripcion = document.createElement("td");
-    tdDescripcion.textContent = (informe.descripcion || "").substring(0, 70) || "Sin descripción";
+    tdDescripcion.textContent =
+      (informe.descripcion || "").substring(0, 70) || "Sin descripción";
     tdDescripcion.title = informe.descripcion || "";
 
     const tdTincion = document.createElement("td");
@@ -991,7 +1077,7 @@ const imprimirInformesTubo = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-circle-info tubo__icon tubo__icon--infotubo me-2" title="Ver datos del formulario" data-action="info" data-id="${informe.id_informe}"></i>
-      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}"></i>
+      <i class="fa-solid fa-file-import tubo__icon tubo__icon--infotubo me-2 ${tieneArchivo ? "" : "text-muted"}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ""}"></i>
       <i class="fa-solid fa-file-pen tubo__icon tubo__icon--infotubo me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}"></i>
       <i class="fa-solid fa-trash-can tubo__icon tubo__icon--infotubo" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
     `;
@@ -1034,9 +1120,12 @@ const actualizarPreviewInformeTubo = (imagen) => {
     tuboInformePreviewWrap.classList.add("d-none");
     return;
   }
-  tuboInformePreview.src = imagen.startsWith("data:") || imagen.startsWith("http") || imagen.startsWith("/")
-    ? imagen
-    : `data:image/jpeg;base64,${imagen}`;
+  tuboInformePreview.src =
+    imagen.startsWith("data:") ||
+    imagen.startsWith("http") ||
+    imagen.startsWith("/")
+      ? imagen
+      : `data:image/jpeg;base64,${imagen}`;
   tuboInformePreviewWrap.classList.remove("d-none");
 };
 
@@ -1057,9 +1146,12 @@ const ocultarPanelNuevoInformeTubo = () => {
 
 const actualizarContextoInforme = () => {
   const num = document.getElementById("tubo__tubo")?.textContent?.trim() || "—";
-  const descripcion = (tuboDescripcion?.textContent || "").trim() || "Selecciona una cita para ver los detalles";
+  const descripcion =
+    (tuboDescripcion?.textContent || "").trim() ||
+    "Selecciona una cita para ver los detalles";
   if (informeContextNum) informeContextNum.textContent = num;
-  if (informeContextDescripcion) informeContextDescripcion.textContent = descripcion;
+  if (informeContextDescripcion)
+    informeContextDescripcion.textContent = descripcion;
 };
 
 const mostrarEstadoInforme = (mensaje, tipo = "success") => {
@@ -1079,7 +1171,8 @@ const cambiarEstadoBotonGuardar = (guardando) => {
   if (!btnGuardarInforme) return;
   if (guardando) {
     btnGuardarInforme.disabled = true;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
+    btnGuardarInforme.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
     actualizarEtiquetaBotonInforme();
@@ -1099,8 +1192,8 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
     lista.map((tubo) => {
       // Para cargar los números de tubo
       let option = document.createElement("OPTION");
-      option.value = tubo.muestra;
-      option.textContent = tubo.muestra;
+      option.value = tubo.tubo;
+      option.textContent = tubo.tubo;
       fragmentselect.appendChild(option);
 
       // Para mostrar los tubos
@@ -1109,7 +1202,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
 
       // Muestra / Paciente
       let ntubo = document.createElement("td");
-      ntubo.textContent = tubo.muestra;
+      ntubo.textContent = tubo.tubo;
 
       let fecha = document.createElement("td");
       let newfecha = tubo.fecha;
@@ -1126,12 +1219,12 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
       descripcion.title = tubo.descripcion;
 
       let tipo_muestra = document.createElement("td");
-      tipo_muestra.textContent = tubo.tipo_muestra;
+      tipo_muestra.textContent = tubo.organo;
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
         "d-inline-block tubo__icon fa-solid fa-eye tubo__icon--infotubo";
-      btndetalle.dataset.id = tubo.id_muestra;
+      btndetalle.dataset.id = tubo.id_tubo;
       btndetalle.title = "Detalle Muestra";
 
       let btnCont = document.createElement("td");
@@ -1152,7 +1245,7 @@ const imprimirTubos = (respuesta, rebuildDropdown = true) => {
       "justify-content-center",
       "fw-bold",
       "text-danger",
-      "text-opacity-50"
+      "text-opacity-50",
     );
     tr.textContent = "No se ha encontrado ninguna muestra";
     fragmento.appendChild(tr);
@@ -1182,14 +1275,14 @@ const detalleTubo = async (event) => {
 // Muestra el detalle de un tubo
 const imprimirDataTubo = (respuesta) => {
   tuboDescripcion.textContent = respuesta.descripcion;
-  tuboTipoMuestra.textContent = respuesta.tipo_muestra;
+  tuboTipoMuestra.textContent = respuesta.organo;
   // tuboTubo.textContent = respuesta.muestra; // Element doesn't exist in HTML
   tuboTecnicoId.textContent = respuesta.tecnico;
-  
+
   // Show the muestra/paciente number in the header
   const tuboNumElement = document.getElementById("tubo__tubo");
   if (tuboNumElement) {
-    tuboNumElement.textContent = respuesta.muestra;
+    tuboNumElement.textContent = respuesta.tubo;
   }
 
   // Formato Fecha
@@ -1214,7 +1307,8 @@ const imprimirDataTubo = (respuesta) => {
   // Volante de Petición (Archivo Adjunto)
   if (tuboVolanteLinkContainer) {
     if (respuesta.volante_peticion_url) {
-      const fileName = respuesta.volante_peticion_nombre || "Ver volante de petición";
+      const fileName =
+        respuesta.volante_peticion_nombre || "Ver volante de petición";
       tuboVolanteLinkContainer.innerHTML = `
         <a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold d-inline-flex align-items-center gap-2" style="border-radius: 20px; padding: 0.4rem 1rem;">
           <i class="fa-solid fa-file-pdf"></i>
@@ -1222,7 +1316,8 @@ const imprimirDataTubo = (respuesta) => {
         </a>
       `;
     } else {
-      tuboVolanteLinkContainer.innerHTML = '<span class="blue__color tubo__text opacity-50">Sin archivo adjunto</span>';
+      tuboVolanteLinkContainer.innerHTML =
+        '<span class="blue__color tubo__text opacity-50">Sin archivo adjunto</span>';
     }
   }
 
@@ -1230,14 +1325,19 @@ const imprimirDataTubo = (respuesta) => {
   tuboInformeFecha.value = respuesta.informe_fecha || "";
   tuboInformeTincion.value = respuesta.informe_tincion || "";
   tuboInformeObservaciones.value = respuesta.informe_observaciones || "";
-  currentTuboId = respuesta.id_muestra;
+  currentTuboId = respuesta.id_tubo;
   if (btnNuevoInforme) {
     btnNuevoInforme.disabled = false;
     btnNuevoInforme.removeAttribute("title");
   }
   actualizarContextoInforme();
   refrescarInformesTubo(currentTuboId);
-  console.log("imprimirDataTubo - currentTuboId asignado como:", currentTuboId, "respuesta completa:", respuesta);
+  console.log(
+    "imprimirDataTubo - currentTuboId asignado como:",
+    currentTuboId,
+    "respuesta completa:",
+    respuesta,
+  );
 
   // generamos el codigo QR (sistema antiguo con QRious para compatibilidad)
   if (window.QRious) {
@@ -1254,26 +1354,30 @@ const imprimirDataTubo = (respuesta) => {
   }
 
   // Sistema nuevo: generar QR con QRCode.js para el modal moderno
-  if (typeof QRCode !== 'undefined') {
+  if (typeof QRCode !== "undefined") {
     const qrCode = respuesta.qr_tubo || respuesta.qr_muestra;
     const qrUrl = buildResolverUrl(qrCode);
-    if (typeof tuboQrActual !== 'undefined') {
+    if (typeof tuboQrActual !== "undefined") {
       tuboQrActual = qrUrl;
     }
-    const qrUrlEl = document.getElementById('qrcode-tubo-url');
+    const qrUrlEl = document.getElementById("qrcode-tubo-url");
     if (qrUrlEl) qrUrlEl.textContent = qrUrl;
-    
+
     // Generar QR en el modal cuando se abre
-    const modalEl = document.getElementById('qrTuboModal');
+    const modalEl = document.getElementById("qrTuboModal");
     if (modalEl) {
-      modalEl.addEventListener('shown.bs.modal', function generarQr() {
-        const qrWrap = document.getElementById('qrcode-tubo');
-        if (qrWrap && qrUrl) {
-          qrWrap.innerHTML = '';
-          new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
-        }
-        modalEl.removeEventListener('shown.bs.modal', generarQr);
-      }, { once: true });
+      modalEl.addEventListener(
+        "shown.bs.modal",
+        function generarQr() {
+          const qrWrap = document.getElementById("qrcode-tubo");
+          if (qrWrap && qrUrl) {
+            qrWrap.innerHTML = "";
+            new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
+          }
+          modalEl.removeEventListener("shown.bs.modal", generarQr);
+        },
+        { once: true },
+      );
     }
   }
 };
@@ -1283,28 +1387,32 @@ const crearMuestra = async (event) => {
   event.preventDefault();
   console.log("=== crearMuestra EJECUTADA ===");
   console.log("tuboId:", tuboId);
-  
+
   if (!tuboId) {
     alert("Por favor, selecciona una muestra primero.");
     return;
   }
-  
+
   let newMuestra = new FormData();
   newMuestra.append("descripcion", inputdescripcionMuestra.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
-  if (inputMicroscopiaMuestra) newMuestra.append("descripcion_microscopica", inputMicroscopiaMuestra.value);
+  if (inputMicroscopiaMuestra)
+    newMuestra.append(
+      "descripcion_microscopica",
+      inputMicroscopiaMuestra.value,
+    );
   newMuestra.append("tincion", selectTincionMuestra.value);
   if (inputImagenesMuestra.files[0]) {
     newMuestra.append("imagen", inputImagenesMuestra.files[0]);
   }
   newMuestra.append("tubo", tuboId);
-  
+
   console.log("Datos para FormData:");
   for (let [key, value] of newMuestra.entries()) {
     console.log(`  ${key}:`, value);
   }
-  
+
   try {
     const response = await fetch("/api/muestrastubo/", {
       method: "POST",
@@ -1313,21 +1421,21 @@ const crearMuestra = async (event) => {
       },
       body: newMuestra,
     });
-    
+
     console.log("Response status:", response.status);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error response:", errorData);
       alert("Error al crear análisis: " + JSON.stringify(errorData));
       return;
     }
-    
+
     const data = await response.json();
     console.log("Análisis creado exitosamente:", data);
 
     const tuboSeleccionadoId = tuboId;
-    
+
     modalnuevaMuestra.classList.remove("showmodal");
     modalnuevaMuestra.classList.add("hidemodal");
     limpiarModalMuestra();
@@ -1336,8 +1444,9 @@ const crearMuestra = async (event) => {
     const tubosResp = await cargarTodosTubos();
     imprimirTubos(tubosResp, true);
 
-    const tuboSeleccionado = normalizarListaApi(tubosResp)
-      .find((item) => String(item.id_muestra) === String(tuboSeleccionadoId));
+    const tuboSeleccionado = normalizarListaApi(tubosResp).find(
+      (item) => String(item.id_tubo) === String(tuboSeleccionadoId),
+    );
     if (tuboSeleccionado) {
       tuboId = tuboSeleccionadoId;
       imprimirDataTubo(tuboSeleccionado);
@@ -1371,7 +1480,9 @@ const imprimirMuestras = (respuesta) => {
       tr.classList.add("table__row");
       let descripcion = document.createElement("td");
       const descripcionTexto = (muestra?.descripcion || "").toString();
-      descripcion.textContent = descripcionTexto ? descripcionTexto.substring(0, 80) : "-";
+      descripcion.textContent = descripcionTexto
+        ? descripcionTexto.substring(0, 80)
+        : "-";
       descripcion.title = descripcionTexto;
 
       let fecha = document.createElement("td");
@@ -1438,7 +1549,7 @@ const obtenerImagenesMuestra = async (muestraid) => {
 
 // Rellenamos los datos del análisis
 const rellenarDatosMuestra = async (muestra) => {
-  muestra__descripcion.textContent = muestra.descripcion || 'Sin descripción';
+  muestra__descripcion.textContent = muestra.descripcion || "Sin descripción";
   muestra__descripcion.title = muestra.descripcion;
 
   let newfecha = muestra.fecha;
@@ -1450,14 +1561,16 @@ const rellenarDatosMuestra = async (muestra) => {
       "-" +
       newfecha.substring(0, 4);
   } else {
-    muestra__fecha.textContent = 'Sin fecha';
+    muestra__fecha.textContent = "Sin fecha";
   }
 
-  muestra__observaciones.textContent = muestra.observaciones || 'Sin observaciones';
+  muestra__observaciones.textContent =
+    muestra.observaciones || "Sin observaciones";
   if (muestra__descripcion_microscopica) {
-    muestra__descripcion_microscopica.textContent = muestra.descripcion_microscopica || 'Sin descripción';
+    muestra__descripcion_microscopica.textContent =
+      muestra.descripcion_microscopica || "Sin descripción";
   }
-  muestra__tincion.textContent = muestra.tincion || 'Sin tinción';
+  muestra__tincion.textContent = muestra.tincion || "Sin tinción";
 };
 
 const borrarImagenMuestra = async () => {
@@ -1495,24 +1608,24 @@ const detailMuestra = async (muestraid) => {
   }
 
   // Sistema nuevo: preparar QR para modal moderno
-  if (typeof QRCode !== 'undefined' && typeof muestraQrActual !== 'undefined') {
+  if (typeof QRCode !== "undefined" && typeof muestraQrActual !== "undefined") {
     const qrUrl = buildResolverUrl(muestra.qr_muestra);
     muestraQrActual = qrUrl;
-    const qrUrlEl = document.getElementById('qrcode-muestra-url');
+    const qrUrlEl = document.getElementById("qrcode-muestra-url");
     if (qrUrlEl) qrUrlEl.textContent = qrUrl;
-    
+
     // Configurar generación de QR cuando se abre el modal
-    const modalEl = document.getElementById('qrMuestraModal');
+    const modalEl = document.getElementById("qrMuestraModal");
     if (modalEl) {
-      const generarQr = function() {
-        const qrWrap = document.getElementById('qrcode-muestra');
+      const generarQr = function () {
+        const qrWrap = document.getElementById("qrcode-muestra");
         if (qrWrap && qrUrl) {
-          qrWrap.innerHTML = '';
+          qrWrap.innerHTML = "";
           new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
         }
       };
-      modalEl.removeEventListener('shown.bs.modal', generarQr);
-      modalEl.addEventListener('shown.bs.modal', generarQr, { once: true });
+      modalEl.removeEventListener("shown.bs.modal", generarQr);
+      modalEl.addEventListener("shown.bs.modal", generarQr, { once: true });
     }
   }
 
@@ -1526,10 +1639,10 @@ const detailMuestra = async (muestraid) => {
 const aniadirImagenMuestra = async () => {
   try {
     // Crear un input file temporal
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '*/*';
-    
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "*/*";
+
     input.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -1591,8 +1704,8 @@ const imprimirQR = (elemento) => {
   let printWindow = window.open("", "Imprimir imagen");
   printWindow.document.write(
     "<html><head><title>Imprimir imagen</title></head><body><img src='" +
-    qrimprimir +
-    "'></body></html>"
+      qrimprimir +
+      "'></body></html>",
   );
   printWindow.print();
   printWindow.close();
@@ -1601,7 +1714,10 @@ const imprimirQR = (elemento) => {
 const mostrarImagenesMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId_val);
-  const visorImagen = typeof visor__img !== 'undefined' ? visor__img : document.getElementById("visor__img");
+  const visorImagen =
+    typeof visor__img !== "undefined"
+      ? visor__img
+      : document.getElementById("visor__img");
 
   const renderEstadoSinImagen = () => {
     muestra__img.style.display = "flex";
@@ -1616,7 +1732,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
 
     const emptyState = document.createElement("div");
     emptyState.className = "muestra__empty-state";
-    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    emptyState.innerHTML =
+      "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
     muestra__img.appendChild(emptyState);
   };
 
@@ -1633,7 +1750,11 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = imagen.imagen_url || (imagen.imagen_base64 ? `data:image/jpeg;base64,${imagen.imagen_base64}` : "");
+      newimg.src =
+        imagen.imagen_url ||
+        (imagen.imagen_base64
+          ? `data:image/jpeg;base64,${imagen.imagen_base64}`
+          : "");
       newimg.classList.add("muestra__img", "rounded");
       newimg.style.height = "70px";
       newimg.style.objectFit = "cover";
@@ -1650,7 +1771,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
 
       // Botón borrar individual (X)
       const btnDelete = document.createElement("BUTTON");
-      btnDelete.innerHTML = '<i class="fa-solid fa-circle-xmark text-danger" style="font-size:.8rem;"></i>';
+      btnDelete.innerHTML =
+        '<i class="fa-solid fa-circle-xmark text-danger" style="font-size:.8rem;"></i>';
       btnDelete.className = "btn btn-sm position-absolute top-0 end-0 p-0";
       btnDelete.style.background = "rgba(255,255,255,.85)";
       btnDelete.style.borderRadius = "50%";
@@ -1658,7 +1780,7 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
       btnDelete.style.height = "20px";
       btnDelete.style.lineHeight = "1";
       btnDelete.title = "Eliminar imagen";
-      
+
       btnDelete.onclick = (e) => {
         e.stopPropagation();
         if (confirm("¿Eliminar esta imagen?")) {
@@ -1681,7 +1803,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
   // Botón "+" al final de la galería (siempre visible como caja/placeholder)
   const btnAdd = document.createElement("DIV");
   btnAdd.innerHTML = '<i class="fa-solid fa-plus fs-4"></i>';
-  btnAdd.className = "d-flex align-items-center justify-content-center m-1 rounded border border-2 border-dashed";
+  btnAdd.className =
+    "d-flex align-items-center justify-content-center m-1 rounded border border-2 border-dashed";
   btnAdd.style.height = "70px";
   btnAdd.style.width = "70px";
   btnAdd.style.cursor = "pointer";
@@ -1704,7 +1827,8 @@ const borrarMuestra = async () => {
       modaldetalleMuestra.classList.remove("showmodal");
       let muestras = await cargarMuestras(tuboId);
       imprimirMuestras(muestras);
-    }).catch(err => console.error(err));
+    })
+    .catch((err) => console.error(err));
 };
 
 const consultarTuboQR = async (qr, silent = false) => {
@@ -1715,7 +1839,7 @@ const consultarTuboQR = async (qr, silent = false) => {
     imprimirTubos(todos);
     const tubo = lista[0];
     imprimirDataTubo(tubo);
-    tuboId = tubo.id_muestra;
+    tuboId = tubo.id_tubo;
     let muestras_resp = await cargarMuestras(tuboId);
     imprimirMuestras(muestras_resp);
     return true;
@@ -1743,20 +1867,17 @@ const consultarMuestraQR = async (qr, silent = false) => {
 // Cargamos el modal datos de usuario para modificar
 const cargarUserUpdateModal = async (event) => {
   let userId = sessionStorage.getItem("tecnico_id");
-  const response = await fetch(
-    "/api/tecnicos/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: JSON.stringify({
-        accion: "cargarTecnicoId",
-        id_tecnico: userId,
-      }),
-    }
-  );
+  const response = await fetch("/api/tecnicos/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify({
+      accion: "cargarTecnicoId",
+      id_tecnico: userId,
+    }),
+  });
 
   let user = await response.json();
 
@@ -1793,33 +1914,40 @@ if (btnformcerrarmodificarUser) {
 // Consulta Tubos Recientes
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("=== DOMContentLoaded EJECUTADO ===");
-  
+
   // Asignar elementos globales que podrían no existir al cargar el script
   btnGuardarInforme = document.getElementById("btnGuardarInforme");
   tuboInformeDescripcion = document.getElementById("tubo__informe_descripcion");
   tuboInformeFecha = document.getElementById("tubo__informe_fecha");
   tuboInformeTincion = document.getElementById("tubo__informe_tincion");
-  tuboInformeObservaciones = document.getElementById("tubo__informe_observaciones");
+  tuboInformeObservaciones = document.getElementById(
+    "tubo__informe_observaciones",
+  );
   tuboInformeImagen = document.getElementById("tubo__informe_imagen");
-  tuboInformePreviewWrap = document.getElementById("tubo__informe_preview_wrap");
+  tuboInformePreviewWrap = document.getElementById(
+    "tubo__informe_preview_wrap",
+  );
   tuboInformePreview = document.getElementById("tubo__informe_preview");
-  
+
   console.log("btnGuardarInforme encontrado:", btnGuardarInforme ? "SÍ" : "NO");
   console.log("Elementos de informe encontrados:", {
     descripcion: tuboInformeDescripcion ? "SÍ" : "NO",
     fecha: tuboInformeFecha ? "SÍ" : "NO",
     tincion: tuboInformeTincion ? "SÍ" : "NO",
     observaciones: tuboInformeObservaciones ? "SÍ" : "NO",
-    imagen: tuboInformeImagen ? "SÍ" : "NO"
+    imagen: tuboInformeImagen ? "SÍ" : "NO",
   });
-  
+
   if (body) body.style.display = "block";
   try {
     const respuesta = await cargarTubosIndex();
     imprimirTubos(respuesta);
   } catch (error) {
     console.error("Error cargando bioquimica al iniciar:", error);
-    mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
+    mostrarEstadoInforme(
+      "No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.",
+      "warning",
+    );
   }
   mostrarEstadoSinSeleccion();
   // Fechas sin restricciones - permite seleccionar cualquier fecha
@@ -1831,7 +1959,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnToggleTubos = document.getElementById("btnToggleTubos");
   const panelInforme = sectionInforme ? sectionInforme.firstElementChild : null;
   const scrollInternosInforme = sectionInforme
-    ? sectionInforme.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m")
+    ? sectionInforme.querySelectorAll(
+        ".informe__scroll, .table__scroll, .table__scroll--m",
+      )
     : [];
 
   const abrirMenuInformes = () => {
@@ -1846,7 +1976,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "top-0",
       "start-0",
       "w-100",
-      "h-100"
+      "h-100",
     );
     sectionInforme.style.zIndex = "2147483600";
     sectionInforme.style.background = "rgba(255, 255, 255, 0.92)";
@@ -1882,7 +2012,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "top-0",
       "start-0",
       "w-100",
-      "h-100"
+      "h-100",
     );
     sectionInforme.style.zIndex = "";
     sectionInforme.style.background = "";
@@ -1924,18 +2054,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   const CURRENT_MODULE_KEY = "current_module";
   const currentModule = "bioquimica";
   const lastModule = sessionStorage.getItem(CURRENT_MODULE_KEY);
-  
+
   // Siempre limpiar el estado de informe al cargar la página
   // El estado se guardará si el usuario navega dentro del módulo
   sessionStorage.removeItem(INFORME_TAB_KEY);
-  
+
   // Guardar módulo actual
   sessionStorage.setItem(CURRENT_MODULE_KEY, currentModule);
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
       if (!(currentTuboId || tuboId)) {
-        mostrarEstadoInforme("Selecciona una muestra antes de crear un informe.", "warning");
+        mostrarEstadoInforme(
+          "Selecciona una muestra antes de crear un informe.",
+          "warning",
+        );
         return;
       }
       mostrarPanelNuevoInformeTubo(true);
@@ -1972,7 +2105,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Consulta por Tipo de Muestra
   tipo_tubos.addEventListener("change", async () => {
     mostrarEstadoSinSeleccion();
-    if (!tipo_tubos.value || tipo_tubos.value === "" || tipo_tubos.value === "*") {
+    if (
+      !tipo_tubos.value ||
+      tipo_tubos.value === "" ||
+      tipo_tubos.value === "*"
+    ) {
       if (numTubo) numTubo.value = "";
       if (fechainicio) fechainicio.value = "";
       if (fechafin) fechafin.value = "";
@@ -2134,7 +2271,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const cerrarModalDetalleSiAbierto = () => {
-    if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
+    if (
+      !modaldetalleMuestra ||
+      !modaldetalleMuestra.classList.contains("showmodal")
+    ) {
       return;
     }
     modaldetalleMuestra.classList.add("hidemodal");
@@ -2215,7 +2355,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (muestra__img) {
     muestra__img.addEventListener("click", async (event) => {
       if (event.target.nodeName === "IMG") {
-        if (typeof visor__img !== 'undefined') visor__img.src = event.target.src;
+        if (typeof visor__img !== "undefined")
+          visor__img.src = event.target.src;
         imageId = event.target.id;
       }
       if (event.target.nodeName === "I") aniadirImagenMuestra();
@@ -2239,7 +2380,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Lectura código QR del análisis (ahora se maneja inline en la plantilla para mayor fiabilidad)
 
-
   input__consultarqr?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -2254,16 +2394,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Impresión QR principal y de análisis
   btn__imprimrqr?.addEventListener("click", () => imprimirQR("tubo"));
   btn__imprimrqrAlt?.addEventListener("click", () => imprimirQR("tubo"));
-  btn__imprimirqrmuestra?.addEventListener("click", () => imprimirQR("muestra"));
+  btn__imprimirqrmuestra?.addEventListener("click", () =>
+    imprimirQR("muestra"),
+  );
 
   // Guardar Informe de Resultados
   const guardarInformeMedico = async () => {
     console.log("=== FUNCIÓN guardarInformeMedico EJECUTADA ===");
     console.log("currentTuboId:", currentTuboId);
-    
+
     if (!currentTuboId) {
       console.error("ERROR: No hay tuboId seleccionado");
-      mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+      mostrarEstadoInforme(
+        "Selecciona una cita para guardar el informe.",
+        "warning",
+      );
       return;
     }
 
@@ -2288,15 +2433,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (tuboInformeImagen.files.length > 0) {
       console.log("Hay imagen para procesar");
       const file = tuboInformeImagen.files[0];
-      console.log("Archivo:", file.name, "Tipo:", file.type, "Tamaño:", file.size);
-      
+      console.log(
+        "Archivo:",
+        file.name,
+        "Tipo:",
+        file.type,
+        "Tamaño:",
+        file.size,
+      );
+
       // Usar una Promise para esperar a que se lea la imagen
       await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-          console.log("Imagen convertida a base64, longitud:", reader.result.length);
-          console.log("Primeros 100 caracteres:", reader.result.substring(0, 100));
+          console.log(
+            "Imagen convertida a base64, longitud:",
+            reader.result.length,
+          );
+          console.log(
+            "Primeros 100 caracteres:",
+            reader.result.substring(0, 100),
+          );
           datosReporte.imagen = reader.result;
           resolve();
         };
@@ -2308,12 +2466,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       console.log("No hay imagen, enviando sin imagen");
     }
-    
+
     console.log("datosReporte final antes de enviar:", {
       ...datosReporte,
-      imagen: datosReporte.imagen ? `[BASE64 de ${datosReporte.imagen.length} caracteres]` : null
+      imagen: datosReporte.imagen
+        ? `[BASE64 de ${datosReporte.imagen.length} caracteres]`
+        : null,
     });
-    
+
     await guardarInformeAlBackend(datosReporte);
   };
 
@@ -2321,15 +2481,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("=== Enviando datos al backend ===");
     console.log("URL:", `/api/informesresultado/`);
     console.log("imagen existe en datosReporte:", "imagen" in datosReporte);
-    console.log("Tamaño de imagen:", datosReporte.imagen ? datosReporte.imagen.length : "null");
-    
+    console.log(
+      "Tamaño de imagen:",
+      datosReporte.imagen ? datosReporte.imagen.length : "null",
+    );
+
     // Para debugging, crear una copia sin la imagen para mostrar
     const datosParaMostrar = {
       ...datosReporte,
-      imagen: datosReporte.imagen ? `[BASE64 de ${datosReporte.imagen.length} caracteres]` : null
+      imagen: datosReporte.imagen
+        ? `[BASE64 de ${datosReporte.imagen.length} caracteres]`
+        : null,
     };
     console.log("Datos (sin imagen completa):", datosParaMostrar);
-    
+
     try {
       const res = await fetch(`/api/informesresultado/`, {
         method: "POST",
@@ -2341,7 +2506,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       console.log("Response status:", res.status);
-      
+
       if (res.ok) {
         const data = await res.json();
         console.log("Respuesta OK:", data);
@@ -2357,7 +2522,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("Error de fetch:", error);
-      mostrarEstadoInforme("Error al guardar el informe de resultados.", "danger");
+      mostrarEstadoInforme(
+        "Error al guardar el informe de resultados.",
+        "danger",
+      );
     } finally {
       cambiarEstadoBotonGuardar(false);
     }
@@ -2368,7 +2536,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("btnGuardarInforme:", btnGuardarInforme);
     console.log("Tipo de elemento:", btnGuardarInforme.tagName);
     console.log("ID del elemento:", btnGuardarInforme.id);
-    
+
     btnGuardarInforme.addEventListener("click", (event) => {
       event.preventDefault();
       console.log("=== CLICK EN BOTÓN EJECUTADO ===");

@@ -2,8 +2,8 @@ const inputNumMicrobiologia = document.getElementById("inputNumMicrobiologia");
 const token = sessionStorage.getItem("token");
 
 const body = document.getElementById("body");
-const microbiologias = document.getElementById("microbiologias_lista");  // tabla de muestras principales
-const muestras = document.getElementById("microbiologias");  // tabla de microbiologias/análisis
+const microbiologias = document.getElementById("microbiologias_lista"); // tabla de muestras principales
+const muestras = document.getElementById("microbiologias"); // tabla de microbiologias/análisis
 const tipo_microbiologias = document.getElementById("tipo_microbiologias");
 const numMicrobiologia = document.getElementById("numMicrobiologia");
 
@@ -11,12 +11,12 @@ const numMicrobiologia = document.getElementById("numMicrobiologia");
 const btnformmodificarUser = document.getElementById("btnformmodificarUser");
 const modalupdateUser = document.getElementById("modalupdateUser");
 const btnformcerrarmodificarUser = document.getElementById(
-  "btnformcerrarmodificarUser"
+  "btnformcerrarmodificarUser",
 );
 
 const inputUpdateNombreUser = document.getElementById("inputUpdateNombreUser");
 const inputUpdateApellidosUser = document.getElementById(
-  "inputUpdateApellidosUser"
+  "inputUpdateApellidosUser",
 );
 const inputUpdateCorreoUser = document.getElementById("inputUpdateCorreoUser");
 const inputUpdatePass1User = document.getElementById("inputUpdatePass1User");
@@ -24,33 +24,45 @@ const inputUpdatePass2User = document.getElementById("inputUpdatePass2User");
 const inputUpdateCentroUser = document.getElementById("inputUpdateCentroUser");
 
 const btnborrar = document.getElementById("btnborrar");
-const modalnuevoMicrobiologia = document.getElementById("modalnuevoMicrobiologia");
-const btnformnuevomicrobiologia = document.getElementById("btnformnuevomicrobiologia");
+const modalnuevoMicrobiologia = document.getElementById(
+  "modalnuevoMicrobiologia",
+);
+const btnformnuevomicrobiologia = document.getElementById(
+  "btnformnuevomicrobiologia",
+);
 const btnformmodificarmicrobiologia = document.getElementById(
-  "btnformmodificarmicrobiologia"
+  "btnformmodificarmicrobiologia",
 );
 const btnformcerrarnuevoMicrobiologia = document.getElementById(
-  "btnformcerrarnuevoMicrobiologia"
+  "btnformcerrarnuevoMicrobiologia",
 );
 const btnformcerrarmodificarMicrobiologia = document.getElementById(
-  "btnformcerrarmodificarMicrobiologia"
+  "btnformcerrarmodificarMicrobiologia",
 );
 const btnmodificar = document.getElementById("btnmodificar");
 const nuevoMicrobiologia = document.getElementById("nuevoMicrobiologia");
 const nuevaMuestra = document.getElementById("nuevaMuestra");
-const microbiologiaDescripcion = document.getElementById("microbiologia__descripcionMain");
-const microbiologiaTipoMuestra = document.getElementById("microbiologia__tipo_microbiologiaMain");
-const microbiologiaMicrobiologia = document.getElementById("microbiologia__muestraMain");
+const microbiologiaDescripcion = document.getElementById(
+  "microbiologia__descripcionMain",
+);
+const microbiologiaTipoMuestra = document.getElementById(
+  "microbiologia__tipo_microbiologiaMain",
+);
+const microbiologiaMicrobiologia = document.getElementById(
+  "microbiologia__muestraMain",
+);
 const microbiologiaFecha = document.getElementById("microbiologia__fechaMain");
-const microbiologiaTecnicoId = document.getElementById("microbiologia__tecnico_idMain");
+const microbiologiaTecnicoId = document.getElementById(
+  "microbiologia__tecnico_idMain",
+);
 const microbiologiaCaracteristicas = document.getElementById(
-  "microbiologia__caracteristicasMain"
+  "microbiologia__caracteristicasMain",
 );
 const microbiologiaObservaciones = document.getElementById(
-  "microbiologia__observacionesMain"
+  "microbiologia__observacionesMain",
 );
 const microbiologiaDiagnostico = document.getElementById(
-  "microbiologia__diagnosticoMain"
+  "microbiologia__diagnosticoMain",
 );
 let microbiologiaInformeDescripcion = null;
 let microbiologiaInformeFecha = null;
@@ -62,26 +74,36 @@ let microbiologiaInformePreview = null;
 let btnGuardarInforme = null;
 const informeStatus = document.getElementById("informeStatus");
 const informeContextNum = document.getElementById("informeContextNum");
-const informeContextDescripcion = document.getElementById("informeContextDescripcion");
+const informeContextDescripcion = document.getElementById(
+  "informeContextDescripcion",
+);
 const INFORME_TAB_KEY = "microbiologia_active_tab";
 
 const microbiologiaImagen = document.getElementById("microbiologia__imagen");
-const eliminarMicrobiologiaModal = document.getElementById("eliminarMicrobiologiaModal");
+const eliminarMicrobiologiaModal = document.getElementById(
+  "eliminarMicrobiologiaModal",
+);
 
 // Detalle Microbiologia
 let currentMicrobiologiaId = null;
 let informeEditandoId = null;
 let informeGuardando = false;
 const btn__imprimrqr = document.getElementById("btn__imprimirqr");
-const btn__imprimrqrAlt = document.getElementById("btn__imprimirqrmicrobiologia");
+const btn__imprimrqrAlt = document.getElementById(
+  "btn__imprimirqrmicrobiologia",
+);
 
 // Modal qr
 const imgmicrobiologia__qr = document.getElementById("imgmicrobiologia__qr");
-const inputmicrobiologia__qr = document.getElementById("inputmicrobiologia__qr");
+const inputmicrobiologia__qr = document.getElementById(
+  "inputmicrobiologia__qr",
+);
 
 // Todos los microbiologias
 const todosMicrobiologias = document.getElementById("todosMicrobiologias");
-const informesListaMicrobiologia = document.getElementById("informes_lista_microbiologia");
+const informesListaMicrobiologia = document.getElementById(
+  "informes_lista_microbiologia",
+);
 const btnNuevoInforme = document.getElementById("btnNuevoInforme");
 const btnCancelarInforme = document.getElementById("btnCancelarInforme");
 const modalNuevoInforme = document.getElementById("modalNuevoInforme");
@@ -101,112 +123,130 @@ const inputImagenes = document.getElementById("inputImagenes");
 const inputMicrobiologia = document.getElementById("inputMicrobiologia");
 
 // Modificar Microbiologia
-const modalupdateMicrobiologia = document.getElementById("modalupdateMicrobiologiaMain");
-const modificarMicrobiologia = document.getElementById("modificarMicrobiologiaFormMain");
-const btnmodificarmicrobiologia = document.getElementById("btnformmodificarmicrobiologiaMain");
+const modalupdateMicrobiologia = document.getElementById(
+  "modalupdateMicrobiologiaMain",
+);
+const modificarMicrobiologia = document.getElementById(
+  "modificarMicrobiologiaFormMain",
+);
+const btnmodificarmicrobiologia = document.getElementById(
+  "btnformmodificarmicrobiologiaMain",
+);
 const inputFechaUpdate = document.getElementById("inputFechaUpdate");
 const inputImagenesUpdate = document.getElementById("inputImagenesUpdate");
 
 const inputDescripcionUpdate = document.getElementById(
-  "inputDescripcionUpdate"
+  "inputDescripcionUpdate",
 );
 const inputCaracteristicasUpdate = document.getElementById(
-  "inputCaracteristicasUpdate"
+  "inputCaracteristicasUpdate",
 );
 const inputObservacionesUpdate = document.getElementById(
-  "inputObservacionesUpdate"
+  "inputObservacionesUpdate",
 );
-const inputMicroscopiaUpdate = document.getElementById("inputMicroscopiaUpdate");
-const inputDiagnosticoUpdate = document.getElementById("inputDiagnosticoUpdate");
+const inputMicroscopiaUpdate = document.getElementById(
+  "inputMicroscopiaUpdate",
+);
+const inputDiagnosticoUpdate = document.getElementById(
+  "inputDiagnosticoUpdate",
+);
 const inputPatologoUpdate = document.getElementById("inputPatologoUpdate");
 const inputSelectUpdate = document.getElementById("inputSelectUpdate");
 const inputClinicaUpdate = document.getElementById("inputClinicaUpdate");
-const inputMicrobiologiaUpdate = document.getElementById("inputMicrobiologiaUpdate");
+const inputMicrobiologiaUpdate = document.getElementById(
+  "inputMicrobiologiaUpdate",
+);
 
 // Crear un análisis (Microbiologias)
 const btnformnuevaMuestra = document.getElementById("btnformnuevaMuestra");
 const btnformcerrarnuevaMuestra = document.getElementById(
-  "btnformcerrarnuevaMuestra"
+  "btnformcerrarnuevaMuestra",
 );
 
 const modalnuevaMuestra = document.getElementById("modalnuevaMuestra");
 
 // Nueva Análisis
 const inputdescripcionMuestra = document.getElementById(
-  "inputdescripcionMuestra"
+  "inputdescripcionMuestra",
 );
 const inputFechaMuestra = document.getElementById("inputFechaMuestra");
 const selectTincionMuestra = document.getElementById("selectTincionMuestra");
 const inputObservacionesMuestra = document.getElementById(
-  "inputObservacionesMuestra"
+  "inputObservacionesMuestra",
 );
-const inputMicroscopiaMuestra = document.getElementById("inputMicroscopiaMuestra");
+const inputMicroscopiaMuestra = document.getElementById(
+  "inputMicroscopiaMuestra",
+);
 const inputImagenesMuestra = document.getElementById("inputImagenesMuestra");
 
 // Detalle Análisis
 const muestra__descripcion = document.getElementById("muestra__descripcion");
 const muestra__fecha = document.getElementById("muestra__fecha");
 const muestra__observaciones = document.getElementById(
-  "muestra__observaciones"
+  "muestra__observaciones",
 );
-const muestra__descripcion_microscopica = document.getElementById("muestra__descripcion_microscopica");
+const muestra__descripcion_microscopica = document.getElementById(
+  "muestra__descripcion_microscopica",
+);
 const muestra__tincion = document.getElementById("muestra__tincion");
 
 const muestra__img = document.getElementById("muestra__img");
 const btncerrardetalleMuestra = document.getElementById(
-  "btncerrardetalleMuestra"
+  "btncerrardetalleMuestra",
 );
 const btncerrarmuestradetalle = document.getElementById(
-  "btncerrarmuestradetalle"
+  "btncerrarmuestradetalle",
 );
 const btnaniadirimagenmuestra = document.getElementById(
-  "btnaniadirimagenmuestra"
+  "btnaniadirimagenmuestra",
 );
 
 // Modificar análisis
 const modificarMuestra = document.getElementById("modificarAnalysisForm");
 const modalmodificarMuestra = document.getElementById("modalmodificarAnalysis");
-const modaldetalleMuestra = document.getElementById("modaldetalleMicrobiologia");
+const modaldetalleMuestra = document.getElementById(
+  "modaldetalleMicrobiologia",
+);
 const btnformmodificarMuestra = document.getElementById(
-  "btnformmodificarMuestra"
+  "btnformmodificarMuestra",
 );
 const btnformcerrarmodificarMuestra = document.getElementById(
-  "btnformcerrarmodificarMuestra"
+  "btnformcerrarmodificarMuestra",
 );
 
 // Datos para modificar un análisis
 const inputmodificardescripcionMuestra = document.getElementById(
-  "inputmodificardescripcionMuestra"
+  "inputmodificardescripcionMuestra",
 );
 
 const inputmodificarfechaMuestra = document.getElementById(
-  "inputmodificarfechaMuestra"
+  "inputmodificarfechaMuestra",
 );
 
 const selectmodificartincionMuestra = document.getElementById(
-  "selectmodificartincionMuestra"
+  "selectmodificartincionMuestra",
 );
 
 const inputmodificarobservacionesMuestra = document.getElementById(
-  "inputmodificarobservacionesMuestra"
+  "inputmodificarobservacionesMuestra",
 );
 
 const inputmodificarmicroscopiaMuestra = document.getElementById(
-  "inputmodificarmicroscopiaMuestra"
+  "inputmodificarmicroscopiaMuestra",
 );
 // Borrar Análisis
 const btnborrarmuestra = document.getElementById("btnborrarmuestra");
 
 // Borrar Imagen Análisis
 const btnborrarimagenmuestra = document.getElementById(
-  "btnborrarimagenmuestra"
+  "btnborrarimagenmuestra",
 );
 
 const qrMuestraModal = document.getElementById("qrMuestraModal");
 const imgmuestra__qr = document.getElementById("imgmuestra__qr");
 const inputmuestra__qr = document.getElementById("inputmuestra__qr");
 const btn__imprimirqrmuestra = document.getElementById(
-  "btn__imprimirqrmuestra"
+  "btn__imprimirqrmuestra",
 );
 
 // Consultar por código qr
@@ -263,7 +303,9 @@ const configurarEventosInformesMicrobiologia = () => {
     if (!currentMicrobiologiaId) return;
 
     const informes = await cargarInformesMicrobiologia(currentMicrobiologiaId);
-    const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+    const informe = informes.find(
+      (item) => String(item.id_informe) === String(informeId),
+    );
     if (!informe) return;
 
     if (action === "cargar") {
@@ -277,7 +319,10 @@ const configurarEventosInformesMicrobiologia = () => {
     if (action === "ver") {
       const urlInforme = obtenerUrlInformeMicrobiologia(informe);
       if (!urlInforme) {
-        mostrarEstadoInforme("Este informe no tiene archivo adjunto.", "warning");
+        mostrarEstadoInforme(
+          "Este informe no tiene archivo adjunto.",
+          "warning",
+        );
         return;
       }
       window.open(urlInforme, "_blank", "noopener");
@@ -302,7 +347,9 @@ const buildResolverUrl = (code) => {
 
 const cerrarModalQrConsulta = () => {
   if (!qrConsultaModal || !window.bootstrap?.Modal) return;
-  const modal = window.bootstrap.Modal.getInstance(qrConsultaModal) || new window.bootstrap.Modal(qrConsultaModal);
+  const modal =
+    window.bootstrap.Modal.getInstance(qrConsultaModal) ||
+    new window.bootstrap.Modal(qrConsultaModal);
   modal.hide();
 };
 
@@ -407,7 +454,7 @@ initAuth();
 
 // Carga Microbiologias al inicio
 const cargarMicrobiologiasIndex = async () => {
-  return await fetch("/api/microbiologias/index/").then(data => data.json());
+  return await fetch("/api/microbiologias/index/").then((data) => data.json());
 };
 
 const normalizarListaApi = (payload) => {
@@ -418,7 +465,9 @@ const normalizarListaApi = (payload) => {
 
 // Carga el detalle del microbiologia seleccionado
 const cargarMicrobiologia = async (microbiologiaId) => {
-  return await fetch(`/api/microbiologias/${microbiologiaId}/`).then(data => data.json());
+  return await fetch(`/api/microbiologias/${microbiologiaId}/`).then((data) =>
+    data.json(),
+  );
 };
 
 const crearMicrobiologia = async (event) => {
@@ -437,15 +486,22 @@ const crearMicrobiologia = async (event) => {
   }
 
   const dataForm = new FormData();
-  if (inputMicrobiologia.value) dataForm.append("muestra", inputMicrobiologia.value);
+  if (inputMicrobiologia.value)
+    dataForm.append("muestra", inputMicrobiologia.value);
   if (inputFecha.value) dataForm.append("fecha", inputFecha.value);
-  if (inputDescripcion.value) dataForm.append("descripcion", inputDescripcion.value);
-  if (inputCaracteristicas.value) dataForm.append("caracteristicas", inputCaracteristicas.value);
-  if (inputObservaciones.value) dataForm.append("observaciones", inputObservaciones.value);
+  if (inputDescripcion.value)
+    dataForm.append("descripcion", inputDescripcion.value);
+  if (inputCaracteristicas.value)
+    dataForm.append("caracteristicas", inputCaracteristicas.value);
+  if (inputObservaciones.value)
+    dataForm.append("observaciones", inputObservaciones.value);
   if (inputSelect.value) dataForm.append("organo", inputSelect.value);
-  if (inputClinica.files.length > 0) dataForm.append("volante_peticion", inputClinica.files[0]);
-  if (inputDiagnostico.value) dataForm.append("diagnostico_final", inputDiagnostico.value);
-  if (inputPatologo.value) dataForm.append("patologo_responsable", inputPatologo.value);
+  if (inputClinica.files.length > 0)
+    dataForm.append("volante_peticion", inputClinica.files[0]);
+  if (inputDiagnostico.value)
+    dataForm.append("diagnostico_final", inputDiagnostico.value);
+  if (inputPatologo.value)
+    dataForm.append("patologo_responsable", inputPatologo.value);
   dataForm.append("tecnico", tecnicoId);
 
   fetch("/api/microbiologias/", {
@@ -478,7 +534,9 @@ const crearMicrobiologia = async (event) => {
 };
 
 const cargarTodosMicrobiologias = async () => {
-  const payload = await fetch("/api/microbiologias/todos/").then((data) => data.json());
+  const payload = await fetch("/api/microbiologias/todos/").then((data) =>
+    data.json(),
+  );
   return normalizarListaApi(payload);
 };
 
@@ -500,7 +558,9 @@ const obtenerMicrobiologiasFecha = async (fecha) => {
 };
 
 const obtenerMicrobiologiasFechaRango = async (inicio, fin) => {
-  const response = await fetch(`/api/microbiologias/rango_fechas/?inicio=${inicio}&fin=${fin}`);
+  const response = await fetch(
+    `/api/microbiologias/rango_fechas/?inicio=${inicio}&fin=${fin}`,
+  );
   return await response.json();
 };
 
@@ -510,7 +570,7 @@ const borrarMicrobiologia = () => {
     headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": getCookie("csrftoken"),
-    }
+    },
   })
     .then((response) => {
       if (response.ok) {
@@ -545,7 +605,7 @@ const cargarMicrobiologiaUpdateModal = async (event) => {
     inputDiagnosticoUpdate.value = microbiologia.diagnostico_final || "";
     inputPatologoUpdate.value = microbiologia.patologo_responsable || "";
     inputSelectUpdate.value = microbiologia.organo;
-    inputMicrobiologiaUpdate.value = microbiologia.muestra;
+    inputMicrobiologiaUpdate.value = microbiologia.microbiologia;
   }
 };
 
@@ -559,15 +619,23 @@ const modificarMicrobiologiaUpdate = async (event) => {
   }
 
   const dataForm = new FormData();
-  if (inputMicrobiologiaUpdate.value) dataForm.append("microbiologia", inputMicrobiologiaUpdate.value);
+  if (inputMicrobiologiaUpdate.value)
+    dataForm.append("microbiologia", inputMicrobiologiaUpdate.value);
   if (inputFechaUpdate.value) dataForm.append("fecha", inputFechaUpdate.value);
-  if (inputDescripcionUpdate.value) dataForm.append("descripcion", inputDescripcionUpdate.value);
-  if (inputCaracteristicasUpdate.value) dataForm.append("caracteristicas", inputCaracteristicasUpdate.value);
-  if (inputObservacionesUpdate.value) dataForm.append("observaciones", inputObservacionesUpdate.value);
-  if (inputSelectUpdate.value) dataForm.append("organo", inputSelectUpdate.value);
-  if (inputClinicaUpdate.files.length > 0) dataForm.append("volante_peticion", inputClinicaUpdate.files[0]);
-  if (inputDiagnosticoUpdate.value) dataForm.append("diagnostico_final", inputDiagnosticoUpdate.value);
-  if (inputPatologoUpdate.value) dataForm.append("patologo_responsable", inputPatologoUpdate.value);
+  if (inputDescripcionUpdate.value)
+    dataForm.append("descripcion", inputDescripcionUpdate.value);
+  if (inputCaracteristicasUpdate.value)
+    dataForm.append("caracteristicas", inputCaracteristicasUpdate.value);
+  if (inputObservacionesUpdate.value)
+    dataForm.append("observaciones", inputObservacionesUpdate.value);
+  if (inputSelectUpdate.value)
+    dataForm.append("organo", inputSelectUpdate.value);
+  if (inputClinicaUpdate.files.length > 0)
+    dataForm.append("volante_peticion", inputClinicaUpdate.files[0]);
+  if (inputDiagnosticoUpdate.value)
+    dataForm.append("diagnostico_final", inputDiagnosticoUpdate.value);
+  if (inputPatologoUpdate.value)
+    dataForm.append("patologo_responsable", inputPatologoUpdate.value);
   dataForm.append("tecnico", tecnicoId);
 
   await fetch(`/api/microbiologias/${microbiologiaId}/`, {
@@ -601,7 +669,9 @@ const actualizarVistaYLista = async (id) => {
 };
 
 const cargarMuestras = async (microbiologiaId) => {
-  return await fetch(`/api/muestrasmicrobiologia/microbiologia/${microbiologiaId}/`).then((data) => data.json());
+  return await fetch(
+    `/api/muestrasmicrobiologia/microbiologia/${microbiologiaId}/`,
+  ).then((data) => data.json());
 };
 
 const limpiarModalMuestra = () => {
@@ -624,7 +694,9 @@ const cargarMuestraUpdateModal = async (event) => {
     inputmodificarfechaMuestra.value = muestra.fecha;
     selectmodificartincionMuestra.value = muestra.tincion;
     inputmodificarobservacionesMuestra.value = muestra.observaciones;
-    if (inputmodificarmicroscopiaMuestra) inputmodificarmicroscopiaMuestra.value = muestra.descripcion_microscopica || "";
+    if (inputmodificarmicroscopiaMuestra)
+      inputmodificarmicroscopiaMuestra.value =
+        muestra.descripcion_microscopica || "";
   }
 };
 
@@ -632,11 +704,19 @@ const modificarMuestraUpdate = async (event) => {
   event.preventDefault();
 
   const data = {};
-  if (inputmodificarfechaMuestra.value) data.fecha = inputmodificarfechaMuestra.value;
-  if (inputmodificardescripcionMuestra.value) data.descripcion = inputmodificardescripcionMuestra.value;
-  if (inputmodificarobservacionesMuestra.value) data.observaciones = inputmodificarobservacionesMuestra.value;
-  if (inputmodificarmicroscopiaMuestra && inputmodificarmicroscopiaMuestra.value) data.descripcion_microscopica = inputmodificarmicroscopiaMuestra.value;
-  if (selectmodificartincionMuestra.value) data.tincion = selectmodificartincionMuestra.value;
+  if (inputmodificarfechaMuestra.value)
+    data.fecha = inputmodificarfechaMuestra.value;
+  if (inputmodificardescripcionMuestra.value)
+    data.descripcion = inputmodificardescripcionMuestra.value;
+  if (inputmodificarobservacionesMuestra.value)
+    data.observaciones = inputmodificarobservacionesMuestra.value;
+  if (
+    inputmodificarmicroscopiaMuestra &&
+    inputmodificarmicroscopiaMuestra.value
+  )
+    data.descripcion_microscopica = inputmodificarmicroscopiaMuestra.value;
+  if (selectmodificartincionMuestra.value)
+    data.tincion = selectmodificartincionMuestra.value;
   data.microbiologia = microbiologiaId;
 
   await fetch(`/api/muestrasmicrobiologia/${muestraId}/`, {
@@ -650,7 +730,8 @@ const modificarMuestraUpdate = async (event) => {
     .then(async (response) => {
       if (response.ok) {
         // Actualizamos los datos del detalle del análisis
-        muestra__descripcion.textContent = inputmodificardescripcionMuestra.value;
+        muestra__descripcion.textContent =
+          inputmodificardescripcionMuestra.value;
         let newfecha = inputmodificarfechaMuestra.value;
         muestra__fecha.textContent =
           newfecha.substring(8) +
@@ -661,7 +742,9 @@ const modificarMuestraUpdate = async (event) => {
 
         muestra__observaciones.textContent =
           inputmodificarobservacionesMuestra.value;
-        if (muestra__descripcion_microscopica) muestra__descripcion_microscopica.textContent = inputmodificarmicroscopiaMuestra.value;
+        if (muestra__descripcion_microscopica)
+          muestra__descripcion_microscopica.textContent =
+            inputmodificarmicroscopiaMuestra.value;
         muestra__tincion.textContent = selectmodificartincionMuestra.value;
 
         // Mostramos los análisis para que se actualicen
@@ -672,7 +755,11 @@ const modificarMuestraUpdate = async (event) => {
         modalmodificarMuestra.classList.add("hidemodal");
       } else {
         const errorData = await response.json().catch(() => ({}));
-        const mensaje = errorData.error || errorData.detail || JSON.stringify(errorData) || "Error desconocido";
+        const mensaje =
+          errorData.error ||
+          errorData.detail ||
+          JSON.stringify(errorData) ||
+          "Error desconocido";
         alert("Error al actualizar la muestra: " + mensaje);
       }
     })
@@ -697,7 +784,7 @@ const consultaFechaInicio = async () => {
       alertfecha.classList.add("ocultar");
       respuesta = await obtenerMicrobiologiasFechaRango(
         fechainicio.value,
-        fechafin.value
+        fechafin.value,
       );
     }
   }
@@ -718,7 +805,7 @@ const consultaFechaFin = async () => {
       alertfecha.classList.add("ocultar");
       const respuesta = await obtenerMicrobiologiasFechaRango(
         fechainicio.value,
-        fechafin.value
+        fechafin.value,
       );
       imprimirMicrobiologias(respuesta, false);
     }
@@ -731,12 +818,15 @@ const mostrarEstadoSinSeleccion = () => {
   imageId = null;
   currentMicrobiologiaId = null;
 
-  const microbiologiaNumElement = document.getElementById("microbiologia__microbiologia");
+  const microbiologiaNumElement = document.getElementById(
+    "microbiologia__microbiologia",
+  );
   if (microbiologiaNumElement) {
     microbiologiaNumElement.textContent = "";
   }
 
-  microbiologiaDescripcion.textContent = "Selecciona una cita para ver los detalles";
+  microbiologiaDescripcion.textContent =
+    "Selecciona una cita para ver los detalles";
   microbiologiaTipoMuestra.textContent = "";
   microbiologiaTecnicoId.textContent = "";
   microbiologiaFecha.textContent = "";
@@ -744,10 +834,12 @@ const mostrarEstadoSinSeleccion = () => {
   microbiologiaObservaciones.textContent = "";
   if (microbiologiaDiagnostico) microbiologiaDiagnostico.textContent = "";
 
-  if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
+  if (microbiologiaInformeDescripcion)
+    microbiologiaInformeDescripcion.value = "";
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
-  if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = "";
+  if (microbiologiaInformeObservaciones)
+    microbiologiaInformeObservaciones.value = "";
   if (microbiologiaInformeImagen) microbiologiaInformeImagen.value = "";
 
   muestras.innerHTML = "";
@@ -757,7 +849,9 @@ const mostrarEstadoSinSeleccion = () => {
   muestras.appendChild(estado);
 
   if (informeContextNum) informeContextNum.textContent = "—";
-  if (informeContextDescripcion) informeContextDescripcion.textContent = "Selecciona una cita para ver los detalles";
+  if (informeContextDescripcion)
+    informeContextDescripcion.textContent =
+      "Selecciona una cita para ver los detalles";
   if (informeStatus) {
     informeStatus.classList.add("d-none");
     informeStatus.textContent = "";
@@ -771,21 +865,33 @@ const mostrarEstadoSinSeleccion = () => {
   }
 
   if (informesListaMicrobiologia) {
-    informesListaMicrobiologia.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
+    informesListaMicrobiologia.innerHTML =
+      '<tr><td colspan="4" class="text-center text-muted py-3">Selecciona una cita para ver los informes.</td></tr>';
   }
 };
 
 const cargarInformesMicrobiologia = async (idMicrobiologia) => {
-  const response = await fetch(`/api/informesresultado/microbiologia/${idMicrobiologia}/`);
+  const response = await fetch(
+    `/api/informesresultado/microbiologia/${idMicrobiologia}/`,
+  );
   return await response.json();
 };
 
 const cargarInformeEnFormularioMicrobiologia = (informe) => {
-  if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = informe.descripcion || "";
-  if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = informe.fecha || "";
-  if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = informe.tincion || "";
-  if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = informe.observaciones || "";
-  actualizarPreviewInformeMicrobiologia(informe.informe_imagen_url || informe.imagen_url || informe.imagen_base64 || "");
+  if (microbiologiaInformeDescripcion)
+    microbiologiaInformeDescripcion.value = informe.descripcion || "";
+  if (microbiologiaInformeFecha)
+    microbiologiaInformeFecha.value = informe.fecha || "";
+  if (microbiologiaInformeTincion)
+    microbiologiaInformeTincion.value = informe.tincion || "";
+  if (microbiologiaInformeObservaciones)
+    microbiologiaInformeObservaciones.value = informe.observaciones || "";
+  actualizarPreviewInformeMicrobiologia(
+    informe.informe_imagen_url ||
+      informe.imagen_url ||
+      informe.imagen_base64 ||
+      "",
+  );
   mostrarEstadoInforme("Informe cargado en el formulario.", "info");
 };
 
@@ -793,7 +899,8 @@ const obtenerUrlInformeMicrobiologia = (informe) => {
   if (!informe) return "";
   if (informe.imagen_url) return informe.imagen_url;
   if (informe.informe_imagen_url) return informe.informe_imagen_url;
-  if (informe.imagen_base64) return `data:application/octet-stream;base64,${informe.imagen_base64}`;
+  if (informe.imagen_base64)
+    return `data:application/octet-stream;base64,${informe.imagen_base64}`;
   return "";
 };
 
@@ -809,18 +916,19 @@ window.verInfoInformeMicrobiologia = async (informeId) => {
   if (!informeId) return;
   try {
     const res = await fetch(`/api/informesresultado/${informeId}/`);
-    if (!res.ok) throw new Error("No se pudo cargar la informacion del informe");
+    if (!res.ok)
+      throw new Error("No se pudo cargar la informacion del informe");
     const informe = await res.json();
-    const host = informesListaMicrobiologia?.closest('.informe__scroll');
+    const host = informesListaMicrobiologia?.closest(".informe__scroll");
     if (!host) return;
 
-    let panel = document.getElementById('infoInformePanelMicrobiologia');
+    let panel = document.getElementById("infoInformePanelMicrobiologia");
     if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'infoInformePanelMicrobiologia';
-      panel.className = 'mb-3 p-3 rounded';
-      panel.style.background = 'var(--bg-light)';
-      panel.style.border = '1px solid var(--border-color)';
+      panel = document.createElement("div");
+      panel.id = "infoInformePanelMicrobiologia";
+      panel.className = "mb-3 p-3 rounded";
+      panel.style.background = "var(--bg-light)";
+      panel.style.border = "1px solid var(--border-color)";
       panel.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h3 class="microbiologia__title m-0">Detalle del informe</h3>
@@ -832,22 +940,32 @@ window.verInfoInformeMicrobiologia = async (informeId) => {
         <div class="blue__color mt-2"><strong>Observaciones:</strong></div>
         <div class="blue__color mt-1" data-field="observaciones">-</div>
       `;
-      const tableWrap = informesListaMicrobiologia.closest('.table__scroll');
+      const tableWrap = informesListaMicrobiologia.closest(".table__scroll");
       host.insertBefore(panel, tableWrap);
-      panel.querySelector('#cerrarInfoInformeMicrobiologia').addEventListener('click', () => {
-        panel.classList.add('d-none');
-      });
+      panel
+        .querySelector("#cerrarInfoInformeMicrobiologia")
+        .addEventListener("click", () => {
+          panel.classList.add("d-none");
+        });
     }
 
-    panel.querySelector('[data-field="fecha"]').textContent = informe.fecha ? formatearFecha(informe.fecha) : 'Sin fecha';
-    panel.querySelector('[data-field="descripcion"]').textContent = informe.descripcion || 'Sin descripcion';
-    panel.querySelector('[data-field="tincion"]').textContent = informe.tincion || 'Sin resultado';
-    panel.querySelector('[data-field="observaciones"]').textContent = informe.observaciones || 'Sin observaciones';
-    panel.classList.remove('d-none');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    panel.querySelector('[data-field="fecha"]').textContent = informe.fecha
+      ? formatearFecha(informe.fecha)
+      : "Sin fecha";
+    panel.querySelector('[data-field="descripcion"]').textContent =
+      informe.descripcion || "Sin descripcion";
+    panel.querySelector('[data-field="tincion"]').textContent =
+      informe.tincion || "Sin resultado";
+    panel.querySelector('[data-field="observaciones"]').textContent =
+      informe.observaciones || "Sin observaciones";
+    panel.classList.remove("d-none");
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (error) {
     console.error(error);
-    mostrarEstadoInforme("No se pudo cargar la informacion del informe.", "danger");
+    mostrarEstadoInforme(
+      "No se pudo cargar la informacion del informe.",
+      "danger",
+    );
   }
 };
 
@@ -855,7 +973,9 @@ window.editarInformeMicrobiologia = async (informeId) => {
   const targetId = currentMicrobiologiaId || microbiologiaId;
   if (!targetId || !informeId) return;
   const informes = await cargarInformesMicrobiologia(targetId);
-  const informe = informes.find((item) => String(item.id_informe) === String(informeId));
+  const informe = informes.find(
+    (item) => String(item.id_informe) === String(informeId),
+  );
   if (!informe) return;
   informeEditandoId = String(informe.id_informe);
   actualizarEtiquetaBotonInforme();
@@ -881,7 +1001,10 @@ window.eliminarInformeMicrobiologia = async (informeId) => {
 window.guardarInformeMicrobiologia = async () => {
   const targetId = currentMicrobiologiaId || microbiologiaId;
   if (!targetId) {
-    mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+    mostrarEstadoInforme(
+      "Selecciona una cita para guardar el informe.",
+      "warning",
+    );
     return;
   }
   if (informeGuardando) return;
@@ -890,12 +1013,24 @@ window.guardarInformeMicrobiologia = async () => {
 
   try {
     mostrarEstadoInforme("Guardando informe...", "info");
-    const descripcion = document.getElementById("microbiologia__informe_descripcion")?.value || "";
-    const fecha = document.getElementById("microbiologia__informe_fecha")?.value || "";
-    const tincion = document.getElementById("microbiologia__informe_tincion")?.value || "";
-    const observaciones = document.getElementById("microbiologia__informe_observaciones")?.value || "";
+    const descripcion =
+      document.getElementById("microbiologia__informe_descripcion")?.value ||
+      "";
+    const fecha =
+      document.getElementById("microbiologia__informe_fecha")?.value || "";
+    const tincion =
+      document.getElementById("microbiologia__informe_tincion")?.value || "";
+    const observaciones =
+      document.getElementById("microbiologia__informe_observaciones")?.value ||
+      "";
     const inputFile = document.getElementById("microbiologia__informe_imagen");
-    const payload = { descripcion, fecha, tincion, observaciones, microbiologia: targetId };
+    const payload = {
+      descripcion,
+      fecha,
+      tincion,
+      observaciones,
+      microbiologia: targetId,
+    };
 
     if (inputFile && inputFile.files && inputFile.files[0]) {
       payload.imagen = await new Promise((resolve, reject) => {
@@ -907,7 +1042,9 @@ window.guardarInformeMicrobiologia = async () => {
     }
 
     const isEdit = Boolean(informeEditandoId);
-    const endpoint = isEdit ? `/api/informesresultado/${informeEditandoId}/` : "/api/informesresultado/";
+    const endpoint = isEdit
+      ? `/api/informesresultado/${informeEditandoId}/`
+      : "/api/informesresultado/";
     const res = await fetch(endpoint, {
       method: isEdit ? "PATCH" : "POST",
       headers: {
@@ -920,7 +1057,12 @@ window.guardarInformeMicrobiologia = async () => {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "No se pudo guardar el informe");
     }
-    mostrarEstadoInforme(isEdit ? "Informe actualizado correctamente." : "Informe guardado correctamente.", "success");
+    mostrarEstadoInforme(
+      isEdit
+        ? "Informe actualizado correctamente."
+        : "Informe guardado correctamente.",
+      "success",
+    );
     informeEditandoId = null;
     actualizarEtiquetaBotonInforme();
     if (inputFile) inputFile.value = "";
@@ -928,7 +1070,10 @@ window.guardarInformeMicrobiologia = async () => {
     await refrescarInformesMicrobiologia(targetId);
   } catch (error) {
     console.error(error);
-    mostrarEstadoInforme(error.message || "Error al guardar el informe.", "danger");
+    mostrarEstadoInforme(
+      error.message || "Error al guardar el informe.",
+      "danger",
+    );
   } finally {
     informeGuardando = false;
     cambiarEstadoBotonGuardar(false);
@@ -949,7 +1094,8 @@ const imprimirInformesMicrobiologia = (informes) => {
   informesListaMicrobiologia.innerHTML = "";
 
   if (!informes || informes.length === 0) {
-    informesListaMicrobiologia.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td></tr>';
+    informesListaMicrobiologia.innerHTML =
+      '<tr><td colspan="4" class="text-center text-muted py-3">No hay informes registrados.</td></tr>';
     return;
   }
 
@@ -961,10 +1107,13 @@ const imprimirInformesMicrobiologia = (informes) => {
     tr.classList.add("table__row");
 
     const tdFecha = document.createElement("td");
-    tdFecha.textContent = informe.fecha ? formatearFecha(informe.fecha) : "Sin fecha";
+    tdFecha.textContent = informe.fecha
+      ? formatearFecha(informe.fecha)
+      : "Sin fecha";
 
     const tdDescripcion = document.createElement("td");
-    tdDescripcion.textContent = (informe.descripcion || "").substring(0, 70) || "Sin descripción";
+    tdDescripcion.textContent =
+      (informe.descripcion || "").substring(0, 70) || "Sin descripción";
     tdDescripcion.title = informe.descripcion || "";
 
     const tdTincion = document.createElement("td");
@@ -974,7 +1123,7 @@ const imprimirInformesMicrobiologia = (informes) => {
     tdAcciones.classList.add("text-end");
     tdAcciones.innerHTML = `
       <i class="fa-solid fa-circle-info microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Ver datos del formulario" data-action="info" data-id="${informe.id_informe}"></i>
-      <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2 ${tieneArchivo ? '' : 'text-muted'}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ''}"></i>
+      <i class="fa-solid fa-file-import microbiologia__icon microbiologia__icon--infomicrobiologia me-2 ${tieneArchivo ? "" : "text-muted"}" title="Ver informe" data-action="ver" data-id="${informe.id_informe}" data-url="${urlInforme || ""}"></i>
       <i class="fa-solid fa-file-pen microbiologia__icon microbiologia__icon--infomicrobiologia me-2" title="Editar informe" data-action="cargar" data-id="${informe.id_informe}"></i>
       <i class="fa-solid fa-trash-can microbiologia__icon microbiologia__icon--infomicrobiologia" title="Eliminar informe" data-action="eliminar" data-id="${informe.id_informe}"></i>
     `;
@@ -1002,10 +1151,12 @@ const refrescarInformesMicrobiologia = async (idMicrobiologia) => {
 const limpiarFormularioInformeMicrobiologia = () => {
   informeEditandoId = null;
   actualizarEtiquetaBotonInforme();
-  if (microbiologiaInformeDescripcion) microbiologiaInformeDescripcion.value = "";
+  if (microbiologiaInformeDescripcion)
+    microbiologiaInformeDescripcion.value = "";
   if (microbiologiaInformeFecha) microbiologiaInformeFecha.value = "";
   if (microbiologiaInformeTincion) microbiologiaInformeTincion.value = "";
-  if (microbiologiaInformeObservaciones) microbiologiaInformeObservaciones.value = "";
+  if (microbiologiaInformeObservaciones)
+    microbiologiaInformeObservaciones.value = "";
   if (microbiologiaInformeImagen) microbiologiaInformeImagen.value = "";
   actualizarPreviewInformeMicrobiologia("");
 };
@@ -1017,9 +1168,12 @@ const actualizarPreviewInformeMicrobiologia = (imagen) => {
     microbiologiaInformePreviewWrap.classList.add("d-none");
     return;
   }
-  microbiologiaInformePreview.src = imagen.startsWith("data:") || imagen.startsWith("http") || imagen.startsWith("/")
-    ? imagen
-    : `data:image/jpeg;base64,${imagen}`;
+  microbiologiaInformePreview.src =
+    imagen.startsWith("data:") ||
+    imagen.startsWith("http") ||
+    imagen.startsWith("/")
+      ? imagen
+      : `data:image/jpeg;base64,${imagen}`;
   microbiologiaInformePreviewWrap.classList.remove("d-none");
 };
 
@@ -1039,10 +1193,16 @@ const ocultarPanelNuevoInformeMicrobiologia = () => {
 };
 
 const actualizarContextoInforme = () => {
-  const num = document.getElementById("microbiologia__microbiologia")?.textContent?.trim() || "—";
-  const descripcion = (microbiologiaDescripcion?.textContent || "").trim() || "Selecciona una cita para ver los detalles";
+  const num =
+    document
+      .getElementById("microbiologia__microbiologia")
+      ?.textContent?.trim() || "—";
+  const descripcion =
+    (microbiologiaDescripcion?.textContent || "").trim() ||
+    "Selecciona una cita para ver los detalles";
   if (informeContextNum) informeContextNum.textContent = num;
-  if (informeContextDescripcion) informeContextDescripcion.textContent = descripcion;
+  if (informeContextDescripcion)
+    informeContextDescripcion.textContent = descripcion;
 };
 
 const mostrarEstadoInforme = (mensaje, tipo = "success") => {
@@ -1062,7 +1222,8 @@ const cambiarEstadoBotonGuardar = (guardando) => {
   if (!btnGuardarInforme) return;
   if (guardando) {
     btnGuardarInforme.disabled = true;
-    btnGuardarInforme.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
+    btnGuardarInforme.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando informe...';
   } else {
     btnGuardarInforme.disabled = false;
     actualizarEtiquetaBotonInforme();
@@ -1073,7 +1234,8 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
   const lista = normalizarListaApi(respuesta);
   microbiologias.innerHTML = "";
   if (rebuildDropdown) {
-    numMicrobiologia.innerHTML = "<option selected value=''>Nº Muestra</option>";
+    numMicrobiologia.innerHTML =
+      "<option selected value=''>Nº Muestra</option>";
   }
 
   let fragmento = document.createDocumentFragment();
@@ -1082,8 +1244,8 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
     lista.map((microbiologia) => {
       // Para cargar los números de microbiologia
       let option = document.createElement("OPTION");
-      option.value = microbiologia.muestra;
-      option.textContent = microbiologia.muestra;
+      option.value = microbiologia.microbiologia;
+      option.textContent = microbiologia.microbiologia;
       fragmentselect.appendChild(option);
 
       // Para mostrar los microbiologias
@@ -1092,7 +1254,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
 
       // Muestra / Paciente
       let nmicrobiologia = document.createElement("td");
-      nmicrobiologia.textContent = microbiologia.muestra;
+      nmicrobiologia.textContent = microbiologia.microbiologia;
 
       let fecha = document.createElement("td");
       let newfecha = microbiologia.fecha;
@@ -1109,12 +1271,12 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
       descripcion.title = microbiologia.descripcion;
 
       let tipo_muestra = document.createElement("td");
-      tipo_muestra.textContent = microbiologia.tipo_muestra;
+      tipo_muestra.textContent = microbiologia.organo;
 
       let btndetalle = document.createElement("I");
       btndetalle.className =
         "d-inline-block microbiologia__icon fa-solid fa-eye microbiologia__icon--infomicrobiologia icono__efect";
-      btndetalle.dataset.id = microbiologia.id_muestra;
+      btndetalle.dataset.id = microbiologia.id_microbiologia;
       btndetalle.title = "Detalle Análisis";
 
       let btnCont = document.createElement("td");
@@ -1135,7 +1297,7 @@ const imprimirMicrobiologias = (respuesta, rebuildDropdown = true) => {
       "justify-content-center",
       "fw-bold",
       "text-danger",
-      "text-opacity-50"
+      "text-opacity-50",
     );
     tr.textContent = "No se ha encontrado ninguna muestra";
     fragmento.appendChild(tr);
@@ -1165,14 +1327,16 @@ const detalleMicrobiologia = async (event) => {
 // Muestra el detalle de un microbiologia
 const imprimirDataMicrobiologia = (respuesta) => {
   microbiologiaDescripcion.textContent = respuesta.descripcion;
-  microbiologiaTipoMuestra.textContent = respuesta.tipo_muestra;
+  microbiologiaTipoMuestra.textContent = respuesta.organo;
   // microbiologiaMicrobiologia.textContent = respuesta.muestra; // Element doesn't exist in HTML
   microbiologiaTecnicoId.textContent = respuesta.tecnico;
 
   // Show the muestra/paciente number in the header
-  const microbiologiaNumElement = document.getElementById("microbiologia__microbiologia");
+  const microbiologiaNumElement = document.getElementById(
+    "microbiologia__microbiologia",
+  );
   if (microbiologiaNumElement) {
-    microbiologiaNumElement.textContent = respuesta.muestra;
+    microbiologiaNumElement.textContent = respuesta.microbiologia;
   }
 
   // Formato Fecha
@@ -1194,27 +1358,35 @@ const imprimirDataMicrobiologia = (respuesta) => {
     microbiologiaDiagnostico.textContent = respuesta.diagnostico_final || "";
   }
 
-  const microbiologiaVolanteWrapper = document.getElementById("microbiologia__volanteMainWrapper");
+  const microbiologiaVolanteWrapper = document.getElementById(
+    "microbiologia__volanteMainWrapper",
+  );
   if (microbiologiaVolanteWrapper) {
     if (respuesta.volante_peticion_url) {
-        microbiologiaVolanteWrapper.innerHTML = `<a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fa-solid fa-file-pdf me-1"></i> Ver Volante de Petición</a>`;
+      microbiologiaVolanteWrapper.innerHTML = `<a href="${respuesta.volante_peticion_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fa-solid fa-file-pdf me-1"></i> Ver Volante de Petición</a>`;
     } else {
-        microbiologiaVolanteWrapper.innerHTML = `<span id="microbiologia__volanteMainText" class="blue__color microbiologia__text m-0">No adjuntado</span>`;
+      microbiologiaVolanteWrapper.innerHTML = `<span id="microbiologia__volanteMainText" class="blue__color microbiologia__text m-0">No adjuntado</span>`;
     }
   }
 
   microbiologiaInformeDescripcion.value = respuesta.informe_descripcion || "";
   microbiologiaInformeFecha.value = respuesta.informe_fecha || "";
   microbiologiaInformeTincion.value = respuesta.informe_tincion || "";
-  microbiologiaInformeObservaciones.value = respuesta.informe_observaciones || "";
-  currentMicrobiologiaId = respuesta.id_muestra;
+  microbiologiaInformeObservaciones.value =
+    respuesta.informe_observaciones || "";
+  currentMicrobiologiaId = respuesta.id_microbiologia;
   if (btnNuevoInforme) {
     btnNuevoInforme.disabled = false;
     btnNuevoInforme.removeAttribute("title");
   }
   actualizarContextoInforme();
   refrescarInformesMicrobiologia(currentMicrobiologiaId);
-  console.log("imprimirDataMicrobiologia - currentMicrobiologiaId asignado como:", currentMicrobiologiaId, "respuesta completa:", respuesta);
+  console.log(
+    "imprimirDataMicrobiologia - currentMicrobiologiaId asignado como:",
+    currentMicrobiologiaId,
+    "respuesta completa:",
+    respuesta,
+  );
 
   // generamos el codigo QR (sistema antiguo con QRious para compatibilidad)
   if (window.QRious) {
@@ -1231,26 +1403,30 @@ const imprimirDataMicrobiologia = (respuesta) => {
   }
 
   // Sistema nuevo: generar QR con QRCode.js para el modal moderno
-  if (typeof QRCode !== 'undefined') {
+  if (typeof QRCode !== "undefined") {
     const qrCode = respuesta.qr_microbiologia || respuesta.qr_muestra;
     const qrUrl = buildResolverUrl(qrCode);
-    if (typeof microbiologiaQrActual !== 'undefined') {
+    if (typeof microbiologiaQrActual !== "undefined") {
       microbiologiaQrActual = qrUrl;
     }
-    const qrUrlEl = document.getElementById('qrcode-microbiologia-url');
+    const qrUrlEl = document.getElementById("qrcode-microbiologia-url");
     if (qrUrlEl) qrUrlEl.textContent = qrUrl;
-    
+
     // Generar QR en el modal cuando se abre
-    const modalEl = document.getElementById('qrMicrobiologiaModal');
+    const modalEl = document.getElementById("qrMicrobiologiaModal");
     if (modalEl) {
-      modalEl.addEventListener('shown.bs.modal', function generarQr() {
-        const qrWrap = document.getElementById('qrcode-microbiologia');
-        if (qrWrap && qrUrl) {
-          qrWrap.innerHTML = '';
-          new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
-        }
-        modalEl.removeEventListener('shown.bs.modal', generarQr);
-      }, { once: true });
+      modalEl.addEventListener(
+        "shown.bs.modal",
+        function generarQr() {
+          const qrWrap = document.getElementById("qrcode-microbiologia");
+          if (qrWrap && qrUrl) {
+            qrWrap.innerHTML = "";
+            new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
+          }
+          modalEl.removeEventListener("shown.bs.modal", generarQr);
+        },
+        { once: true },
+      );
     }
   }
 };
@@ -1270,7 +1446,11 @@ const crearMuestra = async (event) => {
   newMuestra.append("descripcion", inputdescripcionMuestra.value);
   newMuestra.append("fecha", inputFechaMuestra.value);
   newMuestra.append("observaciones", inputObservacionesMuestra.value);
-  if (inputMicroscopiaMuestra) newMuestra.append("descripcion_microscopica", inputMicroscopiaMuestra.value);
+  if (inputMicroscopiaMuestra)
+    newMuestra.append(
+      "descripcion_microscopica",
+      inputMicroscopiaMuestra.value,
+    );
   newMuestra.append("tincion", selectTincionMuestra.value);
   if (inputImagenesMuestra.files[0]) {
     newMuestra.append("imagen", inputImagenesMuestra.files[0]);
@@ -1313,8 +1493,12 @@ const crearMuestra = async (event) => {
     const microbiologiasResp = await cargarTodosMicrobiologias();
     imprimirMicrobiologias(microbiologiasResp, true);
 
-    const microbiologiaSeleccionada = normalizarListaApi(microbiologiasResp)
-      .find((item) => String(item.id_microbiologia) === String(microbiologiaSeleccionadaId));
+    const microbiologiaSeleccionada = normalizarListaApi(
+      microbiologiasResp,
+    ).find(
+      (item) =>
+        String(item.id_microbiologia) === String(microbiologiaSeleccionadaId),
+    );
     if (microbiologiaSeleccionada) {
       microbiologiaId = microbiologiaSeleccionadaId;
       imprimirDataMicrobiologia(microbiologiaSeleccionada);
@@ -1348,7 +1532,9 @@ const imprimirMuestras = (respuesta) => {
       tr.classList.add("table__row");
       let descripcion = document.createElement("td");
       const descripcionTexto = (muestra?.descripcion || "").toString();
-      descripcion.textContent = descripcionTexto ? descripcionTexto.substring(0, 80) : "-";
+      descripcion.textContent = descripcionTexto
+        ? descripcionTexto.substring(0, 80)
+        : "-";
       descripcion.title = descripcionTexto;
 
       let fecha = document.createElement("td");
@@ -1409,13 +1595,15 @@ const cargarMuestra = async (muestraid) => {
 
 // Obtenemos las imágenes de un análisis
 const obtenerImagenesMuestra = async (muestraid) => {
-  const response = await fetch(`/api/imagenesmicrobiologia/muestra/${muestraid}/`);
+  const response = await fetch(
+    `/api/imagenesmicrobiologia/muestra/${muestraid}/`,
+  );
   return await response.json();
 };
 
 // Rellenamos los datos del análisis
 const rellenarDatosMuestra = async (muestra) => {
-  muestra__descripcion.textContent = muestra.descripcion || 'Sin descripción';
+  muestra__descripcion.textContent = muestra.descripcion || "Sin descripción";
   muestra__descripcion.title = muestra.descripcion;
 
   let newfecha = muestra.fecha;
@@ -1427,14 +1615,16 @@ const rellenarDatosMuestra = async (muestra) => {
       "-" +
       newfecha.substring(0, 4);
   } else {
-    muestra__fecha.textContent = 'Sin fecha';
+    muestra__fecha.textContent = "Sin fecha";
   }
 
-  muestra__observaciones.textContent = muestra.observaciones || 'Sin observaciones';
+  muestra__observaciones.textContent =
+    muestra.observaciones || "Sin observaciones";
   if (muestra__descripcion_microscopica) {
-    muestra__descripcion_microscopica.textContent = muestra.descripcion_microscopica || 'Sin descripción';
+    muestra__descripcion_microscopica.textContent =
+      muestra.descripcion_microscopica || "Sin descripción";
   }
-  muestra__tincion.textContent = muestra.tincion || 'Sin tinción';
+  muestra__tincion.textContent = muestra.tincion || "Sin tinción";
 };
 
 const borrarImagenMuestra = async () => {
@@ -1472,24 +1662,24 @@ const detailMuestra = async (muestraid) => {
   }
 
   // Sistema nuevo: preparar QR para modal moderno
-  if (typeof QRCode !== 'undefined' && typeof muestraQrActual !== 'undefined') {
+  if (typeof QRCode !== "undefined" && typeof muestraQrActual !== "undefined") {
     const qrUrl = buildResolverUrl(muestra.qr_muestra);
     muestraQrActual = qrUrl;
-    const qrUrlEl = document.getElementById('qrcode-muestra-url');
+    const qrUrlEl = document.getElementById("qrcode-muestra-url");
     if (qrUrlEl) qrUrlEl.textContent = qrUrl;
-    
+
     // Configurar generación de QR cuando se abre el modal
-    const modalEl = document.getElementById('qrMuestraModal');
+    const modalEl = document.getElementById("qrMuestraModal");
     if (modalEl) {
-      const generarQr = function() {
-        const qrWrap = document.getElementById('qrcode-muestra');
+      const generarQr = function () {
+        const qrWrap = document.getElementById("qrcode-muestra");
         if (qrWrap && qrUrl) {
-          qrWrap.innerHTML = '';
+          qrWrap.innerHTML = "";
           new QRCode(qrWrap, { text: qrUrl, width: 220, height: 220 });
         }
       };
-      modalEl.removeEventListener('shown.bs.modal', generarQr);
-      modalEl.addEventListener('shown.bs.modal', generarQr, { once: true });
+      modalEl.removeEventListener("shown.bs.modal", generarQr);
+      modalEl.addEventListener("shown.bs.modal", generarQr, { once: true });
     }
   }
 
@@ -1503,9 +1693,9 @@ const detailMuestra = async (muestraid) => {
 const aniadirImagenMuestra = async () => {
   try {
     // Crear un input file temporal
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '*/*';
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "*/*";
 
     input.onchange = async (e) => {
       const file = e.target.files[0];
@@ -1568,8 +1758,8 @@ const imprimirQR = (elemento) => {
   let printWindow = window.open("", "Imprimir imagen");
   printWindow.document.write(
     "<html><head><title>Imprimir imagen</title></head><body><img src='" +
-    qrimprimir +
-    "'></body></html>"
+      qrimprimir +
+      "'></body></html>",
   );
   printWindow.print();
   printWindow.close();
@@ -1578,7 +1768,10 @@ const imprimirQR = (elemento) => {
 const mostrarImagenesMuestra = async (muestraId_val) => {
   muestra__img.innerHTML = "";
   let imagenes = await obtenerImagenesMuestra(muestraId_val);
-  const visorImagen = typeof visor__img !== 'undefined' ? visor__img : document.getElementById("visor__img");
+  const visorImagen =
+    typeof visor__img !== "undefined"
+      ? visor__img
+      : document.getElementById("visor__img");
 
   const renderEstadoSinImagen = () => {
     muestra__img.style.display = "flex";
@@ -1593,7 +1786,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
 
     const emptyState = document.createElement("div");
     emptyState.className = "muestra__empty-state";
-    emptyState.innerHTML = "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
+    emptyState.innerHTML =
+      "<span class='muestra__empty-title'>Sin imagen adjunta</span><span class='muestra__empty-text'>Esta muestra no tiene ninguna vista previa disponible.</span>";
     muestra__img.appendChild(emptyState);
   };
 
@@ -1610,7 +1804,11 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
     imagenes.forEach((imagen, index) => {
       let newimg = document.createElement("IMG");
       newimg.id = imagen.id_imagen;
-      newimg.src = imagen.imagen_url || (imagen.imagen_base64 ? `data:image/jpeg;base64,${imagen.imagen_base64}` : "");
+      newimg.src =
+        imagen.imagen_url ||
+        (imagen.imagen_base64
+          ? `data:image/jpeg;base64,${imagen.imagen_base64}`
+          : "");
       newimg.classList.add("muestra__img", "rounded");
       newimg.style.height = "70px";
       newimg.style.objectFit = "cover";
@@ -1627,7 +1825,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
 
       // Botón borrar individual (X)
       const btnDelete = document.createElement("BUTTON");
-      btnDelete.innerHTML = '<i class="fa-solid fa-circle-xmark text-danger" style="font-size:.8rem;"></i>';
+      btnDelete.innerHTML =
+        '<i class="fa-solid fa-circle-xmark text-danger" style="font-size:.8rem;"></i>';
       btnDelete.className = "btn btn-sm position-absolute top-0 end-0 p-0";
       btnDelete.style.background = "rgba(255,255,255,.85)";
       btnDelete.style.borderRadius = "50%";
@@ -1635,7 +1834,7 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
       btnDelete.style.height = "20px";
       btnDelete.style.lineHeight = "1";
       btnDelete.title = "Eliminar imagen";
-      
+
       btnDelete.onclick = (e) => {
         e.stopPropagation();
         if (confirm("¿Eliminar esta imagen?")) {
@@ -1658,7 +1857,8 @@ const mostrarImagenesMuestra = async (muestraId_val) => {
   // Botón "+" al final de la galería (siempre visible como caja/placeholder)
   const btnAdd = document.createElement("DIV");
   btnAdd.innerHTML = '<i class="fa-solid fa-plus fs-4"></i>';
-  btnAdd.className = "d-flex align-items-center justify-content-center m-1 rounded border border-2 border-dashed";
+  btnAdd.className =
+    "d-flex align-items-center justify-content-center m-1 rounded border border-2 border-dashed";
   btnAdd.style.height = "70px";
   btnAdd.style.width = "70px";
   btnAdd.style.cursor = "pointer";
@@ -1681,18 +1881,21 @@ const borrarMuestra = async () => {
       modaldetalleMuestra.classList.remove("showmodal");
       let muestras = await cargarMuestras(microbiologiaId);
       imprimirMuestras(muestras);
-    }).catch(err => console.error(err));
+    })
+    .catch((err) => console.error(err));
 };
 
 const consultarMicrobiologiaQR = async (qr, silent = false) => {
-  const response = await fetch(`/api/microbiologias/qr/${encodeURIComponent(qr)}/`);
+  const response = await fetch(
+    `/api/microbiologias/qr/${encodeURIComponent(qr)}/`,
+  );
   let lista = await response.json();
   if (lista.length > 0) {
     const todas = await cargarTodosMicrobiologias();
     imprimirMicrobiologias(todas);
     const microbiologia = lista[0];
     imprimirDataMicrobiologia(microbiologia);
-    microbiologiaId = microbiologia.id_muestra;
+    microbiologiaId = microbiologia.id_microbiologia;
     let muestras_resp = await cargarMuestras(microbiologiaId);
     imprimirMuestras(muestras_resp);
     return true;
@@ -1703,12 +1906,19 @@ const consultarMicrobiologiaQR = async (qr, silent = false) => {
 };
 
 const consultarMuestraQR = async (qr, silent = false) => {
-  let response = await fetch(`/api/muestrasmicrobiologia/qr/${encodeURIComponent(qr)}/`);
+  let response = await fetch(
+    `/api/muestrasmicrobiologia/qr/${encodeURIComponent(qr)}/`,
+  );
   let muestra = await response.json();
   if (muestra.length > 0) {
-    let microbiologia_response = await fetch(`/api/microbiologias/${muestra[0].microbiologia}/`);
+    let microbiologia_response = await fetch(
+      `/api/microbiologias/${muestra[0].microbiologia}/`,
+    );
     let microbiologia = await microbiologia_response.json();
-    await consultarMicrobiologiaQR(microbiologia.qr_microbiologia || microbiologia.qr_muestra, true);
+    await consultarMicrobiologiaQR(
+      microbiologia.qr_microbiologia || microbiologia.qr_muestra,
+      true,
+    );
     await detailMuestra(muestra[0].id_muestra);
     return true;
   } else {
@@ -1720,20 +1930,17 @@ const consultarMuestraQR = async (qr, silent = false) => {
 // Cargamos el modal datos de usuario para modificar
 const cargarUserUpdateModal = async (event) => {
   let userId = sessionStorage.getItem("tecnico_id");
-  const response = await fetch(
-    "/api/tecnicos/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: JSON.stringify({
-        accion: "cargarTecnicoId",
-        id_tecnico: userId,
-      }),
-    }
-  );
+  const response = await fetch("/api/tecnicos/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify({
+      accion: "cargarTecnicoId",
+      id_tecnico: userId,
+    }),
+  });
 
   let user = await response.json();
 
@@ -1779,13 +1986,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Asignar elementos globales que podrían no existir al cargar el script
   btnGuardarInforme = document.getElementById("btnGuardarInforme");
-  microbiologiaInformeDescripcion = document.getElementById("microbiologia__informe_descripcion");
-  microbiologiaInformeFecha = document.getElementById("microbiologia__informe_fecha");
-  microbiologiaInformeTincion = document.getElementById("microbiologia__informe_tincion");
-  microbiologiaInformeObservaciones = document.getElementById("microbiologia__informe_observaciones");
-  microbiologiaInformeImagen = document.getElementById("microbiologia__informe_imagen");
-  microbiologiaInformePreviewWrap = document.getElementById("microbiologia__informe_preview_wrap");
-  microbiologiaInformePreview = document.getElementById("microbiologia__informe_preview");
+  microbiologiaInformeDescripcion = document.getElementById(
+    "microbiologia__informe_descripcion",
+  );
+  microbiologiaInformeFecha = document.getElementById(
+    "microbiologia__informe_fecha",
+  );
+  microbiologiaInformeTincion = document.getElementById(
+    "microbiologia__informe_tincion",
+  );
+  microbiologiaInformeObservaciones = document.getElementById(
+    "microbiologia__informe_observaciones",
+  );
+  microbiologiaInformeImagen = document.getElementById(
+    "microbiologia__informe_imagen",
+  );
+  microbiologiaInformePreviewWrap = document.getElementById(
+    "microbiologia__informe_preview_wrap",
+  );
+  microbiologiaInformePreview = document.getElementById(
+    "microbiologia__informe_preview",
+  );
 
   console.log("btnGuardarInforme encontrado:", btnGuardarInforme ? "SÍ" : "NO");
   console.log("Elementos de informe encontrados:", {
@@ -1793,7 +2014,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     fecha: microbiologiaInformeFecha ? "SÍ" : "NO",
     tincion: microbiologiaInformeTincion ? "SÍ" : "NO",
     observaciones: microbiologiaInformeObservaciones ? "SÍ" : "NO",
-    imagen: microbiologiaInformeImagen ? "SÍ" : "NO"
+    imagen: microbiologiaInformeImagen ? "SÍ" : "NO",
   });
 
   if (body) body.style.display = "block";
@@ -1802,20 +2023,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     imprimirMicrobiologias(respuesta);
   } catch (error) {
     console.error("Error cargando microbiologia al iniciar:", error);
-    mostrarEstadoInforme("No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.", "warning");
+    mostrarEstadoInforme(
+      "No se pudieron cargar los datos iniciales. Puedes usar Informes igualmente.",
+      "warning",
+    );
   }
   mostrarEstadoSinSeleccion();
   // Fechas sin restricciones - permite seleccionar cualquier fecha
   // Se elimina la restricción de fecha mínima para permitir fechas pasadas
 
   // Toggle section views
-  const sectionMicrobiologiasTable = document.getElementById("sectionMicrobiologias");
+  const sectionMicrobiologiasTable = document.getElementById(
+    "sectionMicrobiologias",
+  );
   const sectionInforme = document.getElementById("sectionInforme");
   const btnToggleInforme = document.getElementById("btnToggleInforme");
-  const btnToggleMicrobiologias = document.getElementById("btnToggleMicrobiologias");
+  const btnToggleMicrobiologias = document.getElementById(
+    "btnToggleMicrobiologias",
+  );
   const panelInforme = sectionInforme ? sectionInforme.firstElementChild : null;
   const scrollInternosInforme = sectionInforme
-    ? sectionInforme.querySelectorAll(".informe__scroll, .table__scroll, .table__scroll--m")
+    ? sectionInforme.querySelectorAll(
+        ".informe__scroll, .table__scroll, .table__scroll--m",
+      )
     : [];
 
   const abrirMenuInformes = () => {
@@ -1830,7 +2060,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "top-0",
       "start-0",
       "w-100",
-      "h-100"
+      "h-100",
     );
     sectionInforme.style.zIndex = "2147483600";
     sectionInforme.style.background = "rgba(255, 255, 255, 0.92)";
@@ -1867,7 +2097,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "top-0",
       "start-0",
       "w-100",
-      "h-100"
+      "h-100",
     );
     sectionInforme.style.zIndex = "";
     sectionInforme.style.background = "";
@@ -1909,18 +2139,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   const CURRENT_MODULE_KEY = "current_module";
   const currentModule = "microbiologia";
   const lastModule = sessionStorage.getItem(CURRENT_MODULE_KEY);
-  
+
   // Siempre limpiar el estado de informe al cargar la página
   // El estado se guardará si el usuario navega dentro del módulo
   sessionStorage.removeItem(INFORME_TAB_KEY);
-  
+
   // Guardar módulo actual
   sessionStorage.setItem(CURRENT_MODULE_KEY, currentModule);
 
   if (btnNuevoInforme) {
     btnNuevoInforme.addEventListener("click", () => {
       if (!(currentMicrobiologiaId || microbiologiaId)) {
-        mostrarEstadoInforme("Selecciona una muestra antes de crear un informe.", "warning");
+        mostrarEstadoInforme(
+          "Selecciona una muestra antes de crear un informe.",
+          "warning",
+        );
         return;
       }
       mostrarPanelNuevoInformeMicrobiologia(true);
@@ -1929,13 +2162,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (microbiologiaInformeImagen) {
     microbiologiaInformeImagen.addEventListener("change", () => {
-      const file = microbiologiaInformeImagen.files && microbiologiaInformeImagen.files[0];
+      const file =
+        microbiologiaInformeImagen.files && microbiologiaInformeImagen.files[0];
       if (!file) {
         actualizarPreviewInformeMicrobiologia("");
         return;
       }
       const reader = new FileReader();
-      reader.onload = () => actualizarPreviewInformeMicrobiologia(reader.result || "");
+      reader.onload = () =>
+        actualizarPreviewInformeMicrobiologia(reader.result || "");
       reader.readAsDataURL(file);
     });
   }
@@ -1958,7 +2193,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   tipo_microbiologias.addEventListener("change", async () => {
     mostrarEstadoSinSeleccion();
     // Si está vacío o es "Todos", cargar todo
-    if (!tipo_microbiologias.value || tipo_microbiologias.value === "" || tipo_microbiologias.value === "*") {
+    if (
+      !tipo_microbiologias.value ||
+      tipo_microbiologias.value === "" ||
+      tipo_microbiologias.value === "*"
+    ) {
       if (numMicrobiologia) numMicrobiologia.value = "";
       if (fechainicio) fechainicio.value = "";
       if (fechafin) fechafin.value = "";
@@ -1984,7 +2223,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       tipo_microbiologias.value = "";
       return;
     }
-    
+
     // Si selecciona un número específico, limpiar el filtro de tipo
     tipo_microbiologias.value = "";
     const respuesta = await cargarPorNumero();
@@ -2047,7 +2286,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  modificarMicrobiologia.addEventListener("submit", modificarMicrobiologiaUpdate);
+  modificarMicrobiologia.addEventListener(
+    "submit",
+    modificarMicrobiologiaUpdate,
+  );
 
   eliminarMicrobiologiaModal.addEventListener("show.bs.modal", (event) => {
     microbiologiaId = event.relatedTarget.dataset.id || microbiologiaId;
@@ -2141,7 +2383,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const cerrarModalDetalleSiAbierto = () => {
-    if (!modaldetalleMuestra || !modaldetalleMuestra.classList.contains("showmodal")) {
+    if (
+      !modaldetalleMuestra ||
+      !modaldetalleMuestra.classList.contains("showmodal")
+    ) {
       return;
     }
     modaldetalleMuestra.classList.add("hidemodal");
@@ -2224,7 +2469,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (muestra__img) {
     muestra__img.addEventListener("click", async (event) => {
       if (event.target.nodeName === "IMG") {
-        if (typeof visor__img !== 'undefined') visor__img.src = event.target.src;
+        if (typeof visor__img !== "undefined")
+          visor__img.src = event.target.src;
         imageId = event.target.id;
       }
       if (event.target.nodeName === "I") aniadirImagenMuestra();
@@ -2248,7 +2494,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Lectura código QR del análisis (ahora se maneja inline en la plantilla para mayor fiabilidad)
 
-
   input__consultarqr?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -2262,8 +2507,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Impresión QR principal y de análisis
   btn__imprimrqr?.addEventListener("click", () => imprimirQR("microbiologia"));
-  btn__imprimrqrAlt?.addEventListener("click", () => imprimirQR("microbiologia"));
-  btn__imprimirqrmuestra?.addEventListener("click", () => imprimirQR("muestra"));
+  btn__imprimrqrAlt?.addEventListener("click", () =>
+    imprimirQR("microbiologia"),
+  );
+  btn__imprimirqrmuestra?.addEventListener("click", () =>
+    imprimirQR("muestra"),
+  );
 
   // Guardar Informe de Resultados
   const guardarInformeMedico = async () => {
@@ -2272,7 +2521,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!currentMicrobiologiaId) {
       console.error("ERROR: No hay microbiologiaId seleccionado");
-      mostrarEstadoInforme("Selecciona una cita para guardar el informe.", "warning");
+      mostrarEstadoInforme(
+        "Selecciona una cita para guardar el informe.",
+        "warning",
+      );
       return;
     }
 
@@ -2280,10 +2532,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     cambiarEstadoBotonGuardar(true);
 
     console.log("Datos a enviar:");
-    console.log("- informe_descripcion:", microbiologiaInformeDescripcion.value);
+    console.log(
+      "- informe_descripcion:",
+      microbiologiaInformeDescripcion.value,
+    );
     console.log("- informe_fecha:", microbiologiaInformeFecha.value);
     console.log("- informe_tincion:", microbiologiaInformeTincion.value);
-    console.log("- informe_observaciones:", microbiologiaInformeObservaciones.value);
+    console.log(
+      "- informe_observaciones:",
+      microbiologiaInformeObservaciones.value,
+    );
 
     const datosReporte = {
       descripcion: microbiologiaInformeDescripcion.value,
@@ -2297,15 +2555,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (microbiologiaInformeImagen.files.length > 0) {
       console.log("Hay imagen para procesar");
       const file = microbiologiaInformeImagen.files[0];
-      console.log("Archivo:", file.name, "Tipo:", file.type, "Tamaño:", file.size);
+      console.log(
+        "Archivo:",
+        file.name,
+        "Tipo:",
+        file.type,
+        "Tamaño:",
+        file.size,
+      );
 
       // Usar una Promise para esperar a que se lea la imagen
       await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-          console.log("Imagen convertida a base64, longitud:", reader.result.length);
-          console.log("Primeros 100 caracteres:", reader.result.substring(0, 100));
+          console.log(
+            "Imagen convertida a base64, longitud:",
+            reader.result.length,
+          );
+          console.log(
+            "Primeros 100 caracteres:",
+            reader.result.substring(0, 100),
+          );
           datosReporte.imagen = reader.result;
           resolve();
         };
@@ -2320,7 +2591,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("datosReporte final antes de enviar:", {
       ...datosReporte,
-      imagen: datosReporte.imagen ? `[BASE64 de ${datosReporte.imagen.length} caracteres]` : null
+      imagen: datosReporte.imagen
+        ? `[BASE64 de ${datosReporte.imagen.length} caracteres]`
+        : null,
     });
 
     await guardarInformeAlBackend(datosReporte);
@@ -2330,12 +2603,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("=== Enviando datos al backend ===");
     console.log("URL:", `/api/informesresultado/`);
     console.log("imagen existe en datosReporte:", "imagen" in datosReporte);
-    console.log("Tamaño de imagen:", datosReporte.imagen ? datosReporte.imagen.length : "null");
+    console.log(
+      "Tamaño de imagen:",
+      datosReporte.imagen ? datosReporte.imagen.length : "null",
+    );
 
     // Para debugging, crear una copia sin la imagen para mostrar
     const datosParaMostrar = {
       ...datosReporte,
-      imagen: datosReporte.imagen ? `[BASE64 de ${datosReporte.imagen.length} caracteres]` : null
+      imagen: datosReporte.imagen
+        ? `[BASE64 de ${datosReporte.imagen.length} caracteres]`
+        : null,
     };
     console.log("Datos (sin imagen completa):", datosParaMostrar);
 
@@ -2366,7 +2644,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("Error de fetch:", error);
-      mostrarEstadoInforme("Error al guardar el informe de resultados.", "danger");
+      mostrarEstadoInforme(
+        "Error al guardar el informe de resultados.",
+        "danger",
+      );
     } finally {
       cambiarEstadoBotonGuardar(false);
     }
