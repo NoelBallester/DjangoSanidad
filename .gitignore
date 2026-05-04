@@ -136,6 +136,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Documentos y scripts Windows
+*.md
+*.bat
+*.txt
 .claude/agents/design/brand-guardian.md
 .claude/agents/design/ui-designer.md
 .claude/agents/design/ux-researcher.md
